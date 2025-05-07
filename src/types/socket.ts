@@ -12,7 +12,7 @@ export type ServerEvents =
     'game_chat' | 'socket_error' | 'game_error';
 export type Events = ClientEvents | ServerEvents;
 
-export type ChannelCreator<T = unknown> = (socket: Socket) => EventChannel<T>;
+export type ChannelCreator<T extends {} = {}> = (socket: Socket) => EventChannel<T>;
 
 /* -------- State -------- */
 

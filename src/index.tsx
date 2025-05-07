@@ -1,11 +1,13 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-
+import { createRoot } from 'react-dom/client';
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
+import 'chessground/assets/chessground.base.css';
+import 'chessground/assets/chessground.brown.css';
+import 'chessground/assets/chessground.cburnett.css';
 import App from 'components/app';
 
 import reducers from './store/reducers';
@@ -15,15 +17,19 @@ import './style.scss';
 
 const sagaMiddleware = createSagaMiddleware();
 
-const store = createStore(reducers, {}, composeWithDevTools(
-  applyMiddleware(sagaMiddleware),
-));
+const store = createStore(
+  reducers,
+  {},
+  composeWithDevTools(applyMiddleware(sagaMiddleware)),
+);
 
 sagaMiddleware.run(rootSaga);
 
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('main'),
-);
+const container = document.getElementById('main');
+if (container) {
+  createRoot(container).render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+}

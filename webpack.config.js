@@ -1,80 +1,92 @@
-var path = require('path');
+
+const path = require('path');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-const env = process.env.NODE_ENV || 'development';
-// set to 'production' or 'development' in your env
-
-const finalCSSLoader = (env === 'production') ? MiniCssExtractPlugin.loader : { loader: 'style-loader' };
+const Dotenv = require('dotenv-webpack');
 const autoprefixer = require('autoprefixer');
 const { DefinePlugin } = require('webpack');
 
+const env = process.env.NODE_ENV || 'development';
+const finalCSSLoader = env === 'production' ? MiniCssExtractPlugin.loader : { loader: 'style-loader' };
+
 module.exports = {
   mode: env,
-  output: { publicPath: '/' },
-  entry: ['./src'], // this is where our app lives
-  devtool: 'source-map', // this enables debugging with source in chrome devtools
+  entry: './src/index.tsx',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
+    filename: 'bundle.js',
+  },
+  devtool: 'source-map',
   resolve: {
     modules: [
-      path.join(__dirname, "src"),
-      "node_modules"
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'node_modules'),
     ],
-    extensions: ['.tsx', '.ts', '.js']
+    alias: {
+      'chessground/assets': path.resolve(__dirname, 'node_modules/chessground/assets'),
+    },
+    extensions: ['.tsx', '.ts', '.js'],
   },
   module: {
     rules: [
       {
-        test: [/\.js$/, /\.ts$/, /\.tsx$/],
-        exclude: [/node_modules/, /dist/],
+        test: /\.(js|ts|tsx)$/,
+        exclude: /node_modules/,
         use: [
           { loader: 'ts-loader' },
           { loader: 'eslint-loader' },
         ],
       },
-      { test: /\.m?js/, resolve: { fullySpecified: false } },
-      { test: /chess.js/, parser: { amd: false } },
+      { test: /\.m?js$/, resolve: { fullySpecified: false } },
+      { test: /chess.js$/, parser: { amd: false } },
       {
-        test: /\.s?css/,
+        test: /\.css$/,
         use: [
           finalCSSLoader,
           {
             loader: 'css-loader',
-            options: {
-              sourceMap: true,
-            },
+            options: { sourceMap: true, url: true },
           },
           {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: [
-                  [
-                    'autoprefixer',
-                  ],
-                ],
+                plugins: [['autoprefixer']],
               },
-            },
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
             },
           },
         ],
       },
       {
-        test: /\.(jpe?g|png|gif|svg)$/,
+        test: /\.s[ac]ss$/i,
         use: [
+          finalCSSLoader,
           {
-            loader: 'file-loader',
+            loader: 'css-loader',
+            options: { sourceMap: true },
+          },
+          {
+            loader: 'postcss-loader',
             options: {
-              useRelativePath: true,
-              name: '[name].[ext]',
+              postcssOptions: {
+                plugins: [['autoprefixer']],
+              },
             },
           },
+          {
+            loader: 'sass-loader',
+            options: { sourceMap: true },
+          },
         ],
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg|woff2?|ttf|eot)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name][ext]',
+        },
       },
     ],
   },
@@ -83,21 +95,21 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: './index.html',
-      favicon: './src/assets/logo.svg'
+      favicon: './src/assets/logo.svg',
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: './200.html',
     }),
-    new DefinePlugin({
-      'process.env': {
-        TARGET_ENV: JSON.stringify(process.env.TARGET_ENV),
-      },
-    }),
-    autoprefixer,
+    new Dotenv({ systemvars: true }),
   ],
   devServer: {
     hot: true,
-    historyApiFallback: true
+    historyApiFallback: true,
+    static: {
+      directory: path.join(__dirname, 'public'),
+    },
+    port: 8080,
   },
 };
+;
