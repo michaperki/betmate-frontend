@@ -14,6 +14,7 @@ const mapStateToProps = (state: RootState) => ({
   games: state.game.games,
   showModal: state.game.showModal,
   autoShapes: state.chessground.autoShapes,
+  showAutoShapes: state.chessground.showAutoShapes,
   config: state.chessground.config,
 });
 

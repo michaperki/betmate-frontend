@@ -23,7 +23,7 @@ export function* handleNewGameOdds(action: FetchGameActions | UpdateGameOddsActi
   const { options } = action.payload.pool_wagers.move;
   const gameState: string = yield select((state: RootState) => state.game.games[gameId].state);
 
-  console.log('Dispatching createNewArrows with gameState:', gameState, 'and options:', options);  // Log the game state and options
+  console.log('Dispatching createNewArrows with gameState:', gameState, 'and options:', options);
 
-  yield put<Actions>(createNewArrows(gameState, options));  // Dispatch the action
+  yield put<Actions>(createNewArrows(gameState, options));
 }

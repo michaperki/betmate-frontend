@@ -29,6 +29,7 @@ interface ChessMatchProps {
   showModal: Record<string, boolean>
   config: Config
   autoShapes: DrawShape[];
+  showAutoShapes: boolean;
 }
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
@@ -74,7 +75,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   ...props.config,
                   drawable: {
                     ...props.config.drawable,
-                    autoShapes: props.autoShapes || [],
+                    autoShapes: props.showAutoShapes ? props.autoShapes : [],
                   },
                 }}
               />
