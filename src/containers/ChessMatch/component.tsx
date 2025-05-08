@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router';
 import Chessground from '@react-chess/chessground';
+import { DrawShape } from 'chessground/draw';
 import { Config } from 'chessground/config';
 
 import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
@@ -27,6 +28,7 @@ interface ChessMatchProps {
   games: Record<string, Game>
   showModal: Record<string, boolean>
   config: Config
+  autoShapes: DrawShape[];
 }
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
@@ -40,6 +42,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => { props.leaveGame(gameId); };
   }, []);
 
+  // Log the config and autoShapes to see if the necessary data is being passed
+  console.log('ChessMatch props.config:', props.config);
+  console.log('ChessMatch props.autoShapes:', props.autoShapes);
+
   return !game
     ? <p className="loading-text">Loading</p>
     : (
@@ -52,7 +58,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           <div>
             <PlayerInfo
               icon={playerIconBlack}
-              fen = {game?.state ?? ''}
+              fen={game?.state ?? ''}
               name={game?.player_black?.name}
               elo={game?.player_black?.elo}
               time={game?.time_black}
@@ -64,12 +70,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <Chessground
                 width={450}
                 height={450}
-                config={props.config}
+                config={{
+                  ...props.config,
+                  drawable: {
+                    ...props.config.drawable,
+                    autoShapes: props.autoShapes || [],
+                  },
+                }}
               />
             </div>
             <PlayerInfo
               icon={playerIconWhite}
-              fen = {game?.state ?? ''}
+              fen={game?.state ?? ''}
               name={game?.player_white?.name}
               elo={game?.player_white?.elo}
               time={game?.time_white}

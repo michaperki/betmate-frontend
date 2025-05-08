@@ -34,11 +34,15 @@ export const onLeaveMovePanel = (): Actions => ({
 });
 
 export const createNewArrows = (state: string, moveOptions: string[]): Actions => {
-  const newArrows = (
-    moveOptions
-      .map(getBrush(state))
-      .filter((m): m is DrawShape => !!m)
-  );
+  const newArrows = moveOptions
+    .map((move, i) => {
+      const brush = getBrush(state)(move, i);
+      console.log(`Brush for move ${move}:`, brush);
+      return brush;
+    })
+    .filter((m): m is DrawShape => !!m);
+
+  console.log('Generated Arrows:', newArrows);
 
   return {
     type: 'CG_NEW_ARROWS',

@@ -45,9 +45,11 @@ const chessgroundReducer = (state = initialState, action: Actions): ChessgroundS
       };
 
     case 'CG_NEW_ARROWS':
+      console.log('Updated autoShapes:', action.payload);
       return {
         ...state,
-        autoShapes: state.showAutoShapes ? action.payload : [],
+        autoShapes: action.payload,
+        showAutoShapes: true,
         selected: undefined,
       };
 

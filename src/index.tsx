@@ -5,9 +5,6 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
-import 'chessground/assets/chessground.base.css';
-import 'chessground/assets/chessground.brown.css';
-import 'chessground/assets/chessground.cburnett.css';
 import App from 'components/app';
 
 import reducers from './store/reducers';
