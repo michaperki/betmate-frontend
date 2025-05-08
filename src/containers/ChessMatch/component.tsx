@@ -43,10 +43,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => { props.leaveGame(gameId); };
   }, []);
 
-  // Log the config and autoShapes to see if the necessary data is being passed
-  console.log('ChessMatch props.config:', props.config);
-  console.log('ChessMatch props.autoShapes:', props.autoShapes);
-
   return !game
     ? <p className="loading-text">Loading</p>
     : (

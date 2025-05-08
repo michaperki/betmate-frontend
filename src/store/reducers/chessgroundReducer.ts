@@ -70,7 +70,6 @@ const chessgroundReducer = (
       };
 
     case 'CG_NEW_ARROWS':
-      console.log('Updated baseAutoShapes:', action.payload);
       return {
         ...state,
         autoShapes: [],
