@@ -44,6 +44,10 @@ export const createUpdateGameStateChannel: ChannelCreator<GameUpdateActions> = (
     };
 
     const newOddsHandler = (payload: UpdateGameOddsData) => {
+      console.log('🛰️ [socket] new_odds event received');
+      console.log('🔍 gameId =', payload.gameId);
+      console.log('📦 move options =', payload.pool_wagers?.move?.options);
+
       pushToChannel({
         type: 'UPDATE_GAME_ODDS',
         status: 'SUCCESS',

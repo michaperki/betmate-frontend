@@ -24,6 +24,7 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
           },
         },
       };
+
     case 'FETCH_GAMES':
       return {
         ...state,
@@ -47,6 +48,11 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
     case 'UPDATE_GAME_ODDS':
     case 'UPDATE_GAME_STATE':
     case 'UPDATE_GAME_END':
+      if (action.type === 'UPDATE_GAME_ODDS') {
+        console.log('🧠 reducer [UPDATE_GAME_ODDS]: gameId =', action.payload.gameId);
+        console.log('🧠 reducer [UPDATE_GAME_ODDS]: top move options =', action.payload.pool_wagers?.move?.options);
+      }
+
       return {
         ...state,
         games: {

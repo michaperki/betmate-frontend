@@ -22,7 +22,7 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
   const [panelLoading, setPanelLoading] = useState(false);
   const { id: gameId } = useParams<{ id: string }>();
 
-  const wagersLoading = props.games[gameId]?.pool_wagers?.move.options.length === 0;
+  const wagersLoading = !props.games[gameId]?.pool_wagers?.move?.options?.length;
 
   const handleSubmit = useCallback((wdl: boolean) => (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
