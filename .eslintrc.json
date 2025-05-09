@@ -123,18 +123,21 @@
         "@typescript-eslint/ban-ts-ignore": "off"
     },
     "settings": {
-        "import/resolver": {
-            "node": {
-                "moduleDirectory": [
-                    "node_modules",
-                    "src/"
-                ],
-                "extensions": [
-                    ".tsx",
-                    ".ts",
-                    ".js"
-                ]
-            }
+      "react": {
+        "version": "detect"
+      },
+      "import/resolver": {
+        "node": {
+          "moduleDirectory": [
+            "node_modules",
+            "src/"
+          ],
+          "extensions": [
+            ".tsx",
+            ".ts",
+            ".js"
+          ]
         }
+      }
     }
 }
