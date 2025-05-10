@@ -53,12 +53,27 @@ export const fetchTournamentGame = async (
   roundId: string,
   gameId: string,
 ): Promise<RequestReturnType<TournamentGame>> => {
-  const result = await createBackendAxiosRequest<TournamentGame>({
-    method: 'GET',
-    url: `/tournaments/${tournamentId}/rounds/${roundId}/games/${gameId}`,
-  });
+  // Try the direct game lookup first (which uses the flattened index)
+  try {
+    console.log(`Attempting direct game lookup for gameId: ${gameId}`);
+    const result = await createBackendAxiosRequest<TournamentGame>({
+      method: 'GET',
+      url: `/tournaments/games/${gameId}`,
+    });
 
-  return result;
+    console.log(`Direct game lookup successful for gameId: ${gameId}`);
+    return result;
+  } catch (error) {
+    console.log(`Direct game lookup failed for gameId: ${gameId}, falling back to full path`);
+
+    // Fall back to the full path if the direct lookup fails
+    const result = await createBackendAxiosRequest<TournamentGame>({
+      method: 'GET',
+      url: `/tournaments/${tournamentId}/rounds/${roundId}/games/${gameId}`,
+    });
+
+    return result;
+  }
 };
 
 /**
@@ -66,4 +81,15 @@ export const fetchTournamentGame = async (
  */
 export const getTournamentStreamUrl = (tournamentId: string, roundId: string): string => {
   return `${process.env.ROOT_URL || 'http://localhost:9090'}/tournaments/${tournamentId}/rounds/${roundId}/stream`;
+};
+
+/**
+ * Get the URL for a tournament game's event stream
+ */
+export const getTournamentGameStreamUrl = (
+  tournamentId: string,
+  roundId: string,
+  gameId: string,
+): string => {
+  return `${process.env.ROOT_URL || 'http://localhost:9090'}/tournaments/${tournamentId}/rounds/${roundId}/games/${gameId}/stream`;
 };

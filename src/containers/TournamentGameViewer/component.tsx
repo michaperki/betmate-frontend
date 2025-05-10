@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import TournamentGameViewer from 'components/TournamentGameViewer';
 import { AppState } from 'store/reducers';
 import { fetchGame, clearGame } from 'store/actionCreators/tournamentActionCreators';
-import { getTournamentStreamUrl } from 'store/requests/tournamentRequests';
+import { getTournamentGameStreamUrl } from 'store/requests/tournamentRequests';
 import { TournamentGame } from 'types/tournament';
 import './style.scss';
 
@@ -37,6 +37,11 @@ const TournamentGameViewerContainer: React.FC<TournamentGameViewerContainerProps
   // Fetch game data when the component mounts
   useEffect(() => {
     if (tournamentId && roundId && gameId) {
+      console.log('DEBUG - TournamentGameViewer: Fetching tournament game with:', {
+        tournamentId,
+        roundId,
+        gameId,
+      });
       fetchGameAction(tournamentId, roundId, gameId);
     }
 
@@ -51,10 +56,14 @@ const TournamentGameViewerContainer: React.FC<TournamentGameViewerContainerProps
     history.push(`/tournaments/${tournamentId}`);
   };
 
-  // Get stream URL for live games
-  const streamUrl = tournamentId && roundId && game?.status === 'started'
-    ? getTournamentStreamUrl(tournamentId, roundId)
+  // Get game-specific stream URL for live games
+  const streamUrl = tournamentId && roundId && gameId && game?.status === 'started'
+    ? getTournamentGameStreamUrl(tournamentId, roundId, gameId)
     : undefined;
+
+  if (streamUrl) {
+    console.log('DEBUG - TournamentGameViewer: Using game stream URL:', streamUrl);
+  }
 
   return (
     <div className="tournament-game-viewer-container">

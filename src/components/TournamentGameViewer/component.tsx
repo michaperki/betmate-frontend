@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { Chess } from 'chess.js';
+import Chessground from '@react-chess/chessground';
+import { Config } from 'chessground/config';
+import { DrawShape } from 'chessground/draw';
+import { Key } from 'chessground/types';
+import { GameStatus } from 'types/resources/game';
 import { TournamentGame } from 'types/tournament';
+import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
+import playerIconBlack from 'assets/player_icon_black.svg';
+import playerIconWhite from 'assets/player_icon_white.svg';
 import LoadingIcon from '../LoadingIcon';
 import './style.scss';
 
-// Import chess.js for move validation and pgn parsing
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Chess = require('chess.js');
+// Update TournamentGame interface to include moves property
+interface ExtendedTournamentGame extends TournamentGame {
+  moves?: string[];
+  updated_at?: string;
+}
 
 interface TournamentGameViewerProps {
-  game: TournamentGame | null;
+  game: ExtendedTournamentGame | null;
   loading: boolean;
   error: string | null;
   onBack: () => void;
@@ -17,6 +28,7 @@ interface TournamentGameViewerProps {
 
 /**
  * Component for viewing a tournament game with chessboard
+ * Uses the same interface as the ChessMatch component for consistency
  */
 const TournamentGameViewer: React.FC<TournamentGameViewerProps> = ({
   game,
@@ -25,82 +37,143 @@ const TournamentGameViewer: React.FC<TournamentGameViewerProps> = ({
   onBack,
   streamUrl,
 }) => {
-  const [, setChessInstance] = useState<any>(new Chess());
-  const [fen, setFen] = useState<string>('start');
+  const [chess] = useState(new Chess());
+  const [fen, setFen] = useState('start');
   const [moves, setMoves] = useState<string[]>([]);
-  const [currentMoveIndex, setCurrentMoveIndex] = useState<number>(-1);
-  const [streaming, setStreaming] = useState<boolean>(false);
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
+  const [streaming, setStreaming] = useState(false);
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
+  const [lastMove, setLastMove] = useState<Key[]>([]);
+  const [autoShapes] = useState<DrawShape[]>([]);
+  const [config] = useState<Config>({
+    coordinates: true,
+    viewOnly: true,
+    orientation: 'white',
+    disableContextMenu: true,
+    highlight: {
+      lastMove: true,
+      check: true,
+    },
+    movable: {
+      free: false,
+      color: undefined,
+      dests: new Map(),
+      showDests: true,
+    },
+    drawable: {
+      enabled: false,
+      visible: true,
+      defaultSnapToValidMove: true,
+      autoShapes: [],
+    },
+  });
 
   // Initialize the chess board when the game changes
   useEffect(() => {
     if (game && game.pgn) {
-      const chessInstance = new Chess();
       try {
-        chessInstance.load_pgn(game.pgn);
-        setChessInstance(chessInstance);
-        setFen(chessInstance.fen());
+        chess.reset();
+        chess.load_pgn(game.pgn);
+        setFen(chess.fen());
 
-        // Extract moves from the pgn
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const moveHistory: any[] = [];
-        const tempChess = new Chess();
-        const historyMoves = chessInstance.history();
-        for (let i = 0; i < historyMoves.length; i += 1) {
-          tempChess.move(historyMoves[i]);
-          moveHistory.push({
-            san: historyMoves[i],
-            fen: tempChess.fen(),
-          });
+        // Extract moves and set last move
+        const historyMoves = chess.history({ verbose: true });
+        setMoves(chess.history());
+
+        // Set the last move for highlighting
+        if (historyMoves.length > 0) {
+          const lastMoveInfo = historyMoves[historyMoves.length - 1];
+          setLastMove([lastMoveInfo.from as Key, lastMoveInfo.to as Key]);
         }
 
-        setMoves(historyMoves);
-        setCurrentMoveIndex(historyMoves.length - 1);
+        setCurrentMoveIndex(chess.history().length - 1);
       } catch (e) {
         console.error('Error loading PGN:', e);
       }
-    } else if (game) {
-      // If we have a game but no PGN, set up the initial position
-      const chessInstance = new Chess();
-      if (game.fen) {
-        try {
-          chessInstance.load(game.fen);
-        } catch (e) {
-          console.error('Error loading FEN:', e);
+    } else if (game && game.fen) {
+      try {
+        chess.reset();
+        chess.load(game.fen);
+
+        // Extract moves if available
+        if (game.moves && Array.isArray(game.moves)) {
+          // Apply the moves
+          game.moves.forEach((move) => {
+            try {
+              chess.move(move);
+            } catch (moveError) {
+              console.error('Error applying move:', move, moveError);
+            }
+          });
+
+          // Set last move if any moves were applied
+          const history = chess.history({ verbose: true });
+          if (history.length > 0) {
+            const lastMoveInfo = history[history.length - 1];
+            setLastMove([lastMoveInfo.from as Key, lastMoveInfo.to as Key]);
+          }
         }
+
+        setFen(chess.fen());
+        setMoves(chess.history());
+        setCurrentMoveIndex(chess.history().length - 1);
+      } catch (e) {
+        console.error('Error loading FEN:', e);
       }
-      setChessInstance(chessInstance);
-      setFen(chessInstance.fen());
-      setMoves([]);
-      setCurrentMoveIndex(-1);
     }
-  }, [game]);
+  }, [game, chess]);
 
   // Set up event source for streaming moves
   useEffect(() => {
     if (streamUrl && game && !streaming) {
       try {
+        console.log('Connecting to stream:', streamUrl);
         const source = new EventSource(streamUrl);
         setEventSource(source);
         setStreaming(true);
 
         source.onmessage = (event) => {
           try {
+            console.log('Received stream data:', event.data);
             const data = JSON.parse(event.data);
 
-            if (data.type === 'move' && data.data && data.data.fen) {
-              // Update the board with the new move
-              const chessInstance = new Chess();
-              chessInstance.load(data.data.fen);
-              setChessInstance(chessInstance);
-              setFen(data.data.fen);
+            // Handle connection confirmation
+            if (data.type === 'connected') {
+              console.log('Stream connected successfully');
+              return;
+            }
 
-              // Add the move to history
-              const history = chessInstance.history();
-              setMoves(history);
-              setCurrentMoveIndex(history.length - 1);
+            // Handle different types of game updates
+            if (data.type === 'move' || data.type === 'update') {
+              // Check if we have FEN data
+              const fenString = data.data?.fen || data.fen;
+
+              if (fenString) {
+                console.log('Received FEN update:', fenString);
+
+                // Update the board with the new position
+                try {
+                  chess.reset();
+                  chess.load(fenString);
+                  setFen(fenString);
+
+                  // Determine the last move by comparing history
+                  const history = chess.history({ verbose: true });
+                  if (history.length > 0) {
+                    const lastMoveInfo = history[history.length - 1];
+                    setLastMove([lastMoveInfo.from as Key, lastMoveInfo.to as Key]);
+                  }
+
+                  // Update move list
+                  setMoves(chess.history());
+                  setCurrentMoveIndex(chess.history().length - 1);
+                } catch (fenError) {
+                  console.error('Error loading streamed FEN:', fenError);
+                }
+              }
             } else if (data.type === 'end') {
               // Game has ended
+              console.log('Game stream ended');
               source.close();
               setStreaming(false);
             }
@@ -116,6 +189,7 @@ const TournamentGameViewer: React.FC<TournamentGameViewerProps> = ({
         };
 
         return () => {
+          console.log('Closing stream connection');
           source.close();
           setStreaming(false);
         };
@@ -126,30 +200,19 @@ const TournamentGameViewer: React.FC<TournamentGameViewerProps> = ({
 
     return () => {
       if (eventSource) {
+        console.log('Cleanup: closing EventSource');
         eventSource.close();
         setStreaming(false);
       }
     };
-  }, [streamUrl, game, streaming]);
+  }, [streamUrl, game, streaming, chess]);
 
-  // Navigate through move history
-  const navigateToMove = (index: number) => {
-    if (index >= -1 && index < moves.length) {
-      const chessInstance = new Chess();
-
-      if (index === -1) {
-        // Initial position
-        setFen(chessInstance.fen());
-      } else {
-        // Play moves up to the selected index
-        for (let i = 0; i <= index; i += 1) {
-          chessInstance.move(moves[i]);
-        }
-        setFen(chessInstance.fen());
-      }
-
-      setCurrentMoveIndex(index);
-    }
+  // Convert tournament game status to Game status
+  const getGameStatus = (status?: string): GameStatus => {
+    if (!status) return GameStatus.NOT_STARTED;
+    if (status === 'started') return GameStatus.IN_PROGRESS;
+    if (status === 'finished') return GameStatus.WHITE_WIN; // Default to WHITE_WIN as a fallback
+    return GameStatus.ABORTED;
   };
 
   // Render loading state
@@ -190,98 +253,66 @@ const TournamentGameViewer: React.FC<TournamentGameViewerProps> = ({
 
   return (
     <div className="tournament-game-viewer">
-      <div className="game-header">
+      <div className="back-button-container">
         <button onClick={onBack} className="back-button">
           &larr; Back to Tournament
         </button>
-        <div className="game-info">
-          <div className="players">
-            <div className="player white">
-              <span className="player-name">{game.players.white.name}</span>
-              {game.players.white.title && (
-                <span className="player-title">{game.players.white.title}</span>
-              )}
-            </div>
-            <div className="vs">vs</div>
-            <div className="player black">
-              <span className="player-name">{game.players.black.name}</span>
-              {game.players.black.title && (
-                <span className="player-title">{game.players.black.title}</span>
-              )}
-            </div>
-          </div>
-          <div className="game-status">
-            {streaming ? (
-              <span className="live-indicator">Live</span>
-            ) : (
-              <span className="status">{game.status}</span>
-            )}
-          </div>
-        </div>
+        {streaming && <span className="streaming-indicator">🔴 LIVE</span>}
       </div>
 
-      <div className="game-board-container">
-        <div className="chessboard">
-          {/*
-            This is a placeholder for a chess board component.
-            We would normally use a library like Chessground or react-chessboard here.
-            For simplicity, we're just showing the FEN string.
-          */}
-          <div className="board-placeholder">
-            <p>Board placeholder - FEN: {fen}</p>
-            <p className="note">
-              Note: In a real implementation, this would be replaced with a proper chessboard component
-              like Chessground or react-chessboard.
-            </p>
+      <div className="chess-match-container">
+        <div className="game-info-container">
+          <h2 className="tournament-title">{game.name || 'Tournament Game'}</h2>
+        </div>
+        <div>
+          <PlayerInfo
+            icon={playerIconBlack}
+            fen={fen}
+            name={game.players?.black?.name}
+            elo={game.players?.black?.rating}
+            time={600} // Default time for tournament games if not available
+            isBlack={true}
+            gameStatus={getGameStatus(game.status)}
+            updatedAt={game.updated_at}
+          />
+          <div className="chessboard">
+            <Chessground
+              width={450}
+              height={450}
+              config={{
+                ...config,
+                fen,
+                lastMove,
+                drawable: {
+                  ...config.drawable,
+                  autoShapes,
+                },
+              }}
+            />
           </div>
+          <PlayerInfo
+            icon={playerIconWhite}
+            fen={fen}
+            name={game.players?.white?.name}
+            elo={game.players?.white?.rating}
+            time={600} // Default time for tournament games if not available
+            isBlack={false}
+            gameStatus={getGameStatus(game.status)}
+            updatedAt={game.updated_at}
+          />
         </div>
 
         <div className="move-history">
           <h3>Moves</h3>
           <div className="moves-list">
-            <button
-              className={currentMoveIndex === -1 ? 'active' : ''}
-              onClick={() => navigateToMove(-1)}
-            >
-              Start
-            </button>
-
             {moves.map((move, index) => (
-              <button
+              <span
                 key={`${move}-${index}`}
-                className={index === currentMoveIndex ? 'active' : ''}
-                onClick={() => navigateToMove(index)}
+                className={index === currentMoveIndex ? 'move active' : 'move'}
               >
-                {index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : ''} {move}
-              </button>
+                {index % 2 === 0 ? `${Math.floor(index / 2) + 1}. ` : ''}{move}{' '}
+              </span>
             ))}
-          </div>
-
-          <div className="navigation">
-            <button
-              onClick={() => navigateToMove(-1)}
-              disabled={currentMoveIndex === -1}
-            >
-              &lt;&lt;
-            </button>
-            <button
-              onClick={() => navigateToMove(currentMoveIndex - 1)}
-              disabled={currentMoveIndex <= -1}
-            >
-              &lt;
-            </button>
-            <button
-              onClick={() => navigateToMove(currentMoveIndex + 1)}
-              disabled={currentMoveIndex >= moves.length - 1}
-            >
-              &gt;
-            </button>
-            <button
-              onClick={() => navigateToMove(moves.length - 1)}
-              disabled={currentMoveIndex >= moves.length - 1}
-            >
-              &gt;&gt;
-            </button>
           </div>
         </div>
       </div>
