@@ -14,6 +14,9 @@ import { authTokenName } from 'utils';
 import UserPage from 'containers/UserPage';
 import Dashboard from '../containers/Dashboard';
 import ChessMatch from '../containers/ChessMatch';
+import TournamentLobby from '../containers/TournamentLobby';
+import TournamentDetail from '../containers/TournamentDetail';
+import TournamentGameViewer from '../containers/TournamentGameViewer';
 import NavBar from './NavBar';
 
 const Welcome = () => {
@@ -54,6 +57,9 @@ const App: React.FC<AppProps> = (props) => {
           <Route exact path="/signup" component={SignUpPanel} />
           <Route exact path="/signout" component={SignOutPanel} />
           <Route exact path="/user" component={UserPage} />
+          <Route exact path="/tournaments" component={TournamentLobby} />
+          <Route exact path="/tournaments/:tournamentId" component={TournamentDetail} />
+          <Route exact path="/tournaments/:tournamentId/rounds/:roundId/games/:gameId" component={TournamentGameViewer} />
           <Route component={FallBack} />
         </Switch>
       </div>

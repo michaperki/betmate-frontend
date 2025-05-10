@@ -6,6 +6,7 @@ import gameReducer from 'store/reducers/gameReducer';
 import leaderboardReducer from 'store/reducers/leaderboardReducer';
 import requestReducer from 'store/reducers/requestReducer';
 import wagerReducer from 'store/reducers/wagerReducer';
+import tournamentReducer from 'store/reducers/tournamentReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -14,6 +15,9 @@ const rootReducer = combineReducers({
   leaderboard: leaderboardReducer,
   requests: requestReducer,
   wager: wagerReducer,
+  tournament: tournamentReducer,
 });
+
+export type AppState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;

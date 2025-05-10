@@ -19,6 +19,9 @@ const NavBar: React.FC<NavBarProps> = (props) => {
         <button>
           <NavLink to="/">home</NavLink>
         </button>
+        <button>
+          <NavLink to="/tournaments">tournaments</NavLink>
+        </button>
         {props.isAuthenticated
           ? (
             <>

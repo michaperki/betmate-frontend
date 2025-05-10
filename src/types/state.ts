@@ -12,14 +12,17 @@ import { GameActions, GameActionTypes, GameState } from 'types/resources/game';
 import { WagerActions, WagerActionTypes, WagerState } from 'types/resources/wager';
 import { CgActions, CgActionTypes, ChessgroundState } from './chessground';
 import { LeaderboardActions, LeaderboardActionTypes, LeaderboardState } from './leaderboard';
+import { TournamentActionTypes, TournamentState } from './tournament';
+import { TournamentActions } from './tournament_actions';
 
 /* -------- Action Types -------- */
 
 export type Actions =
-  AuthActions | GameActions | SocketActions | WagerActions | CgActions | LeaderboardActions;
+  AuthActions | GameActions | SocketActions | WagerActions | CgActions |
+  LeaderboardActions | TournamentActions;
 export type ActionTypes =
   AuthActionTypes | GameActionTypes | SocketActionTypes | WagerActionTypes | CgActionTypes |
-  LeaderboardActionTypes;
+  LeaderboardActionTypes | TournamentActionTypes;
 
 export const REQUEST = 'REQUEST';
 export const SUCCESS = 'SUCCESS';
@@ -56,5 +59,6 @@ export interface RootState {
   game: GameState,
   leaderboard: LeaderboardState,
   requests: RequestState,
-  wager: WagerState
+  wager: WagerState,
+  tournament: TournamentState
 }

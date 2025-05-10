@@ -1,0 +1,113 @@
+.tournament-card {
+  background-color: #2c2f36;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  &.featured {
+    border: 2px solid #ffc702;
+    background-color: #3a3d45;
+    max-width: 650px;
+  }
+  
+  .tournament-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    
+    .tournament-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    
+    .tournament-status {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      
+      &.status-ongoing {
+        background-color: #00B6FF;
+        color: #ffffff;
+      }
+      
+      &.status-upcoming {
+        background-color: #64FF8F;
+        color: #333333;
+      }
+      
+      &.status-finished {
+        background-color: #888888;
+        color: #ffffff;
+      }
+    }
+  }
+  
+  .tournament-description {
+    font-size: 0.9rem;
+    color: #b4b6b9;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .tournament-rounds-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    
+    .rounds-count, .rounds-status {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      
+      span {
+        font-size: 0.9rem;
+        color: #d4d6d9;
+      }
+      
+      .ongoing-rounds {
+        color: #00B6FF;
+      }
+      
+      .upcoming-rounds {
+        color: #64FF8F;
+      }
+      
+      .finished-rounds {
+        color: #b4b6b9;
+      }
+    }
+  }
+  
+  .view-tournament-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffc702;
+    color: #333333;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: #ffcf2f;
+    }
+  }
+}
