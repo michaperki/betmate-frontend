@@ -67,17 +67,11 @@ export const getBrush = (state: string): (move: string, i: number) => DrawShape 
         game.undo();
         const brush = BRUSH_NAMES[i % BRUSH_NAMES.length];
 
-        // Create explicitly formatted DrawShape
+        // Create DrawShape with only the required properties
         const shape: DrawShape = {
           orig: m.from,
           dest: m.to,
           brush,
-          modifiers: { lineWidth: 3 },
-          mouseSq: undefined,
-          orig2: undefined,
-          piece: undefined,
-          customSvg: undefined,
-          dest2: undefined,
         };
 
         return shape;
@@ -87,7 +81,6 @@ export const getBrush = (state: string): (move: string, i: number) => DrawShape 
     } catch (e) {
       // Standard notation failed, trying sloppy
     }
-
     // Second attempt - sloppy notation
     try {
       const m = game.move(move, { sloppy: true });
@@ -96,17 +89,11 @@ export const getBrush = (state: string): (move: string, i: number) => DrawShape 
         game.undo();
         const brush = BRUSH_NAMES[i % BRUSH_NAMES.length];
 
-        // Create explicitly formatted DrawShape
+        // Create DrawShape with only the required properties
         const shape: DrawShape = {
           orig: m.from,
           dest: m.to,
           brush,
-          modifiers: { lineWidth: 3 },
-          mouseSq: undefined,
-          orig2: undefined,
-          piece: undefined,
-          customSvg: undefined,
-          dest2: undefined,
         };
 
         return shape;
