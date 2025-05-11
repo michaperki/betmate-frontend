@@ -32,6 +32,7 @@ interface ChessMatchProps {
   onLeaveMovePanel: any;
   onMoveHover: any;
   onMoveUnhover: any;
+  createNewArrows: any; // Using any for consistency with other action creators
   games: Record<string, Game>;
   showModal: Record<string, boolean>;
   config: Config;
@@ -46,6 +47,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const game: Game | undefined = props.games[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     props.fetchGameById(gameId);
@@ -116,9 +118,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     ...props.config,
                     coordinates: true,
                     viewOnly: true,
+                    fen: game?.state,
+                    lastMove: game?.move_hist?.length > 0
+                      ? [game.move_hist[game.move_hist.length - 1].from, game.move_hist[game.move_hist.length - 1].to]
+                      : undefined,
                     drawable: {
-                      ...props.config.drawable,
-                      autoShapes: props.showAutoShapes ? props.autoShapes : [],
+                      enabled: true,
+                      visible: true,
+                      defaultSnapToValidMove: true,
+                      autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
+                      eraseOnClick: false,
                     },
                   }}
                 />
@@ -148,6 +157,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               onLeaveMovePanel={props.onLeaveMovePanel}
               onMoveHover={props.onMoveHover}
               onMoveUnhover={props.onMoveUnhover}
+              createNewArrows={props.createNewArrows}
             />
           </div>
         </div>

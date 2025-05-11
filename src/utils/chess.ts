@@ -44,20 +44,81 @@ export const getFromTo = (state: string, move: string): FromTo => {
 const BRUSH_NAMES = ['green', 'red', 'blue', 'yellow'];
 
 export const getBrush = (state: string): (move: string, i: number) => DrawShape | null => {
+  if (!state) {
+    console.error('Invalid state passed to getBrush');
+    return () => null;
+  }
+
+  // Create a fresh chess instance for each state
   const game = chess(state);
 
   return (move: string, i: number): DrawShape | null => {
-    const m = game.move(move);
-    game.undo();
-    if (!m) {
+    if (!move) {
+      console.error('Invalid move passed to getBrush');
       return null;
     }
-    const brush = BRUSH_NAMES[i % BRUSH_NAMES.length];
-    return {
-      orig: m.from,
-      dest: m.to,
-      brush,
-    } as DrawShape;
+
+
+    // First attempt - standard notation
+    try {
+      const m = game.move(move);
+
+      if (m) {
+        game.undo();
+        const brush = BRUSH_NAMES[i % BRUSH_NAMES.length];
+
+        // Create explicitly formatted DrawShape
+        const shape: DrawShape = {
+          orig: m.from,
+          dest: m.to,
+          brush,
+          modifiers: { lineWidth: 3 },
+          mouseSq: undefined,
+          orig2: undefined,
+          piece: undefined,
+          customSvg: undefined,
+          dest2: undefined,
+        };
+
+        return shape;
+      }
+
+      game.undo(); // Make sure to undo even failed moves to reset state
+    } catch (e) {
+      // Standard notation failed, trying sloppy
+    }
+
+    // Second attempt - sloppy notation
+    try {
+      const m = game.move(move, { sloppy: true });
+
+      if (m) {
+        game.undo();
+        const brush = BRUSH_NAMES[i % BRUSH_NAMES.length];
+
+        // Create explicitly formatted DrawShape
+        const shape: DrawShape = {
+          orig: m.from,
+          dest: m.to,
+          brush,
+          modifiers: { lineWidth: 3 },
+          mouseSq: undefined,
+          orig2: undefined,
+          piece: undefined,
+          customSvg: undefined,
+          dest2: undefined,
+        };
+
+        return shape;
+      }
+
+      game.undo();
+    } catch (e2) {
+      console.error('All move parsing attempts failed for:', move, e2);
+    }
+
+    // If we get here, all attempts failed
+    return null;
   };
 };
 

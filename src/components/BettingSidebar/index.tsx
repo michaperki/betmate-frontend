@@ -8,6 +8,7 @@ import {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
+  createNewArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
 import { Rank } from 'types/leaderboard';
 import MiniLeaderboard from './MiniLeaderboard';
@@ -24,6 +25,7 @@ interface BettingSidebarProps {
   onLeaveMovePanel?: typeof onLeaveMovePanel;
   onMoveHover?: typeof onMoveHover;
   onMoveUnhover?: typeof onMoveUnhover;
+  createNewArrows?: typeof createNewArrows;
 }
 
 const STAKE_OPTIONS = [10, 50, 100];
@@ -37,10 +39,15 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   onLeaveMovePanel: handleLeaveMovePanel,
   onMoveHover: handleMoveHover,
   onMoveUnhover: handleMoveUnhover,
+  createNewArrows: handleCreateNewArrows,
 }) => {
   const { id: gameId } = useParams<{ id: string }>();
   const [selectedStake, setSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
   const [activeTab, setActiveTab] = useState<'move' | 'outcome'>('move');
+
+  // Define game and moveOptions first to avoid "used before defined" errors
+  const game = games[gameId];
+  const moveOptions = game?.pool_wagers?.move?.options || [];
 
   // Trigger appropriate events when tab changes
   React.useEffect(() => {
@@ -52,13 +59,25 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
     // Then trigger the appropriate panel entry/exit
     if (activeTab === 'move' && handleEnterMovePanel) {
       handleEnterMovePanel();
+
+      // Ensure arrows are generated when the tab is active
+      if (game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
+        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
+      }
     } else if (activeTab === 'outcome' && handleLeaveMovePanel) {
       handleLeaveMovePanel();
     }
-  }, [activeTab, handleEnterMovePanel, handleLeaveMovePanel, handleMoveUnhover]);
+  }, [activeTab, handleEnterMovePanel, handleLeaveMovePanel, handleMoveUnhover, handleCreateNewArrows, game]);
 
-  const game = games[gameId];
-  const moveOptions = game?.pool_wagers?.move?.options || [];
+  // Generate arrows when game data becomes available and we're on the move tab
+  React.useEffect(() => {
+    if (activeTab === 'move' && game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
+      // Force a slight delay to ensure the state is ready
+      setTimeout(() => {
+        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
+      }, 100);
+    }
+  }, [game, handleCreateNewArrows, activeTab]);
   // Ensure moveOptions is properly typed
   const typedMoveOptions: Array<{ move: string; odds: number }> = Array.isArray(moveOptions)
     ? moveOptions.map((move) => (typeof move === 'string' ? { move, odds: 1 } : move))

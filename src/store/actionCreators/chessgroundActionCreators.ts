@@ -21,11 +21,14 @@ export const newMove = (state: string, moveHist: Move[]): Actions => {
   };
 };
 
-export const onEnterMovePanel = (): Actions => ({
-  type: 'CG_ENTER_MOVE_PANEL',
-  status: 'SUCCESS',
-  payload: {},
-});
+export const onEnterMovePanel = (): Actions => {
+  console.log('onEnterMovePanel called');
+  return {
+    type: 'CG_ENTER_MOVE_PANEL',
+    status: 'SUCCESS',
+    payload: {},
+  };
+};
 
 export const onLeaveMovePanel = (): Actions => ({
   type: 'CG_LEAVE_MOVE_PANEL',

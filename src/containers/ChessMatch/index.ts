@@ -8,6 +8,7 @@ import {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
+  createNewArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
 import { RootState } from 'types/state';
 
@@ -36,6 +37,7 @@ const mapDispatchToProps = {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
+  createNewArrows,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChessMatch);

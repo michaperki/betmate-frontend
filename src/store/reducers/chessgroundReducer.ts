@@ -14,30 +14,33 @@ const initialState: ExtendedChessgroundState = {
       check: true,
     },
     drawable: {
+      enabled: true,
+      visible: true,
+      defaultSnapToValidMove: true,
       brushes: {
         green: {
           key: 'g',
           color: '#00ff00',
-          opacity: 0.5,
-          lineWidth: 10,
+          opacity: 1.0,
+          lineWidth: 12,
         },
         red: {
           key: 'r',
           color: '#ff0000',
-          opacity: 0.5,
-          lineWidth: 10,
+          opacity: 1.0,
+          lineWidth: 12,
         },
         blue: {
           key: 'b',
           color: '#0000ff',
-          opacity: 0.5,
-          lineWidth: 10,
+          opacity: 1.0,
+          lineWidth: 12,
         },
         yellow: {
           key: 'y',
           color: '#ffff00',
-          opacity: 0.5,
-          lineWidth: 10,
+          opacity: 1.0,
+          lineWidth: 12,
         },
       },
     },
@@ -72,9 +75,9 @@ const chessgroundReducer = (
     case 'CG_NEW_ARROWS':
       return {
         ...state,
-        autoShapes: [],
+        autoShapes: action.payload, // Immediately set autoShapes too
         baseAutoShapes: action.payload,
-        showAutoShapes: false,
+        showAutoShapes: true, // Force showAutoShapes to true
         selected: undefined,
       };
 
