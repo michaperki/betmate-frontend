@@ -1,0 +1,39 @@
+/* Global styles for the chessboard wrapper - NOT a CSS module */
+.chessboard-wrapper {
+  width: 100%;
+  max-width: 380px;      /* desktop cap */
+  aspect-ratio: 1/1;     /* creates square height immediately */
+  position: relative;
+  margin: auto;
+}
+
+/* Position the immediate div child of the wrapper */
+.chessboard-wrapper > div {
+  position: absolute;
+  inset: 0;              /* top: 0; right: 0; bottom: 0; left: 0; */
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure cg-wrap inherits the correct dimensions */
+.cg-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+/* Alternative approach using padding trick if aspect-ratio isn't supported */
+@supports not (aspect-ratio: 1/1) {
+  .chessboard-wrapper {
+    position: relative;
+  }
+  .chessboard-wrapper::before {
+    content: '';
+    display: block;
+    padding-top: 100%;   /* creates square */
+  }
+}
+
+/* Ensure brown theme is applied */
+.cg-wrap.brown {
+  background-image: none !important; /* Prevent background conflict */
+}

@@ -1,41 +1,51 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import Chessground from '@react-chess/chessground';
 import { DrawShape } from 'chessground/draw';
 import { Config } from 'chessground/config';
-
 import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
-import WagerPanel from 'components/WagerPanel';
-import NavBar from 'components/NavBar';
-import ChatBox from 'components/ChatBox';
+import BettingSidebar from 'components/BettingSidebar';
+import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
-
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById } from 'store/actionCreators/gameActionCreators';
+import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { gameOver } from 'utils/chess';
-
 import { Game, GameStatus } from 'types/resources/game';
+import { Rank } from 'types/leaderboard';
 import playerIconBlack from 'assets/player_icon_black.svg';
 import playerIconWhite from 'assets/player_icon_white.svg';
+import logoSvg from 'assets/logo.svg';
 
-import './style.scss';
+import 'chessground/assets/chessground.base.css';
+import 'chessground/assets/chessground.brown.css';
+import 'chessground/assets/chessground.cburnett.css';
+import './dark-style.scss';
 
 interface ChessMatchProps {
-  joinGame: typeof joinGame
-  leaveGame: typeof leaveGame
-  fetchGameById: typeof fetchGameById
-  games: Record<string, Game>
-  showModal: Record<string, boolean>
-  config: Config
+  joinGame: typeof joinGame;
+  leaveGame: typeof leaveGame;
+  fetchGameById: typeof fetchGameById;
+  createWager: typeof createWager;
+  onEnterMovePanel: any; // Using any to bypass type incompatibility
+  onLeaveMovePanel: any;
+  onMoveHover: any;
+  onMoveUnhover: any;
+  games: Record<string, Game>;
+  showModal: Record<string, boolean>;
+  config: Config;
   autoShapes: DrawShape[];
   showAutoShapes: boolean;
+  isAuthenticated: boolean;
+  balance: number | undefined;
+  rankings: Rank[];
 }
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
-
   const game: Game | undefined = props.games[gameId];
+  const groundWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     props.fetchGameById(gameId);
@@ -43,16 +53,50 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => { props.leaveGame(gameId); };
   }, []);
 
-  return !game
-    ? <p className="loading-text">Loading</p>
-    : (
-      <>
-        {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
-        {gameOver(game.game_status as GameStatus) && <PostgameModal/>}
-        <NavBar />
-        <div className='chess-match-container'>
-          <ChatBox />
-          <div>
+  useEffect(() => {
+    // Set up polling for game updates
+    const pollInterval = setInterval(() => {
+      props.fetchGameById(gameId);
+    }, 10000);
+
+    return () => clearInterval(pollInterval);
+  }, [gameId, props.fetchGameById]);
+
+  // Trigger window resize to ensure proper board layout
+  useEffect(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, []);
+
+  if (!game) {
+    return (
+      <div className="loading-container">
+        <div className="loading-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
+      {gameOver(game.game_status as GameStatus) && <PostgameModal/>}
+
+      <div className="dark-game-page">
+        {/* Top navigation bar */}
+        <div className="top-nav">
+          <div className="logo-container">
+            <img src={logoSvg} alt="BetMate" className="logo" />
+            <h1 className="logo-text">BetMate</h1>
+          </div>
+
+          {props.isAuthenticated && (
+            <CoinBalance balance={props.balance} />
+          )}
+        </div>
+
+        {/* Main content area */}
+        <div className="game-content">
+          {/* Left column - Chessboard */}
+          <div className="board-container">
             <PlayerInfo
               icon={playerIconBlack}
               fen={game?.state ?? ''}
@@ -63,19 +107,24 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
               updatedAt={game?.updated_at}
             />
-            <div className='chessboard'>
-              <Chessground
-                width={450}
-                height={450}
-                config={{
-                  ...props.config,
-                  drawable: {
-                    ...props.config.drawable,
-                    autoShapes: props.showAutoShapes ? props.autoShapes : [],
-                  },
-                }}
-              />
+
+            <div className="game-layout">
+              <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
+                <Chessground
+                  contained
+                  config={{
+                    ...props.config,
+                    coordinates: true,
+                    viewOnly: true,
+                    drawable: {
+                      ...props.config.drawable,
+                      autoShapes: props.showAutoShapes ? props.autoShapes : [],
+                    },
+                  }}
+                />
+              </div>
             </div>
+
             <PlayerInfo
               icon={playerIconWhite}
               fen={game?.state ?? ''}
@@ -87,10 +136,24 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               updatedAt={game?.updated_at}
             />
           </div>
-          <WagerPanel />
+
+          {/* Right column - Betting sidebar */}
+          <div className="sidebar-container">
+            <BettingSidebar
+              isAuthenticated={props.isAuthenticated}
+              games={props.games}
+              createWager={props.createWager}
+              rankings={props.rankings}
+              onEnterMovePanel={props.onEnterMovePanel}
+              onLeaveMovePanel={props.onLeaveMovePanel}
+              onMoveHover={props.onMoveHover}
+              onMoveUnhover={props.onMoveUnhover}
+            />
+          </div>
         </div>
-      </>
-    );
+      </div>
+    </>
+  );
 };
 
 export default ChessMatch;

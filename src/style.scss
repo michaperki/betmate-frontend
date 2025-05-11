@@ -1,9 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-
+// Minimal styles for the application skeleton
 body, html {
     font-family: "Roboto", sans-serif;
     height: 100%;
     margin: 0;
-    background-color: #1E1E22;
+    background-color: #050505; // Dark theme background
+}
+
+// Chess components styles - these are required for the chess board to display correctly
+.cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+  display: block;
+}
+
+.cg-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+  display: block;
+}
+
+.cg-board {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+// Make sure the squares are properly displayed
+.cg-board square {
+  width: 12.5% !important;
+  height: 12.5% !important;
+}
+
+// Preserve existing styles for components we haven't migrated yet
+.auth-panel-container {
+  background-image: url('./assets/auth/background.svg');
+  background-size: cover;
+  background-position: bottom;
+  height: 100vh;
+  padding-top: 4%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }

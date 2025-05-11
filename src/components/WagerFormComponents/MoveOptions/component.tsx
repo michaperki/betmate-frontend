@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router';
+import { Chess } from 'chess.js';
 import { VerticalBar } from 'components/WagerPanel/helper_components';
-import { onMoveHover, onMoveUnhover } from 'store/actionCreators/chessgroundActionCreators';
 import { Game } from 'types/resources/game';
 import { moveOptionColors } from 'utils/config';
 
@@ -10,8 +10,8 @@ interface MoveOptionsProps {
   handleSubmit: (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
   games: Record<string, Game>
   isAuthenticated: boolean
-  onMoveHover: typeof onMoveHover
-  onMoveUnhover: typeof onMoveUnhover
+  onMoveHover: (shapes: Array<{ orig: string; dest: string }>) => void
+  onMoveUnhover: () => void
 }
 
 const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
@@ -47,7 +47,17 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
           key={move}
           className={`move-option ${props.isAuthenticated ? 'move-auth' : ''}`}
           style={{ borderColor: props.isAuthenticated ? moveOptionColors[i] : 'grey' }}
-          onMouseEnter={() => props.onMoveHover(props.games[gameId].state, move)}
+          onMouseEnter={() => {
+            const chess = new Chess(props.games[gameId].state);
+            try {
+              const moveObj = chess.move(move, { sloppy: true });
+              if (moveObj && props.onMoveHover) {
+                props.onMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
+              }
+            } catch (e) {
+              console.error('Invalid move', e);
+            }
+          }}
           onMouseLeave={props.onMoveUnhover}
           onClick={props.handleSubmit(move)}
         >

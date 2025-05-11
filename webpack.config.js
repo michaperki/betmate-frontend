@@ -1,4 +1,3 @@
-
 const path = require('path');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -43,44 +42,140 @@ module.exports = {
       { test: /chess.js$/, parser: { amd: false } },
       {
         test: /\.css$/,
-        use: [
-          finalCSSLoader,
+        oneOf: [
+          // Style for CSS Modules (.module.css files)
           {
-            loader: 'css-loader',
-            options: { sourceMap: true, url: true },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [['autoprefixer']],
+            test: /\.module\.css$/,
+            use: [
+              finalCSSLoader,
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true,
+                  url: true,
+                  modules: true
+                },
               },
-            },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      'tailwindcss',
+                      'autoprefixer',
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          // Styles from node_modules especially chessground
+          {
+            test: /node_modules\/chessground\/assets\/.+\.css$/,
+            use: [
+              finalCSSLoader,
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true,
+                  url: true,
+                  modules: false // Disable CSS modules for chessground
+                },
+              },
+            ],
+          },
+          // Global styles (non-module)
+          {
+            use: [
+              finalCSSLoader,
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true,
+                  url: true,
+                  modules: false
+                },
+              },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      'tailwindcss',
+                      'autoprefixer',
+                    ],
+                  },
+                },
+              },
+            ],
           },
         ],
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [
-          finalCSSLoader,
+        oneOf: [
+          // Style for SCSS Modules (.module.scss files)
           {
-            loader: 'css-loader',
-            options: { sourceMap: true },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [['autoprefixer']],
+            test: /\.module\.s[ac]ss$/i,
+            use: [
+              finalCSSLoader,
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true,
+                  modules: true
+                },
               },
-            },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      'tailwindcss',
+                      'autoprefixer',
+                    ],
+                  },
+                },
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true,
+                  implementation: require('sass'),
+                },
+              },
+            ],
           },
+          // Global SCSS styles (non-module)
           {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
-              implementation: require('sass'),
-            },
+            use: [
+              finalCSSLoader,
+              {
+                loader: 'css-loader',
+                options: {
+                  sourceMap: true,
+                  modules: false
+                },
+              },
+              {
+                loader: 'postcss-loader',
+                options: {
+                  postcssOptions: {
+                    plugins: [
+                      'tailwindcss',
+                      'autoprefixer',
+                    ],
+                  },
+                },
+              },
+              {
+                loader: 'sass-loader',
+                options: {
+                  sourceMap: true,
+                  implementation: require('sass'),
+                },
+              },
+            ],
           },
         ],
       },
@@ -115,4 +210,3 @@ module.exports = {
     port: 8080,
   },
 };
-;

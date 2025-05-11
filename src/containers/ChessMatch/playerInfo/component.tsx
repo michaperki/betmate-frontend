@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { gameOver, gameInProgress } from 'utils/chess';
 import { GameStatus } from 'types/resources/game';
-import './style.scss';
+import './dark-style.scss';
 
 interface ChessMatchProps {
   icon: string,
@@ -20,10 +20,11 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   const blackTurn = props.fen?.split(' ')[1] === 'b';
   const isGameOver = gameOver(props.gameStatus);
   const isGameInProgress = gameInProgress(props.gameStatus);
+  const isPlayerTurn = props.isBlack === blackTurn && isGameInProgress;
   const [timer, setTimer] = useState(setInterval(() => {}, 1000000));
 
   useEffect(() => { // Update timers
-    const doDecrease = playerTime >= 0 && props.isBlack === blackTurn && isGameInProgress;
+    const doDecrease = playerTime >= 0 && isPlayerTurn;
     const [decrease, interval] = (
       !doDecrease ? [0, 1000000]
         : playerTime >= 60 ? [1, 1000]
@@ -44,7 +45,7 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
 
   useEffect(() => { // Update time after every move
     if (props.fen) {
-      const adjustment = playerTime === 0 && (props.isBlack === blackTurn) && isGameInProgress
+      const adjustment = playerTime === 0 && isPlayerTurn
         ? (new Date().getTime() - new Date(props.updatedAt ?? '').getTime()) / 1000
         : 0;
 
@@ -77,16 +78,23 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   };
 
   return (
-    <div className='player-info'>
-      <div className='player-title'>
-        <img className='player-icon' src={props.icon}/>
-        <div className='player-name-container'>
-          <h3 className='player-name'>{props.name} </h3>
-          <p className='player-name'>({props.elo})</p>
+    <div className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''}`}>
+      <div className="player-details">
+        <img
+          src={props.icon}
+          alt={props.isBlack ? 'Black player' : 'White player'}
+          className="player-avatar"
+        />
+        <div className="player-data">
+          <div className="player-name">{props.name || 'Unknown'}</div>
+          {props.elo !== undefined && (
+            <div className="player-elo">{props.elo}</div>
+          )}
         </div>
       </div>
-      <div className={props.isBlack ? 'time-rect black-rect' : 'time-rect white-rect'}>
-        <h3 className='player-time'>{getTimeString(playerTime)}</h3>
+
+      <div className={`player-timer ${isPlayerTurn ? 'active' : ''}`}>
+        {getTimeString(playerTime)}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { DrawShape } from 'chessground/draw';
 
 import { Move } from 'types/resources/game';
 import { Actions } from 'types/state';
-import { getBrush, getFromTo } from 'utils/chess';
+import { getBrush } from 'utils/chess';
 
 export const newMove = (state: string, moveHist: Move[]): Actions => {
   const hasLastMove = moveHist.length > 0;
@@ -48,10 +48,13 @@ export const createNewArrows = (state: string, moveOptions: string[]): Actions =
   };
 };
 
-export const onMoveHover = (state: string, move: string): Actions => ({
+export const onMoveHover = (shapes: Array<{ orig: string; dest: string }>): Actions => ({
   type: 'CG_MOVE_HOVER',
   status: 'SUCCESS',
-  payload: getFromTo(state, move),
+  payload: shapes.length > 0 ? {
+    from: shapes[0].orig,
+    to: shapes[0].dest,
+  } : { from: '', to: '' },
 });
 
 export const onMoveUnhover = (): Actions => ({

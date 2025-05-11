@@ -16,6 +16,48 @@ Front-end:
 - Axios
 - Socket.io
 - Chess.js
+- Tailwind CSS (new in dark theme update)
+
+## New Dark Game Layout Migration
+
+This branch implements a redesigned game page with a modern dark theme, neumorphic elements, and improved betting UI.
+
+### Key Changes
+
+1. **Dark Mode Theme**
+   - Added Tailwind CSS with a custom dark color palette
+   - Implemented neumorphic shadow effects for cards and interactive elements
+   - Consistent green accent color for actions and highlights
+
+2. **Layout Improvements**
+   - Responsive grid layout (board on left, betting panel on right)
+   - Mobile-first design (stacks vertically on small screens)
+   - Improved focus states and accessibility
+
+3. **Betting Interface**
+   - Tab-based interface for Move/Outcome betting
+   - Fixed stake options (10/50/100 tokens)
+   - Clear payout indicators with green highlighting
+   - Mini leaderboard showing top players
+
+4. **Technical Enhancements**
+   - Added Headless UI for accessible tabs
+   - Custom hooks for odds polling
+   - Proper TypeScript types for all components
+   - Reduced bundle size by removing unused UI elements
+
+### Implementation Notes
+
+1. Install added dependencies:
+   ```
+   yarn add @headlessui/react @heroicons/react clsx
+   yarn add -D tailwindcss postcss autoprefixer
+   ```
+
+2. Initialize Tailwind:
+   ```
+   npx tailwindcss init -p
+   ```
 
 ## Developer Information
    To run locally:
@@ -42,6 +84,3 @@ The continuous deployment process is managed by a service called Netlify. To acc
 - This project was built in partnership with Mike Perkins and Benjamin Portheault. The overall design of this site was based off of their vision.
 - Thank you to Tim Tregubov, Lorie Loeb, Natalie Svoboda, and Erica Lobel of DALI Lab for their help, guidance, and advice.
 - Model for writing up this README drawn from https://github.com/dali-lab/911-dispatch/
-
-
-

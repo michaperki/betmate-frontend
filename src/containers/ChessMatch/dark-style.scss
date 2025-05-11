@@ -1,0 +1,189 @@
+// Dark theme styles for the chess match page
+.dark-game-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #050505;
+  color: #F2F2F2;
+  font-family: 'Roboto', sans-serif;
+}
+
+// Top navigation
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #111111;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+  margin-right: 12px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: #00EFB2;
+  display: none;
+  
+  @media (min-width: 640px) {
+    display: block;
+  }
+}
+
+// Main content area
+.game-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 16px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 24px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+.game-layout {
+  display: flex;
+  gap: 24px;
+}
+
+/* Let the board's max-width control its size */
+
+// Board container
+.board-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  
+  @media (min-width: 768px) {
+    width: 60%;
+  }
+}
+
+.chessboard-wrapper{
+  width:100%;
+  max-width:380px;      /* desktop cap */
+  margin:auto;
+  position:relative;
+}
+.chessboard-wrapper::before{
+  content:'';
+  display:block;
+  padding-top:100%;     /* keep perfect square */
+}
+.chessboard-wrapper>.cg-wrap{
+  position:absolute;
+  inset:0;
+}
+/* Override Chessground's inline styles */
+.chessboard-wrapper > div,           /* Target cg-container */
+.chessboard-wrapper .cg-wrap {       /* Target the board itself */
+  width: 100% !important;
+  height: 100% !important;
+}
+/* Ensure cg-container maintains square ratio even if height:0 is set inline */
+.cg-wrap > cg-container {
+  height: 100% !important;
+}
+
+// Sidebar container
+.sidebar-container {
+  display: flex;
+  justify-content: center;
+  
+  @media (min-width: 768px) {
+    width: 40%;
+  }
+}
+
+// Loading state
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #050505;
+}
+
+.loading-pulse {
+  color: #F2F2F2;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Custom styles removed as they conflict with Chessground's built-in responsiveness
+
+// PlayerInfo component styles - only if needed as fallback
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  background-color: #111111;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.player-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+}
+
+.player-title {
+  display: flex;
+  align-items: center;
+}
+
+.player-name-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name {
+  font-size: 14px;
+  margin: 0;
+}
+
+.player-time {
+  margin: 0;
+}
+
+.time-rect {
+  padding: 4px 12px;
+  border-radius: 8px;
+  min-width: 70px;
+  text-align: center;
+  
+  &.black-rect {
+    background-color: #00EFB2;
+    color: #111111;
+  }
+  
+  &.white-rect {
+    background-color: #1E1E1E;
+    color: #F2F2F2;
+  }
+}

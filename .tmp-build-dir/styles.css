@@ -1,0 +1,310 @@
+/* Minimal Tailwind-like CSS for the game layout */
+:root {
+  --bet-dark-950: #050505;
+  --bet-dark-900: #111111;
+  --bet-dark-800: #1E1E1E;
+  --bet-dark-700: #2D2D2D;
+  --bet-dark-600: #3D3D3D;
+  --bet-dark-500: #505050;
+  --bet-green-500: #00EFB2;
+  --bet-green-400: #34F5C5;
+  --bet-green-300: #66FACD;
+  --bet-gray-100: #F2F2F2;
+  --bet-gray-200: #E0E0E0;
+  --bet-gray-300: #BDBDBD;
+}
+
+/* Layout */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.w-10 {
+  width: 2.5rem;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Typography */
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Colors */
+.bg-bet-dark-950 {
+  background-color: var(--bet-dark-950);
+}
+
+.bg-bet-dark-900 {
+  background-color: var(--bet-dark-900);
+}
+
+.bg-bet-dark-800 {
+  background-color: var(--bet-dark-800);
+}
+
+.bg-bet-green-500 {
+  background-color: var(--bet-green-500);
+}
+
+.text-bet-dark-950 {
+  color: var(--bet-dark-950);
+}
+
+.text-bet-gray-100 {
+  color: var(--bet-gray-100);
+}
+
+.text-bet-gray-300 {
+  color: var(--bet-gray-300);
+}
+
+.text-bet-green-500 {
+  color: var(--bet-green-500);
+}
+
+/* Components */
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+.border-bet-dark-700 {
+  border-color: var(--bet-dark-700);
+}
+
+.border-b {
+  border-bottom-width: 1px;
+}
+
+.border-b-2 {
+  border-bottom-width: 2px;
+}
+
+.border-bet-green-500 {
+  border-color: var(--bet-green-500);
+}
+
+/* Chessboard specific */
+.chessboard-container {
+  width: 100%;
+  max-width: 450px;
+  aspect-ratio: 1 / 1;
+}
+
+/* For medium screens and up */
+@media (min-width: 768px) {
+  .md\:flex-row {
+    flex-direction: row;
+  }
+  
+  .md\:w-3\/5 {
+    width: 60%;
+  }
+  
+  .md\:w-2\/5 {
+    width: 40%;
+  }
+  
+  .md\:p-6 {
+    padding: 1.5rem;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .sm\:block {
+    display: block;
+  }
+}
+
+/* Utility */
+.hidden {
+  display: none;
+}
+
+.sm\:block {
+  display: block;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.max-w-screen-xl {
+  max-width: 1280px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* Animations */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Shadow utilities */
+.shadow-neumorphic {
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5), -5px -5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.shadow-neumorphic-inset {
+  box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.5), inset -5px -5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.shadow-bet-green {
+  box-shadow: 0 0 15px 2px rgba(0, 239, 178, 0.5);
+}
+
+/* Other utilities */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-duration: 150ms;
+}
+
+.hover\:bg-bet-dark-700:hover {
+  background-color: var(--bet-dark-700);
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.min-w-\[70px\] {
+  min-width: 70px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}

@@ -11,6 +11,7 @@ import reducers from './store/reducers';
 import rootSaga from './store/sagas';
 
 import './style.scss';
+import './styles/chessboard-global.css';
 
 const sagaMiddleware = createSagaMiddleware();
 
