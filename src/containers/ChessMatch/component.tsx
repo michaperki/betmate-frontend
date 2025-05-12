@@ -48,7 +48,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const game: Game | undefined = props.games[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     props.fetchGameById(gameId);
     props.joinGame(gameId);
@@ -64,10 +63,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => clearInterval(pollInterval);
   }, [gameId, props.fetchGameById]);
 
-  // Trigger window resize to ensure proper board layout
-  useEffect(() => {
-    window.dispatchEvent(new Event('resize'));
-  }, []);
+  // Removed unnecessary resize dispatch as Chessground auto-sizes correctly
 
   if (!game) {
     return (
@@ -120,7 +116,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     viewOnly: true,
                     fen: game?.state,
                     lastMove: game?.move_hist?.length > 0
-                      ? [game.move_hist[game.move_hist.length - 1].from, game.move_hist[game.move_hist.length - 1].to]
+                      ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
                       : undefined,
                     drawable: {
                       enabled: true,
