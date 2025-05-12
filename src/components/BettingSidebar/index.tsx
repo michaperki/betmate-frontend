@@ -44,40 +44,39 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   const { id: gameId } = useParams<{ id: string }>();
   const [selectedStake, setSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
   const [activeTab, setActiveTab] = useState<'move' | 'outcome'>('move');
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Define game and moveOptions first to avoid "used before defined" errors
   const game = games[gameId];
   const moveOptions = game?.pool_wagers?.move?.options || [];
 
-  // Trigger appropriate events when tab changes
+  // First run initializes the component without triggering panel events
   React.useEffect(() => {
+    setHasInitialized(true);
+  }, []);
+
+  // This effect is now only for cleaning up when switching tabs
+  React.useEffect(() => {
+    // Skip the effect on initial render
+    if (!hasInitialized) return;
+
     // First, make sure any existing arrows are cleared
     if (handleMoveUnhover) {
       handleMoveUnhover();
     }
 
-    // Then trigger the appropriate panel entry/exit
-    if (activeTab === 'move' && handleEnterMovePanel) {
-      handleEnterMovePanel();
-
-      // Ensure arrows are generated when the tab is active
-      if (game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
-        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
-      }
-    } else if (activeTab === 'outcome' && handleLeaveMovePanel) {
+    // Only handle leaving the move panel when switching tabs
+    if (activeTab === 'outcome' && handleLeaveMovePanel) {
       handleLeaveMovePanel();
     }
-  }, [activeTab, handleEnterMovePanel, handleLeaveMovePanel, handleMoveUnhover, handleCreateNewArrows, game]);
 
-  // Generate arrows when game data becomes available and we're on the move tab
-  React.useEffect(() => {
-    if (activeTab === 'move' && game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
-      // Force a slight delay to ensure the state is ready
-      setTimeout(() => {
-        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
-      }, 100);
-    }
-  }, [game, handleCreateNewArrows, activeTab]);
+    // We've removed all automatic entry to onEnterMovePanel
+    // Arrows will only appear when mouse physically enters the panel
+  }, [activeTab, handleLeaveMovePanel, handleMoveUnhover, hasInitialized]);
+
+  // We're removing this auto-generate effect entirely
+  // Arrows will now ONLY be created when mouse enters the move panel
+  // via the handleMovePanelMouseEnter function
   // Ensure moveOptions is properly typed
   const typedMoveOptions: Array<{ move: string; odds: number }> = Array.isArray(moveOptions)
     ? moveOptions.map((move) => (typeof move === 'string' ? { move, odds: 1 } : move))
@@ -139,6 +138,27 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
     return (odds * selectedStake).toFixed(1);
   };
 
+  // Handlers for mouse entering/leaving the move panel section
+  const handleMovePanelMouseEnter = () => {
+    if (hasInitialized && activeTab === 'move') {
+      // First trigger the panel entry event
+      if (handleEnterMovePanel) {
+        handleEnterMovePanel();
+      }
+
+      // Then create the arrows for possible moves
+      if (game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
+        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
+      }
+    }
+  };
+
+  const handleMovePanelMouseLeave = () => {
+    if (hasInitialized && activeTab === 'move' && handleLeaveMovePanel) {
+      handleLeaveMovePanel();
+    }
+  };
+
   return (
     <div className="betting-sidebar-container">
       {/* Tab Navigation */}
@@ -162,11 +182,19 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
         {activeTab === 'move' ? (
           /* Move Betting Panel */
           <>
-            <div className="bet-explanation">
+            <div
+              className="bet-explanation"
+              onMouseEnter={handleMovePanelMouseEnter}
+              onMouseLeave={handleMovePanelMouseLeave}
+            >
               Bet on which move will happen next. Win tokens from the pool.
             </div>
 
-            <div className="options-container">
+            <div
+              className="options-container"
+              onMouseEnter={handleMovePanelMouseEnter}
+              onMouseLeave={handleMovePanelMouseLeave}
+            >
               {typedMoveOptions.length === 0 ? (
                 <div className="no-options">
                   No moves available to bet on

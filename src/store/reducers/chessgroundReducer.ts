@@ -75,9 +75,11 @@ const chessgroundReducer = (
     case 'CG_NEW_ARROWS':
       return {
         ...state,
-        autoShapes: action.payload, // Immediately set autoShapes too
+        // Only store the arrows in baseAutoShapes, but don't show them yet
         baseAutoShapes: action.payload,
-        showAutoShapes: true, // Force showAutoShapes to true
+        // Only set autoShapes if already showing shapes (inside the panel)
+        autoShapes: state.showAutoShapes ? action.payload : [],
+        // Don't automatically turn on showAutoShapes - maintain current state
         selected: undefined,
       };
 
