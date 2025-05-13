@@ -3,11 +3,11 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
-const autoprefixer = require('autoprefixer');
 const { DefinePlugin } = require('webpack');
 
 const env = process.env.NODE_ENV || 'development';
-const finalCSSLoader = env === 'production' ? MiniCssExtractPlugin.loader : { loader: 'style-loader' };
+const isProd = env === 'production';
+const finalCSSLoader = isProd ? MiniCssExtractPlugin.loader : 'style-loader';
 
 module.exports = {
   mode: env,
@@ -16,13 +16,11 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
     filename: 'bundle.js',
+    clean: true,
   },
   devtool: 'source-map',
   resolve: {
-    modules: [
-      path.resolve(__dirname, 'src'),
-      path.resolve(__dirname, 'node_modules'),
-    ],
+    modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     alias: {
       'chessground/assets': path.resolve(__dirname, 'node_modules/chessground/assets'),
     },
@@ -33,78 +31,50 @@ module.exports = {
       {
         test: /\.(js|ts|tsx)$/,
         exclude: /node_modules/,
-        use: [
-          { loader: 'ts-loader' },
-          { loader: 'eslint-loader' },
-        ],
+        use: 'ts-loader',
       },
       { test: /\.m?js$/, resolve: { fullySpecified: false } },
       { test: /chess.js$/, parser: { amd: false } },
       {
         test: /\.css$/,
         oneOf: [
-          // Style for CSS Modules (.module.css files)
           {
             test: /\.module\.css$/,
             use: [
               finalCSSLoader,
               {
                 loader: 'css-loader',
-                options: {
-                  sourceMap: true,
-                  url: true,
-                  modules: true
-                },
+                options: { sourceMap: true, modules: true },
               },
               {
                 loader: 'postcss-loader',
                 options: {
-                  postcssOptions: {
-                    plugins: [
-                      'tailwindcss',
-                      'autoprefixer',
-                    ],
-                  },
+                  postcssOptions: { plugins: ['tailwindcss', 'autoprefixer'] },
                 },
               },
             ],
           },
-          // Styles from node_modules especially chessground
           {
             test: /node_modules\/chessground\/assets\/.+\.css$/,
             use: [
               finalCSSLoader,
               {
                 loader: 'css-loader',
-                options: {
-                  sourceMap: true,
-                  url: true,
-                  modules: false // Disable CSS modules for chessground
-                },
+                options: { sourceMap: true, modules: false },
               },
             ],
           },
-          // Global styles (non-module)
           {
             use: [
               finalCSSLoader,
               {
                 loader: 'css-loader',
-                options: {
-                  sourceMap: true,
-                  url: true,
-                  modules: false
-                },
+                options: { sourceMap: true, modules: false },
               },
               {
                 loader: 'postcss-loader',
                 options: {
-                  postcssOptions: {
-                    plugins: [
-                      'tailwindcss',
-                      'autoprefixer',
-                    ],
-                  },
+                  postcssOptions: { plugins: ['tailwindcss', 'autoprefixer'] },
                 },
               },
             ],
@@ -114,66 +84,42 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         oneOf: [
-          // Style for SCSS Modules (.module.scss files)
           {
             test: /\.module\.s[ac]ss$/i,
             use: [
               finalCSSLoader,
               {
                 loader: 'css-loader',
-                options: {
-                  sourceMap: true,
-                  modules: true
-                },
+                options: { sourceMap: true, modules: true },
               },
               {
                 loader: 'postcss-loader',
                 options: {
-                  postcssOptions: {
-                    plugins: [
-                      'tailwindcss',
-                      'autoprefixer',
-                    ],
-                  },
+                  postcssOptions: { plugins: ['tailwindcss', 'autoprefixer'] },
                 },
               },
               {
                 loader: 'sass-loader',
-                options: {
-                  sourceMap: true,
-                  implementation: require('sass'),
-                },
+                options: { sourceMap: true, implementation: require('sass') },
               },
             ],
           },
-          // Global SCSS styles (non-module)
           {
             use: [
               finalCSSLoader,
               {
                 loader: 'css-loader',
-                options: {
-                  sourceMap: true,
-                  modules: false
-                },
+                options: { sourceMap: true, modules: false },
               },
               {
                 loader: 'postcss-loader',
                 options: {
-                  postcssOptions: {
-                    plugins: [
-                      'tailwindcss',
-                      'autoprefixer',
-                    ],
-                  },
+                  postcssOptions: { plugins: ['tailwindcss', 'autoprefixer'] },
                 },
               },
               {
                 loader: 'sass-loader',
-                options: {
-                  sourceMap: true,
-                  implementation: require('sass'),
-                },
+                options: { sourceMap: true, implementation: require('sass') },
               },
             ],
           },
@@ -192,14 +138,17 @@ module.exports = {
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      filename: './index.html',
+      filename: 'index.html',
       favicon: './src/assets/logo.svg',
     }),
     new HtmlWebpackPlugin({
       template: './src/index.html',
-      filename: './200.html',
+      filename: '200.html',
     }),
     new Dotenv({ systemvars: true }),
+    new DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(env),
+    }),
   ],
   devServer: {
     hot: true,
@@ -208,5 +157,11 @@ module.exports = {
       directory: path.join(__dirname, 'public'),
     },
     port: 8080,
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+      },
+    },
   },
 };
