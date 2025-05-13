@@ -281,6 +281,7 @@
   color: #BDBDBD;
   height: 100%;
   margin-left: 8px;
+  position: relative; /* Needed for absolute positioning of draw label */
 
   .label {
     display: block;
@@ -294,7 +295,7 @@
 
     &.draw {
       color: #BDBDBD;
-      margin: auto 0;
+      /* No margin needed as it's positioned absolutely */
     }
 
     &.black {

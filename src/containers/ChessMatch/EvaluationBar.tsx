@@ -21,6 +21,10 @@ const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width = 30, classNa
   const drawPercent = Math.round(drawProb * 100);
   const blackPercent = Math.round(blackWinProb * 100);
 
+  // Calculate the center position of the draw section
+  const drawSectionStart = blackWinProb * 100; // % from the top
+  const drawSectionMiddle = drawSectionStart + (drawProb * 100) / 2; // % from the top to the middle of draw
+
   return (
     <div className={`vertical-evaluation-bar-container ${className}`}>
       <div className="vertical-evaluation-bar" style={{ width: `${width}px` }}>
@@ -43,7 +47,14 @@ const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width = 30, classNa
 
       <div className="evaluation-labels">
         <span className="label black" title={`Black: ${blackPercent}%`}>{blackPercent}%</span>
-        <span className="label draw" title={`Draw: ${drawPercent}%`}>{drawPercent}%</span>
+        {/* Position the draw label dynamically to be in the middle of the draw section */}
+        <span
+          className="label draw"
+          title={`Draw: ${drawPercent}%`}
+          style={{ position: 'absolute', top: `${drawSectionMiddle}%`, transform: 'translateY(-50%)' }}
+        >
+          {drawPercent}%
+        </span>
         <span className="label white" title={`White: ${whitePercent}%`}>{whitePercent}%</span>
       </div>
     </div>
