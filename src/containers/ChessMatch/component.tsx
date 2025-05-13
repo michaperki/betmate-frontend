@@ -108,8 +108,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               updatedAt={game?.updated_at}
             />
 
-            <div className="game-with-eval-bar">
-              <div className="game-layout">
+            <div className="game-layout">
+              <div className="board-with-eval">
                 <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                   <Chessground
                     contained
@@ -131,10 +131,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     }}
                   />
                 </div>
-              </div>
 
-              {/* Vertical evaluation bar placed to the right of the board */}
-              <EvaluationBar odds={game?.odds} />
+                {/* Vertical evaluation bar placed to the right of the board */}
+                <div className="eval-bar-container">
+                  <EvaluationBar odds={game?.odds} />
+                </div>
+              </div>
             </div>
 
             <PlayerInfo

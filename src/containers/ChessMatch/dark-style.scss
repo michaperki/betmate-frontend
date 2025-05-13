@@ -223,22 +223,30 @@
 }
 
 // Vertical evaluation bar styles
-.game-with-eval-bar {
+.board-with-eval {
   display: flex;
   width: 100%;
   align-items: stretch;
   position: relative;
-  margin-right: 80px; /* More space for the evaluation bar and percentages */
+}
+
+.eval-bar-container {
+  width: 40px;
+  margin-left: 10px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  @media (max-width: 640px) {
+    width: 30px;
+    margin-left: 6px;
+  }
 }
 
 .vertical-evaluation-bar-container {
   display: flex;
-  flex-direction: row;  /* Changed to row to place items side by side */
+  flex-direction: row;  /* Row to place items side by side */
   height: 100%;
-  position: absolute;
-  right: -80px; /* More space for the labels */
-  top: 0;
-  bottom: 0;
   align-items: center;
 }
 
@@ -253,6 +261,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   margin-top: auto; /* Push to the bottom of its container */
   margin-bottom: auto; /* Push to the top of its container */
+
+  @media (max-width: 640px) {
+    width: 16px;
+  }
 }
 
 .white-section {
@@ -283,10 +295,23 @@
   margin-left: 8px;
   position: relative; /* Needed for absolute positioning of draw label */
 
+  @media (max-width: 768px) {
+    margin-left: 4px;
+    font-size: 9px;
+  }
+
+  @media (max-width: 640px) {
+    display: none; /* Hide labels on very small screens */
+  }
+
   .label {
     display: block;
     text-align: left;
     width: 30px;
+
+    @media (max-width: 768px) {
+      width: 24px;
+    }
 
     &.white {
       color: #EFEFEF;
