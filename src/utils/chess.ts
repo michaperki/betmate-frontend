@@ -58,7 +58,6 @@ export const getBrush = (state: string): (move: string, i: number) => DrawShape 
       return null;
     }
 
-
     // First attempt - standard notation
     try {
       const m = game.move(move);
