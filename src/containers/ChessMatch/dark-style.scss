@@ -116,33 +116,39 @@
 // Sidebar container
 .sidebar-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
 
   @media (max-width: 768px) {
     order: 2; /* Move sidebar below on mobile */
   }
-}
 
-.sidebar-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
+  // Betting options section
+  .betting-options-section {
+    width: 100%;
+  }
 
-  @media (max-width: 768px) {
-    flex-direction: row;
-    flex-wrap: wrap;
+  // Chat and extras section
+  .chat-extras-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 
-    & > * {
-      flex: 1 1 100%;
-
-      &:last-child { // Chat box
-        order: -1; // Move chat to top on mobile
-        width: 100%;
-      }
+    .mini-leaderboard {
+      background-color: #111111;
+      border-radius: 12px;
+      padding: 16px;
+      border: 4px solid #00EFB2;
+      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5), -5px -5px 10px rgba(255, 255, 255, 0.05);
+      max-height: 200px;
+      overflow-y: auto;
     }
   }
 }
+
+// Removed .sidebar-content as it's no longer needed
 
 // Loading state
 .loading-container {

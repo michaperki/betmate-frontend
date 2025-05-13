@@ -5,6 +5,7 @@ import { DrawShape } from 'chessground/draw';
 import { Config } from 'chessground/config';
 import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
 import BettingSidebar from 'components/BettingSidebar';
+import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
@@ -151,9 +152,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             />
           </div>
 
-          {/* Right column - Betting sidebar and Chat */}
+          {/* Right column - Split into two parts for mobile */}
           <div className="sidebar-container">
-            <div className="sidebar-content">
+            {/* Top section - Betting options */}
+            <div className="betting-options-section">
               <BettingSidebar
                 isAuthenticated={props.isAuthenticated}
                 games={props.games}
@@ -165,7 +167,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 onMoveUnhover={props.onMoveUnhover}
                 createNewArrows={props.createNewArrows}
               />
+            </div>
+
+            {/* Bottom section - Chat and extras */}
+            <div className="chat-extras-section">
               <ChatBox />
+              <MiniLeaderboard rankings={props.rankings || []} />
             </div>
           </div>
         </div>

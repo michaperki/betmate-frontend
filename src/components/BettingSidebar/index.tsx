@@ -262,8 +262,6 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
             </button>
           ))}
         </div>
-
-        <MiniLeaderboard rankings={rankings} />
       </div>
     </div>
   );
