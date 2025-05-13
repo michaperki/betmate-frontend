@@ -8,6 +8,7 @@ import BettingSidebar from 'components/BettingSidebar';
 import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
+import ChatBox from 'components/ChatBox';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
@@ -142,19 +143,22 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             />
           </div>
 
-          {/* Right column - Betting sidebar */}
+          {/* Right column - Betting sidebar and Chat */}
           <div className="sidebar-container">
-            <BettingSidebar
-              isAuthenticated={props.isAuthenticated}
-              games={props.games}
-              createWager={props.createWager}
-              rankings={props.rankings}
-              onEnterMovePanel={props.onEnterMovePanel}
-              onLeaveMovePanel={props.onLeaveMovePanel}
-              onMoveHover={props.onMoveHover}
-              onMoveUnhover={props.onMoveUnhover}
-              createNewArrows={props.createNewArrows}
-            />
+            <div className="sidebar-content">
+              <BettingSidebar
+                isAuthenticated={props.isAuthenticated}
+                games={props.games}
+                createWager={props.createWager}
+                rankings={props.rankings}
+                onEnterMovePanel={props.onEnterMovePanel}
+                onLeaveMovePanel={props.onLeaveMovePanel}
+                onMoveHover={props.onMoveHover}
+                onMoveUnhover={props.onMoveUnhover}
+                createNewArrows={props.createNewArrows}
+              />
+              <ChatBox />
+            </div>
           </div>
         </div>
       </div>

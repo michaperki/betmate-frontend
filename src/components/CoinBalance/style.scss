@@ -1,23 +1,27 @@
 .coin-balance {
   display: flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 10px;
   background-color: #1E1E1E;
   border-radius: 9999px;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3), -5px -5px 10px rgba(255, 255, 255, 0.03);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 239, 178, 0.3);
 }
 
 .balance-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
 }
 
 .balance-text {
   font-weight: 500;
   color: #F2F2F2;
+  font-size: 14px;
+  line-height: 1;
 }
 
 .tokens-text {
   color: #00EFB2;
+  font-size: 12px;
 }
