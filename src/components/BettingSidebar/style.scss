@@ -121,17 +121,19 @@
     background-color: #2D2D2D;
   }
 
-  &.outcome-white {
-    background-color: #E0E0E0;
-    color: #111111;
-  }
-
+  /* Using standard consistent colors for all betting options */
+  &.outcome-white_win,
+  &.outcome-black_win,
+  &.outcome-draw,
+  &.outcome-white,
   &.outcome-black {
-    background-color: #111111;
+    background-color: #1E1E1E;
+    color: #F2F2F2;
+    border-left-color: #00EFB2;
   }
 
-  &.outcome-draw {
-    background-color: #505050;
+  &:hover {
+    background-color: #2D2D2D;
   }
 }
 
@@ -148,9 +150,10 @@
   min-width: 40px;
   text-align: right;
 
-  &.dark {
+  /* Since all backgrounds are now dark, we don't need a dark variation */
+  /* &.dark {
     color: #111111;
-  }
+  } */
 }
 
 .stake-buttons {

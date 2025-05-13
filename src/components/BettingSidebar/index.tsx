@@ -240,7 +240,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
                       onClick={handleBetOutcome(outcome)}
                     >
                       <span className="option-name">{outcome}</span>
-                      <span className={`option-payout ${outcome === 'white' ? 'dark' : ''}`}>
+                      <span className="option-payout">
                         {formatPayout(1 / (odds as number))}
                       </span>
                     </li>
