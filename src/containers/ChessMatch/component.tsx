@@ -9,6 +9,7 @@ import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import ChatBox from 'components/ChatBox';
+import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
@@ -107,28 +108,33 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               updatedAt={game?.updated_at}
             />
 
-            <div className="game-layout">
-              <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
-                <Chessground
-                  contained
-                  config={{
-                    ...props.config,
-                    coordinates: true,
-                    viewOnly: true,
-                    fen: game?.state,
-                    lastMove: game?.move_hist?.length > 0
-                      ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                      : undefined,
-                    drawable: {
-                      enabled: true,
-                      visible: true,
-                      defaultSnapToValidMove: true,
-                      autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
-                      eraseOnClick: false,
-                    },
-                  }}
-                />
+            <div className="game-with-eval-bar">
+              <div className="game-layout">
+                <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
+                  <Chessground
+                    contained
+                    config={{
+                      ...props.config,
+                      coordinates: true,
+                      viewOnly: true,
+                      fen: game?.state,
+                      lastMove: game?.move_hist?.length > 0
+                        ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
+                        : undefined,
+                      drawable: {
+                        enabled: true,
+                        visible: true,
+                        defaultSnapToValidMove: true,
+                        autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
+                        eraseOnClick: false,
+                      },
+                    }}
+                  />
+                </div>
               </div>
+
+              {/* Vertical evaluation bar placed to the right of the board */}
+              <EvaluationBar odds={game?.odds} />
             </div>
 
             <PlayerInfo
