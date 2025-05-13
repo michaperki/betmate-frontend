@@ -3,9 +3,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
+    justify-content: flex-start;
     background: #050505;
-    min-height: calc(100vh - 80px);
+    height: auto;
+    padding: 15px 0;
+    gap: 15px;
     p {
         font-family: 'Roboto';
         color: #F2F2F2;
