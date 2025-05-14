@@ -64,6 +64,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   });
   const [selectedStake, setSelectedStake] = useState<number>(10);
 
+  // Track the last move number to detect when moves happen
+  const [lastMoveNumber, setLastMoveNumber] = useState<number>(0);
+
   useEffect(() => {
     props.fetchGameById(gameId);
     props.joinGame(gameId);
@@ -78,6 +81,22 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
     return () => clearInterval(pollInterval);
   }, [gameId, props.fetchGameById]);
+
+  // Effect to handle when moves happen - hide sidebar if it's showing
+  useEffect(() => {
+    if (game && game.move_hist && game.move_hist.length > lastMoveNumber) {
+      // A new move has happened
+      setLastMoveNumber(game.move_hist.length);
+
+      // If the sidebar is showing, hide it since the bet is no longer valid
+      if (dragMoveData.showConfirmation) {
+        setDragMoveData(prev => ({
+          ...prev,
+          showConfirmation: false
+        }));
+      }
+    }
+  }, [game?.move_hist?.length]);
 
   // Handle drag-and-drop move
   const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
