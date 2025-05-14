@@ -54,7 +54,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const game: Game | undefined = props.games[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
-  const chessgroundRef = useRef<any>(null);
 
   // State for bet confirmation modal
   const [dragMoveData, setDragMoveData] = useState({
@@ -88,8 +87,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const chess = new Chess(game.state);
     try {
       const move = chess.move({
-        from: orig,
-        to: dest,
+        from: orig.toString() as any, // Cast to any to bypass type incompatibility
+        to: dest.toString() as any,   // between Key and Square types
         promotion: 'q' // Default to queen for simplicity
       });
 
@@ -105,12 +104,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         // Reset board to original position
         chess.undo();
 
-        // Reset the piece position on the board (revert the drag)
-        if (chessgroundRef.current) {
-          chessgroundRef.current.set({
-            fen: game.state
-          });
-        }
+        // No need to manually reset the position
+        // The component will re-render with the original position
       }
     } catch (e) {
       console.error('Invalid move', e);
@@ -207,7 +202,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <div className="board-with-eval">
                 <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                   <Chessground
-                    ref={chessgroundRef}
                     contained
                     config={{
                       ...props.config,
