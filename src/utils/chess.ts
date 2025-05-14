@@ -1,6 +1,7 @@
 import { GameStatus } from 'types/resources/game';
 import { Chess as chess } from 'chess.js';
 import { DrawShape } from 'chessground/draw';
+import { Key } from 'chessground/types';
 import { FromTo } from 'types/chessground';
 
 export const getMultiplier = (odd: number): number => {
@@ -45,9 +46,9 @@ export const getFromTo = (state: string, move: string): FromTo => {
  * Gets all valid moves from the current position in standard chess.js map format
  * Returns a Map where keys are source squares and values are arrays of destination squares
  */
-export const getValidMoves = (fen: string): Map<string, string[]> => {
+export const getValidMoves = (fen: string): Map<Key, Key[]> => {
   const game = chess(fen);
-  const dests = new Map();
+  const dests = new Map<Key, Key[]>();
 
   // Get all squares with pieces that can move
   const squares = game.SQUARES;
@@ -60,7 +61,7 @@ export const getValidMoves = (fen: string): Map<string, string[]> => {
       const moves = game.moves({ square: s, verbose: true });
       if (moves.length) {
         // Store destinations for this origin square
-        dests.set(s, moves.map(m => m.to));
+        dests.set(s as Key, moves.map(m => m.to as Key));
       }
     }
   });

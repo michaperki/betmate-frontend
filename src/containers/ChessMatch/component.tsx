@@ -88,8 +88,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const chess = new Chess(game.state);
     try {
       const move = chess.move({
-        from: orig as string,
-        to: dest as string,
+        from: orig,
+        to: dest,
         promotion: 'q' // Default to queen for simplicity
       });
 
@@ -213,7 +213,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       ...props.config,
                       coordinates: true,
                       viewOnly: props.isAuthenticated ? false : true, // Allow moves only for authenticated users
-                      turnColor: game.turn === 'w' ? 'white' : 'black', // Current turn color
+                      turnColor: game.state.includes(' w ') ? 'white' : 'black', // Determine current turn from FEN
                       movable: props.isAuthenticated ? {
                         free: false, // Don't allow free movement - must be valid chess moves
                         color: 'both', // Allow moving both colors for betting purposes
