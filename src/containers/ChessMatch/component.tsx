@@ -203,6 +203,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <DragWagerSidebar
                 isVisible={true}
                 moveString={dragMoveData.moveString}
+                gameState={game?.state || ''}
                 stake={selectedStake}
                 onConfirm={handleConfirmBet}
                 onCancel={handleCancelBet}
