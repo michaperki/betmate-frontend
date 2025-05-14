@@ -11,7 +11,7 @@ import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
-import BetConfirmationModal from 'components/BetConfirmationModal';
+import DragWagerSidebar from 'components/DragWagerSidebar';
 import DragDropTip from 'components/DragDropTip';
 import ChatBox from 'components/ChatBox';
 import EvaluationBar from './EvaluationBar';
@@ -157,15 +157,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
       {gameOver(game.game_status as GameStatus) && <PostgameModal/>}
 
-      {/* Bet Confirmation Modal */}
-      <BetConfirmationModal
-        isOpen={dragMoveData.showConfirmation}
-        moveString={dragMoveData.moveString}
-        stake={selectedStake}
-        onConfirm={handleConfirmBet}
-        onCancel={handleCancelBet}
-        onChangeStake={setSelectedStake}
-      />
+      {/* Drag Wager Sidebar - positioned on the left side of the board */}
 
       {/* Drag & Drop Tip */}
       <DragDropTip isAuthenticated={props.isAuthenticated} />
@@ -187,6 +179,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         <div className="game-content">
           {/* Left column - Chessboard */}
           <div className="board-container">
+            {/* Drag Wager Sidebar inserted here */}
+            <DragWagerSidebar
+              isVisible={dragMoveData.showConfirmation}
+              moveString={dragMoveData.moveString}
+              stake={selectedStake}
+              onConfirm={handleConfirmBet}
+              onCancel={handleCancelBet}
+              onChangeStake={setSelectedStake}
+            />
+
             <PlayerInfo
               icon={playerIconBlack}
               fen={game?.state ?? ''}
