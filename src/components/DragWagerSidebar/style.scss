@@ -1,12 +1,7 @@
 .drag-wager-sidebar {
-  position: absolute;
-  top: 50%; /* Center vertically */
-  left: 10px;
-  transform: translateY(-50%);
-  width: 250px;
+  width: 100%;
   background-color: rgba(40, 40, 40, 0.95);
   color: #fff;
-  z-index: 100;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   animation: slide-in 0.3s ease-out;
   display: flex;
@@ -163,11 +158,11 @@
 
 @keyframes slide-in {
   from {
-    transform: translateY(-50%) translateX(-100%);
+    transform: translateX(-100%);
     opacity: 0;
   }
   to {
-    transform: translateY(-50%) translateX(0);
+    transform: translateX(0);
     opacity: 1;
   }
 }

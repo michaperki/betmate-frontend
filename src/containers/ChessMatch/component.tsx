@@ -178,16 +178,21 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         {/* Main content area */}
         <div className="game-content">
           {/* Left column - Chessboard */}
+          {/* Drag Wager Sidebar - positioned outside the board container */}
+          {dragMoveData.showConfirmation && (
+            <div className="sidebar-wrapper">
+              <DragWagerSidebar
+                isVisible={true}
+                moveString={dragMoveData.moveString}
+                stake={selectedStake}
+                onConfirm={handleConfirmBet}
+                onCancel={handleCancelBet}
+                onChangeStake={setSelectedStake}
+              />
+            </div>
+          )}
+
           <div className="board-container">
-            {/* Drag Wager Sidebar inserted here */}
-            <DragWagerSidebar
-              isVisible={dragMoveData.showConfirmation}
-              moveString={dragMoveData.moveString}
-              stake={selectedStake}
-              onConfirm={handleConfirmBet}
-              onCancel={handleCancelBet}
-              onChangeStake={setSelectedStake}
-            />
 
             <PlayerInfo
               icon={playerIconBlack}
