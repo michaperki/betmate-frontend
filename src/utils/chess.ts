@@ -41,6 +41,33 @@ export const getFromTo = (state: string, move: string): FromTo => {
   };
 };
 
+/**
+ * Gets all valid moves from the current position in standard chess.js map format
+ * Returns a Map where keys are source squares and values are arrays of destination squares
+ */
+export const getValidMoves = (fen: string): Map<string, string[]> => {
+  const game = chess(fen);
+  const dests = new Map();
+
+  // Get all squares with pieces that can move
+  const squares = game.SQUARES;
+
+  squares.forEach(s => {
+    const piece = game.get(s);
+    // Skip empty squares and pieces that can't move
+    if (piece) {
+      // Get valid moves from this square
+      const moves = game.moves({ square: s, verbose: true });
+      if (moves.length) {
+        // Store destinations for this origin square
+        dests.set(s, moves.map(m => m.to));
+      }
+    }
+  });
+
+  return dests;
+};
+
 const BRUSH_NAMES = ['green', 'red', 'blue', 'yellow'];
 
 export const getBrush = (state: string): (move: string, i: number) => DrawShape | null => {
