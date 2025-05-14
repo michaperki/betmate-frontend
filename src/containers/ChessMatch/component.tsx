@@ -6,14 +6,13 @@ import { Config } from 'chessground/config';
 import { Key, MoveMetadata } from 'chessground/types';
 import { Chess } from 'chess.js';
 import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
-import BettingSidebar from 'components/BettingSidebar';
-import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
-import DragWagerSidebar from 'components/DragWagerSidebar';
 import DragDropTip from 'components/DragDropTip';
 import ChatBox from 'components/ChatBox';
+import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
+import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById } from 'store/actionCreators/gameActionCreators';
@@ -55,17 +54,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const game: Game | undefined = props.games[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
 
-  // State for bet confirmation modal
-  const [dragMoveData, setDragMoveData] = useState({
-    moveString: '',
-    from: '',
-    to: '',
-    showConfirmation: false
-  });
+  // Default stake for placing bets directly
   const [selectedStake, setSelectedStake] = useState<number>(10);
-
-  // Track the last move number to detect when moves happen
-  const [lastMoveNumber, setLastMoveNumber] = useState<number>(0);
 
   useEffect(() => {
     props.fetchGameById(gameId);
@@ -82,23 +72,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => clearInterval(pollInterval);
   }, [gameId, props.fetchGameById]);
 
-  // Effect to handle when moves happen - hide sidebar if it's showing
-  useEffect(() => {
-    if (game && game.move_hist && game.move_hist.length > lastMoveNumber) {
-      // A new move has happened
-      setLastMoveNumber(game.move_hist.length);
-
-      // If the sidebar is showing, hide it since the bet is no longer valid
-      if (dragMoveData.showConfirmation) {
-        setDragMoveData(prev => ({
-          ...prev,
-          showConfirmation: false
-        }));
-      }
-    }
-  }, [game?.move_hist?.length]);
-
-  // Handle drag-and-drop move
+  // Handle drag-and-drop move - now places bet directly using the integrated sidebar
   const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
     if (!game) return;
 
@@ -112,55 +86,22 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       });
 
       if (move) {
-        // Show confirmation dialog
-        setDragMoveData({
-          moveString: move.san,
-          from: orig as string,
-          to: dest as string,
-          showConfirmation: true
-        });
+        // Place the bet immediately with the current stake
+        props.createWager(
+          gameId,
+          move.san,
+          selectedStake,
+          false, // not WDL
+          1, // Default odds - will be calculated server-side based on pool
+          game.move_hist.length + 1,
+        );
 
         // Reset board to original position
         chess.undo();
-
-        // No need to manually reset the position
-        // The component will re-render with the original position
       }
     } catch (e) {
       console.error('Invalid move', e);
     }
-  };
-
-  // Handle bet confirmation
-  const handleConfirmBet = () => {
-    // Place bet using existing createWager function
-    props.createWager(
-      gameId,
-      dragMoveData.moveString,
-      selectedStake,
-      false, // not WDL
-      1, // Default odds - will be calculated server-side based on pool
-      game.move_hist.length + 1,
-    );
-
-    // Close confirmation and reset
-    setDragMoveData({
-      moveString: '',
-      from: '',
-      to: '',
-      showConfirmation: false
-    });
-  };
-
-  // Handle bet cancellation
-  const handleCancelBet = () => {
-    // Just reset the state
-    setDragMoveData({
-      moveString: '',
-      from: '',
-      to: '',
-      showConfirmation: false
-    });
   };
 
   if (!game) {
@@ -197,20 +138,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         {/* Main content area */}
         <div className="game-content">
           {/* Left column - Chessboard */}
-          {/* Drag Wager Sidebar - positioned outside the board container */}
-          {dragMoveData.showConfirmation && (
-            <div className="sidebar-wrapper">
-              <DragWagerSidebar
-                isVisible={true}
-                moveString={dragMoveData.moveString}
-                gameState={game?.state || ''}
-                stake={selectedStake}
-                onConfirm={handleConfirmBet}
-                onCancel={handleCancelBet}
-                onChangeStake={setSelectedStake}
-              />
-            </div>
-          )}
+          {/* Integrated betting sidebar handles drag-to-bet now */}
 
           <div className="board-container">
 
@@ -281,7 +209,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           <div className="sidebar-container">
             {/* Top section - Betting options */}
             <div className="betting-options-section">
-              <BettingSidebar
+              <IntegratedBettingSidebar
                 isAuthenticated={props.isAuthenticated}
                 games={props.games}
                 createWager={props.createWager}

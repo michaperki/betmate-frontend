@@ -1,0 +1,339 @@
+.integrated-betting-sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e2e;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  width: 100%;
+  overflow: hidden;
+  
+  .tab-navigation {
+    display: flex;
+    border-bottom: 1px solid #2a2a3a;
+    
+    .tab-button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      color: #9999a8;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &.active {
+        color: #fff;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-bottom: 2px solid #3a88fe;
+      }
+      
+      &:hover:not(.active) {
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+    }
+  }
+  
+  .tab-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    
+    .bet-explanation {
+      font-size: 14px;
+      color: #9999a8;
+      margin-bottom: 12px;
+    }
+    
+    .drag-instruction {
+      background-color: rgba(58, 136, 254, 0.1);
+      border-left: 3px solid #3a88fe;
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    
+    /* Fixed-height container for move analysis to prevent UI jumping */
+    .move-analysis-container {
+      height: 120px; /* Fixed height that accommodates all possible content */
+      margin-bottom: 16px;
+    }
+    
+    .move-analysis {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      padding: 12px;
+      height: calc(100% - 24px); /* Account for padding */
+      
+      .move-preview {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        
+        .move-label {
+          font-size: 13px;
+          color: #9999a8;
+          margin-right: 8px;
+        }
+        
+        .move-value {
+          font-size: 16px;
+          font-weight: 600;
+        }
+      }
+      
+      .loading-metrics, .placeholder-metrics {
+        font-size: 13px;
+        color: #9999a8;
+        font-style: italic;
+        text-align: center;
+        padding: 8px 0;
+      }
+      
+      .move-metrics {
+        .metric {
+          margin-bottom: 12px;
+          
+          .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            
+            .metric-label {
+              font-size: 13px;
+              color: #9999a8;
+            }
+            
+            .metric-badge {
+              background-color: #4CAF50;
+              color: white;
+              font-size: 11px;
+              padding: 2px 6px;
+              border-radius: 4px;
+            }
+          }
+          
+          .metric-value {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 4px;
+            
+            .metric-bar {
+              height: 100%;
+              border-radius: 4px;
+              
+              &.high {
+                background-color: #4CAF50;
+              }
+              
+              &.medium {
+                background-color: #FFC107;
+              }
+              
+              &.low {
+                background-color: #F44336;
+              }
+            }
+          }
+          
+          .metric-description {
+            font-size: 12px;
+            color: #9999a8;
+          }
+        }
+      }
+    }
+    
+    .move-analysis-placeholder {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      padding: 12px;
+      height: calc(100% - 24px); /* Account for padding */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .placeholder-text {
+        font-size: 13px;
+        color: #9999a8;
+        font-style: italic;
+        text-align: center;
+      }
+    }
+    
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
+      padding-right: 4px;
+      
+      .no-options {
+        text-align: center;
+        color: #9999a8;
+        padding: 20px 0;
+        font-style: italic;
+      }
+      
+      .move-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 6px;
+        border-left: 4px solid;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: auto; /* Let it size to content */
+        min-height: 32px;
+        width: calc(100% - 16px); /* Fixed width to prevent horizontal overflow */
+        box-sizing: border-box;
+        
+        &:hover, &.move-hovered {
+          background-color: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+        }
+        
+        p {
+          margin: 0;
+          font-weight: 600;
+          font-size: 14px;
+          color: #ffffff; /* Ensure text is visible */
+          z-index: 1;
+          flex: 1; /* Take available space */
+          min-width: 30px; /* Ensure minimum width for content */
+          white-space: nowrap; /* Prevent text wrapping */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-align: left; /* Ensure left alignment */
+        }
+        
+        .option-payout {
+          flex-shrink: 0; /* Prevent shrinking */
+          margin-left: 12px; /* Add space between move and payout */
+          font-weight: 600;
+          font-size: 14px;
+          color: #3a88fe;
+          z-index: 1;
+        }
+      }
+      
+      .bet-options-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        .bet-option {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px;
+          background-color: rgba(255, 255, 255, 0.03);
+          border-radius: 6px;
+          margin-bottom: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+          }
+          
+          &.outcome-white {
+            border-left: 4px solid #fff;
+          }
+          
+          &.outcome-black {
+            border-left: 4px solid #000;
+          }
+          
+          &.outcome-draw {
+            border-left: 4px solid #FFA000;
+          }
+          
+          .option-name {
+            font-weight: 600;
+          }
+          
+          .option-payout {
+            color: #3a88fe;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+    
+    .stake-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      
+      .stake-button {
+        flex: 1;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 0 4px;
+        
+        &:first-child {
+          margin-left: 0;
+        }
+        
+        &:last-child {
+          margin-right: 0;
+        }
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        &.active {
+          background-color: #3a88fe;
+          border-color: #3a88fe;
+        }
+      }
+    }
+  }
+  
+  // Custom scrollbar
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+}
+
+// Media queries for responsive design
+@media (max-width: 768px) {
+  .integrated-betting-sidebar {
+    .tab-content {
+      padding: 12px;
+      
+      .options-container {
+        max-height: 200px;
+      }
+    }
+  }
+}
