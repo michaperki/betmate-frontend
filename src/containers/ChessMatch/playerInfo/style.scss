@@ -3,20 +3,23 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    margin: 1em;
-    font-family: Roboto;
-    font-style: normal;
-    color: white;
+    margin-bottom: 8px;
+    padding: 12px;
+    background-color: #1e1e2e;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #fff;
 
     h3 {
-        font-size: 18px;
+        font-size: 16px;
         margin: 0;
-        font-weight: 300;
+        font-weight: 500;
     }
     p {
-        font-size: 16px;
-        font-weight: 200;
+        font-size: 14px;
+        font-weight: 400;
         margin: 0;
+        color: #9999a8;
     }
 
     .player-name-container {
@@ -25,29 +28,38 @@
         align-items: flex-start;
         justify-content: center;
     }
-   
+
 }
 
 .player-title {
     display: flex;
     flex-direction: row;
-    text-align: center;
+    align-items: center;
 }
 
 .player-icon {
+    width: 24px;
+    height: 24px;
     margin-right: 12px;
 }
 
 .time-rect {
-    background: #423E43;
-    border-radius: 5px;
-    padding: 2px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 16px;
+    min-width: 70px;
+    text-align: center;
 }
 
 .white-rect {
-    border: 1px solid #2AD9FF;
+    border: 1px solid rgba(58, 136, 254, 0.5);
+    color: #fff;
 }
 
 .black-rect {
-    border: 1px solid #27E595;
+    background-color: #3a88fe;
+    color: #fff;
+    border: none;
 }

@@ -160,8 +160,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       <DragDropTip isAuthenticated={props.isAuthenticated} />
 
       <div className="dark-game-page">
-        {/* Top navigation bar - Using the connected NavBar component */}
-        <NavBar />
+        {/* Top navigation bar - Using the compact variant of NavBar */}
+        <NavBar compact={true} />
 
         {/* Main content area */}
         <div className="game-content">
@@ -271,7 +271,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           <div className="mobile-chat-container">
             <div className="chat-extras-section">
               <ChatBox />
-              <MiniLeaderboard rankings={props.rankings || []} />
+              <div className="mobile-leaderboard-section">
+                <MiniLeaderboard rankings={props.rankings || []} />
+              </div>
             </div>
           </div>
         </div>

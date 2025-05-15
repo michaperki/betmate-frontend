@@ -176,6 +176,9 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   const handleBetMove = (moveOption: string) => () => {
     if (!isAuthenticated || !selectedStake) return;
 
+    // Always set hoveredMove so the metrics stay visible
+    setHoveredMove(moveOption);
+
     // Show arrow for the move regardless of bet mode
     if (handleMoveHover && game) {
       console.log('Attempting to show arrow for move:', moveOption);
@@ -206,10 +209,7 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
         game.move_hist.length + 1,
       );
 
-      // Set hoveredMove so the metrics stay visible briefly
-      setHoveredMove(moveOption);
-
-      // Clear the arrow after a short delay
+      // Clear the arrow and analysis after a short delay
       setTimeout(() => {
         setHoveredMove(null);
         setMoveMetrics(null);
@@ -245,9 +245,12 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   };
 
   const handleMovePieceUnhover = () => {
-    // Always allow clearing of hover state when manually mousing away
-  // We removed the pending bet check to ensure proper behavior
+    // Don't clear hover state if we have a pending bet
+    if (pendingBet?.isActive && pendingBet.gameId === gameId) {
+      return; // Keep the hover state for the pending bet
+    }
 
+    // Otherwise, clear hover state when manually mousing away
     setHoveredMove(null);
     setMoveMetrics(null);
 
@@ -439,21 +442,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
         >
           Outcome
         </button>
-
-        {/* Quick Bet Toggle */}
-        {isAuthenticated && (
-          <div className="quick-bet-toggle">
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={quickBetMode}
-                onChange={toggleQuickBet}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-            <span className="toggle-label">Quick Bet</span>
-          </div>
-        )}
       </div>
 
       {/* Content Panel */}
@@ -546,17 +534,35 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
           </div>
         )}
 
-        {/* Stake Selection - common to both tabs */}
-        <div className="stake-buttons">
-          {STAKE_OPTIONS.map((stake) => (
-            <button
-              key={`stake-${stake}`}
-              className={`stake-button ${selectedStake === stake ? 'active' : ''}`}
-              onClick={() => setSelectedStake(stake)}
-            >
-              {stake}
-            </button>
-          ))}
+        {/* Stake Selection and Quick Bet Controls */}
+        <div className="betting-controls">
+          {/* Stake Buttons */}
+          <div className="stake-buttons">
+            {STAKE_OPTIONS.map((stake) => (
+              <button
+                key={`stake-${stake}`}
+                className={`stake-button ${selectedStake === stake ? 'active' : ''}`}
+                onClick={() => setSelectedStake(stake)}
+              >
+                {stake}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick Bet Toggle - Moved here from tab navigation */}
+          {isAuthenticated && (
+            <div className="quick-bet-toggle">
+              <span className="toggle-label">Quick Bet</span>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={quickBetMode}
+                  onChange={toggleQuickBet}
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Bet Confirmation Section - Only shown when not in quick bet mode and there's a pending bet */}

@@ -1,12 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>BetMate</title>
+    <meta charset="utf-8">
+    <title>BetMate - Chess Betting Platform</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <meta name="description" content="BetMate - Real-time chess betting platform with win/draw/loss and move wagers">
+
+    <!-- Preconnect to Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://betmate.app/">
+    <meta property="og:title" content="BetMate - Chess Betting Platform">
+    <meta property="og:description" content="Place live bets on chess matches with virtual currency">
+    <meta property="og:image" content="/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://betmate.app/">
+    <meta property="twitter:title" content="BetMate - Chess Betting Platform">
+    <meta property="twitter:description" content="Place live bets on chess matches with virtual currency">
+    <meta property="twitter:image" content="/og-image.jpg">
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#111111">
+
+    <!-- Initial dark theme styling -->
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #050505;
+        color: #F2F2F2;
+        font-family: 'Roboto', sans-serif;
+        height: 100%;
+        width: 100%;
+      }
+
+      #main {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .initial-loader {
+        text-align: center;
+      }
+
+      .initial-loader .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 0 4px;
+        border-radius: 50%;
+        background-color: #00EFB2;
+        animation: pulse 1.5s infinite ease-in-out;
+      }
+
+      .initial-loader .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .initial-loader .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(0.5); opacity: 0.5; }
+        50% { transform: scale(1); opacity: 1; }
+      }
+    </style>
   </head>
   <body>
-    <div class="logo"></div>
-    <div id="main">Loading...</div>
+    <div id="main">
+      <div class="initial-loader">
+        <h2>BetMate</h2>
+        <div>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <noscript>
+      <div style="padding: 2rem; text-align: center;">
+        <h2>JavaScript Required</h2>
+        <p>BetMate requires JavaScript to function. Please enable JavaScript in your browser settings and reload this page.</p>
+      </div>
+    </noscript>
   </body>
 </html>

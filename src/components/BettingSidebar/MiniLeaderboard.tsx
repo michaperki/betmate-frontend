@@ -7,14 +7,13 @@ interface MiniLeaderboardProps {
 }
 
 const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings }) => {
-  const topRankings = rankings.slice(0, 3);
-
-  // Still render the leaderboard container even if empty
+  // Display up to 5 top players instead of just 3
+  const topRankings = rankings.slice(0, 5);
   const hasRankings = rankings && rankings.length > 0;
 
   return (
     <div className="mini-leaderboard">
-      <h3 className="mini-leaderboard-title">Top Players</h3>
+      <h3 className="mini-leaderboard-title">Leaderboard</h3>
       {hasRankings ? (
         <ul className="leaderboard-list">
           {topRankings.map((rank, index) => (
@@ -31,7 +30,7 @@ const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings }) => {
                 </span>
               </div>
               <span className="player-score">
-                {rank.winnings.toFixed(1)}
+                {rank.winnings > 0 ? '+' : ''}{rank.winnings.toFixed(1)}
               </span>
             </li>
           ))}

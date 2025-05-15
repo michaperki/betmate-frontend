@@ -7,6 +7,10 @@
   color: #F2F2F2;
   font-family: 'Roboto', sans-serif;
   width: 100vw; /* use full viewport width */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* No need for high z-index now that logo div is removed */
 }
 
 // Top navigation
@@ -75,25 +79,27 @@
 
 // Main content area
 .game-content {
-  display: grid;
-  grid-template-columns: 1fr;
-  flex-grow: 1;
+  display: flex; /* Change to flexbox for better alignment control */
+  flex-direction: row; /* Horizontal layout */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: center;
   padding: 16px;
   max-width: 1500px; /* increased max width */
   width: 100%;
   margin: 0 auto;
   gap: 24px;
-  align-items: start; /* align to top */
+  align-items: center; /* center align all columns vertically */
   position: relative; /* For absolute positioning of sidebar wrapper */
+  min-height: calc(100vh - 60px); /* Subtract compact nav height and some padding */
+  height: auto; /* Let content determine height */
 
   @media (min-width: 768px) {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    grid-column-gap: 16px; /* smaller gap to give more room to board */
+    flex-wrap: nowrap; /* No wrapping on larger screens */
   }
 
+  /* Adjust column widths */
   @media (min-width: 1200px) {
-    grid-template-columns: 300px minmax(0, 1fr) 300px;
-    grid-column-gap: 20px;
+    justify-content: space-between; /* Distribute space evenly */
   }
 }
 
@@ -127,10 +133,24 @@
   gap: 8px; /* Reduced vertical gap between elements */
   justify-content: center;
   max-width: 820px;
-  margin: 0 auto;
+  height: fit-content;
+  margin: 0;
   width: 100%;
+  flex: 1 1 auto; /* Can grow and shrink as needed */
   position: relative; /* Added for absolute positioning of sidebar */
   padding-left: 0; /* Remove padding - not needed with new sidebar positioning */
+  /* Ensure the board is centered vertically in its column */
+  align-self: center;
+  /* Add focus styles to emphasize the board */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+
+  @media (max-width: 1200px) {
+    margin: 0 auto; /* Center when sidebars are hidden */
+    max-width: 700px; /* Slightly smaller on medium screens */
+  }
 }
 
 .chessboard-wrapper{
@@ -172,8 +192,15 @@
 .left-sidebar-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 300px; /* Fixed width */
+  flex: 0 0 300px; /* Don't grow or shrink */
   gap: 16px;
+  height: auto;
+  max-height: 80vh; /* Limit height */
+  overflow-y: auto;
+  padding-right: 8px; /* Add padding for scrollbar */
+  scrollbar-width: thin;
+  align-self: center; /* Center vertically in flex container */
 
   // Hidden on small screens, becomes visible at 1200px
   display: none;
@@ -181,19 +208,43 @@
     display: flex;
   }
 
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+
   .chat-section {
     width: 100%;
+    flex: 1;
+    min-height: 300px;
+    max-height: 50vh;
   }
 
   .leaderboard-section {
     width: 100%;
+    margin-top: 16px; /* Consistent spacing from chat section */
+    margin-bottom: 16px; /* Add bottom margin for spacing */
+
     .mini-leaderboard {
       background-color: #1e1e2e;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       padding: 16px;
-      max-height: 200px;
+      max-height: 300px;
       overflow-y: auto;
+      overflow-x: hidden; /* Explicitly prevent horizontal scrolling */
+      box-sizing: border-box; /* Ensure padding is included in width */
+      width: 100%; /* Full width of container */
     }
   }
 }
@@ -202,16 +253,44 @@
 .right-sidebar-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 300px; /* Fixed width */
+  flex: 0 0 300px; /* Don't grow or shrink */
   gap: 16px;
+  height: auto;
+  max-height: 80vh; /* Limit height */
+  overflow-y: auto;
+  padding-left: 8px; /* Add padding for scrollbar */
+  scrollbar-width: thin;
+  align-self: center; /* Center vertically in flex container */
 
-  @media (max-width: 768px) {
-    order: 2; /* Move sidebar below on mobile */
+  @media (max-width: 1200px) {
+    order: 2; /* Move sidebar below on mobile and tablet */
+    padding-left: 0;
+    width: 100%; /* Full width on smaller screens */
+    flex: 1 1 100%; /* Take full width */
+    max-width: 700px; /* Match board container width */
+    margin: 0 auto; /* Center on page */
+  }
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
   }
 
   // Betting options section
   .betting-options-section {
     width: 100%;
+    flex: 1;
   }
 }
 
@@ -221,9 +300,29 @@
   flex-direction: column;
   width: 100%;
   gap: 16px;
+  max-height: 40vh; /* Limit height on mobile */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  max-width: 700px; /* Match board container width */
+  margin: 0 auto; /* Center on page */
 
   @media (min-width: 1200px) {
     display: none; // Hide on large screens where left sidebar is shown
+  }
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
   }
 
   .chat-extras-section {
@@ -231,6 +330,18 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .mobile-leaderboard-section {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 16px;
+
+    .mini-leaderboard {
+      box-sizing: border-box;
+      width: 100%;
+      overflow-x: hidden;
+    }
   }
 
   // Only show on screens below 1200px
@@ -346,6 +457,7 @@
   flex-direction: row;  /* Row to place items side by side */
   height: 100%;
   align-items: center;
+  position: relative;
 }
 
 .vertical-evaluation-bar {
@@ -360,9 +472,28 @@
   margin-top: auto; /* Push to the bottom of its container */
   margin-bottom: auto; /* Push to the top of its container */
   background-color: #1E1E2E;
+  position: relative; /* For tooltip positioning */
 
   @media (max-width: 640px) {
     width: 16px;
+  }
+
+  /* Win % tooltip overlay on the bar */
+  .bar-tooltip {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #F2F2F2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -403,11 +534,16 @@
     display: none; /* Hide labels on very small screens */
   }
 
+  .label-container {
+    position: relative; /* For tooltip positioning */
+  }
+
   .label {
     display: block;
     text-align: left;
     width: 34px;
     font-weight: 500;
+    cursor: help; /* Show help cursor on hover */
 
     @media (max-width: 768px) {
       width: 28px;
@@ -426,6 +562,48 @@
     &.black {
       color: #9999a8;
       margin-bottom: auto;
+    }
+  }
+
+  /* Tooltips for each label */
+  .label-tooltip {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #F2F2F2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    margin-left: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 100%;
+      transform: translateY(-50%);
+      border-width: 4px;
+      border-style: solid;
+      border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent;
+    }
+
+    &.black-tooltip {
+      border-left: 2px solid #9999a8;
+    }
+
+    &.draw-tooltip {
+      border-left: 2px solid #3a88fe;
+    }
+
+    &.white-tooltip {
+      border-left: 2px solid #fff;
     }
   }
 }

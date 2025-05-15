@@ -6,12 +6,30 @@
   border-radius: 9999px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 239, 178, 0.3);
+  transition: all 0.2s ease;
+
+  /* Compact version for game screen */
+  &.compact {
+    padding: 3px 8px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+
+    .balance-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+    }
+
+    .balance-text {
+      font-size: 13px;
+    }
+  }
 }
 
 .balance-icon {
   width: 16px;
   height: 16px;
   margin-right: 6px;
+  transition: all 0.2s ease;
 }
 
 .balance-text {
@@ -19,9 +37,15 @@
   color: #F2F2F2;
   font-size: 14px;
   line-height: 1;
+  transition: all 0.2s ease;
 }
 
 .tokens-text {
   color: #00EFB2;
   font-size: 12px;
+  transition: all 0.2s ease;
+
+  &.hidden {
+    display: none;
+  }
 }
