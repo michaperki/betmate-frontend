@@ -13,6 +13,7 @@ import DragDropTip from 'components/DragDropTip';
 import ChatBox from 'components/ChatBox';
 import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
+import NavBar from 'components/NavBar';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
@@ -159,17 +160,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       <DragDropTip isAuthenticated={props.isAuthenticated} />
 
       <div className="dark-game-page">
-        {/* Top navigation bar */}
-        <div className="top-nav">
-          <div className="logo-container">
-            <img src={logoSvg} alt="BetMate" className="logo" />
-            <h1 className="logo-text">BetMate</h1>
-          </div>
-
-          {props.isAuthenticated && (
-            <CoinBalance balance={props.balance} />
-          )}
-        </div>
+        {/* Top navigation bar - Using the connected NavBar component */}
+        <NavBar />
 
         {/* Main content area */}
         <div className="game-content">

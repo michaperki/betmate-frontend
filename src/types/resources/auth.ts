@@ -15,7 +15,7 @@ export interface User {
   first_name: string
   last_name: string
   full_name: string
-  account: number
+  account: number // This is the user's token balance for betting
   role?: UserRole
   _id: string
 }

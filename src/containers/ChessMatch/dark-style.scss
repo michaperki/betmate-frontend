@@ -15,6 +15,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
+  height: 80px;
   background-color: #111111;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -25,19 +26,50 @@
 }
 
 .logo {
-  height: 32px;
+  height: 40px;
   width: auto;
   margin-right: 12px;
 }
 
 .logo-text {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 500;
   color: #00EFB2;
   display: none;
-  
+
   @media (min-width: 640px) {
     display: block;
+  }
+}
+
+// Navigation buttons
+.nav-buttons {
+  display: flex;
+  align-items: center;
+
+  .nav-button {
+    background: transparent;
+    border: 1px solid #00EFB2;
+    border-radius: 8px;
+    margin: auto 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #F2F2F2;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    text-decoration: none;
+
+    &:hover {
+      background: rgba(0, 239, 178, 0.1);
+      box-shadow: 0 0 8px rgba(0, 239, 178, 0.3);
+    }
+
+    &.active {
+      background: #00EFB2;
+      color: #111111;
+    }
   }
 }
 
@@ -301,6 +333,7 @@
   display: flex;
   align-items: stretch;
   justify-content: center;
+  padding: 4px 0;
 
   @media (max-width: 640px) {
     width: 30px;
@@ -320,12 +353,13 @@
   flex-direction: column;
   height: 100%;
   width: 24px;
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #2D2D2D;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(58, 136, 254, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   margin-top: auto; /* Push to the bottom of its container */
   margin-bottom: auto; /* Push to the top of its container */
+  background-color: #1E1E2E;
 
   @media (max-width: 640px) {
     width: 16px;
@@ -334,19 +368,19 @@
 
 .white-section {
   width: 100%;
-  background-color: #EFEFEF;
+  background-color: #FFFFFF;
   transition: height 1s ease;
 }
 
 .draw-section {
   width: 100%;
-  background-color: #6D7A8C;
+  background-color: #3A88FE;
   transition: height 1s ease;
 }
 
 .black-section {
   width: 100%;
-  background-color: #111111;
+  background-color: #1E1E25;
   transition: height 1s ease;
 }
 
@@ -354,15 +388,15 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-size: 10px;
-  color: #BDBDBD;
+  font-size: 11px;
+  color: #FFFFFF;
   height: 100%;
   margin-left: 8px;
   position: relative; /* Needed for absolute positioning of draw label */
 
   @media (max-width: 768px) {
     margin-left: 4px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   @media (max-width: 640px) {
@@ -372,24 +406,25 @@
   .label {
     display: block;
     text-align: left;
-    width: 30px;
+    width: 34px;
+    font-weight: 500;
 
     @media (max-width: 768px) {
-      width: 24px;
+      width: 28px;
     }
 
     &.white {
-      color: #EFEFEF;
+      color: #fff;
       margin-top: auto;
     }
 
     &.draw {
-      color: #BDBDBD;
+      color: #3a88fe;
       /* No margin needed as it's positioned absolutely */
     }
 
     &.black {
-      color: #888888;
+      color: #9999a8;
       margin-bottom: auto;
     }
   }
