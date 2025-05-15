@@ -29,3 +29,26 @@ export const sendGameChat = (gameId: string, chat: string): Actions => ({
   status: 'REQUEST',
   payload: { gameId, chat, time: new Date().toISOString() },
 });
+
+export const toggleQuickBet = (): Actions => ({
+  type: 'TOGGLE_QUICK_BET',
+  status: 'SUCCESS',
+  payload: {},
+});
+
+export const setPendingBet = (pendingBet: {
+  moveString: string;
+  stake: number;
+  gameId: string;
+  isActive: boolean;
+}): Actions => ({
+  type: 'SET_PENDING_BET',
+  status: 'SUCCESS',
+  payload: pendingBet,
+});
+
+export const clearPendingBet = (): Actions => ({
+  type: 'CLEAR_PENDING_BET',
+  status: 'SUCCESS',
+  payload: {},
+});

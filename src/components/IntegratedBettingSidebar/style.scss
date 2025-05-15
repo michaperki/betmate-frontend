@@ -11,7 +11,8 @@
   .tab-navigation {
     display: flex;
     border-bottom: 1px solid #2a2a3a;
-    
+    align-items: center;
+
     .tab-button {
       flex: 1;
       background: none;
@@ -21,15 +22,73 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
-      
+
       &.active {
         color: #fff;
         background-color: rgba(255, 255, 255, 0.05);
         border-bottom: 2px solid #3a88fe;
       }
-      
+
       &:hover:not(.active) {
         background-color: rgba(255, 255, 255, 0.02);
+      }
+    }
+
+    .quick-bet-toggle {
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+
+        input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+
+          &:checked + .toggle-slider {
+            background-color: #3a88fe;
+          }
+
+          &:checked + .toggle-slider:before {
+            transform: translateX(20px);
+          }
+        }
+
+        .toggle-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #444;
+          transition: .4s;
+          border-radius: 34px;
+
+          &:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+          }
+        }
+      }
+
+      .toggle-label {
+        margin-left: 8px;
+        font-size: 12px;
+        color: #9999a8;
+        white-space: nowrap;
       }
     }
   }
@@ -57,7 +116,7 @@
     
     /* Fixed-height container for move analysis to prevent UI jumping */
     .move-analysis-container {
-      height: 120px; /* Fixed height that accommodates all possible content */
+      height: 150px; /* Increased height to accommodate all content */
       margin-bottom: 16px;
     }
     
@@ -66,6 +125,7 @@
       border-radius: 6px;
       padding: 12px;
       height: calc(100% - 24px); /* Account for padding */
+      overflow-y: auto; /* Add scrolling just in case */
       
       .move-preview {
         display: flex;
@@ -94,16 +154,16 @@
       
       .move-metrics {
         .metric {
-          margin-bottom: 12px;
-          
+          margin-bottom: 10px;
+
           .metric-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             
             .metric-label {
-              font-size: 13px;
+              font-size: 12px;
               color: #9999a8;
             }
             
@@ -117,11 +177,11 @@
           }
           
           .metric-value {
-            height: 8px;
+            height: 6px;
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             
             .metric-bar {
               height: 100%;
@@ -142,8 +202,9 @@
           }
           
           .metric-description {
-            font-size: 12px;
+            font-size: 11px;
             color: #9999a8;
+            margin-top: 1px;
           }
         }
       }
@@ -202,6 +263,12 @@
         &:hover, &.move-hovered {
           background-color: rgba(255, 255, 255, 0.08);
           transform: translateY(-1px);
+        }
+
+        &.selected-bet {
+          background-color: rgba(58, 136, 254, 0.15);
+          border-width: 2px;
+          border-color: #3a88fe;
         }
         
         p {
@@ -276,7 +343,7 @@
       display: flex;
       justify-content: space-between;
       margin-top: 16px;
-      
+
       .stake-button {
         flex: 1;
         background-color: rgba(255, 255, 255, 0.05);
@@ -288,22 +355,77 @@
         cursor: pointer;
         transition: all 0.2s ease;
         margin: 0 4px;
-        
+
         &:first-child {
           margin-left: 0;
         }
-        
+
         &:last-child {
           margin-right: 0;
         }
-        
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.1);
         }
-        
+
         &.active {
           background-color: #3a88fe;
           border-color: #3a88fe;
+        }
+      }
+    }
+
+    .bet-confirmation-section {
+      margin-top: 16px;
+      padding: 12px;
+      background-color: rgba(58, 136, 254, 0.1);
+      border-radius: 6px;
+      border: 1px solid rgba(58, 136, 254, 0.3);
+
+      .pending-bet-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+
+        strong {
+          color: #fff;
+          font-weight: 600;
+        }
+      }
+
+      .confirmation-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+
+        button {
+          flex: 1;
+          padding: 10px;
+          border-radius: 6px;
+          border: none;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 14px;
+          transition: all 0.2s ease;
+
+          &.cancel-button {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+
+            &:hover {
+              background-color: rgba(255, 255, 255, 0.15);
+            }
+          }
+
+          &.confirm-button {
+            background-color: #3a88fe;
+            color: #fff;
+
+            &:hover {
+              background-color: #4a98ff;
+            }
+          }
         }
       }
     }

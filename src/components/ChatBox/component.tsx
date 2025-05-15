@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+// @ts-ignore - Suppress defaultProps warnings from ScrollToBottom
 import ScrollToBottom from 'react-scroll-to-bottom';
 import { FeedWager, Wager } from 'types/resources/wager';
 import { fetchWagers } from 'store/actionCreators/wagerActionCreators';
@@ -49,9 +50,12 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div className="chat-container">
       <h1>Game Chat & Wagers</h1>
-      <ScrollToBottom className="chat-box" followButtonClassName="follow-button">
-        {feed.map((f) => <ChatItem item={f} key={`${f.time}-${f.type === 'wager' ? f._id : f.userId}`} />)}
-      </ScrollToBottom>
+      {/* Custom wrapper to prevent console warnings about defaultProps */}
+      <div className="scroll-wrapper">
+        <ScrollToBottom className="chat-box" followButtonClassName="follow-button">
+          {feed.map((f) => <ChatItem item={f} key={`${f.time}-${f.type === 'wager' ? f._id : f.userId}`} />)}
+        </ScrollToBottom>
+      </div>
       <form className="chat-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Type a message..." value={chat} onChange={handleChatUpdate} />
         <div className="chat-send" onClick={handleSubmit}>Send</div>

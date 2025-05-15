@@ -80,10 +80,19 @@ export interface Game {
 
 /* -------- State -------- */
 
+export interface PendingBet {
+  moveString: string;
+  stake: number;
+  gameId: string;
+  isActive: boolean;
+}
+
 export interface GameState {
   games: Record<string, Game>,
   showModal: Record<string, boolean>,
-  chats: FeedChat[]
+  chats: FeedChat[],
+  quickBetMode: boolean;
+  pendingBet: PendingBet | null;
 }
 
 /* -------- Action Types -------- */
@@ -101,6 +110,9 @@ export const FETCH_GAME = 'FETCH_GAME';
 export const FETCH_GAMES = 'FETCH_GAMES';
 export const UPDATE_SHOW_MODAL = 'UPDATE_SHOW_MODAL';
 export const CLEAR_GAMES = 'CLEAR_GAMES';
+export const TOGGLE_QUICK_BET = 'TOGGLE_QUICK_BET';
+export const SET_PENDING_BET = 'SET_PENDING_BET';
+export const CLEAR_PENDING_BET = 'CLEAR_PENDING_BET';
 
 export type JoinGameData = { gameId: string }; // ws
 export type LeaveGameData = { gameId: string }; // ws
@@ -118,6 +130,7 @@ export type FetchGameData = Game;
 export type FetchGamesData = Game[];
 
 export type UpdateModalData = { gameId: string, modalState: boolean };
+export type SetPendingBetData = PendingBet;
 
 export type JoinGameActions = AsyncAction<typeof JOIN_GAME, JoinGameData, JoinGameData>; // ws
 export type LeaveGameActions = AsyncAction<typeof LEAVE_GAME, LeaveGameData, LeaveGameData>; // ws
@@ -132,14 +145,18 @@ export type FetchGameActions = AsyncAction<typeof FETCH_GAME, FetchGameData, Fet
 export type FetchGamesActions = AsyncAction<typeof FETCH_GAMES, FetchGamesData, FetchGamesRequestData>;
 export type ShowModalActions = Action<typeof UPDATE_SHOW_MODAL, UpdateModalData>;
 export type ClearGamesActions = Action<typeof CLEAR_GAMES>;
+export type ToggleQuickBetActions = Action<typeof TOGGLE_QUICK_BET>;
+export type SetPendingBetActions = Action<typeof SET_PENDING_BET, SetPendingBetData>;
+export type ClearPendingBetActions = Action<typeof CLEAR_PENDING_BET>;
 
 export type GameUpdateActions = StartGameActions | UpdateGameStateActions | UpdateGameOddsActions | UpdateGameEndActions;
 
 export type GameActions =
   JoinGameActions | LeaveGameActions | GameUpdateActions | ShowModalActions | ClearGamesActions |
-  FetchGameActions | FetchGamesActions | BroadcastPoolWagerActions | GameChatActions;
+  FetchGameActions | FetchGamesActions | BroadcastPoolWagerActions | GameChatActions |
+  ToggleQuickBetActions | SetPendingBetActions | ClearPendingBetActions;
 
 export type GameActionTypes =
   typeof JOIN_GAME | typeof LEAVE_GAME | typeof UPDATE_GAME_STATE | typeof UPDATE_GAME_ODDS | typeof UPDATE_GAME_END | typeof FETCH_GAME |
   typeof FETCH_GAME | typeof START_GAME | typeof FETCH_GAMES | typeof BROADCAST_POOL_WAGER | typeof UPDATE_SHOW_MODAL | typeof CLEAR_GAMES |
-  typeof GAME_CHAT;
+  typeof GAME_CHAT | typeof TOGGLE_QUICK_BET | typeof SET_PENDING_BET | typeof CLEAR_PENDING_BET;

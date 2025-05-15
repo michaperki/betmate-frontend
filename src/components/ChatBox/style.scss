@@ -67,12 +67,8 @@
 }
 
 .chat-box {
-    margin: 0 15px 15px 15px;
-    width: calc(100% - 30px);
     height: auto;
     flex: 1;
-    max-height: 200px;
-    min-height: 120px;
     background-color: #1E1E1E;
     border-radius: 8px;
     padding: 5px;
@@ -142,4 +138,20 @@
 
 .follow-button {
     display: none;
+}
+
+/* Wrapper to maintain layout with the scroll component */
+.scroll-wrapper {
+    margin: 0 15px 15px 15px;
+    flex: 1;
+    display: flex;
+    min-height: 120px;
+    max-height: 200px;
+    width: calc(100% - 30px);
+}
+
+/* Adjust chat-box styles to work with the wrapper */
+.chat-box {
+    margin: 0;
+    width: 100%;
 }

@@ -1,7 +1,12 @@
 import { connect } from 'react-redux';
 
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
-import { fetchGameById } from 'store/actionCreators/gameActionCreators';
+import {
+  fetchGameById,
+  setPendingBet,
+  clearPendingBet,
+  toggleQuickBet
+} from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
 import {
   onEnterMovePanel,
@@ -26,6 +31,8 @@ const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.auth.isAuthenticated,
   balance: state.auth.user?.account,
   rankings: state.leaderboard.rankings,
+  quickBetMode: state.game.quickBetMode,
+  pendingBet: state.game.pendingBet,
 });
 
 const mapDispatchToProps = {
@@ -33,6 +40,9 @@ const mapDispatchToProps = {
   leaveGame,
   fetchGameById,
   createWager,
+  setPendingBet,
+  clearPendingBet,
+  toggleQuickBet,
   onEnterMovePanel,
   onLeaveMovePanel,
   onMoveHover,

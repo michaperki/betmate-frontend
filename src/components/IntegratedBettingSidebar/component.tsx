@@ -4,6 +4,7 @@ import { Chess } from 'chess.js';
 import { getMoveAnalysis, MoveAnalysis } from 'store/requests';
 import { Game } from 'types/resources/game';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
+import { setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
 import {
   onEnterMovePanel,
   onLeaveMovePanel,
@@ -31,6 +32,18 @@ interface IntegratedBettingSidebarProps {
   onMoveHover?: typeof onMoveHover;
   onMoveUnhover?: typeof onMoveUnhover;
   createNewArrows?: typeof createNewArrows;
+  quickBetMode: boolean;
+  toggleQuickBet: typeof toggleQuickBet;
+  pendingBet: {
+    moveString: string;
+    stake: number;
+    gameId: string;
+    isActive: boolean;
+  } | null;
+  setPendingBet: typeof setPendingBet;
+  clearPendingBet: typeof clearPendingBet;
+  selectedStake?: number;
+  setSelectedStake?: (stake: number) => void;
 }
 
 const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
@@ -43,9 +56,20 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   onMoveHover: handleMoveHover,
   onMoveUnhover: handleMoveUnhover,
   createNewArrows: handleCreateNewArrows,
+  quickBetMode,
+  toggleQuickBet,
+  pendingBet,
+  setPendingBet: setNewPendingBet,
+  clearPendingBet,
+  selectedStake: externalSelectedStake,
+  setSelectedStake: externalSetSelectedStake,
 }) => {
   const { id: gameId } = useParams<{ id: string }>();
-  const [selectedStake, setSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
+  const [internalSelectedStake, setInternalSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
+
+  // Use either external or internal state for stake
+  const selectedStake = externalSelectedStake !== undefined ? externalSelectedStake : internalSelectedStake;
+  const setSelectedStake = externalSetSelectedStake || setInternalSelectedStake;
   const [activeTab, setActiveTab] = useState<'move' | 'outcome'>('move');
   const [hasInitialized, setHasInitialized] = useState(false);
   const [hoveredMove, setHoveredMove] = useState<string | null>(null);
@@ -103,6 +127,47 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
       });
   }, [hoveredMove, game?.state]);
 
+  // Fetch move analysis for pending bet and show arrow
+  useEffect(() => {
+    if (!pendingBet?.isActive || !game?.state) {
+      console.log('Pending bet effect - missing data:', {
+        hasPendingBet: !!pendingBet,
+        isActive: pendingBet?.isActive,
+        hasGameState: !!game?.state
+      });
+      return;
+    }
+
+    // Only process if this pending bet is for the current game
+    if (pendingBet.gameId === gameId) {
+      console.log('Processing pending bet:', pendingBet.moveString);
+
+      // Set hoveredMove to the pending bet move to show metrics
+      setHoveredMove(pendingBet.moveString);
+
+      // Show arrow on board for the pending bet
+      if (handleMoveHover && game) {
+        const chess = new Chess(game.state);
+        try {
+          console.log('Attempting to show arrow for pending bet:', pendingBet.moveString);
+          const moveObj = chess.move(pendingBet.moveString, { sloppy: true });
+          if (moveObj) {
+            console.log('Pending bet arrow data:', { from: moveObj.from, to: moveObj.to });
+            handleMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
+          } else {
+            console.error('Move object not created for pending bet:', pendingBet.moveString);
+          }
+        } catch (e) {
+          console.error('Invalid move for pending bet:', e);
+        }
+      } else {
+        console.log('Cannot show arrow for pending bet - missing handler:', !!handleMoveHover);
+      }
+    } else {
+      console.log('Pending bet for different game:', pendingBet.gameId, gameId);
+    }
+  }, [pendingBet, game?.state, gameId, handleMoveHover]);
+
   // Ensure moveOptions is properly typed
   const typedMoveOptions: Array<{ move: string; odds: number }> = Array.isArray(moveOptions)
     ? moveOptions.map((move) => (typeof move === 'string' ? { move, odds: 1 } : move))
@@ -111,14 +176,56 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   const handleBetMove = (moveOption: string) => () => {
     if (!isAuthenticated || !selectedStake) return;
 
-    placeBet(
-      gameId,
-      moveOption,
-      selectedStake,
-      false, // not WDL
-      1,
-      game.move_hist.length + 1,
-    );
+    // Show arrow for the move regardless of bet mode
+    if (handleMoveHover && game) {
+      console.log('Attempting to show arrow for move:', moveOption);
+      const chess = new Chess(game.state);
+      try {
+        const moveObj = chess.move(moveOption, { sloppy: true });
+        if (moveObj) {
+          console.log('Arrow data:', { from: moveObj.from, to: moveObj.to });
+          handleMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
+        } else {
+          console.error('Move object not created for:', moveOption);
+        }
+      } catch (e) {
+        console.error('Invalid move', e);
+      }
+    } else {
+      console.log('Cannot show arrow - missing handler or game:', !!handleMoveHover, !!game);
+    }
+
+    if (quickBetMode) {
+      // Place bet immediately if in quick bet mode
+      placeBet(
+        gameId,
+        moveOption,
+        selectedStake,
+        false, // not WDL
+        1,
+        game.move_hist.length + 1,
+      );
+
+      // Set hoveredMove so the metrics stay visible briefly
+      setHoveredMove(moveOption);
+
+      // Clear the arrow after a short delay
+      setTimeout(() => {
+        setHoveredMove(null);
+        setMoveMetrics(null);
+        if (handleMoveUnhover) {
+          handleMoveUnhover();
+        }
+      }, 1000);
+    } else {
+      // Set this as pending bet to show confirmation
+      setNewPendingBet({
+        moveString: moveOption,
+        stake: selectedStake,
+        gameId,
+        isActive: true
+      });
+    }
   };
 
   const handleMovePieceHover = (moveOption: string) => () => {
@@ -138,9 +245,12 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   };
 
   const handleMovePieceUnhover = () => {
+    // Always allow clearing of hover state when manually mousing away
+  // We removed the pending bet check to ensure proper behavior
+
     setHoveredMove(null);
     setMoveMetrics(null);
-    
+
     if (handleMoveUnhover) {
       handleMoveUnhover();
     }
@@ -149,14 +259,37 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   const handleBetOutcome = (outcome: string) => () => {
     if (!isAuthenticated || !selectedStake) return;
 
-    placeBet(
-      gameId,
-      outcome,
-      selectedStake,
-      true, // is WDL
-      1 / (outcomeOptions[outcome] || 1),
-      game.move_hist.length + 1,
-    );
+    if (quickBetMode) {
+      // Place bet immediately if in quick bet mode
+      placeBet(
+        gameId,
+        outcome,
+        selectedStake,
+        true, // is WDL
+        1 / (outcomeOptions[outcome] || 1),
+        game.move_hist.length + 1,
+      );
+
+      // Set hoveredMove so metrics stay visible briefly
+      setHoveredMove(outcome);
+
+      // Clear the arrow after a short delay
+      setTimeout(() => {
+        setHoveredMove(null);
+        setMoveMetrics(null);
+        if (handleMoveUnhover) {
+          handleMoveUnhover();
+        }
+      }, 1000);
+    } else {
+      // Set this as pending bet to show confirmation
+      setNewPendingBet({
+        moveString: outcome,
+        stake: selectedStake,
+        gameId,
+        isActive: true
+      });
+    }
   };
 
   const formatPayout = (odds: number) => {
@@ -212,14 +345,16 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     const totalPool = wagers.reduce((acc, w) => acc + w.amount, 0);
 
     const poolPerMove: Record<string, number> = wagers.reduce((currObj, { amount, data }) => {
-      const field = options.includes(data) ? data : 'Other';
-      return {
-        ...currObj,
-        [field]: currObj[field] + amount,
-      };
+      // Only include wagers for options we know about
+      if (options.includes(data)) {
+        return {
+          ...currObj,
+          [data]: currObj[data] + amount,
+        };
+      }
+      return currObj;
     }, {
       ...options.reduce((obj, move) => ({ ...obj, [move]: 0 }), {}),
-      Other: 0,
     });
 
     const maxPercentage = (
@@ -230,8 +365,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
 
     // Format move display - lowercase for pawn moves, uppercase for piece moves
     const formatMove = (move: string): string => {
-      if (move === 'Other') return move;
-
       // Handle castling notation
       if (move === 'O-O' || move === 'O-O-O') return move;
 
@@ -245,20 +378,15 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
       return firstChar + move.substring(1).toLowerCase();
     };
 
-    // Get all moves and add the "Other" option at the end
+    // Get all moves
     const allMoves = Object.entries(poolPerMove);
 
-    // Move "Other" to the end if it exists
-    const sortedMoves = allMoves.sort((a, b) => {
-      if (a[0] === 'Other') return 1;
-      if (b[0] === 'Other') return -1;
-      return 0;
-    });
-
-    return sortedMoves.map(([move, movePool], i) => (
+    return allMoves.map(([move, movePool], i) => (
       <div
         key={move}
-        className={`move-option ${isAuthenticated ? 'move-auth' : ''} ${hoveredMove === move ? 'move-hovered' : ''}`}
+        className={`move-option ${isAuthenticated ? 'move-auth' : ''}
+                  ${hoveredMove === move ? 'move-hovered' : ''}
+                  ${pendingBet && pendingBet.isActive && pendingBet.moveString === formatMove(move) ? 'selected-bet' : ''}`}
         style={{ borderColor: isAuthenticated ? moveOptionColors[i % moveOptionColors.length] : 'grey' }}
         data-move={move}
         onMouseEnter={handleMovePieceHover(move)}
@@ -311,6 +439,21 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
         >
           Outcome
         </button>
+
+        {/* Quick Bet Toggle */}
+        {isAuthenticated && (
+          <div className="quick-bet-toggle">
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={quickBetMode}
+                onChange={toggleQuickBet}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+            <span className="toggle-label">Quick Bet</span>
+          </div>
+        )}
       </div>
 
       {/* Content Panel */}
@@ -415,6 +558,63 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
             </button>
           ))}
         </div>
+
+        {/* Bet Confirmation Section - Only shown when not in quick bet mode and there's a pending bet */}
+        {!quickBetMode && pendingBet?.isActive && pendingBet.gameId === gameId && (
+          <div className="bet-confirmation-section">
+            <div className="pending-bet-info">
+              <span>Bet on: <strong>{pendingBet.moveString}</strong></span>
+              <span>Amount: <strong>{pendingBet.stake}</strong></span>
+            </div>
+            <div className="confirmation-buttons">
+              <button
+                className="cancel-button"
+                onClick={() => {
+                  // First clear the hover state
+                  setHoveredMove(null);
+                  setMoveMetrics(null);
+
+                  // Explicitly clear any arrows
+                  if (handleMoveUnhover) {
+                    handleMoveUnhover();
+                  }
+
+                  // Finally clear the pending bet state
+                  clearPendingBet();
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="confirm-button"
+                onClick={() => {
+                  placeBet(
+                    pendingBet.gameId,
+                    pendingBet.moveString,
+                    pendingBet.stake,
+                    activeTab === 'outcome', // is WDL if on outcome tab
+                    activeTab === 'outcome' ? 1 / (outcomeOptions[pendingBet.moveString] || 1) : 1,
+                    game.move_hist.length + 1,
+                  );
+
+                  // Clear visual state
+                  setHoveredMove(null);
+                  setMoveMetrics(null);
+
+                  // Clear pending bet state
+                  clearPendingBet();
+
+                  // Explicitly clear any arrows
+                  if (handleMoveUnhover) {
+                    handleMoveUnhover();
+                  }
+                }}
+              >
+                Confirm Bet
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

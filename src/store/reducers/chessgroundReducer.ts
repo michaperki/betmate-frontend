@@ -1,6 +1,7 @@
 import { ChessgroundState } from 'types/chessground';
 import { Actions } from 'types/state';
 import { selectDrawshape } from 'utils/chess';
+import { DrawShape } from 'chessground/draw';
 
 interface ExtendedChessgroundState extends ChessgroundState {
   baseAutoShapes: ChessgroundState['autoShapes'];
@@ -99,17 +100,27 @@ const chessgroundReducer = (
       };
 
     case 'CG_MOVE_HOVER':
+      console.log('CG_MOVE_HOVER action received:', action.payload);
+      // Create a direct arrow with proper typing
+      const arrow = [{
+        orig: action.payload.from as any, // Cast to bypass Key type
+        dest: action.payload.to as any,   // Cast to bypass Key type
+        brush: 'green'
+      }] as DrawShape[];
       return {
         ...state,
         selected: action.payload,
-        autoShapes: selectDrawshape(state.baseAutoShapes, action.payload),
+        autoShapes: arrow,
+        showAutoShapes: true, // Force arrows to be visible
       };
 
     case 'CG_MOVE_UNHOVER':
+      console.log('CG_MOVE_UNHOVER action received');
       return {
         ...state,
         selected: undefined,
-        autoShapes: state.showAutoShapes ? state.baseAutoShapes : [],
+        autoShapes: [], // Clear shapes properly
+        showAutoShapes: false, // Turn off shape display
       };
 
     default:

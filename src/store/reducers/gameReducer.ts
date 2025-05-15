@@ -7,6 +7,8 @@ const initialState: GameState = {
   games: {},
   showModal: {},
   chats: [],
+  quickBetMode: false, // Default to confirmation mode
+  pendingBet: null,
 };
 
 const gameReducer = (state = initialState, action: Actions): GameState => {
@@ -99,6 +101,24 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
       return {
         ...state,
         chats: [],
+      };
+
+    case 'TOGGLE_QUICK_BET':
+      return {
+        ...state,
+        quickBetMode: !state.quickBetMode
+      };
+
+    case 'SET_PENDING_BET':
+      return {
+        ...state,
+        pendingBet: action.payload
+      };
+
+    case 'CLEAR_PENDING_BET':
+      return {
+        ...state,
+        pendingBet: null
       };
 
     default:

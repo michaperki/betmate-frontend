@@ -15,7 +15,7 @@ import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
-import { fetchGameById } from 'store/actionCreators/gameActionCreators';
+import { fetchGameById, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { gameOver, getValidMoves } from 'utils/chess';
 import { Game, GameStatus } from 'types/resources/game';
@@ -34,6 +34,9 @@ interface ChessMatchProps {
   leaveGame: typeof leaveGame;
   fetchGameById: typeof fetchGameById;
   createWager: typeof createWager;
+  setPendingBet: typeof setPendingBet;
+  clearPendingBet: typeof clearPendingBet;
+  toggleQuickBet: typeof toggleQuickBet;
   onEnterMovePanel: any; // Using any to bypass type incompatibility
   onLeaveMovePanel: any;
   onMoveHover: any;
@@ -47,6 +50,13 @@ interface ChessMatchProps {
   isAuthenticated: boolean;
   balance: number | undefined;
   rankings: Rank[];
+  quickBetMode: boolean;
+  pendingBet: {
+    moveString: string;
+    stake: number;
+    gameId: string;
+    isActive: boolean;
+  } | null;
 }
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
@@ -72,7 +82,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => clearInterval(pollInterval);
   }, [gameId, props.fetchGameById]);
 
-  // Handle drag-and-drop move - now places bet directly using the integrated sidebar
+  // Handle drag-and-drop move - now respects quick bet mode
   const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
     if (!game) return;
 
@@ -86,18 +96,44 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       });
 
       if (move) {
-        // Place the bet immediately with the current stake
-        props.createWager(
-          gameId,
-          move.san,
-          selectedStake,
-          false, // not WDL
-          1, // Default odds - will be calculated server-side based on pool
-          game.move_hist.length + 1,
-        );
+        // Make sure the move panel is active to show arrows
+        props.onEnterMovePanel();
 
-        // Reset board to original position
+        // Show arrow for the move
+        console.log('Drag-drop: Adding arrow for move:', { orig: orig.toString(), dest: dest.toString() });
+        props.onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
+
+        if (props.quickBetMode) {
+          // Place bet immediately if in quick bet mode
+          props.createWager(
+            gameId,
+            move.san,
+            selectedStake,
+            false, // not WDL
+            1, // Default odds - will be calculated server-side based on pool
+            game.move_hist.length + 1,
+          );
+
+          // Clear the arrow after placing the bet in quick mode
+          setTimeout(() => {
+            if (props.onMoveUnhover) {
+              props.onMoveUnhover();
+            }
+          }, 1000); // Leave arrow visible briefly for feedback
+        } else {
+          // Set as pending bet to show in sidebar with metrics
+          props.setPendingBet({
+            moveString: move.san,
+            stake: selectedStake,
+            gameId,
+            isActive: true
+          });
+        }
+
+        // Reset board to original position but keep the arrow showing
         chess.undo();
+
+        // Don't call onMoveUnhover here as we want the arrow to stay visible
       }
     } catch (e) {
       console.error('Invalid move', e);
@@ -219,6 +255,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 onMoveHover={props.onMoveHover}
                 onMoveUnhover={props.onMoveUnhover}
                 createNewArrows={props.createNewArrows}
+                quickBetMode={props.quickBetMode}
+                toggleQuickBet={props.toggleQuickBet}
+                pendingBet={props.pendingBet}
+                setPendingBet={props.setPendingBet}
+                clearPendingBet={props.clearPendingBet}
+                selectedStake={selectedStake}
+                setSelectedStake={setSelectedStake}
               />
             </div>
 
