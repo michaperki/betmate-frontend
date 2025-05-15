@@ -17,9 +17,11 @@ interface GameOutcomesProps {
   wagersLoading: boolean
   handleSubmit: (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
   isAuthenticated: boolean
+  isDarkTheme?: boolean
 }
 
 const GameOutcomes: React.FC<GameOutcomesProps> = (props) => {
+  const { isDarkTheme = true } = props;
   const getOdds = (odds: string) => {
     switch (odds) {
       case 'White':
@@ -34,22 +36,24 @@ const GameOutcomes: React.FC<GameOutcomesProps> = (props) => {
   };
 
   return (
-    <div className="options-container wdl-options">
+    <div className={isDarkTheme ? "dark-options-container" : "options-container wdl-options"}>
       {props.wagersLoading
-        ? <p>Loading...</p>
+        ? <p>{isDarkTheme ? "Loading betting options..." : "Loading..."}</p>
         : (
           Object.keys(gameOutcomes).map((outcome) => {
             const [outcomeCode, image] = gameOutcomes[outcome];
             return (
               <div
                 key={outcome}
-                className={`wdl-option ${props.isAuthenticated ? 'wdl-auth' : ''}`}
+                className={isDarkTheme
+                  ? `dark-wdl-option ${props.isAuthenticated ? 'dark-wdl-auth' : ''}`
+                  : `wdl-option ${props.isAuthenticated ? 'wdl-auth' : ''}`}
                 onClick={props.handleSubmit(outcomeCode)}
               >
                 <img src={image} alt={outcome} />
                 <div>
                   <p>{outcome}</p>
-                  <p className="odds-text">{getOdds(outcome)}x</p>
+                  <p className={isDarkTheme ? "dark-odds-text" : "odds-text"}>{getOdds(outcome)}x</p>
                 </div>
               </div>
             );

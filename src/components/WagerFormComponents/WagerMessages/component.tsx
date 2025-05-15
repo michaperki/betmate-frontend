@@ -11,9 +11,11 @@ interface WagerMessagesProps {
   jwtSignIn: typeof jwtSignIn,
   isLoading: boolean,
   errorMessages: string[],
+  isDarkTheme?: boolean,
 }
 
 const WagerMessages: React.FC<WagerMessagesProps> = (props) => {
+  const { isDarkTheme = true } = props;
   const [submissionStatus, setSubmissionStatus] = useState('');
 
   const history = useHistory();
@@ -51,18 +53,19 @@ const WagerMessages: React.FC<WagerMessagesProps> = (props) => {
   };
 
   return (
-    <>
+    <div className={isDarkTheme ? "dark-wager-message-panel" : ""}>
       {!props.isAuthenticated && (
         <input
           type="submit"
           value='Sign up to submit'
           onClick={goToSignUp}
+          className={isDarkTheme ? "dark-submit-button" : ""}
         />
       )}
-      {props.isLoading && submissionStatus === 'loading' ? <p className="status-text">Submitting bet...</p> : null}
-      {props.errorMessages && submissionStatus === 'error' ? <p className="status-text">{props.errorMessages[0]}</p> : null}
-      {!props.isLoading && submissionStatus === 'success' ? <p className="status-text">Wager successfully submitted!</p> : null}
-    </>
+      {props.isLoading && submissionStatus === 'loading' ? <p className={isDarkTheme ? "dark-status-text" : "status-text"}>Submitting bet...</p> : null}
+      {props.errorMessages && submissionStatus === 'error' ? <p className={isDarkTheme ? "dark-status-text error" : "status-text"}>Error: {props.errorMessages[0]}</p> : null}
+      {!props.isLoading && submissionStatus === 'success' ? <p className={isDarkTheme ? "dark-status-text success" : "status-text"}>Wager successfully submitted!</p> : null}
+    </div>
   );
 };
 

@@ -11,15 +11,18 @@ import { Game } from 'types/resources/game';
 import { WagerMessages } from '../WagerFormComponents';
 
 import './style.scss';
+import './dark-style.scss';
 
 interface PregameModalProps {
   games: Record<string, Game>,
   isAuthenticated: boolean
   createWager: typeof createWager
   updateShowModal: typeof updateShowModal,
+  isDarkTheme?: boolean
 }
 
 const PregameModal: React.FC<PregameModalProps> = (props) => {
+  const { isDarkTheme = true } = props;
   const [wagerAmount, setWagerAmount] = useState(5);
   const [panelLoading, setPanelLoading] = useState(false);
 
@@ -42,13 +45,13 @@ const PregameModal: React.FC<PregameModalProps> = (props) => {
   }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId]]);
 
   return (
-    <div className="blur-background">
-      <div className="pregame-modal-container">
-        <div className="padding-container">
+    <div className={isDarkTheme ? "dark-blur-background" : "blur-background"}>
+      <div className={isDarkTheme ? "dark-pregame-modal-container" : "pregame-modal-container"}>
+        <div className={isDarkTheme ? "dark-padding-container" : "padding-container"}>
           <h1>Pre-Game Bets</h1>
           <h3>Select a winning side and an amount to bet on the outcome of the game.</h3>
-          <form className="pregame-body-container">
-            <div className="pregame-wdl-container">
+          <form className={isDarkTheme ? "dark-pregame-body-container" : "pregame-body-container"}>
+            <div className={isDarkTheme ? "dark-pregame-wdl-container" : "pregame-wdl-container"}>
               <WDLBar
                 odds={props.games[gameId]?.odds}
                 height={30}
@@ -57,9 +60,9 @@ const PregameModal: React.FC<PregameModalProps> = (props) => {
             <Slider
               max={10}
               min={1}
-              className="slider-pregame"
-              thumbClassName="thumb-pregame"
-              trackClassName="track-pregame"
+              className={isDarkTheme ? "dark-slider-pregame" : "slider-pregame"}
+              thumbClassName={isDarkTheme ? "dark-thumb-pregame" : "thumb-pregame"}
+              trackClassName={isDarkTheme ? "dark-track-pregame" : "track-pregame"}
               renderThumb={(prps, state) => <div {...prps}>${state.valueNow}</div>}
               renderTrack={(prps) => <div {...prps} />}
               value={wagerAmount}
@@ -69,14 +72,16 @@ const PregameModal: React.FC<PregameModalProps> = (props) => {
               odds={props.games[gameId]?.odds}
               wagersLoading={wagersLoading}
               handleSubmit={handleSubmit}
+              isDarkTheme={isDarkTheme}
             />
             <WagerMessages
               panelLoading={panelLoading}
               setPanelLoading={setPanelLoading}
+              isDarkTheme={isDarkTheme}
             />
           </form>
           <button
-            className="skip-button"
+            className={isDarkTheme ? "dark-skip-button" : "skip-button"}
             type="button"
             onClick={() => { props.updateShowModal(gameId, false); }}
           >
