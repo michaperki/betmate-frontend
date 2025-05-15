@@ -88,7 +88,7 @@
   padding: 16px 16px 0; /* Remove bottom padding */
   max-width: 1500px; /* increased max width */
   width: 100%;
-  margin: 0; /* Remove margin */
+  margin: 0 auto; /* Center horizontally */
   gap: 24px;
   align-items: center; /* center align all columns vertically */
   position: relative; /* For absolute positioning of sidebar wrapper */
