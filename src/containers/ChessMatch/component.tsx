@@ -173,11 +173,21 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
         {/* Main content area */}
         <div className="game-content">
-          {/* Left column - Chessboard */}
-          {/* Integrated betting sidebar handles drag-to-bet now */}
+          {/* Left column - Chat and wagers on larger screens */}
+          <div className="left-sidebar-container">
+            {/* Chat section */}
+            <div className="chat-section">
+              <ChatBox />
+            </div>
 
+            {/* Leaderboard section */}
+            <div className="leaderboard-section">
+              <MiniLeaderboard rankings={props.rankings || []} />
+            </div>
+          </div>
+
+          {/* Middle column - Chessboard */}
           <div className="board-container">
-
             <PlayerInfo
               icon={playerIconBlack}
               fen={game?.state ?? ''}
@@ -241,9 +251,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             />
           </div>
 
-          {/* Right column - Split into two parts for mobile */}
-          <div className="sidebar-container">
-            {/* Top section - Betting options */}
+          {/* Right column - Betting options */}
+          <div className="right-sidebar-container">
             <div className="betting-options-section">
               <IntegratedBettingSidebar
                 isAuthenticated={props.isAuthenticated}
@@ -264,8 +273,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 setSelectedStake={setSelectedStake}
               />
             </div>
+          </div>
 
-            {/* Bottom section - Chat and extras */}
+          {/* Mobile Chat Container - Only visible on smaller screens */}
+          <div className="mobile-chat-container">
             <div className="chat-extras-section">
               <ChatBox />
               <MiniLeaderboard rankings={props.rankings || []} />

@@ -58,6 +58,11 @@
     grid-template-columns: minmax(0, 1fr) 300px;
     grid-column-gap: 16px; /* smaller gap to give more room to board */
   }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: 300px minmax(0, 1fr) 300px;
+    grid-column-gap: 20px;
+  }
 }
 
 /* Sidebar wrapper styles */
@@ -131,8 +136,38 @@
   height: 100% !important;
 }
 
-// Sidebar container
-.sidebar-container {
+// Left sidebar container (for chat and leaderboard)
+.left-sidebar-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+
+  // Hidden on small screens, becomes visible at 1200px
+  display: none;
+  @media (min-width: 1200px) {
+    display: flex;
+  }
+
+  .chat-section {
+    width: 100%;
+  }
+
+  .leaderboard-section {
+    width: 100%;
+    .mini-leaderboard {
+      background-color: #1e1e2e;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      padding: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  }
+}
+
+// Right sidebar container (for betting options)
+.right-sidebar-container {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -146,23 +181,29 @@
   .betting-options-section {
     width: 100%;
   }
+}
 
-  // Chat and extras section
+// Mobile chat container - only visible on small screens
+.mobile-chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+
+  @media (min-width: 1200px) {
+    display: none; // Hide on large screens where left sidebar is shown
+  }
+
   .chat-extras-section {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
 
-    .mini-leaderboard {
-      background-color: #111111;
-      border-radius: 12px;
-      padding: 16px;
-      border: 4px solid #00EFB2;
-      box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5), -5px -5px 10px rgba(255, 255, 255, 0.05);
-      max-height: 200px;
-      overflow-y: auto;
-    }
+  // Only show on screens below 1200px
+  @media (max-width: 1200px) {
+    order: 3; /* Make sure it's at the bottom on mobile/tablet */
   }
 }
 
