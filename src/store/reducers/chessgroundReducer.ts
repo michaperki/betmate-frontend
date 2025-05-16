@@ -14,6 +14,9 @@ const initialState: ExtendedChessgroundState = {
       lastMove: true,
       check: true,
     },
+    movable: {
+      rookCastle: true, // Add rookCastle property to fix the error
+    },
     drawable: {
       enabled: true,
       visible: true,
