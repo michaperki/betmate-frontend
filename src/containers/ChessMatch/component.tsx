@@ -28,6 +28,7 @@ import logoSvg from 'assets/logo.svg';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
+import './style.scss';
 import './dark-style.scss';
 
 interface ChessMatchProps {
@@ -154,129 +155,128 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
       {gameOver(game.game_status as GameStatus) && <PostgameModal/>}
 
-      {/* Drag Wager Sidebar - positioned on the left side of the board */}
-
       {/* Drag & Drop Tip */}
       <DragDropTip isAuthenticated={props.isAuthenticated} />
 
+      {/* Using a structure similar to index.html for consistent page layout */}
       <div className="dark-game-page">
         {/* Top navigation bar - Using the compact variant of NavBar */}
         <NavBar compact={true} />
 
         {/* Main content area */}
         <div className="game-content">
-          {/* Left column - Chat and wagers on larger screens */}
-          <div className="left-sidebar-container">
-            {/* Chat section */}
-            <div className="chat-section">
-              <ChatBox />
-            </div>
-
-            {/* Leaderboard section */}
-            <div className="leaderboard-section">
-              <MiniLeaderboard rankings={props.rankings || []} />
-            </div>
-          </div>
-
-          {/* Middle column - Chessboard */}
-          <div className="board-container">
-            <PlayerInfo
-              icon={playerIconBlack}
-              fen={game?.state ?? ''}
-              name={game?.player_black?.name}
-              elo={game?.player_black?.elo}
-              time={game?.time_black}
-              isBlack={true}
-              gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-              updatedAt={game?.updated_at}
-            />
-
-            <div className="game-layout">
-              <div className="board-with-eval">
-                <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
-                  <Chessground
-                    contained
-                    config={{
-                      ...props.config,
-                      coordinates: true,
-                      viewOnly: props.isAuthenticated ? false : true, // Allow moves only for authenticated users
-                      turnColor: game.state.includes(' w ') ? 'white' : 'black', // Determine current turn from FEN
-                      movable: props.isAuthenticated ? {
-                        free: false, // Don't allow free movement - must be valid chess moves
-                        color: 'both', // Allow moving both colors for betting purposes
-                        dests: getValidMoves(game.state), // Get valid moves from current position
-                        events: {
-                          after: handleDragMove // Handle drag events
-                        }
-                      } : undefined,
-                      fen: game?.state,
-                      lastMove: game?.move_hist?.length > 0
-                        ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                        : undefined,
-                      drawable: {
-                        enabled: true,
-                        visible: true,
-                        defaultSnapToValidMove: true,
-                        autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
-                        eraseOnClick: false,
-                      },
-                    }}
-                  />
-                </div>
-
-                {/* Vertical evaluation bar placed to the right of the board */}
-                <div className="eval-bar-container">
-                  <EvaluationBar odds={game?.odds} />
-                </div>
+            {/* Left column - Chat and wagers on larger screens */}
+            <div className="left-sidebar-container">
+              {/* Chat section */}
+              <div className="chat-section">
+                <ChatBox />
               </div>
-            </div>
 
-            <PlayerInfo
-              icon={playerIconWhite}
-              fen={game?.state ?? ''}
-              name={game?.player_white?.name}
-              elo={game?.player_white?.elo}
-              time={game?.time_white}
-              isBlack={false}
-              gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-              updatedAt={game?.updated_at}
-            />
-          </div>
-
-          {/* Right column - Betting options */}
-          <div className="right-sidebar-container">
-            <div className="betting-options-section">
-              <IntegratedBettingSidebar
-                isAuthenticated={props.isAuthenticated}
-                games={props.games}
-                createWager={props.createWager}
-                rankings={props.rankings}
-                onEnterMovePanel={props.onEnterMovePanel}
-                onLeaveMovePanel={props.onLeaveMovePanel}
-                onMoveHover={props.onMoveHover}
-                onMoveUnhover={props.onMoveUnhover}
-                createNewArrows={props.createNewArrows}
-                quickBetMode={props.quickBetMode}
-                toggleQuickBet={props.toggleQuickBet}
-                pendingBet={props.pendingBet}
-                setPendingBet={props.setPendingBet}
-                clearPendingBet={props.clearPendingBet}
-                selectedStake={selectedStake}
-                setSelectedStake={setSelectedStake}
-              />
-            </div>
-          </div>
-
-          {/* Mobile Chat Container - Only visible on smaller screens */}
-          <div className="mobile-chat-container">
-            <div className="chat-extras-section">
-              <ChatBox />
-              <div className="mobile-leaderboard-section">
+              {/* Leaderboard section */}
+              <div className="leaderboard-section">
                 <MiniLeaderboard rankings={props.rankings || []} />
               </div>
             </div>
+
+            {/* Middle column - Chessboard */}
+            <div className="board-container">
+              <PlayerInfo
+                icon={playerIconBlack}
+                fen={game?.state ?? ''}
+                name={game?.player_black?.name}
+                elo={game?.player_black?.elo}
+                time={game?.time_black}
+                isBlack={true}
+                gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
+                updatedAt={game?.updated_at}
+              />
+
+              <div className="game-layout">
+                <div className="board-with-eval">
+                  <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
+                    <Chessground
+                      contained
+                      config={{
+                        ...props.config,
+                        coordinates: true,
+                        viewOnly: props.isAuthenticated ? false : true, // Allow moves only for authenticated users
+                        turnColor: game.state.includes(' w ') ? 'white' : 'black', // Determine current turn from FEN
+                        movable: props.isAuthenticated ? {
+                          free: false, // Don't allow free movement - must be valid chess moves
+                          color: 'both', // Allow moving both colors for betting purposes
+                          dests: getValidMoves(game.state), // Get valid moves from current position
+                          events: {
+                            after: handleDragMove // Handle drag events
+                          }
+                        } : undefined,
+                        fen: game?.state,
+                        lastMove: game?.move_hist?.length > 0
+                          ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
+                          : undefined,
+                        drawable: {
+                          enabled: true,
+                          visible: true,
+                          defaultSnapToValidMove: true,
+                          autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
+                          eraseOnClick: false,
+                        },
+                      }}
+                    />
+                  </div>
+
+                  {/* Vertical evaluation bar placed to the right of the board */}
+                  <div className="eval-bar-container">
+                    <EvaluationBar odds={game?.odds} />
+                  </div>
+                </div>
+              </div>
+
+              <PlayerInfo
+                icon={playerIconWhite}
+                fen={game?.state ?? ''}
+                name={game?.player_white?.name}
+                elo={game?.player_white?.elo}
+                time={game?.time_white}
+                isBlack={false}
+                gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
+                updatedAt={game?.updated_at}
+              />
+            </div>
+
+            {/* Right column - Betting options */}
+            <div className="right-sidebar-container">
+              <div className="betting-options-section">
+                <IntegratedBettingSidebar
+                  isAuthenticated={props.isAuthenticated}
+                  games={props.games}
+                  createWager={props.createWager}
+                  rankings={props.rankings}
+                  onEnterMovePanel={props.onEnterMovePanel}
+                  onLeaveMovePanel={props.onLeaveMovePanel}
+                  onMoveHover={props.onMoveHover}
+                  onMoveUnhover={props.onMoveUnhover}
+                  createNewArrows={props.createNewArrows}
+                  quickBetMode={props.quickBetMode}
+                  toggleQuickBet={props.toggleQuickBet}
+                  pendingBet={props.pendingBet}
+                  setPendingBet={props.setPendingBet}
+                  clearPendingBet={props.clearPendingBet}
+                  selectedStake={selectedStake}
+                  setSelectedStake={setSelectedStake}
+                />
+              </div>
+            </div>
+
+            {/* Mobile Chat Container - Only visible on smaller screens */}
+            <div className="mobile-chat-container">
+              <div className="chat-extras-section">
+                <ChatBox />
+                <div className="mobile-leaderboard-section">
+                  <MiniLeaderboard rankings={props.rankings || []} />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
       </div>
     </>
   );

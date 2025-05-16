@@ -15,6 +15,7 @@
   overflow: hidden; /* Prevent scrolling */
 }
 
+
 // Top navigation
 .top-nav {
   display: flex;
@@ -92,7 +93,7 @@
   gap: 24px;
   align-items: center; /* center align all columns vertically */
   position: relative; /* For absolute positioning of sidebar wrapper */
-  height: calc(100vh - 50px); /* Exact height to fit in viewport minus navbar */
+  height: calc(100% - 32px); /* Account for padding */
   overflow: hidden; /* Prevent scrolling */
 
   @media (min-width: 768px) {

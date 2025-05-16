@@ -23,13 +23,12 @@ const NavBar: React.FC<NavBarProps> = (props) => {
 
   return (
     <div className={containerClass}>
-      <div className="left-side">
-        <NavLink to="/"><img src={logo} alt="logo" /></NavLink>
-        <h1 className={compact ? 'compact-title' : ''}>BetMate</h1>
-      </div>
-      <div className="right-side">
-        {/* Don't show nav buttons in compact mode */}
-        {!compact && (
+      <div className="nav-content">
+        <div className="left-side">
+          <NavLink to="/"><img src={logo} alt="logo" /></NavLink>
+          <h1 className={compact ? 'compact-title' : ''}>BetMate</h1>
+        </div>
+        <div className="right-side">
           <div className="nav-actions">
             <button className={location.pathname === '/' ? 'active' : ''}>
               <NavLink to="/">home</NavLink>
@@ -55,13 +54,13 @@ const NavBar: React.FC<NavBarProps> = (props) => {
                 </>
               )}
           </div>
-        )}
 
-        {props.isAuthenticated && (
-          <div className="balance-container">
-            <CoinBalance balance={balance} compact={compact} />
-          </div>
-        )}
+          {props.isAuthenticated && (
+            <div className="balance-container">
+              <CoinBalance balance={balance} compact={compact} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

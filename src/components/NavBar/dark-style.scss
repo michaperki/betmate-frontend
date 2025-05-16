@@ -3,16 +3,29 @@
   background: #111111;
   display: flex;
   align-content: center;
-  justify-content: space-between;
-  padding: 0 20px;
+  justify-content: center; /* Center the content */
+  padding: 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 
   /* Compact variant for game screens */
   &.compact {
     height: 50px;
-    padding: 0 16px;
     background: rgba(17, 17, 17, 0.95); /* Slightly transparent */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Inner content wrapper that constrains the width */
+.nav-content {
+  max-width: 1400px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+
+  .nav-container-dark.compact & {
+    padding: 0 16px;
   }
 }
 
@@ -55,6 +68,18 @@
   .nav-actions {
     display: flex;
     align-items: center;
+  }
+
+  /* Smaller buttons in compact mode */
+  .nav-container-dark.compact & .nav-actions {
+    button {
+      margin: auto 4px;
+
+      a {
+        padding: 4px 10px;
+        font-size: 12px;
+      }
+    }
   }
 
   button {
