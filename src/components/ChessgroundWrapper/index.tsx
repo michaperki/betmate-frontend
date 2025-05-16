@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import Chessground from '@react-chess/chessground';
 import { Config } from 'chessground/config';
+import './style.scss';
 
 interface ChessgroundWrapperProps {
   config: Config;
@@ -19,7 +20,7 @@ const ChessgroundWrapper = forwardRef<HTMLDivElement, ChessgroundWrapperProps>(
     };
 
     return (
-      <div ref={ref}>
+      <div ref={ref} className="cg-board-wrapper">
         <Chessground config={safeConfig} />
       </div>
     );

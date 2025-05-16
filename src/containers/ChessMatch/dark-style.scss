@@ -440,6 +440,15 @@
   width: 100%;
   align-items: stretch;
   position: relative;
+
+  /* Fix for proper board containment */
+  .chessboard-wrapper {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-width: calc(100% - 50px); /* Leave space for eval bar */
+  }
 }
 
 .eval-bar-container {

@@ -31,6 +31,7 @@ export interface GameOdds {
 export interface AnonMoveWager {
   data: string
   amount: number
+  is_bot?: boolean
 }
 
 export interface PoolWagerState {
