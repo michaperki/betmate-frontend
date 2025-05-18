@@ -2,9 +2,9 @@
 // Server URL for making backend requests
 // eslint-disable-next-line no-nested-ternary
 export const ROOT_URL = process.env.TARGET_ENV === 'prod'
-  ? 'https://betmate-backend-prod.herokuapp.com'
+  ? 'https://betmate-c5e3b1b52828.herokuapp.com'
   : process.env.TARGET_ENV === 'dev'
-    ? 'https://betmate-backend-dev.herokuapp.com'
+    ? 'https://betmate-c5e3b1b52828.herokuapp.com'
     : 'http://localhost:9090';
 
 // Auth token name for storage and transmission to backend
