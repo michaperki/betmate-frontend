@@ -9,7 +9,10 @@ interface RowProps {
 }
 
 const LeaderboardRow: React.FC<RowProps> = (props) => {
-  const [firstName, lastName] = props.data.user_name.split(' ').slice(0, 2);
+  // Add defensive checks for user_name
+  const userName = props.data.user_name || 'Unknown User';
+  const [firstName, lastName] = userName.split(' ').slice(0, 2);
+
   return (
     <div className="leaderboard-row" ref={props.rowRef}>
       <div className="row-start">

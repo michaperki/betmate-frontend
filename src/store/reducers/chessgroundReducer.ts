@@ -100,13 +100,23 @@ const chessgroundReducer = (
       };
 
     case 'CG_MOVE_HOVER':
-      console.log('CG_MOVE_HOVER action received:', action.payload);
+      // Handle empty payload more gracefully
+      if (!action.payload || !action.payload.from || !action.payload.to) {
+        return {
+          ...state,
+          selected: undefined,
+          autoShapes: [],
+          showAutoShapes: false,
+        };
+      }
+
       // Create a direct arrow with proper typing
       const arrow = [{
-        orig: action.payload.from as any, // Cast to bypass Key type
-        dest: action.payload.to as any,   // Cast to bypass Key type
+        orig: action.payload.from,
+        dest: action.payload.to,
         brush: 'green'
       }] as DrawShape[];
+
       return {
         ...state,
         selected: action.payload,
@@ -115,7 +125,6 @@ const chessgroundReducer = (
       };
 
     case 'CG_MOVE_UNHOVER':
-      console.log('CG_MOVE_UNHOVER action received');
       return {
         ...state,
         selected: undefined,

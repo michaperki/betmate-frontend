@@ -129,19 +129,20 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
 
   // Fetch move analysis for pending bet and show arrow
   useEffect(() => {
-    if (!pendingBet?.isActive || !game?.state) {
-      console.log('Pending bet effect - missing data:', {
-        hasPendingBet: !!pendingBet,
-        isActive: pendingBet?.isActive,
-        hasGameState: !!game?.state
-      });
+    // Add defensive checks for all required properties
+    if (!pendingBet || !game?.state) {
+      // Silent return instead of logging errors for normal app state
+      return;
+    }
+
+    // Check for all required properties with optional chaining
+    const isValidBet = pendingBet?.isActive && pendingBet?.gameId && pendingBet?.moveString;
+    if (!isValidBet) {
       return;
     }
 
     // Only process if this pending bet is for the current game
     if (pendingBet.gameId === gameId) {
-      console.log('Processing pending bet:', pendingBet.moveString);
-
       // Set hoveredMove to the pending bet move to show metrics
       setHoveredMove(pendingBet.moveString);
 
@@ -149,22 +150,14 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
       if (handleMoveHover && game) {
         const chess = new Chess(game.state);
         try {
-          console.log('Attempting to show arrow for pending bet:', pendingBet.moveString);
           const moveObj = chess.move(pendingBet.moveString, { sloppy: true });
           if (moveObj) {
-            console.log('Pending bet arrow data:', { from: moveObj.from, to: moveObj.to });
             handleMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
-          } else {
-            console.error('Move object not created for pending bet:', pendingBet.moveString);
           }
         } catch (e) {
-          console.error('Invalid move for pending bet:', e);
+          // Silently handle invalid moves
         }
-      } else {
-        console.log('Cannot show arrow for pending bet - missing handler:', !!handleMoveHover);
       }
-    } else {
-      console.log('Pending bet for different game:', pendingBet.gameId, gameId);
     }
   }, [pendingBet, game?.state, gameId, handleMoveHover]);
 

@@ -22,7 +22,6 @@ export const newMove = (state: string, moveHist: Move[]): Actions => {
 };
 
 export const onEnterMovePanel = (): Actions => {
-  console.log('onEnterMovePanel called');
   return {
     type: 'CG_ENTER_MOVE_PANEL',
     status: 'SUCCESS',
@@ -51,14 +50,25 @@ export const createNewArrows = (state: string, moveOptions: string[]): Actions =
   };
 };
 
-export const onMoveHover = (shapes: Array<{ orig: string; dest: string }>): Actions => ({
-  type: 'CG_MOVE_HOVER',
-  status: 'SUCCESS',
-  payload: shapes.length > 0 ? {
-    from: shapes[0].orig,
-    to: shapes[0].dest,
-  } : { from: '', to: '' },
-});
+export const onMoveHover = (shapes: Array<{ orig: string; dest: string }>): Actions => {
+  if (!shapes || shapes.length === 0 || !shapes[0].orig || !shapes[0].dest) {
+    // Return a properly formatted empty action
+    return {
+      type: 'CG_MOVE_UNHOVER',
+      status: 'SUCCESS',
+      payload: {},
+    };
+  }
+
+  return {
+    type: 'CG_MOVE_HOVER',
+    status: 'SUCCESS',
+    payload: {
+      from: shapes[0].orig,
+      to: shapes[0].dest,
+    },
+  };
+};
 
 export const onMoveUnhover = (): Actions => ({
   type: 'CG_MOVE_UNHOVER',
