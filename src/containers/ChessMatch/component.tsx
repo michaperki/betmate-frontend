@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import Chessground from '@react-chess/chessground';
+import ChessgroundWrapper from '../../components/ChessgroundWrapper';
 import { DrawShape } from 'chessground/draw';
 import { Config } from 'chessground/config';
 import { Key, MoveMetadata } from 'chessground/types';
@@ -194,8 +194,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <div className="game-layout">
                 <div className="board-with-eval">
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
-                    <Chessground
-                      contained
+                    <ChessgroundWrapper
                       config={{
                         ...props.config,
                         coordinates: true,
@@ -205,6 +204,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           free: false, // Don't allow free movement - must be valid chess moves
                           color: 'both', // Allow moving both colors for betting purposes
                           dests: getValidMoves(game.state), // Get valid moves from current position
+                          rookCastle: true, // Add this to fix the rookCastle error
                           events: {
                             after: handleDragMove // Handle drag events
                           }

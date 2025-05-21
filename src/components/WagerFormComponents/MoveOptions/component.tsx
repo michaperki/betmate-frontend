@@ -4,6 +4,8 @@ import { Chess } from 'chess.js';
 import { VerticalBar } from 'components/WagerPanel/helper_components';
 import { Game } from 'types/resources/game';
 import { moveOptionColors } from 'utils/config';
+import BotIndicator from 'components/BotIndicator';
+import './style.scss';
 
 interface MoveOptionsProps {
   wagersLoading: boolean
@@ -39,6 +41,9 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
 
     const totalPool = wagers.reduce((acc, w) => acc + w.amount, 0);
 
+    // Check if any wagers are from bots
+    const hasBotWagers = wagers.some(wager => wager.is_bot);
+
     const poolPerMove: Record<string, number> = wagers.reduce((currObj, { amount, data }) => {
       const field = options.includes(data) ? data : 'Other';
       return {
@@ -49,6 +54,14 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
       ...options.reduce((obj, move) => ({ ...obj, [move]: 0 }), {}),
       Other: 0,
     });
+
+    // Track which moves have bot wagers
+    const botWagerMoves = wagers
+      .filter(wager => wager.is_bot)
+      .reduce((moves, wager) => {
+        const field = options.includes(wager.data) ? wager.data : 'Other';
+        return { ...moves, [field]: true };
+      }, {} as Record<string, boolean>);
 
     const maxPercentage = (
       Object
@@ -116,7 +129,10 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
             maxPercentage={Number(maxPercentage)}
             percentage={movePool / totalPool}
           />
-          <p>{formatMove(move)}</p>
+          <div className="move-label">
+            <p>{formatMove(move)}</p>
+            {botWagerMoves[move] && <BotIndicator />}
+          </div>
         </div>
       );
     }).filter(Boolean);

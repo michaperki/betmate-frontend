@@ -17,4 +17,5 @@ export const UserSchema = joi.object<User>({
   full_name: joi.string().required(),
   account: joi.number().required(),
   role: joi.string().custom(userRoleValidator),
+  is_bot: joi.boolean().optional(),
 });

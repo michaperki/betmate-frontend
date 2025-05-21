@@ -18,6 +18,7 @@ export interface User {
   account: number // This is the user's token balance for betting
   role?: UserRole
   _id: string
+  is_bot?: boolean
 }
 
 export interface AuthState {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { GameOdds } from 'types/resources/game';
+import BotIndicator from 'components/BotIndicator';
 
 interface VerticalBarProps {
   color: string,

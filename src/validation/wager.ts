@@ -25,6 +25,8 @@ export const WagerSchema = joi.object<Wager>({
   winning_pool_share: joi.number().min(1).required(),
   created_at: joi.string().required(), // verify is date
   updated_at: joi.string().required(), // verify is date
+  // Allow but don't require is_bot field
+  is_bot: joi.boolean().optional(),
 });
 
 export const WagerArraySchema = joi.array().items(WagerSchema);
