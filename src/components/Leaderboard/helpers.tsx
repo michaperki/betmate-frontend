@@ -9,9 +9,16 @@ interface RowProps {
 }
 
 const LeaderboardRow: React.FC<RowProps> = (props) => {
-  // Add defensive checks for user_name
-  const userName = props.data.user_name || 'Unknown User';
-  const [firstName, lastName] = userName.split(' ').slice(0, 2);
+  // Get username and ensure it's not empty/null
+  const userName = props.data.user_name || '';
+
+  // Use fallback if name is completely empty
+  const displayName = userName.trim() || `Player ${props.data.rank}`;
+
+  // Split for display formatting
+  const [firstName, lastName] = displayName.includes(' ') ?
+    displayName.split(' ').slice(0, 2) :
+    [displayName, ''];
 
   return (
     <div className="leaderboard-row" ref={props.rowRef}>

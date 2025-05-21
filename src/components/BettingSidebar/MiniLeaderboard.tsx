@@ -15,12 +15,20 @@ const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings = [] }) => {
   const hasRankings = validRankings.length > 0;
 
   // Ensure each ranking has all the required fields
-  const safeRankings = topRankings.map(rank => ({
-    user_id: rank.user_id || 'unknown',
-    user_name: rank.user_name || 'Unknown User',
-    rank: rank.rank || 1,
-    winnings: typeof rank.winnings === 'number' ? rank.winnings : 0
-  }));
+  const safeRankings = topRankings.map(rank => {
+    // Get username and ensure it exists
+    const userName = rank.user_name || '';
+
+    // Use fallback if name is completely empty
+    const displayName = userName.trim() || `Player ${rank.rank || 1}`;
+
+    return {
+      user_id: rank.user_id || 'unknown',
+      user_name: displayName,
+      rank: rank.rank || 1,
+      winnings: typeof rank.winnings === 'number' ? rank.winnings : 0
+    };
+  });
 
   return (
     <div className="mini-leaderboard">

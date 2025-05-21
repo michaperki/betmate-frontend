@@ -41,10 +41,8 @@ export const getLeaderboardRank = async (): Promise<RequestReturnType<Rank>> => 
   });
 
   try {
-    // Add default user_name if missing
-    if (result.data && !result.data.user_name) {
-      result.data.user_name = 'Unknown User';
-    }
+    // We don't need to add a default user_name anymore
+    // Let the component handle the display logic
     return validateSchema(RankSchema, result, (d) => d.data);
   } catch (error) {
     console.error('Error validating rank data:', error);
@@ -53,7 +51,7 @@ export const getLeaderboardRank = async (): Promise<RequestReturnType<Rank>> => 
       ...result,
       data: {
         user_id: result.data?.user_id || 'unknown',
-        user_name: 'Unknown User',
+        user_name: result.data?.user_name || `Player ${result.data?.rank || 0}`,
         rank: result.data?.rank || 0,
         winnings: result.data?.winnings || 0
       }
