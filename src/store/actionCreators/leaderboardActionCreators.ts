@@ -41,3 +41,9 @@ export const leaveUserPosition = (): Actions => ({
   status: 'SUCCESS',
   payload: {},
 });
+
+export const getGameLeaderboard = (gameId: string): Actions => ({
+  type: 'FETCH_GAME_LEADERBOARD',
+  status: 'REQUEST',
+  payload: { gameId },
+});

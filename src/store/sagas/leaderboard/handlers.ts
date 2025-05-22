@@ -2,7 +2,7 @@
 import {
   call, put, select,
 } from 'redux-saga/effects';
-import { getLeaderboardRank, getLeaderboardSection } from 'store/requests/leaderboardRequests';
+import { getGameLeaderboard, getLeaderboardRank, getLeaderboardSection } from 'store/requests/leaderboardRequests';
 import {
   ExtendLeaderboardBottomActions,
   ExtendLeaderboardTopActions,
@@ -108,4 +108,17 @@ export function* handleGoToUserPosition(action: GoToUserPositionActions) {
 export function* handleLeaveUserPosition(action: LeaveUserPositionActions) {
   if (action.status !== 'SUCCESS') return;
   yield put<Actions>({ type: 'FETCH_LEADERBOARD_HEAD', status: 'REQUEST', payload: {} });
+}
+
+export function* handleGetGameLeaderboard(action: Actions) {
+  try {
+    if (action.status !== 'REQUEST') return;
+
+    const { gameId } = action.payload;
+    const response: RequestReturnType<{ rankings: Rank[] }> = yield call(getGameLeaderboard, gameId);
+
+    yield put<Actions>({ type: action.type, status: 'SUCCESS', payload: { rankings: response.data.rankings } });
+  } catch (error) {
+    yield put<Actions>({ type: action.type, status: 'FAILURE', payload: getErrorPayload(error) });
+  }
 }

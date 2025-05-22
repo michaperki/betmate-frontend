@@ -81,6 +81,15 @@ const leaderboardReducer = (state = initialState, action: Actions): LeaderboardS
         highestRank: undefined,
         lowestRank: undefined,
       };
+    case 'FETCH_GAME_LEADERBOARD':
+      return {
+        ...state,
+        rankings: action.payload.rankings,
+        hasMore: false,
+        highestRank: action.payload.rankings.length > 0 ? 1 : undefined,
+        lowestRank: action.payload.rankings.length,
+        atUser: false,
+      };
     default:
       return state;
   }

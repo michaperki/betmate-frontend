@@ -15,6 +15,7 @@ import {
   onMoveUnhover,
   createNewArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
+import { getGameLeaderboard } from 'store/actionCreators/leaderboardActionCreators';
 import { RootState } from 'types/state';
 
 import ChessMatch from './component';
@@ -48,6 +49,7 @@ const mapDispatchToProps = {
   onMoveHover,
   onMoveUnhover,
   createNewArrows,
+  getGameLeaderboard,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChessMatch);

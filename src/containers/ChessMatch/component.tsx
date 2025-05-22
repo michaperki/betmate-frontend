@@ -44,6 +44,7 @@ interface ChessMatchProps {
   onMoveHover: any;
   onMoveUnhover: any;
   createNewArrows: any; // Using any for consistency with other action creators
+  getGameLeaderboard: (gameId: string) => void;
   games: Record<string, Game>;
   showModal: Record<string, boolean>;
   config: Config;
@@ -72,6 +73,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   useEffect(() => {
     props.fetchGameById(gameId);
     props.joinGame(gameId);
+    props.getGameLeaderboard(gameId);
     return () => { props.leaveGame(gameId); };
   }, []);
 

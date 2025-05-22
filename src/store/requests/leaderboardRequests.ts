@@ -58,3 +58,38 @@ export const getLeaderboardRank = async (): Promise<RequestReturnType<Rank>> => 
     };
   }
 };
+
+export const getGameLeaderboard = async (gameId: string): Promise<RequestReturnType<{ rankings: Rank[] }>> => {
+  const result = await createBackendAxiosRequest<{ rankings: Rank[] }>({
+    method: 'GET',
+    url: `/leaderboard/game/${gameId}`,
+  });
+
+  try {
+    // Validate each ranking in the array
+    const validatedRankings = result.data.rankings.map(rank => {
+      try {
+        return validateSchema(RankSchema, { data: rank }, (d) => d.data).data;
+      } catch (error) {
+        console.error('Error validating individual rank:', error);
+        return {
+          user_id: rank.user_id || 'unknown',
+          user_name: rank.user_name || `Player ${rank.rank || 0}`,
+          rank: rank.rank || 0,
+          winnings: rank.winnings || 0
+        };
+      }
+    });
+
+    return {
+      ...result,
+      data: { rankings: validatedRankings }
+    };
+  } catch (error) {
+    console.error('Error validating game leaderboard data:', error);
+    return {
+      ...result,
+      data: { rankings: [] }
+    };
+  }
+};
