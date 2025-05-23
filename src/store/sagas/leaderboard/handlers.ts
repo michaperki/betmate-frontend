@@ -6,6 +6,7 @@ import { getGameLeaderboard, getLeaderboardRank, getLeaderboardSection } from 's
 import {
   ExtendLeaderboardBottomActions,
   ExtendLeaderboardTopActions,
+  FetchGameLeaderboardActions,
   FetchLeaderboardHeadActions,
   FetchUserRankActions,
   GoToUserPositionActions,
@@ -13,6 +14,7 @@ import {
   LeaderboardState,
   LeaveUserPositionActions,
   Rank,
+  FETCH_GAME_LEADERBOARD,
 } from 'types/leaderboard';
 import { Actions, RequestReturnType, RootState } from 'types/state';
 import { getErrorPayload } from 'utils/error';
@@ -110,15 +112,15 @@ export function* handleLeaveUserPosition(action: LeaveUserPositionActions) {
   yield put<Actions>({ type: 'FETCH_LEADERBOARD_HEAD', status: 'REQUEST', payload: {} });
 }
 
-export function* handleGetGameLeaderboard(action: Actions) {
+export function* handleGetGameLeaderboard(action: FetchGameLeaderboardActions) {
   try {
     if (action.status !== 'REQUEST') return;
 
     const { gameId } = action.payload;
     const response: RequestReturnType<{ rankings: Rank[] }> = yield call(getGameLeaderboard, gameId);
 
-    yield put<Actions>({ type: action.type, status: 'SUCCESS', payload: { rankings: response.data.rankings } });
+    yield put({ type: FETCH_GAME_LEADERBOARD, status: 'SUCCESS', payload: { rankings: response.data.rankings } });
   } catch (error) {
-    yield put<Actions>({ type: action.type, status: 'FAILURE', payload: getErrorPayload(error) });
+    yield put({ type: FETCH_GAME_LEADERBOARD, status: 'FAILURE', payload: getErrorPayload(error) });
   }
 }

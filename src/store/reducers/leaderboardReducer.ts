@@ -1,5 +1,5 @@
 import { Actions } from 'types/state';
-import { LeaderboardState } from 'types/leaderboard';
+import { LeaderboardState, FETCH_GAME_LEADERBOARD } from 'types/leaderboard';
 import { getFirstRank, getLastRank } from 'utils/leaderboard';
 
 const initialState: LeaderboardState = {
@@ -81,7 +81,7 @@ const leaderboardReducer = (state = initialState, action: Actions): LeaderboardS
         highestRank: undefined,
         lowestRank: undefined,
       };
-    case 'FETCH_GAME_LEADERBOARD':
+    case FETCH_GAME_LEADERBOARD:
       return {
         ...state,
         rankings: action.payload.rankings,

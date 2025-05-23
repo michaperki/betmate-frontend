@@ -1,4 +1,5 @@
 import { Actions } from 'types/state';
+import { FetchGameLeaderboardActions, FETCH_GAME_LEADERBOARD } from 'types/leaderboard';
 
 export const onLeaderboardScroll = (position: number): Actions => ({
   type: 'ON_LEADERBOARD_SCROLL',
@@ -42,8 +43,8 @@ export const leaveUserPosition = (): Actions => ({
   payload: {},
 });
 
-export const getGameLeaderboard = (gameId: string): Actions => ({
-  type: 'FETCH_GAME_LEADERBOARD',
+export const getGameLeaderboard = (gameId: string): FetchGameLeaderboardActions => ({
+  type: FETCH_GAME_LEADERBOARD,
   status: 'REQUEST',
   payload: { gameId },
 });
