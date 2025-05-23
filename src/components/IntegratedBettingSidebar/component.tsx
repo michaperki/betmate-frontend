@@ -86,6 +86,13 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     setHasInitialized(true);
   }, []);
 
+  // Clear pending bets when navigating to a different game
+  useEffect(() => {
+    if (pendingBet?.isActive && pendingBet.gameId !== gameId) {
+      clearPendingBet();
+    }
+  }, [gameId, pendingBet, clearPendingBet]);
+
   // This effect is for cleaning up when switching tabs
   useEffect(() => {
     // Skip the effect on initial render
@@ -588,7 +595,7 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
                 className="confirm-button"
                 onClick={() => {
                   placeBet(
-                    pendingBet.gameId,
+                    gameId, // Always use current gameId from URL, not from pendingBet
                     pendingBet.moveString,
                     pendingBet.stake,
                     activeTab === 'outcome', // is WDL if on outcome tab
