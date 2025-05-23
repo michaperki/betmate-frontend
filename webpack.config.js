@@ -19,6 +19,7 @@ module.exports = {
     clean: true,
   },
   devtool: 'source-map',
+  stats: isProd ? 'normal' : 'errors-warnings',
   resolve: {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     alias: {
