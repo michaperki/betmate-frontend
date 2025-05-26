@@ -1,39 +1,9 @@
-/* ChessgroundWrapper styles for proper containment */
-.cg-board-wrapper {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  /* Ensure the Chessground component is properly sized */
-  & > div {
-    width: 100% !important;
-    height: 100% !important;
-    position: relative !important;
-  }
-  
-  /* Fix for the board container */
-  .cg-wrap {
-    position: relative !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-  
-  /* Make sure the chessboard maintains its aspect ratio */
-  &::before {
-    content: '';
-    display: block;
-    padding-top: 100%; /* Maintain 1:1 aspect ratio */
-  }
-  
-  /* Position the chessground absolutely within the wrapper */
-  & > div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  }
+/* ChessgroundWrapper styles - ensure proper sizing within chessboard-wrapper */
+/* The parent .chessboard-wrapper handles aspect ratio, we ensure content fits */
+.cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
 }

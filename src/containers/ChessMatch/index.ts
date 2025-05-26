@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
   fetchGameById,
+  fetchGameStats,
   setPendingBet,
   clearPendingBet,
   toggleQuickBet
@@ -25,6 +26,7 @@ import 'chessground/assets/chessground.cburnett.css';
 
 const mapStateToProps = (state: RootState) => ({
   games: state.game.games,
+  gameStats: state.game.gameStats,
   showModal: state.game.showModal,
   autoShapes: state.chessground.autoShapes,
   showAutoShapes: state.chessground.showAutoShapes,
@@ -40,6 +42,7 @@ const mapDispatchToProps = {
   joinGame,
   leaveGame,
   fetchGameById,
+  fetchGameStats,
   createWager,
   setPendingBet,
   clearPendingBet,

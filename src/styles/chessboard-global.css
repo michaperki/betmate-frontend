@@ -1,10 +1,11 @@
 /* Global styles for the chessboard wrapper - NOT a CSS module */
 .chessboard-wrapper {
   width: 100%;
-  max-width: 380px;      /* desktop cap */
   aspect-ratio: 1/1;     /* creates square height immediately */
   position: relative;
   margin: auto;
+  box-sizing: border-box; /* Ensure padding is included in width calculations */
+  /* max-width removed to let container-specific styles control size */
 }
 
 /* Position the immediate div child of the wrapper */

@@ -9,7 +9,7 @@ export type ClientEvents =
     'join_game' | 'leave_game' | 'join_auth' | 'leave_auth' | 'pool_wager' | 'game_chat';
 export type ServerEvents =
     'start_game' | 'new_odds' | 'new_move' | 'game_over' | 'wager_result' | 'pool_wager' |
-    'game_chat' | 'socket_error' | 'game_error';
+    'game_chat' | 'socket_error' | 'game_error' | 'viewer_count_update' | 'bet_update';
 export type Events = ClientEvents | ServerEvents;
 
 export type ChannelCreator<T extends {} = {}> = (socket: Socket) => EventChannel<T>;

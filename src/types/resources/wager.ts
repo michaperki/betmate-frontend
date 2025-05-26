@@ -24,7 +24,11 @@ export interface Wager {
   winning_pool_share: number,
   created_at: string,
   updated_at: string,
-  is_bot?: boolean
+  is_bot?: boolean,
+  notification_status?: string,
+  display_status?: string,
+  ticket_number?: string,
+  resolution_details?: string,
 }
 
 export interface FeedWager extends Wager {

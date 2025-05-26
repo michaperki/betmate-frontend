@@ -146,9 +146,9 @@
   align-self: center;
   /* Add focus styles to emphasize the board */
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-  padding: 16px;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
+  /* Remove padding that offsets board coordinates */
 
   @media (max-width: 1200px) {
     margin: 0 auto; /* Center when sidebars are hidden */
@@ -161,6 +161,7 @@
   max-width:100%;       /* use all available space */
   margin:auto;
   position:relative;
+  box-sizing: border-box; /* Ensure consistent sizing */
 
   @media (min-width: 950px) {
     min-width:600px;    /* ensure minimum size on larger screens */
@@ -448,6 +449,7 @@
     width: 100%;
     height: auto;
     max-width: calc(100% - 50px); /* Leave space for eval bar */
+    box-sizing: border-box; /* Ensure padding is included in width calculations */
   }
 }
 

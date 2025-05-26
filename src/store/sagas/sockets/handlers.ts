@@ -20,6 +20,7 @@ import { getBearerToken, removeBearerToken } from 'store/actionCreators';
 import { User } from 'types/resources/auth';
 import {
   createErrorChannel, createGameChatChannel, createUpdateGameStateChannel, createUpdateWagerStateChannel,
+  createViewerCountChannel, createBetUpdateChannel,
 } from './channels';
 
 /**
@@ -222,6 +223,50 @@ export function* errorHandler(socket: Socket) {
       yield put<Actions>(action);
     } catch (error) {
       yield put<Actions>({ type: 'SOCKET_ERROR', status: 'FAILURE', payload: { message: error.message } });
+    }
+  }
+}
+
+/**
+ * Saga that watches for viewer count updates on the websocket
+ * @param socket socket to watch for events on
+ */
+export function* viewerCountHandler(socket: Socket) {
+  const socketChannel: EventChannel<any> = yield call(createViewerCountChannel, socket);
+
+  while (true) {
+    try {
+      const action: any = yield take(socketChannel);
+      yield put({
+        type: 'UPDATE_VIEWER_COUNT',
+        status: 'SUCCESS',
+        payload: action.payload
+      });
+    } catch (error) {
+      // Silent error handling for viewer count updates
+    }
+  }
+}
+
+/**
+ * Saga that watches for bet updates on the websocket to refresh game stats
+ * @param socket socket to watch for events on
+ */
+export function* betUpdateHandler(socket: Socket) {
+  const socketChannel: EventChannel<any> = yield call(createBetUpdateChannel, socket);
+
+  while (true) {
+    try {
+      const action: any = yield take(socketChannel);
+      console.log('Bet update received:', action.payload);
+      // Trigger a refresh of game stats when new bets come in
+      yield put({
+        type: 'FETCH_GAME_STATS',
+        status: 'REQUEST',
+        payload: { id: action.payload.gameId }
+      });
+    } catch (error) {
+      console.error('Bet update handler error:', error);
     }
   }
 }

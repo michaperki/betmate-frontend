@@ -9,6 +9,7 @@ const initialState: GameState = {
   chats: [],
   quickBetMode: false, // Default to confirmation mode
   pendingBet: null,
+  gameStats: {},
 };
 
 const gameReducer = (state = initialState, action: Actions): GameState => {
@@ -119,6 +120,28 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
       return {
         ...state,
         pendingBet: null
+      };
+
+    case 'FETCH_GAME_STATS':
+      return {
+        ...state,
+        gameStats: {
+          ...state.gameStats,
+          [action.payload.gameId]: action.payload
+        }
+      };
+
+    case 'UPDATE_VIEWER_COUNT':
+      const { gameId, viewerCount } = action.payload;
+      return {
+        ...state,
+        gameStats: {
+          ...state.gameStats,
+          [gameId]: {
+            ...state.gameStats[gameId],
+            viewerCount
+          }
+        }
       };
 
     default:

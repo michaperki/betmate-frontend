@@ -141,3 +141,49 @@ export const createErrorChannel: ChannelCreator<SocketErrorAction | SocketGameEr
     };
   },
 );
+
+/**
+ * A function to create an event channel that listens for viewer count updates
+ * @param socket socket to monitor for events on
+ * @returns saga eventChannel creator function
+ */
+export const createViewerCountChannel: ChannelCreator<any> = (socket) => eventChannel(
+  (pushToChannel) => {
+    const viewerCountHandler = (payload: any) => {
+      pushToChannel({
+        type: 'UPDATE_VIEWER_COUNT',
+        status: 'SUCCESS',
+        payload
+      });
+    };
+
+    socket.on('viewer_count_update' as Events, viewerCountHandler);
+
+    return () => {
+      socket.off('viewer_count_update', viewerCountHandler);
+    };
+  },
+);
+
+/**
+ * A function to create an event channel that listens for bet updates
+ * @param socket socket to monitor for events on
+ * @returns saga eventChannel creator function
+ */
+export const createBetUpdateChannel: ChannelCreator<any> = (socket) => eventChannel(
+  (pushToChannel) => {
+    const betUpdateHandler = (payload: any) => {
+      pushToChannel({
+        type: 'BET_UPDATE',
+        status: 'SUCCESS',
+        payload
+      });
+    };
+
+    socket.on('bet_update' as Events, betUpdateHandler);
+
+    return () => {
+      socket.off('bet_update', betUpdateHandler);
+    };
+  },
+);

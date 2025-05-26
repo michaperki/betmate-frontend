@@ -12,8 +12,10 @@ import { Actions, RequestReturnType } from 'types/state';
 import {
   FetchGameData,
   FetchGamesData,
+  FetchGameStatsData,
   FetchGameActions,
   FetchGamesActions,
+  FetchGameStatsActions,
 } from 'types/resources/game';
 
 export function* watchFetchGameById() {
@@ -40,6 +42,20 @@ export function* watchfetchGamesByStatus() {
       yield put<Actions>({ type: 'FETCH_GAMES', payload: response.data, status: 'SUCCESS' });
     } catch (error) {
       yield put<Actions>({ type: 'FETCH_GAMES', payload: getErrorPayload(error), status: 'FAILURE' });
+    }
+  }
+}
+
+export function* watchFetchGameStats() {
+  while (true) {
+    try {
+      const action: FetchGameStatsActions = yield take((a: Actions) => (a.type === 'FETCH_GAME_STATS' && a.status === 'REQUEST'));
+      if (action.status !== 'REQUEST') continue; // Type protection only
+
+      const response: RequestReturnType<FetchGameStatsData> = yield call(gameRequests.fetchGameStats, action.payload.id);
+      yield put<Actions>({ type: 'FETCH_GAME_STATS', payload: response.data, status: 'SUCCESS' });
+    } catch (error) {
+      yield put<Actions>({ type: 'FETCH_GAME_STATS', payload: getErrorPayload(error), status: 'FAILURE' });
     }
   }
 }

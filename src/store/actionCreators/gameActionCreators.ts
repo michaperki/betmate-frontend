@@ -52,3 +52,9 @@ export const clearPendingBet = (): Actions => ({
   status: 'SUCCESS',
   payload: {},
 });
+
+export const fetchGameStats = (id: string): Actions => ({
+  type: 'FETCH_GAME_STATS',
+  status: 'REQUEST',
+  payload: { id },
+});

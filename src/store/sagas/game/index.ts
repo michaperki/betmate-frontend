@@ -5,4 +5,5 @@ import * as gameWatchers from 'store/sagas/game/watchers';
 export default function* gameSaga() {
   yield fork(gameWatchers.watchFetchGameById);
   yield fork(gameWatchers.watchfetchGamesByStatus);
+  yield fork(gameWatchers.watchFetchGameStats);
 }

@@ -14,9 +14,10 @@ import ChatBox from 'components/ChatBox';
 import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
+import GameInfoPanel from 'components/GameInfoPanel';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
-import { fetchGameById, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
+import { fetchGameById, fetchGameStats, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { gameOver, getValidMoves } from 'utils/chess';
 import { Game, GameStatus } from 'types/resources/game';
@@ -30,11 +31,13 @@ import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import './style.scss';
 import './dark-style.scss';
+import '../../components/GameInfoPanel/style.scss';
 
 interface ChessMatchProps {
   joinGame: typeof joinGame;
   leaveGame: typeof leaveGame;
   fetchGameById: typeof fetchGameById;
+  fetchGameStats: typeof fetchGameStats;
   createWager: typeof createWager;
   setPendingBet: typeof setPendingBet;
   clearPendingBet: typeof clearPendingBet;
@@ -46,6 +49,7 @@ interface ChessMatchProps {
   createNewArrows: any; // Using any for consistency with other action creators
   getGameLeaderboard: (gameId: string) => void;
   games: Record<string, Game>;
+  gameStats: Record<string, any>;
   showModal: Record<string, boolean>;
   config: Config;
   autoShapes: DrawShape[];
@@ -65,6 +69,7 @@ interface ChessMatchProps {
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const game: Game | undefined = props.games[gameId];
+  const gameStats = props.gameStats[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
 
   // Default stake for placing bets directly
@@ -72,6 +77,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   useEffect(() => {
     props.fetchGameById(gameId);
+    props.fetchGameStats(gameId);
     props.joinGame(gameId);
     props.getGameLeaderboard(gameId);
     return () => { props.leaveGame(gameId); };
@@ -81,10 +87,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     // Set up polling for game updates
     const pollInterval = setInterval(() => {
       props.fetchGameById(gameId);
+      props.fetchGameStats(gameId);
     }, 10000);
 
     return () => clearInterval(pollInterval);
-  }, [gameId, props.fetchGameById]);
+  }, [gameId, props.fetchGameById, props.fetchGameStats]);
 
   // Handle drag-and-drop move - now respects quick bet mode
   const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
@@ -182,6 +189,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
             {/* Middle column - Chessboard */}
             <div className="board-container">
+              {/* Game Information Panel */}
+              <GameInfoPanel
+                game={game}
+                viewerCount={gameStats?.viewerCount || 0}
+                moveWagerData={gameStats?.moveWagerData || {}}
+              />
+
               <PlayerInfo
                 icon={playerIconBlack}
                 fen={game?.state ?? ''}

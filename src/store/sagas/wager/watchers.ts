@@ -31,6 +31,13 @@ export function* watchCreateWager() {
         action.payload.moveNumber,
       );
       yield put<Actions>({ type: 'CREATE_WAGER', payload: response.data, status: 'SUCCESS' });
+
+      // Refresh game stats after successful wager creation
+      yield put<Actions>({
+        type: 'FETCH_GAME_STATS',
+        status: 'REQUEST',
+        payload: { id: action.payload.gameId }
+      });
     } catch (error) {
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
     }

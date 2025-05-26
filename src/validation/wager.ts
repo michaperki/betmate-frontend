@@ -11,7 +11,7 @@ const wagerStatusValidator = (value: any, helpers: joi.CustomHelpers) => {
     : helpers.message({ custom: `The values '${sanitizedValue.filter((v) => !isWagerStatus(v))}' are not wager statuses` });
 };
 
-export const WagerSchema = joi.object<Wager>({
+export const WagerSchema = joi.object({
   _id: joi.string().required(),
   game_id: joi.string().required(),
   better_id: joi.string().required(),
@@ -25,9 +25,8 @@ export const WagerSchema = joi.object<Wager>({
   winning_pool_share: joi.number().min(1).required(),
   created_at: joi.string().required(), // verify is date
   updated_at: joi.string().required(), // verify is date
-  // Allow but don't require is_bot field
   is_bot: joi.boolean().optional(),
-});
+}).unknown(true); // Allow any additional unknown fields
 
 export const WagerArraySchema = joi.array().items(WagerSchema);
 

@@ -19,6 +19,8 @@ import {
   updateGameStateHandler,
   updatePoolWagerHandler,
   updateWagerStateHandler,
+  viewerCountHandler,
+  betUpdateHandler,
 } from './handlers';
 
 const WS_URL = `${ROOT_URL}/chessws`;
@@ -56,6 +58,8 @@ function* watchSockets() {
       const updatePoolWagerHandlerFork = yield fork(updatePoolWagerHandler, socket);
       const sendGameChatHandlerFork = yield fork(sendGameMessageHandler, socket);
       const receiveGameChatHandlerFork = yield fork(receiveGameMessageHandler, socket);
+      const viewerCountHandlerFork = yield fork(viewerCountHandler, socket);
+      const betUpdateHandlerFork = yield fork(betUpdateHandler, socket);
       const errorHandlerFork = yield fork(errorHandler, socket);
 
       yield take((a: Actions) => a.type === 'CLOSE_SOCKET');
@@ -70,6 +74,8 @@ function* watchSockets() {
       yield cancel(updatePoolWagerHandlerFork);
       yield cancel(sendGameChatHandlerFork);
       yield cancel(receiveGameChatHandlerFork);
+      yield cancel(viewerCountHandlerFork);
+      yield cancel(betUpdateHandlerFork);
       yield cancel(errorHandlerFork);
 
       // allow possible reconnection to socket

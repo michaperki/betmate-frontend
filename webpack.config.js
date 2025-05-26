@@ -163,6 +163,11 @@ module.exports = {
         errors: true,
         warnings: false,
       },
+      logging: 'warn',
+    },
+    devMiddleware: {
+      writeToDisk: false,
+      stats: 'errors-warnings',
     },
   },
 };
