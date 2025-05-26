@@ -93,6 +93,32 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     }
   }, [gameId, pendingBet, clearPendingBet]);
 
+  // Clear pending bets when the game state changes (move is played)
+  useEffect(() => {
+    if (pendingBet?.isActive && pendingBet.gameId === gameId && game) {
+      // Check if the move count has changed since the bet was placed
+      // If a move was played, clear the pending bet as it's no longer valid
+      const currentMoveCount = game.move_hist?.length || 0;
+
+      // We don't have access to the previous move count, but we can detect
+      // if the game state has changed in a way that invalidates the bet
+      // by checking if the pending bet move is still valid for the current position
+      const chess = new Chess(game.state);
+      const validMoves = chess.moves();
+
+      if (!validMoves.includes(pendingBet.moveString)) {
+        // The pending bet move is no longer valid (likely because a move was played), clear it
+        console.log('Clearing pending bet - move no longer valid:', pendingBet.moveString);
+        setHoveredMove(null);
+        setMoveMetrics(null);
+        if (handleMoveUnhover) {
+          handleMoveUnhover();
+        }
+        clearPendingBet();
+      }
+    }
+  }, [game?.state, game?.move_hist?.length, pendingBet, gameId, clearPendingBet, handleMoveUnhover]);
+
   // This effect is for cleaning up when switching tabs
   useEffect(() => {
     // Skip the effect on initial render
@@ -245,9 +271,24 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   };
 
   const handleMovePieceUnhover = () => {
-    // Don't clear hover state if we have a pending bet
+    // If we have a pending bet, revert to showing the pending bet's arrow and analysis
     if (pendingBet?.isActive && pendingBet.gameId === gameId) {
-      return; // Keep the hover state for the pending bet
+      // Revert hover state to the pending bet
+      setHoveredMove(pendingBet.moveString);
+
+      // Show arrow for the pending bet move
+      if (handleMoveHover && game) {
+        const chess = new Chess(game.state);
+        try {
+          const moveObj = chess.move(pendingBet.moveString, { sloppy: true });
+          if (moveObj) {
+            handleMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
+          }
+        } catch (e) {
+          // Silently handle invalid moves
+        }
+      }
+      return;
     }
 
     // Otherwise, clear hover state when manually mousing away
