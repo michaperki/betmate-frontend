@@ -100,21 +100,26 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
       // If a move was played, clear the pending bet as it's no longer valid
       const currentMoveCount = game.move_hist?.length || 0;
 
-      // We don't have access to the previous move count, but we can detect
-      // if the game state has changed in a way that invalidates the bet
-      // by checking if the pending bet move is still valid for the current position
-      const chess = new Chess(game.state);
-      const validMoves = chess.moves();
+      // For WDL bets (outcome bets), don't check move validity since they're not chess moves
+      const isWDLBet = ['white_win', 'black_win', 'draw'].includes(pendingBet.moveString);
 
-      if (!validMoves.includes(pendingBet.moveString)) {
-        // The pending bet move is no longer valid (likely because a move was played), clear it
-        console.log('Clearing pending bet - move no longer valid:', pendingBet.moveString);
-        setHoveredMove(null);
-        setMoveMetrics(null);
-        if (handleMoveUnhover) {
-          handleMoveUnhover();
+      if (!isWDLBet) {
+        // We don't have access to the previous move count, but we can detect
+        // if the game state has changed in a way that invalidates the bet
+        // by checking if the pending bet move is still valid for the current position
+        const chess = new Chess(game.state);
+        const validMoves = chess.moves();
+
+        if (!validMoves.includes(pendingBet.moveString)) {
+          // The pending bet move is no longer valid (likely because a move was played), clear it
+          console.log('Clearing pending bet - move no longer valid:', pendingBet.moveString);
+          setHoveredMove(null);
+          setMoveMetrics(null);
+          if (handleMoveUnhover) {
+            handleMoveUnhover();
+          }
+          clearPendingBet();
         }
-        clearPendingBet();
       }
     }
   }, [game?.state, game?.move_hist?.length, pendingBet, gameId, clearPendingBet, handleMoveUnhover]);
@@ -568,6 +573,9 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
             <div className="bet-explanation">
               Bet on the outcome of the game. Win tokens from the house.
             </div>
+
+            {/* Spacer to maintain consistent height with move panel */}
+            <div className="spacer"></div>
 
             <div className="options-container">
               {renderOutcomeOptions()}

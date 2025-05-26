@@ -7,6 +7,8 @@
   color: #fff;
   width: 100%;
   overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
   
   .tab-navigation {
     display: flex;
@@ -45,11 +47,34 @@
     display: flex;
     flex-direction: column;
     gap: 12px; /* Reduced from 16px */
+    flex: 1;
+    min-height: 0; /* Allow flex child to shrink */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     .bet-explanation {
       font-size: 13px; /* Reduced from 14px */
       color: #9999a8;
       margin-bottom: 8px; /* Reduced from 12px */
+      flex-shrink: 0; /* Don't shrink */
+      min-height: 20px; /* Consistent height */
+    }
+
+    /* Panel-specific styles for consistent layout */
+    .move-betting-panel, .outcome-betting-panel {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 400px; /* Consistent minimum height */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .outcome-betting-panel {
+      /* Add a spacer div to maintain consistent height */
+      .spacer {
+        flex: 1;
+        min-height: 180px; /* Equivalent to move-analysis-container + drag-instruction */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
     }
     
     .drag-instruction {
@@ -183,6 +208,9 @@
       overflow-y: auto;
       overflow-x: hidden; /* Prevent horizontal scrolling */
       padding-right: 4px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 1;
+      transform: translateY(0);
       
       .no-options {
         text-align: center;
@@ -298,6 +326,9 @@
       padding: 10px; /* Reduced padding */
       background-color: rgba(0, 0, 0, 0.2);
       border-radius: 8px;
+      flex-shrink: 0; /* Prevent shrinking */
+      min-height: 48px; /* Consistent height */
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       .stake-buttons {
         display: flex;
@@ -409,9 +440,22 @@
       background-color: rgba(58, 136, 254, 0.1);
       border-radius: 6px;
       border: 1px solid rgba(58, 136, 254, 0.3);
-      position: sticky; /* Keep confirmation visible */
-      bottom: 0; /* Stick to bottom */
       z-index: 10; /* Ensure it's above other content */
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideInUp 0.3s ease-out;
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
       .pending-bet-info {
         display: flex;

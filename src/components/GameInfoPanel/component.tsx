@@ -10,18 +10,30 @@ interface GameInfoPanelProps {
       betCount: number;
     };
   };
+  wdlWagerTotals?: {
+    [outcome: string]: {
+      totalAmount: number;
+      betCount: number;
+      averageOdds: number;
+    };
+  };
 }
 
 const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
   game,
   viewerCount = 0,
-  moveWagerData = {}
+  moveWagerData = {},
+  wdlWagerTotals = {}
 }) => {
   const currentMoveNumber = game.move_hist?.length || 0;
   const nextMoveNumber = currentMoveNumber + 1; // Wagers are placed on the NEXT move
   const currentMoveWagers = moveWagerData[nextMoveNumber] || { totalAmount: 0, betCount: 0 };
 
-  
+  // Extract WDL totals
+  const whiteWinTotal = wdlWagerTotals['white_win'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
+  const blackWinTotal = wdlWagerTotals['black_win'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
+  const drawTotal = wdlWagerTotals['draw'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
+
   // Get recent moves for betting indicators (last 5 moves)
   const recentMoves = game.move_hist?.slice(-5) || [];
   const startMoveIndex = Math.max(0, currentMoveNumber - 4);
@@ -44,6 +56,33 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
           <span className="stat-icon">💰</span>
           <span className="stat-value">${currentMoveWagers.totalAmount}</span>
           <span className="stat-label">next move</span>
+        </div>
+      </div>
+
+      <div className="wdl-betting-stats">
+        <span className="wdl-label">Game Outcome Betting:</span>
+        <div className="wdl-stats-row">
+          <div className="wdl-stat-item">
+            <span className="wdl-outcome">White</span>
+            <span className="wdl-amount">${whiteWinTotal.totalAmount}</span>
+            {whiteWinTotal.averageOdds > 0 && (
+              <span className="wdl-odds">{whiteWinTotal.averageOdds.toFixed(1)}x avg</span>
+            )}
+          </div>
+          <div className="wdl-stat-item">
+            <span className="wdl-outcome">Draw</span>
+            <span className="wdl-amount">${drawTotal.totalAmount}</span>
+            {drawTotal.averageOdds > 0 && (
+              <span className="wdl-odds">{drawTotal.averageOdds.toFixed(1)}x avg</span>
+            )}
+          </div>
+          <div className="wdl-stat-item">
+            <span className="wdl-outcome">Black</span>
+            <span className="wdl-amount">${blackWinTotal.totalAmount}</span>
+            {blackWinTotal.averageOdds > 0 && (
+              <span className="wdl-odds">{blackWinTotal.averageOdds.toFixed(1)}x avg</span>
+            )}
+          </div>
         </div>
       </div>
       

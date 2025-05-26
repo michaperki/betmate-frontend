@@ -97,6 +97,13 @@ export interface GameStats {
       betCount: number;
     };
   };
+  wdlWagerTotals: {
+    [outcome: string]: {
+      totalAmount: number;
+      betCount: number;
+      averageOdds: number;
+    };
+  };
   currentMoveNumber: number;
   gameStatus: string;
 }

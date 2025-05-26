@@ -38,7 +38,74 @@
       }
     }
   }
-  
+
+  .wdl-betting-stats {
+    margin-bottom: 12px;
+
+    .wdl-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .wdl-stats-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      .wdl-stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        min-width: 60px;
+        flex: 1;
+
+        .wdl-outcome {
+          font-size: 11px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.7);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
+        }
+
+        .wdl-amount {
+          font-size: 14px;
+          font-weight: 600;
+          color: #fff;
+          margin-bottom: 1px;
+        }
+
+        .wdl-odds {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        &:first-child {
+          border-color: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        &:nth-child(2) {
+          border-color: rgba(158, 158, 158, 0.3);
+          background: rgba(158, 158, 158, 0.1);
+        }
+
+        &:last-child {
+          border-color: rgba(97, 97, 97, 0.3);
+          background: rgba(97, 97, 97, 0.1);
+        }
+      }
+    }
+  }
+
   .move-betting-indicators {
     .indicators-label {
       color: rgba(255, 255, 255, 0.7);
