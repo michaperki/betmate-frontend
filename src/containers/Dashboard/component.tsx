@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { fetchGamesByStatus, clearGames } from 'store/actionCreators/gameActionCreators';
 import { Game } from 'types/resources/game';
+import { User } from 'types/resources/auth';
 import Leaderboard from 'components/Leaderboard';
 
 // New mobile-first dashboard components
@@ -21,11 +22,12 @@ export interface DashboardProps {
   fetchGamesByStatus: typeof fetchGamesByStatus;
   clearGames: typeof clearGames;
   games: Game[];
+  user: User | null;
 }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout();
-  const { stats, featuredGame, regularGames } = useDashboardData(props.games);
+  const { stats, featuredGame, regularGames } = useDashboardData(props.games, props.user);
   const { 
     filters, 
     filteredGames, 
@@ -59,8 +61,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     <div className="dashboard">
       <div className="dashboard-container">
         {/* Hero Section with greeting and balance */}
-        <HeroSection 
-          userName="Player" // TODO: Get from user context
+        <HeroSection
+          userName={props.user?.first_name || "Player"}
           stats={stats}
         />
 

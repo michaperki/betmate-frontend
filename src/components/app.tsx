@@ -19,7 +19,7 @@ import NavBar from './NavBar';
 
 const Welcome = () => {
   return (
-    <div>
+    <div className="dashboard-page">
       <NavBar />
       <Dashboard/>
     </div>

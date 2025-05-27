@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Game } from 'types/resources/game';
+import { User } from 'types/resources/auth';
 
 export interface DashboardStats {
   totalWagers: number;
@@ -8,11 +9,11 @@ export interface DashboardStats {
   activeMatches: number;
 }
 
-export const useDashboardData = (games: Game[]) => {
+export const useDashboardData = (games: Game[], user: User | null) => {
   const [stats, setStats] = useState<DashboardStats>({
     totalWagers: 0,
     winRate: 0,
-    currentBalance: 1000, // Default balance - would come from user context
+    currentBalance: user?.account || 0, // Use real user balance
     activeMatches: 0,
   });
 
@@ -33,9 +34,10 @@ export const useDashboardData = (games: Game[]) => {
     setStats(prev => ({
       ...prev,
       activeMatches: games.length,
+      currentBalance: user?.account || 0, // Update balance when user changes
       // TODO: Integrate with actual user stats from backend
     }));
-  }, [games]);
+  }, [games, user]);
 
   return {
     stats,

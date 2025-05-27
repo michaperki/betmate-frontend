@@ -67,7 +67,7 @@
         border-width: 2px;
 
         @include mobile {
-          height: 200px;
+          height: 180px; // Make cards more compact on mobile
         }
       }
 
@@ -110,7 +110,7 @@
       overflow: hidden;
 
       @include mobile {
-        height: 200px;
+        height: 180px; // Match the actual card height
       }
 
       .loading-shimmer {

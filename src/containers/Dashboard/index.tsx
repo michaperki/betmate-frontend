@@ -13,6 +13,7 @@ const mapStateToProps = (state: RootState) => ({
     .filter((game) => game.game_status === 'not_started' || game.game_status === 'in_progress'),
   isLoading: loadingSelector(loadActions, state),
   errorMessage: errorSelector(loadActions, state),
+  user: state.auth.user, // Add user data for balance
 });
 
 export default connect(mapStateToProps, { fetchGamesByStatus, clearGames })(Dashboard);
