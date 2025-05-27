@@ -20,7 +20,7 @@ const ChessgroundWrapper = forwardRef<HTMLDivElement, ChessgroundWrapperProps>(
     };
 
     return (
-      <div ref={ref}>
+      <div className="cg-wrap" ref={ref}>
         <Chessground config={safeConfig} />
       </div>
     );

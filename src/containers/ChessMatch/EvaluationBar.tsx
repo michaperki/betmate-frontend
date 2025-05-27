@@ -10,7 +10,7 @@ interface EvaluationBarProps {
 /**
  * Vertical evaluation bar showing the game win/draw probabilities
  */
-const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width = 30, className = '' }) => {
+const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width, className = '' }) => {
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   // Default to even probabilities if odds are not available
@@ -34,7 +34,7 @@ const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width = 30, classNa
       {/* Main bar section */}
       <div
         className="vertical-evaluation-bar"
-        style={{ width: `${width}px` }}
+        style={width ? { width: `${width}px` } : {}}
         onMouseEnter={() => setShowTooltip('main')}
         onMouseLeave={() => setShowTooltip(null)}
       >

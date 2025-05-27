@@ -2,16 +2,30 @@
 .dark-game-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #050505;
   color: #F2F2F2;
   font-family: 'Roboto', sans-serif;
-  width: 100vw;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  overflow: hidden; /* Prevent scrolling */
+
+  @media (max-width: 768px) {
+    position: absolute; // Use absolute to ensure proper positioning
+    top: 0; // Start at the top
+    left: 0;
+    right: 0;
+    width: 100vw;
+    overflow-y: auto; // Enable vertical scrolling on mobile
+    -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+  }
+
+  @media (min-width: 769px) {
+    position: fixed; // Keep fixed position on desktop
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    overflow: hidden; // Prevent scrolling on desktop
+  }
 }
 
 
@@ -90,22 +104,48 @@
     "info-panel info-panel info-panel";
   gap: 12px; /* Reduced gap from 16px to 12px */
   padding: 12px; /* Reduced padding from 16px to 12px */
-  max-width: 1600px; /* Increased max-width from 1500px to 1600px */
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
-  height: calc(100% - 24px); /* Adjusted for new padding */
-  overflow: hidden;
   box-sizing: border-box;
 
-  @media (max-width: 1200px) {
+  @media (max-width: 768px) {
+    height: auto; // Let content determine height on mobile
+    overflow: visible; // Allow content to overflow and be scrollable
+  }
+
+  @media (min-width: 769px) {
+    height: calc(100% - 24px);
+    overflow: hidden; // Keep contained on desktop
+  }
+
+  // Mobile-first responsive layout
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto auto;
+    grid-template-areas:
+      "top-player"
+      "board-area"
+      "bottom-player"
+      "info-panel"
+      "betting-area"
+      "mobile-chat";
+    gap: 8px;
+    padding: 12px;
+    height: auto; // Let content determine height on mobile
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
     grid-template-columns: 1fr;
     grid-template-areas:
       "board-area"
+      "info-panel"
       "right-sidebar"
-      "mobile-chat"
-      "info-panel";
-    gap: 8px; /* Reduced gap for mobile */
-    padding: 8px; /* Reduced padding for mobile */
+      "mobile-chat";
+    gap: 8px;
+    padding: 8px;
+    height: auto;
   }
 }
 
@@ -129,6 +169,12 @@
   margin: 0 auto; /* Center within grid area */
   width: 100%;
   position: relative;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    gap: 2px;
+    padding: 0;
+  }
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
@@ -143,53 +189,49 @@
 
 .chessboard-wrapper{
   width:100%;
-  max-width:550px;       /* reduced maximum size */
+  max-width:550px;
   margin:auto;
   position:relative;
-  /* Remove box-sizing: border-box to avoid interfering with chessground calculations */
 
-  @media (min-width: 950px) {
-    max-width:550px;    /* keep consistent max size */
+  @media (max-width: 768px) {
+    max-width: 320px !important;
+    width: 320px !important;
+    height: 320px !important;
+    overflow: hidden !important; // Clip anything that exceeds the container
   }
-}
 
-/* Override dark square color for better contrast */
-.chessboard-wrapper .cg-board .dark {
-  background-color: #c2a06c !important;
+  // Force all chessground elements to respect container size
+  .cg-wrap,
+  .cg-container,
+  .cg-board {
+    @media (max-width: 768px) {
+      max-width: 320px !important;
+      width: 320px !important;
+      height: 320px !important;
+    }
+  }
 }
 
 .chessboard-wrapper::before{
   content:'';
   display:block;
-  padding-top:100%;     /* keep perfect square */
-  /* Ensure no margin that could affect positioning */
+  padding-top:100%;
   margin: 0;
 }
 
-.chessboard-wrapper > .cg-wrap{
-  position:absolute;
+.chessboard-wrapper > .cg-wrap {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  /* Ensure no padding/margin that could offset the board vertically */
   margin: 0;
   padding: 0;
 }
 
-/* Let chessground handle its own sizing - remove our overrides */
-.chessboard-wrapper .cg-wrap,
-.chessboard-wrapper .cg-container,
-.chessboard-wrapper .cg-board {
-  /* Remove width/height overrides that might interfere with piece positioning */
-  margin: 0;
-  padding: 0;
-  /* Ensure clean positioning baseline */
-}
-
-/* Reset any inherited styles that might affect chessground positioning */
-.chessboard-wrapper * {
-  box-sizing: content-box; /* Override any border-box inheritance */
+/* Override dark square color for better contrast */
+.chessboard-wrapper .cg-board .dark {
+  background-color: #c2a06c !important;
 }
 
 // Left sidebar container (for chat and leaderboard)
@@ -257,17 +299,38 @@
   flex-direction: column;
   gap: 8px; /* Reduced gap */
   height: auto;
-  max-height: calc(100vh - 200px); /* More dynamic height calculation to prevent scroll */
-  overflow-y: auto;
-  padding-left: 6px; /* Reduced padding */
-  scrollbar-width: thin;
-  align-self: start; /* Align to top of grid area */
+  padding-left: 6px;
+  align-self: start;
+
+  @media (max-width: 768px) {
+    max-height: none; // Remove height restrictions on mobile
+    overflow: visible; // Remove individual scrolling on mobile
+  }
+
+  @media (min-width: 769px) {
+    max-height: calc(100vh - 200px); // Keep height restrictions on desktop
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
 
   @media (max-width: 1200px) {
     padding-left: 0;
     max-width: 700px;
     margin: 0 auto;
     max-height: none; /* Remove height restriction on mobile */
+  }
+
+  @media (max-width: 768px) {
+    grid-area: betting-area;
+    padding: 12px;
+    max-height: none; // Remove height restriction to eliminate scrolling
+    background: rgba(17, 17, 17, 0.95);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 239, 178, 0.2);
+    margin: 0;
+
+    // Remove individual scrolling - let page scroll handle it
+    overflow: visible;
   }
 
   /* Custom scrollbar */
@@ -297,16 +360,24 @@
   grid-area: mobile-chat;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-height: 30vh;
+  gap: 12px;
+  max-height: 300px; // Fixed height in pixels for better control
   overflow-y: auto;
   scrollbar-width: thin;
   max-width: 700px;
   margin: 0 auto;
-  padding-bottom: 0;
+  padding: 12px;
+  background: rgba(17, 17, 17, 0.95);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 239, 178, 0.2);
 
   @media (min-width: 1200px) {
     display: none; /* Hidden on desktop - content is in left sidebar */
+  }
+
+  @media (max-width: 768px) {
+    display: flex; /* Ensure it shows on mobile */
+    padding: 8px;
   }
 
   /* Custom scrollbar */
@@ -436,14 +507,21 @@
   align-items: stretch;
   position: relative;
 
-  /* Fix for proper board containment */
+  @media (max-width: 768px) {
+    justify-content: center; // Center the board and eval bar horizontally
+    width: fit-content;
+    margin: 0 auto; // Center the container itself
+  }
+
   .chessboard-wrapper {
     flex: 1;
     position: relative;
-    width: 100%;
-    height: auto;
     max-width: calc(100% - 50px); /* Leave space for eval bar */
-    /* Remove box-sizing: border-box to avoid interfering with chessground positioning */
+
+    @media (max-width: 768px) {
+      flex: none; // Don't stretch on mobile
+      max-width: calc(100% - 25px); // Less space needed for thinner eval bar
+    }
   }
 }
 
@@ -455,9 +533,14 @@
   justify-content: center;
   padding: 4px 0;
 
+  @media (max-width: 768px) {
+    width: 20px; // Much thinner on mobile
+    margin-left: 4px; // Smaller margin
+  }
+
   @media (max-width: 640px) {
-    width: 30px;
-    margin-left: 6px;
+    width: 16px; // Even thinner on very small screens
+    margin-left: 3px;
   }
 }
 
@@ -478,13 +561,19 @@
   overflow: hidden;
   border: 1px solid rgba(58, 136, 254, 0.3);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  margin-top: auto; /* Push to the bottom of its container */
-  margin-bottom: auto; /* Push to the top of its container */
+  margin-top: auto;
+  margin-bottom: auto;
   background-color: #1E1E2E;
-  position: relative; /* For tooltip positioning */
+  position: relative;
+
+  @media (max-width: 768px) {
+    width: 12px; // Much thinner on mobile
+    border-radius: 3px; // Smaller border radius
+  }
 
   @media (max-width: 640px) {
-    width: 16px;
+    width: 10px; // Even thinner on small screens
+    border-radius: 2px;
   }
 
   /* Win % tooltip overlay on the bar */

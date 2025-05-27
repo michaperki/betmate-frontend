@@ -14,6 +14,23 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border-left: 3px solid #00EFB2;
   }
+
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+
+    &.top-player {
+      grid-area: top-player;
+      margin-bottom: 8px;
+    }
+
+    &.bottom-player {
+      grid-area: bottom-player;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+  }
 }
 
 .player-details {
@@ -25,6 +42,12 @@
   width: 40px;
   height: 40px;
   margin-right: 12px;
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+  }
 }
 
 .player-data {
@@ -35,11 +58,19 @@
 .player-name {
   font-weight: 500;
   color: #F2F2F2;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 }
 
 .player-elo {
   font-size: 14px;
   color: #BDBDBD;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 }
 
 .player-timer {

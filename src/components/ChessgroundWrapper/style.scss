@@ -1,9 +1,10 @@
-/* ChessgroundWrapper styles - ensure proper sizing within chessboard-wrapper */
-/* The parent .chessboard-wrapper handles aspect ratio, we ensure content fits */
+/* Clean ChessgroundWrapper - let chessground handle its own sizing */
 .cg-wrap {
-  width: 100% !important;
-  height: 100% !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
+  position: relative;
+  display: block;
+}
+
+.cg-container {
+  position: relative;
+  display: block;
 }

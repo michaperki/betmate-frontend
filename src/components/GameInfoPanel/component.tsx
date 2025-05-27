@@ -39,27 +39,29 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
   const startMoveIndex = Math.max(0, currentMoveNumber - 4);
 
   return (
-    <div className="bg-secondary border border-primary rounded p-3">
-      <div className="flex items-center justify-between gap-6">
-        {/* Game Stats */}
-        <div className="flex items-center gap-4">
+    <div className="bg-secondary border border-primary rounded py-1 px-2 sm:p-3">
+      {/* Mobile: Stack vertically, Desktop: Keep horizontal */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6">
+        {/* Top row on mobile: Game Stats - Compact */}
+        <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 flex-wrap">
           <div className="text-center">
-            <div className="text-xs text-muted uppercase">Move</div>
-            <div className="text-lg font-bold text-brand">{nextMoveNumber}</div>
+            <div className="text-xs text-muted uppercase leading-tight">Move</div>
+            <div className="text-sm sm:text-lg font-bold text-brand leading-tight">{nextMoveNumber}</div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-muted uppercase">👁 Watching</div>
-            <div className="text-lg font-bold text-primary">{viewerCount}</div>
+            <div className="text-xs text-muted uppercase leading-tight">👁 Watching</div>
+            <div className="text-sm sm:text-lg font-bold text-primary leading-tight">{viewerCount}</div>
           </div>
           <div className="text-center">
-            <div className="text-xs text-muted uppercase">💰 Next Move</div>
-            <div className="text-lg font-bold text-success">${currentMoveWagers.totalAmount}</div>
+            <div className="text-xs text-muted uppercase leading-tight">💰 Next Move</div>
+            <div className="text-sm sm:text-lg font-bold text-success leading-tight">${currentMoveWagers.totalAmount}</div>
           </div>
         </div>
 
-        {/* Recent Move Bets */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-primary">Recent:</span>
+        {/* Middle row on mobile: Recent Move Bets - Compact */}
+        <div className="flex items-center justify-center sm:justify-start gap-2">
+          <span className="text-sm font-medium text-primary hidden sm:inline">Recent:</span>
+          <span className="text-xs font-medium text-primary sm:hidden">Recent Moves:</span>
           <div className="flex gap-1">
             {Array.from({ length: 5 }, (_, i) => {
               const moveNum = startMoveIndex + i + 1;
@@ -71,34 +73,34 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
                 <div
                   key={moveNum}
                   className={`
-                    w-8 h-8 flex items-center justify-center text-xs font-semibold border rounded
+                    w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-semibold border rounded
                     ${hasWagers ? 'bg-success border-success text-inverse' : 'bg-tertiary border-secondary text-muted'}
                     ${isCurrentMove ? 'ring-1 ring-brand' : ''}
                   `}
                   title={hasWagers ? `Move ${moveNum}: $${wagerData.totalAmount} (${wagerData.betCount} bets)` : `Move ${moveNum}: No bets`}
                 >
-                  {moveNum}
+                  <span className="text-xs sm:text-sm leading-none">{moveNum}</span>
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Game Outcome Betting */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-primary">Outcome:</span>
-          <div className="flex gap-2">
+        {/* Bottom row on mobile: Game Outcome Betting - Compact */}
+        <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-4">
+          <span className="text-xs sm:text-sm font-medium text-primary">Outcome:</span>
+          <div className="flex gap-2 sm:gap-3">
             <div className="text-center">
-              <div className="text-xs text-muted uppercase">White</div>
-              <div className="font-bold text-brand text-sm">${whiteWinTotal.totalAmount}</div>
+              <div className="text-xs text-muted uppercase">W</div>
+              <div className="font-bold text-brand text-xs sm:text-sm">${whiteWinTotal.totalAmount}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-muted uppercase">Draw</div>
-              <div className="font-bold text-brand text-sm">${drawTotal.totalAmount}</div>
+              <div className="text-xs text-muted uppercase">D</div>
+              <div className="font-bold text-brand text-xs sm:text-sm">${drawTotal.totalAmount}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-muted uppercase">Black</div>
-              <div className="font-bold text-brand text-sm">${blackWinTotal.totalAmount}</div>
+              <div className="text-xs text-muted uppercase">B</div>
+              <div className="font-bold text-brand text-xs sm:text-sm">${blackWinTotal.totalAmount}</div>
             </div>
           </div>
         </div>
