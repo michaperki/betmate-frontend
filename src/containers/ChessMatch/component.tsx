@@ -175,16 +175,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
         {/* Main content area */}
         <div className="game-content">
-          {/* Full-width Game Information Panel */}
-          <div className="game-info-panel-wrapper">
-            <GameInfoPanel
-              game={game}
-              viewerCount={gameStats?.viewerCount || 0}
-              moveWagerData={gameStats?.moveWagerData || {}}
-              wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
-            />
-          </div>
-
           {/* Left column - Chat and wagers on larger screens */}
           <div className="left-sidebar-container">
               {/* Chat section */}
@@ -296,6 +286,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 <MiniLeaderboard rankings={props.rankings || []} />
               </div>
             </div>
+          </div>
+
+          {/* Game Information Panel - Moved below main game area */}
+          <div className="game-info-panel-container">
+            <GameInfoPanel
+              game={game}
+              viewerCount={gameStats?.viewerCount || 0}
+              moveWagerData={gameStats?.moveWagerData || {}}
+              wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
+            />
           </div>
         </div>
       </div>

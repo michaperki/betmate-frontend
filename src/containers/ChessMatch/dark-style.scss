@@ -83,11 +83,11 @@
 .game-content {
   display: grid;
   grid-template-columns: 280px 1fr 280px;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto auto;
   grid-template-areas:
-    "info-panel info-panel info-panel"
     "left-sidebar board-area right-sidebar"
-    "mobile-chat mobile-chat mobile-chat";
+    "mobile-chat mobile-chat mobile-chat"
+    "info-panel info-panel info-panel";
   gap: 16px;
   padding: 16px;
   max-width: 1500px;
@@ -100,19 +100,20 @@
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "info-panel"
       "board-area"
       "right-sidebar"
-      "mobile-chat";
+      "mobile-chat"
+      "info-panel";
     gap: 12px;
   }
 }
 
 // Grid area assignments
-.game-info-panel-wrapper {
+.game-info-panel-container {
   grid-area: info-panel;
-  padding: 8px 16px;
-  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 // Board container - now using grid
