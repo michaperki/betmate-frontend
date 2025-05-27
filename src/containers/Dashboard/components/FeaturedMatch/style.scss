@@ -105,12 +105,35 @@
       border: 2px solid $brand-primary;
     }
 
+    .players-with-pawns {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: $space-3;
+      position: relative;
+
+      .pawn-decoration {
+        width: 60px;
+        height: auto;
+        opacity: 0.7;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+
+        &.pawn-left {
+          transform: rotate(-10deg);
+        }
+
+        &.pawn-right {
+          transform: rotate(10deg);
+        }
+      }
+    }
+
     .players-vertical {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: $space-2;
-      margin-bottom: $space-3;
+      flex: 1;
 
       .player {
         display: flex;

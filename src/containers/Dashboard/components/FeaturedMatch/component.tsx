@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom';
 import { Game } from 'types/resources/game';
 import { WDLBar } from 'components/WagerPanel/helper_components';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
+import blackPawn from 'assets/dashboard/blackPawn.svg';
+import whitePawn from 'assets/dashboard/whitePawn.svg';
 import './style.scss';
 
 export interface FeaturedMatchProps {
@@ -27,19 +29,25 @@ const FeaturedMatch: React.FC<FeaturedMatchProps> = ({ game }) => {
 
       <div className="featured-game-content">
         {isMobile ? (
-          // Mobile-optimized vertical layout
+          // Mobile-optimized vertical layout with pawn decorations
           <div className="mobile-game-layout">
             <div className="match-info">
-              <div className="players-vertical">
-                <div className="player">
-                  <span className="player-name">{game.player_black.name}</span>
-                  <span className="player-rating">({game.player_black.elo})</span>
+              <div className="players-with-pawns">
+                <img src={blackPawn} alt="Black Pawn" className="pawn-decoration pawn-left" />
+
+                <div className="players-vertical">
+                  <div className="player">
+                    <span className="player-name">{game.player_black.name}</span>
+                    <span className="player-rating">({game.player_black.elo})</span>
+                  </div>
+                  <div className="vs-divider">VS</div>
+                  <div className="player">
+                    <span className="player-name">{game.player_white.name}</span>
+                    <span className="player-rating">({game.player_white.elo})</span>
+                  </div>
                 </div>
-                <div className="vs-divider">VS</div>
-                <div className="player">
-                  <span className="player-name">{game.player_white.name}</span>
-                  <span className="player-rating">({game.player_white.elo})</span>
-                </div>
+
+                <img src={whitePawn} alt="White Pawn" className="pawn-decoration pawn-right" />
               </div>
 
               <div className="odds-bar">
