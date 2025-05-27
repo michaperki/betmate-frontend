@@ -1,88 +1,112 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { fetchGamesByStatus, clearGames } from 'store/actionCreators/gameActionCreators';
 import { Game } from 'types/resources/game';
 import Leaderboard from 'components/Leaderboard';
-import GameCard from 'components/GameCard/component';
-import LichessModal from 'components/LichessModal';
+
+// New mobile-first dashboard components
+import HeroSection from './components/HeroSection';
+import QuickStatsBar from './components/QuickStatsBar';
+import FeaturedMatch from './components/FeaturedMatch';
+import LiveMatchesGrid from './components/LiveMatchesGrid';
+import FilterBar from './components/FilterBar';
+
+// Custom hooks
+import { useDashboardData } from 'hooks/useDashboardData';
+import { useFilterState } from 'hooks/useFilterState';
+import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
+
 import './style.scss';
 
-export interface DashboardProps{
-  fetchGamesByStatus: typeof fetchGamesByStatus
-  clearGames: typeof clearGames
+export interface DashboardProps {
+  fetchGamesByStatus: typeof fetchGamesByStatus;
+  clearGames: typeof clearGames;
   games: Game[];
 }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
-  const [topGame, setTopGame] = useState<Game>();
-  const [showLichessModal, setShowLichessModal] = useState(false);
-
-  const gameRating = (game: Game) => game.player_black.elo + game.player_white.elo;
-  const getTime = (game: Game) => new Date(game.created_at).getTime();
+  const { isMobile, isTablet, isDesktop } = useResponsiveLayout();
+  const { stats, featuredGame, regularGames } = useDashboardData(props.games);
+  const { 
+    filters, 
+    filteredGames, 
+    setTimeFilter, 
+    setRatingFilter, 
+    clearFilters 
+  } = useFilterState(regularGames);
 
   useEffect(() => {
     props.clearGames();
     props.fetchGamesByStatus(['not_started', 'in_progress']);
   }, []);
 
-  useEffect(() => {
-    if (props.games.length === 0) return;
-    const newTopGame = props.games.reduce((top, game) => (
-      gameRating(top) > gameRating(game) ? top : game
-    ));
+  // Sort filtered games by time (newest first)
+  const sortedFilteredGames = filteredGames.sort((gameA, gameB) => {
+    const timeA = new Date(gameA.created_at).getTime();
+    const timeB = new Date(gameB.created_at).getTime();
+    return timeB - timeA;
+  });
 
-    setTopGame(newTopGame);
-  }, [props.games]);
-
-  const games = props.games
-    .filter((g) => g !== topGame)
-    .sort((gameA, gameB) => getTime(gameB) - getTime(gameA));
-
-  const numLichessGames = props.games.length;
-
-  return props.games.length === 0
-    ? <div>Loading...</div>
-    : (
-      <div className='main-page'>
-        {showLichessModal && <LichessModal setShowLichessModal={setShowLichessModal} />}
-        {/* Commented out for Technigala */}
-        {/* <div className='main-dashboard'>
-        <img src={magnifier} />
-        <input
-          className='searchBar'
-          placeholder= 'search for a game, player, or type of chess'
-        />
-        <div >
-          <button className='browse-button'>Browse</button>
-        </div>
-      </div> */}
-        <div className="top-section">
-          {topGame && (
-            <div className="featured-section">
-              <h2 className="featured-title">Featured Match 🔥</h2>
-              <div className="card-box top-game">
-                <GameCard game={topGame} topGame />
-              </div>
-            </div>
-          )}
-          <Leaderboard />
-        </div>
-        <h3 className='betting-header'>Live Matches 🔎</h3>
-        <div className='match-container'>
-          <div className='card-box add-game'>
-            <div className='add-card'>
-              <p className='add-head'>+ add match from Lichess</p>
-              <p className='add-status'>{numLichessGames}/8 matches being used</p>
-              <button className='add-button' onClick={() => setShowLichessModal(true)}>add match</button>
-            </div>
-          </div>
-          {games.map((game, i) => (
-            <div key={game._id} className={`card-box ${i % 2 ? 'pink' : 'orange'}`}>
-              <GameCard game={game} />
-            </div>
-          ))}
-        </div>
+  if (props.games.length === 0) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading matches...</p>
       </div>
     );
+  }
+
+  return (
+    <div className="dashboard">
+      <div className="dashboard-container">
+        {/* Hero Section with greeting and balance */}
+        <HeroSection 
+          userName="Player" // TODO: Get from user context
+          stats={stats}
+        />
+
+        {/* Quick Stats Bar */}
+        <QuickStatsBar stats={stats} />
+
+        {/* Main Content Area */}
+        <div className="dashboard-main">
+          
+          {/* Featured Game and Leaderboard Section */}
+          <div className="dashboard-featured-section">
+            {featuredGame && (
+              <div className="featured-match-container">
+                <FeaturedMatch game={featuredGame} />
+              </div>
+            )}
+            
+            {/* Leaderboard - responsive positioning */}
+            <div className="leaderboard-container">
+              <Leaderboard />
+            </div>
+          </div>
+
+          {/* Live Matches Section */}
+          <div className="dashboard-matches-section">
+            
+            {/* Filter Bar */}
+            <FilterBar
+              filters={filters}
+              onTimeFilterChange={setTimeFilter}
+              onRatingFilterChange={setRatingFilter}
+              onClearFilters={clearFilters}
+              totalCount={regularGames.length}
+              filteredCount={sortedFilteredGames.length}
+            />
+
+            {/* Live Matches Grid */}
+            <LiveMatchesGrid 
+              games={sortedFilteredGames}
+              isLoading={false}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;

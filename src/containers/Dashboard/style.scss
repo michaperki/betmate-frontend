@@ -1,154 +1,167 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
+.dashboard {
+  min-height: 100vh;
+  background: $bg-primary;
+  
+  .dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: $space-4;
+
+    @include mobile {
+      padding: $space-3 $space-2;
+    }
+  }
+
+  .dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+
+    @include mobile {
+      gap: $space-4;
+    }
+  }
+
+  // Featured section with game and leaderboard
+  .dashboard-featured-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $space-6;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $space-4;
+    }
+
+    @include tablet {
+      gap: $space-4;
+    }
+
+    .featured-match-container {
+      // Featured match takes up more space on desktop
+    }
+
+    .leaderboard-container {
+      // Leaderboard in sidebar on desktop, full width on mobile
+      
+      // Override leaderboard styles for better integration
+      .leaderboard {
+        height: fit-content;
+        max-height: 500px;
+        
+        @include mobile {
+          max-height: 400px;
+        }
+      }
+    }
+  }
+
+  // Matches section with filters and grid
+  .dashboard-matches-section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+
+    @include mobile {
+      gap: $space-3;
+    }
+  }
+
+  // Loading state
+  .dashboard-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: $space-4;
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid $border-secondary;
+      border-top: 3px solid $brand-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    p {
+      @include text-body;
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+}
+
+// Legacy styles cleanup - keeping only what's needed for GameCard compatibility
+.card-box {
+  background: $bg-secondary;
+  border-radius: $radius-lg;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  // Remove fixed dimensions - let components control sizing
+  &.top-game {
+    // Styles for featured game cards
+  }
+
+  &.pink {
+    border-color: $accent-pink;
+  }
+
+  &.orange {
+    border-color: $warning;
+  }
+
+  &.blue {
+    border-color: $accent-blue;
+  }
+
+  &.purple {
+    border-color: $accent-purple;
+  }
+}
+
+// Remove the problematic horizontal scrolling container
+.match-container {
+  // This is now handled by LiveMatchesGrid
+  display: none;
+}
+
+// Remove the old "add game from Lichess" styles - feature removed per requirements
+.add-game,
+.add-card,
+.add-head,
+.add-status,
+.add-button {
+  display: none;
+}
+
+// Clean up old layout styles
 .main-page {
-    background-color: #1E1E22;
+  // Remove background override - handled by dashboard container
 }
 
 .top-section {
-    display: flex;
-    flex-direction: row;
-
-    margin: 1em;
-
-    .featured-section {
-        flex-grow: 1;
-        max-width: 1000px;
-        h2.featured-title {
-            color:#F2F2F2;
-            font-size: 32px;
-            margin: 10px;
-            margin-left: 1em;
-        }
-    }
-}
-
-.match-container {
-    white-space: nowrap;
-    overflow-x: scroll;
-    margin-left: 15px;
+  // Replaced by dashboard-featured-section
+  display: none;
 }
 
 .main-dashboard {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 8em;
-    width: 100%;
+  // Old search bar section - removed per requirements
+  display: none;
 }
-
-.welcome-message {
-    margin-left: 1em;
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 40px;
-    color: white;
-    align-self: center;
-    flex: 1 9999 0%;
-}
-
-.searchBar {
-    background-color: #1E1E22;
-    min-width: 400px;
-    text-align: center;
-    font-family: Roboto;
-    color: white;
-    outline: none;
-    border-bottom: 2px solid white;
-    border-right: none;
-    cursor: auto;
-}
-.searchBar::placeholder {
-    color: white;
-    opacity: 70%;
-}
-
-.browse-button {
-    border:none;
-    background-color: #FFC430;
-    border-radius: 5px;
-    min-width: 50px;
-    min-height: 25px;
-    font-weight: bold;
-    margin-left: 1em;
-    cursor: pointer; 
-}
-
 
 .betting-header {
-    font-family: Roboto;
-    font-size: 30px;
-    font-weight: 100px;
-    text-shadow: 0 0 5px #2AD9FF;
-    margin-left: 1.3em;
-    color: white;
-    margin-bottom: 0;
-}
-
-.card-box {
-    background: #1E1E22;
-    border: 7px solid;
-    border-radius: 10px;
-    border-color: #99F2FF;
-    display: inline-block;
-    width: 25em;
-    height: 15em;
-    margin: 1em;
-    position: relative;
-    overflow: hidden;
-
-    &.top-game {
-        height: 23em;
-        width: 90%;
-        margin-top: 0;
-        border-color: #00B6FF;
-    }
-
-    &.pink {
-        border-color: #FF00B7;
-    }
-
-    &.orange {
-        border-color: #FFC702;
-    }
-
-    &.add-game {
-        border-color: #a6a6a6;
-
-        .add-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            height: 100%;
-
-            .add-head {
-                font-size: 32px;
-                font-weight: 300;
-                color: white;
-                margin: 0;
-            }
-
-            .add-status {
-                font-size: 22px;
-                font-weight: 300;
-                color: #a6a6a6;
-            }
-
-            .add-button {
-                background: #FADF9B;
-                border-radius: 10px;
-                min-width: 8em;
-                min-height: 3em;
-                cursor: pointer;
-                font-family: Roboto;
-                font-style: normal;
-                font-weight: bolder;
-                border:none;
-                font-size: 15px;
-            }
-        }
-    }
-
-    
+  // Replaced by LiveMatchesGrid header
+  display: none;
 }

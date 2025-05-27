@@ -1,0 +1,177 @@
+@import '../../../../styles/tokens.scss';
+@import '../../../../styles/mixins.scss';
+
+.live-matches-grid {
+  margin-bottom: $space-6;
+
+  .matches-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-4;
+    padding: 0 $space-2;
+
+    @include mobile {
+      margin-bottom: $space-3;
+      padding: 0 $space-1;
+    }
+
+    .matches-title {
+      @include text-heading-2;
+      color: $text-primary;
+      margin: 0;
+      text-shadow: 0 0 8px $accent-blue;
+
+      @include mobile {
+        @include text-heading-3;
+      }
+    }
+
+    .matches-count {
+      @include text-caption;
+      color: $text-secondary;
+      background: $bg-tertiary;
+      padding: $space-1 $space-2;
+      border-radius: $radius-md;
+      border: 1px solid $border-secondary;
+    }
+  }
+
+  .matches-grid {
+    display: grid;
+    gap: $space-4;
+    
+    @include mobile {
+      gap: $space-3;
+      // Single column on mobile - no horizontal scrolling
+      grid-template-columns: 1fr !important;
+    }
+
+    @include tablet {
+      gap: $space-3;
+    }
+
+    .match-card-wrapper {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        @include shadow-glow;
+      }
+
+      // Override GameCard styles for grid layout
+      .card-box {
+        width: 100%;
+        height: 240px;
+        margin: 0;
+        border-width: 2px;
+
+        @include mobile {
+          height: 200px;
+        }
+      }
+
+      // Color variants
+      &.match-card--blue .card-box {
+        border-color: $accent-blue;
+      }
+
+      &.match-card--pink .card-box {
+        border-color: $accent-pink;
+      }
+
+      &.match-card--orange .card-box {
+        border-color: $warning;
+      }
+
+      &.match-card--purple .card-box {
+        border-color: $accent-purple;
+      }
+    }
+  }
+
+  // Loading states
+  .loading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $space-4;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $space-3;
+    }
+
+    .loading-card {
+      @include card-base;
+      height: 240px;
+      background: $bg-secondary;
+      border: 2px solid $border-secondary;
+      border-radius: $radius-lg;
+      overflow: hidden;
+
+      @include mobile {
+        height: 200px;
+      }
+
+      .loading-shimmer {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba($brand-primary, 0.1),
+          transparent
+        );
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    text-align: center;
+    padding: $space-8 $space-4;
+    background: $bg-secondary;
+    border-radius: $radius-lg;
+    border: 2px dashed $border-secondary;
+
+    @include mobile {
+      padding: $space-6 $space-3;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: $space-3;
+      opacity: 0.7;
+
+      @include mobile {
+        font-size: 3rem;
+        margin-bottom: $space-2;
+      }
+    }
+
+    .empty-title {
+      @include text-heading-3;
+      color: $text-primary;
+      margin: 0 0 $space-2 0;
+
+      @include mobile {
+        @include text-heading-4;
+      }
+    }
+
+    .empty-description {
+      @include text-body;
+      color: $text-secondary;
+      margin: 0;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+}

@@ -27,6 +27,12 @@ $warning: #FFC430;               // Warnings, pending states
 $error: #FF4757;                 // Errors, losses
 $info: #3a88fe;                  // Information, neutral actions
 
+// Accent Colors (for varied UI elements)
+$accent-blue: #00B6FF;           // Blue accent
+$accent-pink: #FF00B7;           // Pink accent
+$accent-purple: #9C88FF;         // Purple accent
+$accent-orange: #FFC702;         // Orange accent
+
 // Text Colors
 $text-primary: #FFFFFF;          // Primary text on dark backgrounds
 $text-secondary: #BDBDBD;        // Secondary text
@@ -111,9 +117,11 @@ $space-24: 6rem;     // 96px
 $radius-none: 0;
 $radius-sm: 0.25rem;   // 4px
 $radius-base: 0.5rem;  // 8px - default
+$radius-md: 0.625rem;  // 10px
 $radius-lg: 0.75rem;   // 12px
 $radius-xl: 1rem;      // 16px
 $radius-2xl: 1.5rem;   // 24px
+$radius-pill: 9999px;  // Pills/circles
 $radius-full: 9999px;  // Pills/circles
 
 // =============================================================================

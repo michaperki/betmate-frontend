@@ -5,6 +5,114 @@
 @import './tokens.scss';
 
 // =============================================================================
+// RESPONSIVE MIXINS
+// =============================================================================
+
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin mobile-up {
+  @media (min-width: 320px) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+
+// =============================================================================
+// TYPOGRAPHY MIXINS
+// =============================================================================
+
+@mixin text-heading-1 {
+  font-size: $text-4xl;
+  font-weight: $font-bold;
+  line-height: $leading-tight;
+}
+
+@mixin text-heading-2 {
+  font-size: $text-3xl;
+  font-weight: $font-semibold;
+  line-height: $leading-tight;
+}
+
+@mixin text-heading-3 {
+  font-size: $text-2xl;
+  font-weight: $font-semibold;
+  line-height: $leading-tight;
+}
+
+@mixin text-heading-4 {
+  font-size: $text-xl;
+  font-weight: $font-medium;
+  line-height: $leading-normal;
+}
+
+@mixin text-body {
+  font-size: $text-base;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+@mixin text-body-lg {
+  font-size: $text-lg;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+@mixin text-caption {
+  font-size: $text-sm;
+  font-weight: $font-medium;
+  line-height: $leading-tight;
+}
+
+@mixin text-small {
+  font-size: $text-xs;
+  font-weight: $font-normal;
+  line-height: $leading-normal;
+}
+
+// =============================================================================
+// UTILITY MIXINS
+// =============================================================================
+
+@mixin shadow-glow {
+  box-shadow: $shadow-glow-green;
+}
+
+@mixin shadow-glow-green {
+  box-shadow: $shadow-glow-green;
+}
+
+@mixin shadow-glow-blue {
+  box-shadow: $shadow-glow-blue;
+}
+
+// =============================================================================
 // LAYOUT MIXINS
 // =============================================================================
 
