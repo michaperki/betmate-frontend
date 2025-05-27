@@ -1,0 +1,381 @@
+// =============================================================================
+// MIXINS - Reusable Style Patterns
+// =============================================================================
+
+@import './tokens.scss';
+
+// =============================================================================
+// LAYOUT MIXINS
+// =============================================================================
+
+// Flexbox utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Grid utilities
+@mixin grid-center {
+  display: grid;
+  place-items: center;
+}
+
+// Positioning
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin absolute-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+// =============================================================================
+// COMPONENT MIXINS
+// =============================================================================
+
+// Base button styling
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $radius-base;
+  font-family: $font-primary;
+  font-weight: $font-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $duration-base $ease-out;
+  user-select: none;
+  white-space: nowrap;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Button variants
+@mixin btn-primary {
+  @include btn-base;
+  background: $brand-primary;
+  color: $text-inverse;
+
+  &:hover:not(:disabled) {
+    background: $brand-primary-hover;
+    box-shadow: $shadow-glow-green;
+  }
+
+  &:active:not(:disabled) {
+    background: $brand-primary-dark;
+    transform: translateY(1px);
+  }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  background: transparent;
+  border: 1px solid $brand-primary;
+  color: $brand-primary;
+
+  &:hover:not(:disabled) {
+    background: rgba($brand-primary, 0.1);
+    box-shadow: $shadow-glow-green;
+  }
+
+  &:active:not(:disabled) {
+    background: rgba($brand-primary, 0.2);
+  }
+}
+
+@mixin btn-ghost {
+  @include btn-base;
+  background: transparent;
+  color: $text-secondary;
+
+  &:hover:not(:disabled) {
+    background: $bg-tertiary;
+    color: $text-primary;
+  }
+
+  &:active:not(:disabled) {
+    background: $bg-quaternary;
+  }
+}
+
+// Button sizes
+@mixin btn-sm {
+  height: $btn-height-sm;
+  padding: 0 $btn-padding-x-sm;
+  font-size: $text-sm;
+}
+
+@mixin btn-base-size {
+  height: $btn-height-base;
+  padding: 0 $btn-padding-x-base;
+  font-size: $text-base;
+}
+
+@mixin btn-lg {
+  height: $btn-height-lg;
+  padding: 0 $btn-padding-x-lg;
+  font-size: $text-lg;
+}
+
+// Card/Panel styling
+@mixin card-base {
+  background: $card-bg;
+  border-radius: $card-radius;
+  border: 1px solid $card-border;
+  padding: $card-padding;
+  box-shadow: $shadow-base;
+}
+
+@mixin card-elevated {
+  @include card-base;
+  box-shadow: $shadow-lg;
+  
+  &:hover {
+    box-shadow: $shadow-xl;
+    transform: translateY(-1px);
+  }
+}
+
+// Input styling
+@mixin input-base {
+  background: $bg-tertiary;
+  border: 1px solid $border-primary;
+  border-radius: $radius-base;
+  color: $text-primary;
+  font-family: $font-primary;
+  font-size: $text-base;
+  padding: 0 $input-padding-x;
+  height: $input-height-base;
+  width: 100%;
+  transition: all $duration-base $ease-out;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $brand-primary;
+    box-shadow: 0 0 0 3px rgba($brand-primary, 0.1);
+  }
+
+  &:disabled {
+    background: $bg-quaternary;
+    color: $text-muted;
+    cursor: not-allowed;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE MIXINS
+// =============================================================================
+
+@mixin respond-above($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+@mixin respond-below($breakpoint) {
+  @media (max-width: #{$breakpoint - 1px}) {
+    @content;
+  }
+}
+
+@mixin respond-between($min, $max) {
+  @media (min-width: $min) and (max-width: #{$max - 1px}) {
+    @content;
+  }
+}
+
+// Common responsive patterns
+@mixin mobile-only {
+  @include respond-below($breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @include respond-above($breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @include respond-above($breakpoint-lg) {
+    @content;
+  }
+}
+
+// =============================================================================
+// UTILITY MIXINS
+// =============================================================================
+
+// Truncate text
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Hide scrollbar but keep functionality
+@mixin hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// Custom scrollbar
+@mixin custom-scrollbar($width: 6px, $track-color: rgba(0, 0, 0, 0.1), $thumb-color: rgba(255, 255, 255, 0.2)) {
+  scrollbar-width: thin;
+  scrollbar-color: $thumb-color $track-color;
+
+  &::-webkit-scrollbar {
+    width: $width;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track-color;
+    border-radius: #{$width / 2};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb-color;
+    border-radius: #{$width / 2};
+    
+    &:hover {
+      background: rgba($thumb-color, 0.8);
+    }
+  }
+}
+
+// Loading pulse animation
+@mixin pulse {
+  animation: pulse 2s $ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Focus states for accessibility
+@mixin focus-ring($color: $brand-primary) {
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color, 0.2);
+  }
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
+}
+
+// Transition utilities
+@mixin transition-colors {
+  transition: color $duration-base $ease-out, background-color $duration-base $ease-out, border-color $duration-base $ease-out;
+}
+
+@mixin transition-transform {
+  transition: transform $duration-base $ease-out;
+}
+
+@mixin transition-all {
+  transition: all $duration-base $ease-out;
+}
+
+// =============================================================================
+// COMPONENT-SPECIFIC MIXINS
+// =============================================================================
+
+// Wager status styling
+@mixin wager-status($bg-color, $border-color) {
+  background-color: $bg-color;
+  border-left: 3px solid $border-color;
+  padding: $space-3;
+  border-radius: $radius-base;
+  margin-bottom: $space-2;
+}
+
+// Navigation item styling
+@mixin nav-item {
+  @include btn-ghost;
+  border-radius: $radius-base;
+  
+  &.active {
+    background: $brand-primary;
+    color: $text-inverse;
+  }
+}
+
+// Modal styling
+@mixin modal-backdrop {
+  @include absolute-fill;
+  background: $bg-overlay;
+  backdrop-filter: blur(4px);
+  z-index: $z-modal-backdrop;
+}
+
+@mixin modal-content {
+  @include card-elevated;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: $z-modal;
+  
+  @include custom-scrollbar;
+}
+
+// Chess board container
+@mixin chess-container {
+  position: relative;
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;
+  
+  &::before {
+    content: '';
+    display: block;
+    padding-top: 100%; // Maintain square aspect ratio
+  }
+  
+  .cg-wrap {
+    @include absolute-fill;
+  }
+}

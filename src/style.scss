@@ -1,34 +1,104 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-// Minimal styles for the application skeleton
-body, html {
-    font-family: "Roboto", sans-serif;
-    height: 100%;
-    margin: 0;
-    background-color: #050505; // Dark theme background
+// =============================================================================
+// UNIFIED DESIGN SYSTEM - Import all design tokens and components
+// =============================================================================
+
+// Import design system foundation
+@import './styles/tokens.scss';
+@import './styles/mixins.scss';
+@import './styles/utilities.scss';
+@import './styles/components.scss';
+
+// =============================================================================
+// BASE STYLES
+// =============================================================================
+
+// CSS Reset and base styles
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-// Chess components styles - these are required for the chess board to display correctly
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $text-base;
+  line-height: $leading-normal;
+  color: $text-primary;
+  background-color: $bg-primary;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Root container
+#root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+// =============================================================================
+// CHESSGROUND INTEGRATION
+// =============================================================================
+
+// Chess components styles - critical for proper board display
 .cg-wrap {
   position: relative;
   display: block;
-  /* Let chessground handle its own width/height calculations */
+  // Let chessground handle its own width/height calculations
+  // Remove any inherited border-box that might interfere
+  * {
+    box-sizing: content-box;
+  }
 }
 
 .cg-container {
   position: relative;
   display: block;
-  /* Let chessground handle its own width/height calculations */
+  // Let chessground handle its own width/height calculations
 }
 
 .cg-board {
-  /* Let chessground handle its own sizing for precise piece positioning */
+  // Let chessground handle its own sizing for precise piece positioning
+  // Ensure no inherited styles interfere
+  box-sizing: content-box;
 }
 
-// Make sure the squares are properly displayed - but let chessground calculate the exact percentages
+// Ensure squares are properly displayed
 .cg-board square {
-  /* Remove forced sizing that might interfere with piece positioning */
+  // Remove any forced sizing that might interfere with piece positioning
+  box-sizing: content-box;
 }
+
+// Custom chessboard styling
+.cg-board .dark {
+  background-color: $chess-dark-square !important;
+}
+
+.cg-board .light {
+  background-color: $chess-light-square !important;
+}
+
+// Highlight colors
+.cg-board .highlight {
+  background-color: $chess-highlight !important;
+}
+
+.cg-board .selected {
+  background-color: $chess-selected !important;
+}
+
+// =============================================================================
+// LEGACY COMPONENT COMPATIBILITY
+// =============================================================================
 
 // Preserve existing styles for components we haven't migrated yet
 .auth-panel-container {
@@ -41,4 +111,52 @@ body, html {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+}
+
+// =============================================================================
+// GLOBAL ACCESSIBILITY
+// =============================================================================
+
+// Focus styles for accessibility
+*:focus {
+  @include focus-ring;
+}
+
+// Reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .btn--primary {
+    border: 2px solid $text-primary;
+  }
+
+  .card {
+    border-width: 2px;
+  }
+}
+
+// =============================================================================
+// PRINT STYLES
+// =============================================================================
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .btn,
+  .nav,
+  .sidebar {
+    display: none !important;
+  }
 }

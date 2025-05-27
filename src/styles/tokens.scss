@@ -1,0 +1,211 @@
+// =============================================================================
+// DESIGN TOKENS - Unified Design System for Betmate
+// =============================================================================
+// This file contains all design tokens used throughout the application.
+// Use these tokens instead of hardcoded values to ensure consistency.
+
+// =============================================================================
+// COLOR SYSTEM
+// =============================================================================
+
+// Primary Brand Colors
+$brand-primary: #00EFB2;        // Main brand green (consolidated from 5 variants)
+$brand-primary-hover: #34F5C5;  // Hover state
+$brand-primary-muted: #66FACD;  // Disabled/secondary actions
+$brand-primary-dark: #00D199;   // Pressed state
+
+// Background Colors (consolidated from 6 variants)
+$bg-primary: #050505;            // Pure black - main app background
+$bg-secondary: #111111;          // Elevated surfaces (cards, nav, panels)
+$bg-tertiary: #1a1a1a;          // Subtle elevation (hover states)
+$bg-quaternary: #1e1e1e;        // Content containers
+$bg-overlay: rgba(0, 0, 0, 0.8); // Modal overlays
+
+// Semantic Colors
+$success: #00EFB2;               // Success states, wins
+$warning: #FFC430;               // Warnings, pending states
+$error: #FF4757;                 // Errors, losses
+$info: #3a88fe;                  // Information, neutral actions
+
+// Text Colors
+$text-primary: #FFFFFF;          // Primary text on dark backgrounds
+$text-secondary: #BDBDBD;        // Secondary text
+$text-muted: #666666;            // Disabled/muted text
+$text-inverse: #111111;          // Text on light backgrounds
+
+// Border Colors
+$border-primary: #333333;        // Default borders
+$border-secondary: #444444;      // Subtle borders
+$border-accent: $brand-primary;  // Accent borders
+$border-error: $error;           // Error state borders
+
+// Component-Specific Colors
+$wager-pending: rgba(255, 231, 94, 0.15);
+$wager-pending-border: rgba(255, 231, 94, 0.7);
+$wager-won: rgba(0, 239, 178, 0.15);
+$wager-won-border: rgba(0, 239, 178, 0.7);
+$wager-lost: rgba(255, 71, 87, 0.15);
+$wager-lost-border: rgba(255, 71, 87, 0.7);
+$wager-cancelled: rgba(149, 165, 166, 0.15);
+$wager-cancelled-border: rgba(149, 165, 166, 0.7);
+
+// Chess-specific colors
+$chess-light-square: #f0d9b5;
+$chess-dark-square: #b58863;
+$chess-highlight: rgba(255, 255, 0, 0.4);
+$chess-selected: rgba(0, 239, 178, 0.4);
+
+// =============================================================================
+// TYPOGRAPHY SYSTEM
+// =============================================================================
+
+// Font Family
+$font-primary: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+// Font Sizes (T-shirt sizing approach)
+$text-xs: 0.75rem;     // 12px
+$text-sm: 0.875rem;    // 14px
+$text-base: 1rem;      // 16px - body text
+$text-lg: 1.125rem;    // 18px
+$text-xl: 1.25rem;     // 20px
+$text-2xl: 1.5rem;     // 24px
+$text-3xl: 1.875rem;   // 30px
+$text-4xl: 2.25rem;    // 36px
+$text-5xl: 3rem;       // 48px
+
+// Font Weights
+$font-light: 300;
+$font-normal: 400;
+$font-medium: 500;
+$font-semibold: 600;
+$font-bold: 700;
+
+// Line Heights
+$leading-tight: 1.25;
+$leading-normal: 1.5;
+$leading-relaxed: 1.75;
+
+// =============================================================================
+// SPACING SYSTEM
+// =============================================================================
+
+// Base spacing unit: 0.25rem (4px)
+$space-0: 0;
+$space-1: 0.25rem;   // 4px
+$space-2: 0.5rem;    // 8px
+$space-3: 0.75rem;   // 12px
+$space-4: 1rem;      // 16px - base unit
+$space-5: 1.25rem;   // 20px
+$space-6: 1.5rem;    // 24px
+$space-8: 2rem;      // 32px
+$space-10: 2.5rem;   // 40px
+$space-12: 3rem;     // 48px
+$space-16: 4rem;     // 64px
+$space-20: 5rem;     // 80px
+$space-24: 6rem;     // 96px
+
+// =============================================================================
+// BORDER RADIUS SYSTEM
+// =============================================================================
+
+$radius-none: 0;
+$radius-sm: 0.25rem;   // 4px
+$radius-base: 0.5rem;  // 8px - default
+$radius-lg: 0.75rem;   // 12px
+$radius-xl: 1rem;      // 16px
+$radius-2xl: 1.5rem;   // 24px
+$radius-full: 9999px;  // Pills/circles
+
+// =============================================================================
+// SHADOW SYSTEM
+// =============================================================================
+
+// Neumorphic shadows (current design preference)
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+$shadow-base: 0 2px 4px rgba(0, 0, 0, 0.2);
+$shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3);
+$shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+// Inset shadows for pressed/active states
+$shadow-inset: inset 2px 2px 4px rgba(0, 0, 0, 0.3);
+$shadow-inset-lg: inset 4px 4px 8px rgba(0, 0, 0, 0.4);
+
+// Glow effects
+$shadow-glow-green: 0 0 20px rgba(0, 239, 178, 0.3);
+$shadow-glow-blue: 0 0 20px rgba(58, 136, 254, 0.3);
+$shadow-glow-yellow: 0 0 20px rgba(255, 196, 48, 0.3);
+
+// =============================================================================
+// ANIMATION SYSTEM
+// =============================================================================
+
+// Durations
+$duration-fast: 0.15s;
+$duration-base: 0.2s;
+$duration-slow: 0.3s;
+$duration-slower: 0.5s;
+
+// Easing functions
+$ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+$ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
+
+// =============================================================================
+// LAYOUT SYSTEM
+// =============================================================================
+
+// Container max-widths
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1280px;
+$container-2xl: 1536px;
+
+// Breakpoints
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Z-index scale
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// =============================================================================
+// COMPONENT TOKENS
+// =============================================================================
+
+// Button sizing
+$btn-height-sm: 32px;
+$btn-height-base: 40px;
+$btn-height-lg: 48px;
+$btn-padding-x-sm: $space-3;
+$btn-padding-x-base: $space-4;
+$btn-padding-x-lg: $space-6;
+
+// Input sizing
+$input-height-sm: 32px;
+$input-height-base: 40px;
+$input-height-lg: 48px;
+$input-padding-x: $space-3;
+
+// Card/Panel defaults
+$card-padding: $space-6;
+$card-radius: $radius-lg;
+$card-bg: $bg-secondary;
+$card-border: $border-primary;
+
+// Navigation
+$nav-height: 80px;
+$nav-padding-x: $space-4;
+$nav-bg: $bg-primary;
+
+// Sidebar widths
+$sidebar-width: 280px;
+$sidebar-width-collapsed: 60px;
