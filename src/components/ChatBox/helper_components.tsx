@@ -5,8 +5,6 @@ import { FeedChat, GameChat } from 'types/resources/game';
 import playerIconWhite from 'assets/player_icon_white.svg';
 import { getFeedMessage } from './utils';
 
-import './style.scss';
-
 interface ChatWagerProps {
   wager: FeedWager
 }
