@@ -16,6 +16,9 @@ const NavBar: React.FC<NavBarProps> = (props) => {
   const { balance, compact = false } = props;
   const location = useLocation();
 
+  // Don't show balance on dashboard since it's displayed in HeroSection
+  const showBalance = location.pathname !== '/';
+
   return (
     <nav className={`nav ${compact ? 'nav--compact' : ''}`}>
       <NavLink to="/" className="nav__brand">
@@ -61,7 +64,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
           </>
         )}
 
-        {props.isAuthenticated && (
+        {props.isAuthenticated && showBalance && (
           <div className="ml-4">
             <CoinBalance balance={balance} compact={compact} />
           </div>
