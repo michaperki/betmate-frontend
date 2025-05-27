@@ -63,8 +63,10 @@
     .move-betting-panel, .outcome-betting-panel {
       display: flex;
       flex-direction: column;
-      height: 100%;
-      min-height: 400px; /* Consistent minimum height */
+      height: auto; /* Changed from 100% to auto */
+      min-height: 200px; /* Reduced from 400px to 200px */
+      max-height: calc(100vh - 250px); /* Add max-height to prevent overflow */
+      overflow-y: auto; /* Allow internal scrolling if needed */
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -72,7 +74,7 @@
       /* Add a spacer div to maintain consistent height */
       .spacer {
         flex: 1;
-        min-height: 180px; /* Equivalent to move-analysis-container + drag-instruction */
+        min-height: 80px; /* Reduced from 180px */
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
     }
@@ -88,8 +90,8 @@
     
     /* Fixed-height container for move analysis to prevent UI jumping */
     .move-analysis-container {
-      height: 150px; /* Original height */
-      margin-bottom: 10px; /* Reduced from 16px */
+      height: 120px; /* Reduced from 150px */
+      margin-bottom: 8px; /* Reduced from 10px */
       overflow: hidden; /* Prevent scrolling */
     }
     
@@ -321,40 +323,35 @@
       flex-direction: row; /* Changed to row layout */
       align-items: center; /* Center align items vertically */
       justify-content: space-between; /* Space items evenly */
-      gap: 8px; /* Reduced gap */
-      margin-top: 10px; /* Reduced margin */
-      padding: 10px; /* Reduced padding */
+      gap: 6px; /* Further reduced gap */
+      margin-top: 6px; /* Further reduced margin */
+      padding: 6px; /* Further reduced padding */
       background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       flex-shrink: 0; /* Prevent shrinking */
-      min-height: 48px; /* Consistent height */
+      min-height: 36px; /* Reduced height */
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       .stake-buttons {
         display: flex;
         justify-content: flex-start;
         flex: 1; /* Take available space */
+        flex-wrap: nowrap; /* Prevent wrapping to multiple lines */
+        gap: 2px; /* Use gap instead of margins */
 
         .stake-button {
           flex: 0 0 auto; /* Don't grow/shrink */
           background-color: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
           color: #fff;
-          padding: 8px 12px; /* Reduced padding */
-          border-radius: 30px; /* Pill shape */
+          padding: 4px 8px; /* Further reduced padding */
+          border-radius: 16px; /* Smaller pill shape */
           font-weight: 600;
+          font-size: 12px; /* Smaller font size */
           cursor: pointer;
           transition: all 0.2s ease;
-          margin: 0 4px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-
-          &:first-child {
-            margin-left: 0;
-          }
-
-          &:last-child {
-            margin-right: 0;
-          }
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+          white-space: nowrap; /* Prevent text wrapping */
 
           &:hover {
             background-color: rgba(255, 255, 255, 0.15);
@@ -365,7 +362,7 @@
             background-color: #00EFB2; /* Using the teal accent color */
             border-color: #00EFB2;
             color: #111111;
-            box-shadow: 0 0 10px rgba(0, 239, 178, 0.3);
+            box-shadow: 0 0 8px rgba(0, 239, 178, 0.3);
           }
         }
       }
@@ -380,8 +377,8 @@
         margin: 0;
 
         .toggle-label {
-          margin-right: 10px;
-          font-size: 13px;
+          margin-right: 6px; /* Reduced margin */
+          font-size: 11px; /* Smaller font size */
           font-weight: 500;
           color: #F2F2F2;
           white-space: nowrap;
@@ -390,8 +387,8 @@
         .toggle-switch {
           position: relative;
           display: inline-block;
-          width: 40px;
-          height: 20px;
+          width: 32px; /* Smaller width */
+          height: 16px; /* Smaller height */
 
           input {
             opacity: 0;

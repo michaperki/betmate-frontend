@@ -82,18 +82,18 @@
 // Main content area using CSS Grid
 .game-content {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
+  grid-template-columns: 320px 1fr 320px; /* Increased sidebar widths from 280px to 320px */
   grid-template-rows: 1fr auto auto;
   grid-template-areas:
     "left-sidebar board-area right-sidebar"
     "mobile-chat mobile-chat mobile-chat"
     "info-panel info-panel info-panel";
-  gap: 16px;
-  padding: 16px;
-  max-width: 1500px;
+  gap: 12px; /* Reduced gap from 16px to 12px */
+  padding: 12px; /* Reduced padding from 16px to 12px */
+  max-width: 1600px; /* Increased max-width from 1500px to 1600px */
   width: 100%;
   margin: 0 auto;
-  height: calc(100% - 32px); /* Account for padding */
+  height: calc(100% - 24px); /* Adjusted for new padding */
   overflow: hidden;
   box-sizing: border-box;
 
@@ -104,7 +104,8 @@
       "right-sidebar"
       "mobile-chat"
       "info-panel";
-    gap: 12px;
+    gap: 8px; /* Reduced gap for mobile */
+    padding: 8px; /* Reduced padding for mobile */
   }
 }
 
@@ -196,11 +197,11 @@
   grid-area: left-sidebar;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px; /* Reduced gap to match right sidebar */
   height: auto;
-  max-height: 75vh;
+  max-height: calc(100vh - 200px); /* Consistent height calculation */
   overflow-y: auto;
-  padding-right: 8px;
+  padding-right: 6px; /* Reduced padding to match right sidebar */
   scrollbar-width: thin;
   align-self: start; /* Align to top of grid area */
 
@@ -232,15 +233,15 @@
 
   .leaderboard-section {
     width: 100%;
-    margin-top: 16px; /* Consistent spacing from chat section */
-    margin-bottom: 16px; /* Add bottom margin for spacing */
+    margin-top: 8px; /* Reduced spacing from chat section */
+    margin-bottom: 8px; /* Reduced bottom margin */
 
     .mini-leaderboard {
       background-color: #1e1e2e;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      padding: 16px;
-      max-height: 300px;
+      padding: 12px; /* Reduced padding */
+      max-height: 250px; /* Reduced max height */
       overflow-y: auto;
       overflow-x: hidden; /* Explicitly prevent horizontal scrolling */
       box-sizing: border-box; /* Ensure padding is included in width */
@@ -254,11 +255,11 @@
   grid-area: right-sidebar;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px; /* Reduced gap */
   height: auto;
-  max-height: 75vh;
+  max-height: calc(100vh - 200px); /* More dynamic height calculation to prevent scroll */
   overflow-y: auto;
-  padding-left: 8px;
+  padding-left: 6px; /* Reduced padding */
   scrollbar-width: thin;
   align-self: start; /* Align to top of grid area */
 
@@ -266,6 +267,7 @@
     padding-left: 0;
     max-width: 700px;
     margin: 0 auto;
+    max-height: none; /* Remove height restriction on mobile */
   }
 
   /* Custom scrollbar */
