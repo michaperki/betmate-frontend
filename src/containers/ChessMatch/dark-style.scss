@@ -2,16 +2,15 @@
 .dark-game-page {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Use exact height instead of min-height */
-  max-height: 100vh; /* Limit to viewport height */
+  height: 100vh;
   background-color: #050505;
   color: #F2F2F2;
   font-family: 'Roboto', sans-serif;
-  width: 100vw; /* use full viewport width */
-  position: absolute;
+  width: 100vw;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 1; /* No need for high z-index now that logo div is removed */
+  z-index: 1;
   overflow: hidden; /* Prevent scrolling */
 }
 
@@ -80,91 +79,75 @@
   }
 }
 
-// Main content area
+// Main content area using CSS Grid
 .game-content {
-  display: flex; /* Change to flexbox for better alignment control */
-  flex-direction: row; /* Horizontal layout */
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  justify-content: center;
-  padding: 16px 16px 0; /* Remove bottom padding */
-  max-width: 1500px; /* increased max width */
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "info-panel info-panel info-panel"
+    "left-sidebar board-area right-sidebar"
+    "mobile-chat mobile-chat mobile-chat";
+  gap: 16px;
+  padding: 16px;
+  max-width: 1500px;
   width: 100%;
-  margin: 0 auto; /* Center horizontally */
-  gap: 24px;
-  align-items: center; /* center align all columns vertically */
-  position: relative; /* For absolute positioning of sidebar wrapper */
+  margin: 0 auto;
   height: calc(100% - 32px); /* Account for padding */
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden;
+  box-sizing: border-box;
 
-  @media (min-width: 768px) {
-    flex-wrap: nowrap; /* No wrapping on larger screens */
-  }
-
-  /* Adjust column widths */
-  @media (min-width: 1200px) {
-    justify-content: space-between; /* Distribute space evenly */
-  }
-}
-
-/* Sidebar wrapper styles */
-.sidebar-wrapper {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
-  width: 250px;
-
-  @media (max-width: 1100px) {
-    /* Adjust left position for smaller screens */
-    left: 16px; /* Match the parent padding */
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "info-panel"
+      "board-area"
+      "right-sidebar"
+      "mobile-chat";
+    gap: 12px;
   }
 }
 
-.game-layout {
-  display: flex;
-  flex: 1;
-  width: 100%;
+// Grid area assignments
+.game-info-panel-wrapper {
+  grid-area: info-panel;
+  padding: 8px 16px;
+  box-sizing: border-box;
 }
 
-/* Let the board's max-width control its size */
-
-// Board container
+// Board container - now using grid
 .board-container {
+  grid-area: board-area;
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Reduced vertical gap between elements */
+  gap: 4px;
   justify-content: center;
-  max-width: 820px;
+  max-width: 550px;
   height: fit-content;
-  margin: 0;
+  margin: 0 auto; /* Center within grid area */
   width: 100%;
-  flex: 1 1 auto; /* Can grow and shrink as needed */
-  position: relative; /* Added for absolute positioning of sidebar */
-  padding-left: 0; /* Remove padding - not needed with new sidebar positioning */
-  /* Ensure the board is centered vertically in its column */
-  align-self: center;
-  /* Add focus styles to emphasize the board */
+  position: relative;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  /* Remove padding that offsets board coordinates */
+  align-self: center; /* Center vertically in grid area */
+  /* Ensure no padding that could offset the chessboard */
+  padding: 0;
 
   @media (max-width: 1200px) {
-    margin: 0 auto; /* Center when sidebars are hidden */
-    max-width: 700px; /* Slightly smaller on medium screens */
+    max-width: 600px; /* Larger when full width */
   }
 }
 
 .chessboard-wrapper{
   width:100%;
-  max-width:100%;       /* use all available space */
+  max-width:550px;       /* reduced maximum size */
   margin:auto;
   position:relative;
-  box-sizing: border-box; /* Ensure consistent sizing */
+  /* Remove box-sizing: border-box to avoid interfering with chessground calculations */
 
   @media (min-width: 950px) {
-    min-width:600px;    /* ensure minimum size on larger screens */
+    max-width:550px;    /* keep consistent max size */
   }
 }
 
@@ -172,44 +155,56 @@
 .chessboard-wrapper .cg-board .dark {
   background-color: #c2a06c !important;
 }
+
 .chessboard-wrapper::before{
   content:'';
   display:block;
   padding-top:100%;     /* keep perfect square */
+  /* Ensure no margin that could affect positioning */
+  margin: 0;
 }
-.chessboard-wrapper>.cg-wrap{
+
+.chessboard-wrapper > .cg-wrap{
   position:absolute;
-  inset:0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Ensure no padding/margin that could offset the board vertically */
+  margin: 0;
+  padding: 0;
 }
-/* Override Chessground's inline styles */
-.chessboard-wrapper > div,           /* Target cg-container */
-.chessboard-wrapper .cg-wrap {       /* Target the board itself */
-  width: 100% !important;
-  height: 100% !important;
+
+/* Let chessground handle its own sizing - remove our overrides */
+.chessboard-wrapper .cg-wrap,
+.chessboard-wrapper .cg-container,
+.chessboard-wrapper .cg-board {
+  /* Remove width/height overrides that might interfere with piece positioning */
+  margin: 0;
+  padding: 0;
+  /* Ensure clean positioning baseline */
 }
-/* Ensure cg-container maintains square ratio even if height:0 is set inline */
-.cg-wrap > cg-container {
-  height: 100% !important;
+
+/* Reset any inherited styles that might affect chessground positioning */
+.chessboard-wrapper * {
+  box-sizing: content-box; /* Override any border-box inheritance */
 }
 
 // Left sidebar container (for chat and leaderboard)
 .left-sidebar-container {
+  grid-area: left-sidebar;
   display: flex;
   flex-direction: column;
-  width: 300px; /* Fixed width */
-  flex: 0 0 300px; /* Don't grow or shrink */
-  gap: 16px;
+  gap: 12px;
   height: auto;
-  max-height: 80vh; /* Limit height */
+  max-height: 75vh;
   overflow-y: auto;
-  padding-right: 8px; /* Add padding for scrollbar */
+  padding-right: 8px;
   scrollbar-width: thin;
-  align-self: center; /* Center vertically in flex container */
+  align-self: start; /* Align to top of grid area */
 
-  // Hidden on small screens, becomes visible at 1200px
-  display: none;
-  @media (min-width: 1200px) {
-    display: flex;
+  @media (max-width: 1200px) {
+    display: none; /* Hidden on mobile - content moves to mobile-chat area */
   }
 
   /* Custom scrollbar */
@@ -255,25 +250,21 @@
 
 // Right sidebar container (for betting options)
 .right-sidebar-container {
+  grid-area: right-sidebar;
   display: flex;
   flex-direction: column;
-  width: 300px; /* Fixed width */
-  flex: 0 0 300px; /* Don't grow or shrink */
-  gap: 16px;
+  gap: 12px;
   height: auto;
-  max-height: 80vh; /* Limit height */
+  max-height: 75vh;
   overflow-y: auto;
-  padding-left: 8px; /* Add padding for scrollbar */
+  padding-left: 8px;
   scrollbar-width: thin;
-  align-self: center; /* Center vertically in flex container */
+  align-self: start; /* Align to top of grid area */
 
   @media (max-width: 1200px) {
-    order: 2; /* Move sidebar below on mobile and tablet */
     padding-left: 0;
-    width: 100%; /* Full width on smaller screens */
-    flex: 1 1 100%; /* Take full width */
-    max-width: 700px; /* Match board container width */
-    margin: 0 auto; /* Center on page */
+    max-width: 700px;
+    margin: 0 auto;
   }
 
   /* Custom scrollbar */
@@ -300,19 +291,19 @@
 
 // Mobile chat container - only visible on small screens
 .mobile-chat-container {
+  grid-area: mobile-chat;
   display: flex;
   flex-direction: column;
-  width: 100%;
   gap: 16px;
-  max-height: 30vh; /* Reduced from 40vh to limit height further */
+  max-height: 30vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  max-width: 700px; /* Match board container width */
-  margin: 0 auto 0; /* Remove bottom margin */
-  padding-bottom: 0; /* Ensure no bottom padding */
+  max-width: 700px;
+  margin: 0 auto;
+  padding-bottom: 0;
 
   @media (min-width: 1200px) {
-    display: none; // Hide on large screens where left sidebar is shown
+    display: none; /* Hidden on desktop - content is in left sidebar */
   }
 
   /* Custom scrollbar */
@@ -449,7 +440,7 @@
     width: 100%;
     height: auto;
     max-width: calc(100% - 50px); /* Leave space for eval bar */
-    box-sizing: border-box; /* Ensure padding is included in width calculations */
+    /* Remove box-sizing: border-box to avoid interfering with chessground positioning */
   }
 }
 

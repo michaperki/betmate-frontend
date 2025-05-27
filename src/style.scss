@@ -10,28 +10,24 @@ body, html {
 
 // Chess components styles - these are required for the chess board to display correctly
 .cg-wrap {
-  width: 100% !important;
-  height: 100% !important;
   position: relative;
   display: block;
+  /* Let chessground handle its own width/height calculations */
 }
 
 .cg-container {
-  width: 100% !important;
-  height: 100% !important;
   position: relative;
   display: block;
+  /* Let chessground handle its own width/height calculations */
 }
 
 .cg-board {
-  width: 100% !important;
-  height: 100% !important;
+  /* Let chessground handle its own sizing for precise piece positioning */
 }
 
-// Make sure the squares are properly displayed
+// Make sure the squares are properly displayed - but let chessground calculate the exact percentages
 .cg-board square {
-  width: 12.5% !important;
-  height: 12.5% !important;
+  /* Remove forced sizing that might interfere with piece positioning */
 }
 
 // Preserve existing styles for components we haven't migrated yet

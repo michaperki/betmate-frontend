@@ -1,0 +1,34 @@
+.raffle-page {
+  min-height: 100vh;
+  height: 100vh;
+  background: #121212;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 1000;
+
+  &__content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 100px 20px 20px; // Top padding for navbar
+    box-sizing: border-box;
+  }
+
+  &__container {
+    width: 100%;
+    max-width: 1200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .raffle-page {
+    &__content {
+      padding: 80px 15px 20px;
+    }
+  }
+}

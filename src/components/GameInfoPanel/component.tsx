@@ -40,77 +40,83 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
 
   return (
     <div className="game-info-panel">
-      <div className="game-stats">
-        <div className="stat-item">
-          <span className="stat-label">Move</span>
-          <span className="stat-value">{nextMoveNumber}</span>
+      {/* Left section: Move info and recent move indicators */}
+      <div className="left-section">
+        <div className="game-stats">
+          <div className="stat-item">
+            <span className="stat-label">Move</span>
+            <span className="stat-value">{nextMoveNumber}</span>
+          </div>
+
+          <div className="stat-item">
+            <span className="stat-icon">👁</span>
+            <span className="stat-value">{viewerCount}</span>
+            <span className="stat-label">watching</span>
+          </div>
+
+          <div className="stat-item">
+            <span className="stat-icon">💰</span>
+            <span className="stat-value">${currentMoveWagers.totalAmount}</span>
+            <span className="stat-label">next move</span>
+          </div>
         </div>
 
-        <div className="stat-item">
-          <span className="stat-icon">👁</span>
-          <span className="stat-value">{viewerCount}</span>
-          <span className="stat-label">watching</span>
-        </div>
+        <div className="move-betting-indicators">
+          <span className="indicators-label">Recent Move Bets:</span>
+          <div className="move-indicators">
+            {Array.from({ length: 5 }, (_, i) => {
+              const moveNum = startMoveIndex + i + 1;
+              const wagerData = moveWagerData[moveNum];
+              const hasWagers = wagerData && wagerData.totalAmount > 0;
+              const isCurrentMove = moveNum === currentMoveNumber;
 
-        <div className="stat-item">
-          <span className="stat-icon">💰</span>
-          <span className="stat-value">${currentMoveWagers.totalAmount}</span>
-          <span className="stat-label">next move</span>
+              return (
+                <div
+                  key={moveNum}
+                  className={`move-indicator ${hasWagers ? 'has-wagers' : 'no-wagers'} ${isCurrentMove ? 'current' : ''}`}
+                  title={hasWagers ? `Move ${moveNum}: $${wagerData.totalAmount} (${wagerData.betCount} bets)` : `Move ${moveNum}: No bets`}
+                >
+                  <span className="move-number">{moveNum}</span>
+                  {hasWagers && (
+                    <div className="wager-indicator">
+                      <div className="wager-amount">${wagerData.totalAmount}</div>
+                      <div className="bet-count">{wagerData.betCount} bets</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <div className="wdl-betting-stats">
-        <span className="wdl-label">Game Outcome Betting:</span>
-        <div className="wdl-stats-row">
-          <div className="wdl-stat-item">
-            <span className="wdl-outcome">White</span>
-            <span className="wdl-amount">${whiteWinTotal.totalAmount}</span>
-            {whiteWinTotal.averageOdds > 0 && (
-              <span className="wdl-odds">{whiteWinTotal.averageOdds.toFixed(1)}x avg</span>
-            )}
+      {/* Right section: Game outcome betting */}
+      <div className="right-section">
+        <div className="wdl-betting-stats">
+          <span className="wdl-label">Game Outcome Betting:</span>
+          <div className="wdl-stats-row">
+            <div className="wdl-stat-item">
+              <span className="wdl-outcome">White</span>
+              <span className="wdl-amount">${whiteWinTotal.totalAmount}</span>
+              {whiteWinTotal.averageOdds > 0 && (
+                <span className="wdl-odds">{whiteWinTotal.averageOdds.toFixed(1)}x avg</span>
+              )}
+            </div>
+            <div className="wdl-stat-item">
+              <span className="wdl-outcome">Draw</span>
+              <span className="wdl-amount">${drawTotal.totalAmount}</span>
+              {drawTotal.averageOdds > 0 && (
+                <span className="wdl-odds">{drawTotal.averageOdds.toFixed(1)}x avg</span>
+              )}
+            </div>
+            <div className="wdl-stat-item">
+              <span className="wdl-outcome">Black</span>
+              <span className="wdl-amount">${blackWinTotal.totalAmount}</span>
+              {blackWinTotal.averageOdds > 0 && (
+                <span className="wdl-odds">{blackWinTotal.averageOdds.toFixed(1)}x avg</span>
+              )}
+            </div>
           </div>
-          <div className="wdl-stat-item">
-            <span className="wdl-outcome">Draw</span>
-            <span className="wdl-amount">${drawTotal.totalAmount}</span>
-            {drawTotal.averageOdds > 0 && (
-              <span className="wdl-odds">{drawTotal.averageOdds.toFixed(1)}x avg</span>
-            )}
-          </div>
-          <div className="wdl-stat-item">
-            <span className="wdl-outcome">Black</span>
-            <span className="wdl-amount">${blackWinTotal.totalAmount}</span>
-            {blackWinTotal.averageOdds > 0 && (
-              <span className="wdl-odds">{blackWinTotal.averageOdds.toFixed(1)}x avg</span>
-            )}
-          </div>
-        </div>
-      </div>
-      
-      <div className="move-betting-indicators">
-        <span className="indicators-label">Recent Move Bets:</span>
-        <div className="move-indicators">
-          {Array.from({ length: 5 }, (_, i) => {
-            const moveNum = startMoveIndex + i + 1;
-            const wagerData = moveWagerData[moveNum];
-            const hasWagers = wagerData && wagerData.totalAmount > 0;
-            const isCurrentMove = moveNum === currentMoveNumber;
-            
-            return (
-              <div 
-                key={moveNum}
-                className={`move-indicator ${hasWagers ? 'has-wagers' : 'no-wagers'} ${isCurrentMove ? 'current' : ''}`}
-                title={hasWagers ? `Move ${moveNum}: $${wagerData.totalAmount} (${wagerData.betCount} bets)` : `Move ${moveNum}: No bets`}
-              >
-                <span className="move-number">{moveNum}</span>
-                {hasWagers && (
-                  <div className="wager-indicator">
-                    <div className="wager-amount">${wagerData.totalAmount}</div>
-                    <div className="bet-count">{wagerData.betCount} bets</div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>

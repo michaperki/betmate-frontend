@@ -33,6 +33,13 @@ const NavBar: React.FC<NavBarProps> = (props) => {
             <button className={location.pathname === '/' ? 'active' : ''}>
               <NavLink to="/">home</NavLink>
             </button>
+            {props.isAuthenticated && (
+              <>
+                <button className={location.pathname === '/raffles' ? 'active' : ''}>
+                  <NavLink to="/raffles">raffles</NavLink>
+                </button>
+              </>
+            )}
             {props.isAuthenticated
               ? (
                 <>

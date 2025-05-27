@@ -10,15 +10,16 @@ import { SocketActions, SocketActionTypes } from 'types/socket';
 import { AuthActions, AuthActionTypes, AuthState } from 'types/resources/auth';
 import { GameActions, GameActionTypes, GameState } from 'types/resources/game';
 import { WagerActions, WagerActionTypes, WagerState } from 'types/resources/wager';
+import { RaffleActions, RaffleActionTypes, RaffleState } from 'types/resources/raffle';
 import { CgActions, CgActionTypes, ChessgroundState } from './chessground';
 import { LeaderboardActions, LeaderboardActionTypes, LeaderboardState } from './leaderboard';
 
 /* -------- Action Types -------- */
 
 export type Actions =
-  AuthActions | GameActions | SocketActions | WagerActions | CgActions | LeaderboardActions;
+  AuthActions | GameActions | SocketActions | WagerActions | RaffleActions | CgActions | LeaderboardActions;
 export type ActionTypes =
-  AuthActionTypes | GameActionTypes | SocketActionTypes | WagerActionTypes | CgActionTypes |
+  AuthActionTypes | GameActionTypes | SocketActionTypes | WagerActionTypes | RaffleActionTypes | CgActionTypes |
   LeaderboardActionTypes;
 
 export const REQUEST = 'REQUEST';
@@ -56,5 +57,6 @@ export interface RootState {
   game: GameState,
   leaderboard: LeaderboardState,
   requests: RequestState,
+  raffle: RaffleState,
   wager: WagerState
 }

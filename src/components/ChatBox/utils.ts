@@ -6,13 +6,23 @@ import { getMultiplier } from 'utils/chess';
 export const createResolvedFeedWager = (wager: Wager): FeedWager => ({
   ...wager,
   time: wager.updated_at,
-  odds: wager.wdl ? wager.odds : wager.winning_pool_share ?? 1,
+  odds: wager.wdl ? (wager.odds ?? 1) : (wager.winning_pool_share ?? 1),
   type: 'wager',
+  // Ensure required fields have fallback values
+  data: wager.data || 'Unknown bet',
+  amount: wager.amount ?? 0,
 });
 
 export const createFeedWagers = (wager: Wager): FeedWager[] => ([
   {
-    ...wager, time: wager.created_at, status: WagerStatus.PENDING, type: 'wager',
+    ...wager,
+    time: wager.created_at,
+    status: WagerStatus.PENDING,
+    type: 'wager',
+    // Ensure required fields have fallback values
+    data: wager.data || 'Unknown bet',
+    amount: wager.amount ?? 0,
+    odds: wager.odds ?? 1,
   },
   ...(wager.resolved ? [createResolvedFeedWager(wager)] : []),
 ]);
@@ -38,18 +48,39 @@ const onWagerCancelled = (data: string, wdl: boolean, amount: number): string =>
 );
 
 export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, amount: number, odds: number): string => {
-  switch (status) {
+  // Defensive checks for missing data
+  if (!data || amount === undefined || amount === null) {
+    console.warn('Missing wager data:', { status, data, wdl, amount, odds });
+    return `Wager data incomplete`;
+  }
+
+  // Handle case where status might be an array (server data issue)
+  let normalizedStatus: string;
+  if (Array.isArray(status)) {
+    normalizedStatus = status[0] ? String(status[0]).toLowerCase() : 'unknown';
+  } else if (typeof status === 'string') {
+    normalizedStatus = status.toLowerCase();
+  } else {
+    normalizedStatus = String(status).toLowerCase();
+  }
+
+  switch (normalizedStatus) {
     case WagerStatus.PENDING:
+    case 'pending':
       return wdl
-        ? onWDLWagerCreate(data, amount, odds)
+        ? onWDLWagerCreate(data, amount, odds || 1)
         : onMoveWagerCreate(data, amount);
     case WagerStatus.WON:
-      return onWagerWin(data, wdl, amount, odds);
+    case 'won':
+      return onWagerWin(data, wdl, amount, odds || 1);
     case WagerStatus.LOST:
+    case 'lost':
       return onWagerLost(data, wdl, amount);
     case WagerStatus.CANCELLED:
+    case 'cancelled':
       return onWagerCancelled(data, wdl, amount);
     default:
-      return '';
+      console.warn('Unhandled wager status:', { status, normalizedStatus, data, wdl, amount, odds });
+      return `Wager ${normalizedStatus} - status not recognized`;
   }
 };

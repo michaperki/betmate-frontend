@@ -38,18 +38,25 @@ const wagerColors = {
   },
 };
 
-export const ChatWager: React.FC<ChatWagerProps> = ({ wager }) => (
-  <div
-    key={wager._id}
-    className="chat-wager"
-    style={{
-      backgroundColor: wagerColors[wager.status]?.bg || 'rgba(149, 165, 166, 0.15)',
-      borderLeftColor: wagerColors[wager.status]?.border || 'rgba(149, 165, 166, 0.7)',
-    }}
-  >
-    <p>{getFeedMessage(wager.status, wager.data, wager.wdl, wager.amount, wager.odds)}</p>
-  </div>
-);
+export const ChatWager: React.FC<ChatWagerProps> = ({ wager }) => {
+  // Handle case where status might be an array (defensive programming)
+  const normalizedStatus = Array.isArray(wager.status)
+    ? wager.status[0] || WagerStatus.PENDING
+    : wager.status;
+
+  return (
+    <div
+      key={wager._id}
+      className="chat-wager"
+      style={{
+        backgroundColor: wagerColors[normalizedStatus]?.bg || 'rgba(149, 165, 166, 0.15)',
+        borderLeftColor: wagerColors[normalizedStatus]?.border || 'rgba(149, 165, 166, 0.7)',
+      }}
+    >
+      <p>{getFeedMessage(wager.status, wager.data, wager.wdl, wager.amount, wager.odds)}</p>
+    </div>
+  );
+};
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ chat }) => {
   const [firstName, lastName] = chat.userName.split(' ').slice(0, 2);

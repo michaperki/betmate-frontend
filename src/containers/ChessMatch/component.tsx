@@ -88,10 +88,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const pollInterval = setInterval(() => {
       props.fetchGameById(gameId);
       props.fetchGameStats(gameId);
+      props.getGameLeaderboard(gameId); // Add leaderboard to polling
     }, 10000);
 
     return () => clearInterval(pollInterval);
-  }, [gameId, props.fetchGameById, props.fetchGameStats]);
+  }, [gameId, props.fetchGameById, props.fetchGameStats, props.getGameLeaderboard]);
 
   // Handle drag-and-drop move - now respects quick bet mode
   const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
@@ -174,8 +175,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
         {/* Main content area */}
         <div className="game-content">
-            {/* Left column - Chat and wagers on larger screens */}
-            <div className="left-sidebar-container">
+          {/* Full-width Game Information Panel */}
+          <div className="game-info-panel-wrapper">
+            <GameInfoPanel
+              game={game}
+              viewerCount={gameStats?.viewerCount || 0}
+              moveWagerData={gameStats?.moveWagerData || {}}
+              wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
+            />
+          </div>
+
+          {/* Left column - Chat and wagers on larger screens */}
+          <div className="left-sidebar-container">
               {/* Chat section */}
               <div className="chat-section">
                 <ChatBox />
@@ -189,13 +200,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
             {/* Middle column - Chessboard */}
             <div className="board-container">
-              {/* Game Information Panel */}
-              <GameInfoPanel
-                game={game}
-                viewerCount={gameStats?.viewerCount || 0}
-                moveWagerData={gameStats?.moveWagerData || {}}
-                wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
-              />
 
               <PlayerInfo
                 icon={playerIconBlack}
@@ -284,16 +288,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               </div>
             </div>
 
-            {/* Mobile Chat Container - Only visible on smaller screens */}
-            <div className="mobile-chat-container">
-              <div className="chat-extras-section">
-                <ChatBox />
-                <div className="mobile-leaderboard-section">
-                  <MiniLeaderboard rankings={props.rankings || []} />
-                </div>
+          {/* Mobile Chat Container - Only visible on smaller screens */}
+          <div className="mobile-chat-container">
+            <div className="chat-extras-section">
+              <ChatBox />
+              <div className="mobile-leaderboard-section">
+                <MiniLeaderboard rankings={props.rankings || []} />
               </div>
             </div>
           </div>
+        </div>
       </div>
     </>
   );

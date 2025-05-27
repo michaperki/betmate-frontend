@@ -12,6 +12,7 @@ import SignInPanel from 'containers/authentication/signInPanel';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
 import UserPage from 'containers/UserPage';
+import RafflePage from 'containers/RafflePage';
 import Dashboard from '../containers/Dashboard';
 import ChessMatch from '../containers/ChessMatch';
 import NavBar from './NavBar';
@@ -50,6 +51,7 @@ const App: React.FC<AppProps> = (props) => {
         <Switch>
           <Route exact path="/" component={Welcome} />
           <Route exact path="/chess/:id" component={ChessMatch} />
+          <Route exact path="/raffles" component={RafflePage} />
           <Route exact path="/signin" component={SignInPanel} />
           <Route exact path="/signup" component={SignUpPanel} />
           <Route exact path="/signout" component={SignOutPanel} />
