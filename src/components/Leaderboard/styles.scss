@@ -1,121 +1,241 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .leaderboard-container {
-    width: 24em;
+    width: 100%;
     position: relative;
-    padding-right: 25px;
+
+    @include mobile {
+        margin-top: $space-4;
+    }
 
     .leaderboard-header {
         display: flex;
-        flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        margin-left: 5px;
+        margin-bottom: $space-3;
+        padding: 0 $space-2;
+
         h2 {
-            color:#F2F2F2;
-            font-size: 32px;
-            margin: 10px;
+            @include text-heading-2;
+            color: $text-primary;
+            margin: 0;
+            text-shadow: 0 0 8px $accent-blue;
+
+            @include mobile {
+                @include text-heading-3;
+            }
         }
 
         .reset-button {
-            background-color: grey;
-            width: 31px;
-            height: 31px;
-            border-radius: 16px;
+            @include card-base;
+            background: $bg-tertiary;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 15px;
-        }
-
-        .active {
+            border: 1px solid $border-secondary;
+            transition: all 0.2s ease;
             cursor: pointer;
-            background-color: #64FF8F;
+
+            &:hover {
+                border-color: $brand-primary;
+                @include shadow-glow-green;
+            }
+
+            &.active {
+                background: $brand-primary;
+                border-color: $brand-primary;
+                color: $text-inverse;
+            }
         }
     }
     
     .leaderboard-card {
-        display: flex;
-        flex-direction: column;
-        height: 23em;
-        width: 23em;
-        overflow: scroll;
-        background: #1E1E22;
-        border: 7px solid;
-        border-radius: 10px;
-        border-color: #64FF8F;
+        @include card-elevated;
+        background: $bg-secondary;
+        border: 2px solid $accent-blue;
+        border-radius: $radius-lg;
+        padding: $space-4;
+        height: auto;
+        max-height: 400px;
+        overflow-y: auto;
+        @include custom-scrollbar;
+
+        @include mobile {
+            max-height: 300px;
+            padding: $space-3;
+        }
     
         .user-rank {
-            width: 60%;
-            background-color: #64FF8F;
+            @include card-base;
+            background: $brand-primary;
+            color: $text-inverse;
             text-align: center;
-            align-self: center;
-            margin: 12px;
-            padding: 6px;
-            border-radius: 10px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
+            padding: $space-2 $space-3;
+            border-radius: $radius-md;
+            margin: 0 auto $space-3 auto;
+            font-weight: 600;
+            max-width: 200px;
+
+            @include mobile {
+                padding: $space-1 $space-2;
+                font-size: $text-sm;
+            }
         }
-    
-        .leaderboard-row {
+
+        .leaderboard-entry {
             display: flex;
-            width: 100%;
-            flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            color: white;
-            padding-top: 10px;
-            padding-bottom: 10px;
-    
-            .row-start {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-    
-                .rank {
-                    margin-left: 10px;
-                    font-weight: bold;
-                    font-size: 25px;
-                    background-color: #E5AF27;
-                    width: 38px;
-                    height: 38px;
-                    border-radius: 20px;
-                    color: #1E1E22;
-    
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-        
-                .username {
-                    margin-left: 15px;
-                    font-weight: bold;
-                    font-size: 25px;
-                    width: 160px;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                }
-    
-                .current-user {
-                    color: #64FF8F;
+            padding: $space-3 $space-2;
+            border-radius: $radius-md;
+            margin-bottom: $space-2;
+            background: $bg-tertiary;
+            border: 1px solid $border-secondary;
+            transition: all 0.2s ease;
+
+            @include mobile {
+                padding: $space-2;
+            }
+
+            &:hover {
+                background: $bg-quaternary;
+                border-color: $border-accent;
+                transform: translateY(-1px);
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            &.current-user {
+                background: linear-gradient(135deg, rgba($brand-primary, 0.15), rgba($brand-primary, 0.05));
+                border-color: $brand-primary;
+
+                .player-name {
+                    color: $brand-primary;
+                    font-weight: 600;
                 }
             }
-    
-    
-            .winnings {
-                margin-right: 25px;
-                font-weight: bold;
-                font-size: 23px;
-                white-space: nowrap;
-    
-                &.red {
-                    color: #FFCDC6
+
+            .rank-info {
+                display: flex;
+                align-items: center;
+                gap: $space-3;
+
+                @include mobile {
+                    gap: $space-2;
                 }
-    
-                &.green {
-                    color: #CDFFBC;
+
+                .rank-number {
+                    @include text-heading-4;
+                    color: $brand-primary;
+                    font-weight: 600;
+                    min-width: 24px;
+                    text-align: center;
+
+                    @include mobile {
+                        @include text-body;
+                        min-width: 20px;
+                    }
+                }
+
+                .player-name {
+                    @include text-body;
+                    color: $text-primary;
+                    font-weight: 500;
+
+                    @include mobile {
+                        font-size: $text-sm;
+                    }
+                }
+            }
+
+            .player-stats {
+                display: flex;
+                align-items: center;
+                gap: $space-2;
+
+                @include mobile {
+                    gap: $space-1;
+                }
+
+                .win-rate {
+                    @include text-caption;
+                    color: $text-secondary;
+                    
+                    @include mobile {
+                        font-size: $text-xs;
+                    }
+                }
+
+                .balance {
+                    @include text-body;
+                    color: $brand-primary;
+                    font-weight: 600;
+
+                    @include mobile {
+                        font-size: $text-sm;
+                    }
+
+                    &.positive {
+                        color: $success;
+                    }
+
+                    &.negative {
+                        color: $error;
+                    }
                 }
             }
         }
+
+        // Special styling for top 3 positions
+        .leaderboard-entry:nth-child(1) {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            border-color: rgba(255, 215, 0, 0.3);
+
+            .rank-number {
+                color: #FFD700; // Gold
+            }
+        }
+
+        .leaderboard-entry:nth-child(2) {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
+            border-color: rgba(192, 192, 192, 0.3);
+
+            .rank-number {
+                color: #C0C0C0; // Silver
+            }
+        }
+
+        .leaderboard-entry:nth-child(3) {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
+            border-color: rgba(205, 127, 50, 0.3);
+
+            .rank-number {
+                color: #CD7F32; // Bronze
+            }
+        }
+    }
+}
+
+// Empty state styling
+.leaderboard-empty {
+    text-align: center;
+    padding: $space-6;
+    color: $text-secondary;
+
+    .empty-icon {
+        font-size: 2rem;
+        margin-bottom: $space-2;
+        opacity: 0.5;
+    }
+
+    .empty-message {
+        @include text-body;
+        margin: 0;
     }
 }
