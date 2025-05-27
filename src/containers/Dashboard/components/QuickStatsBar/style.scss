@@ -14,13 +14,8 @@
     gap: $space-4;
 
     @include mobile {
+      grid-template-columns: repeat(2, 1fr); // 2x2 grid on mobile
       gap: $space-2;
-      overflow-x: auto;
-      padding-bottom: $space-2;
-      
-      // Enable horizontal scrolling on mobile with snapping
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
     }
 
     @include tablet {
@@ -37,9 +32,7 @@
       transition: all 0.2s ease;
 
       @include mobile {
-        min-width: 140px;
-        padding: $space-3 $space-2;
-        scroll-snap-align: start;
+        padding: $space-2 $space-1; // More compact padding on mobile
       }
 
       &:hover {
@@ -62,6 +55,10 @@
         color: $text-secondary;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+
+        @include mobile {
+          font-size: $text-xs; // Smaller label text on mobile
+        }
       }
 
       // Color variants
