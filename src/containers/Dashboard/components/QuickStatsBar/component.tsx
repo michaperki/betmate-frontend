@@ -22,7 +22,7 @@ const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
     },
     {
       label: 'Balance',
-      value: stats.currentBalance,
+      value: Math.round(stats.currentBalance),
       suffix: ' tokens',
       color: 'yellow',
     },

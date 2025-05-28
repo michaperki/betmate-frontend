@@ -19,7 +19,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ userName = 'Player', stats })
         <div className="hero-balance">
           <div className="balance-card">
             <span className="balance-label">Your Balance</span>
-            <span className="balance-amount">{stats.currentBalance} tokens</span>
+            <span className="balance-amount">{Math.round(stats.currentBalance)} tokens</span>
           </div>
         </div>
       </div>
