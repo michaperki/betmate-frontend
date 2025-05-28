@@ -324,12 +324,39 @@
   100% { transform: rotate(360deg); }
 }
 
+// User-submitted move styles
+.move-bubble.user-submitted {
+  border-color: #00EFB2;
+  background: linear-gradient(135deg, #1A2A2A 0%, #0A1A1A 100%);
+
+  &:hover {
+    border-color: #00FFCC;
+    box-shadow: 0 0 12px rgba(0, 239, 178, 0.4);
+  }
+
+  .quality-badge.user-badge {
+    background: linear-gradient(135deg, #00EFB2 0%, #00D49A 100%);
+    color: #111111;
+    font-weight: 700;
+    border: 1px solid #00FFCC;
+  }
+
+  .move-text {
+    color: #00EFB2;
+    font-weight: 600;
+  }
+
+  .wager-amount {
+    color: #00D49A;
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 480px) {
   .move-bubbles-container {
     padding: 0 8px 8px 8px;
   }
-  
+
   .move-bubbles-scroll {
     gap: 4px;
   }

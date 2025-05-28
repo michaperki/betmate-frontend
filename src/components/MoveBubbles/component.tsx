@@ -30,6 +30,7 @@ interface MoveBubblesProps {
     gameId: string;
     isActive: boolean;
   } | null;
+  userSubmittedMoves?: Set<string>;
 }
 
 const MoveBubbles: React.FC<MoveBubblesProps> = ({
@@ -44,6 +45,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
   onMoveUnhover,
   hoveredMove,
   pendingBet,
+  userSubmittedMoves,
 }) => {
   const [topMoves, setTopMoves] = useState<MoveData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -277,8 +279,28 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
     return 'small';
   };
 
-  // Only show loading if we don't have moves and aren't animating
-  if (isLoading && topMoves.length === 0 && !animatingOut) {
+  // Create user-submitted move data for moves not already in AI suggestions
+  const userMoveData: MoveData[] = [];
+  if (userSubmittedMoves) {
+    userSubmittedMoves.forEach(move => {
+      // Only add if not already in AI suggestions
+      const alreadyExists = topMoves.some(aiMove => aiMove.move === move);
+      if (!alreadyExists) {
+        userMoveData.push({
+          move,
+          score: 0, // Default score for user moves
+          percentile: 50, // Default percentile for user moves (decent move)
+          is_best_move: false
+        });
+      }
+    });
+  }
+
+  // Combine AI moves with user-submitted moves
+  const allMoves = [...topMoves, ...userMoveData];
+
+  // Only show loading if we don't have any moves and aren't animating
+  if (isLoading && allMoves.length === 0 && !animatingOut) {
     return (
       <div className="move-bubbles-container">
         <div className="move-bubbles-loading">
@@ -289,7 +311,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
     );
   }
 
-  if (topMoves.length === 0) {
+  if (allMoves.length === 0) {
     return (
       <div className="move-bubbles-container">
         <div className="no-moves">No moves available</div>
@@ -298,17 +320,18 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
   }
 
   // Determine if we need scrollable layout (more than 5 bubbles)
-  const isScrollable = topMoves.length > 5;
+  const isScrollable = allMoves.length > 5;
 
   return (
     <div className="move-bubbles-container">
       <div className={`move-bubbles-scroll ${animatingOut ? 'animating-out' : ''} ${isScrollable ? 'scrollable' : ''}`} key={animationKey}>
-        {topMoves.map((moveData, index) => {
+        {allMoves.map((moveData, index) => {
           const totalWagered = getTotalWagered(moveData.move);
           const qualityBadge = getQualityBadge(moveData);
           const isCurrentMove = hoveredMove === moveData.move;
           const isPendingBet = pendingBet?.isActive && pendingBet.moveString === moveData.move;
           const isCurrentlyHolding = isHolding === moveData.move;
+          const isUserSubmitted = userSubmittedMoves?.has(moveData.move) || false;
 
           return (
             <div
@@ -318,6 +341,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
                          ${isPendingBet ? 'pending' : ''}
                          ${isCurrentlyHolding ? 'holding' : ''}
                          ${isAuthenticated ? 'authenticated' : ''}
+                         ${isUserSubmitted ? 'user-submitted' : ''}
                          bubble-animate-in`}
               style={{
                 animationDelay: `${index * 50}ms`,
@@ -346,8 +370,10 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
               }}
             >
               {/* Quality badge */}
-              {qualityBadge && (
-                <div className="quality-badge">{qualityBadge}</div>
+              {(qualityBadge || isUserSubmitted) && (
+                <div className={`quality-badge ${isUserSubmitted ? 'user-badge' : ''}`}>
+                  {isUserSubmitted ? 'USER' : qualityBadge}
+                </div>
               )}
 
               {/* Move notation */}

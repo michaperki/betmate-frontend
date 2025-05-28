@@ -84,6 +84,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const drawHoldStartRef = useRef<number>(0);
   const drawProgressTimerRef = useRef<number | null>(null);
 
+  // User-submitted moves from drag-and-drop
+  const [userSubmittedMoves, setUserSubmittedMoves] = useState<Set<string>>(new Set());
+
   const DRAW_HOLD_DURATION = 800; // 800ms hold time
 
   useEffect(() => {
@@ -93,6 +96,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     props.getGameLeaderboard(gameId);
     return () => { props.leaveGame(gameId); };
   }, []);
+
+  // Clear user-submitted moves when game state changes (after a real move is made)
+  useEffect(() => {
+    setUserSubmittedMoves(new Set());
+  }, [game?.state]);
 
   useEffect(() => {
     // Set up polling for game updates
@@ -119,6 +127,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       });
 
       if (move) {
+        // Add the user's move to the candidate moves list
+        setUserSubmittedMoves(prev => new Set(prev).add(move.san));
+
         // Make sure the move panel is active to show arrows
         props.onEnterMovePanel();
 
@@ -144,13 +155,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             }
           }, 1000); // Leave arrow visible briefly for feedback
         } else {
-          // Set as pending bet to show in sidebar with metrics
-          props.setPendingBet({
-            moveString: move.san,
-            stake: selectedStake,
-            gameId,
-            isActive: true
-          });
+          // Clear any existing pending bet first
+          props.clearPendingBet();
+
+          // Show the move arrow - the MoveBubbles component will now include this move
+          // Keep arrow visible for visual feedback
+          setTimeout(() => {
+            if (props.onMoveUnhover) {
+              props.onMoveUnhover();
+            }
+          }, 2000); // Keep arrow visible for 2 seconds for feedback
         }
 
         // Reset board to original position but keep the arrow showing
@@ -371,6 +385,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 onMoveUnhover={props.onMoveUnhover}
                 // hoveredMove={hoveredMove}  // TODO: Add if we track hovered move in parent
                 pendingBet={props.pendingBet}
+                userSubmittedMoves={userSubmittedMoves}
               />
 
               {/* Draw Bet Button - positioned below move bubbles */}
