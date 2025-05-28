@@ -3,16 +3,18 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%; // Use % instead of vw to respect containing elements
+  max-width: 100%; // Prevent overflow
   background-color: #050505;
   color: #F2F2F2;
   font-family: 'Roboto', sans-serif;
+  overflow-x: hidden; // Prevent horizontal scrolling
 
   @media (max-width: 768px) {
     position: absolute; // Use absolute to ensure proper positioning
     top: 0; // Start at the top
     left: 0;
     right: 0;
-    width: 100vw;
     overflow-y: auto; // Enable vertical scrolling on mobile
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   }
@@ -20,7 +22,6 @@
   @media (min-width: 769px) {
     position: fixed; // Keep fixed position on desktop
     height: 100vh;
-    width: 100vw;
     top: 0;
     left: 0;
     z-index: 1;
@@ -96,7 +97,7 @@
 // Main content area using CSS Grid
 .game-content {
   display: grid;
-  grid-template-columns: 320px 1fr 320px; /* Sidebars and center column */
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) minmax(280px, 320px); /* Responsive sidebars */
   grid-template-rows: 1fr auto auto;
   grid-template-areas:
     "left-sidebar board-area right-sidebar"
@@ -108,6 +109,7 @@
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 
   @media (max-width: 768px) {
     height: auto; // Let content determine height on mobile
@@ -121,7 +123,7 @@
 
   // Mobile-first responsive layout
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important; // Force single column
     grid-template-rows: auto auto auto auto auto auto;
     grid-template-areas:
       "top-player"
@@ -131,9 +133,11 @@
       "betting-area"
       "mobile-chat";
     gap: 8px;
-    padding: 12px;
+    padding: 8px; // Reduce padding to save space
     height: auto; // Let content determine height on mobile
     box-sizing: border-box;
+    width: 100%;
+    max-width: 100vw; // Ensure we never exceed viewport
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
@@ -176,9 +180,11 @@
 
   @media (max-width: 768px) {
     width: 100%;
-    max-width: 100%;
+    max-width: calc(100vw - 16px); // Account for container padding
     gap: 2px;
     padding: 4px;
+    margin: 0 auto; // Center the container
+    box-sizing: border-box;
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
@@ -225,9 +231,10 @@
   }
 
   @media (max-width: 768px) {
-    max-width: 320px !important;
-    width: 320px !important;
-    height: 320px !important;
+    max-width: calc(100vw - 32px) !important; // Use viewport width minus padding
+    width: min(320px, calc(100vw - 32px)) !important; // Use smaller of 320px or viewport width
+    height: min(320px, calc(100vw - 32px)) !important; // Maintain square aspect ratio
+    margin: 0 auto !important; // Center horizontally
     overflow: hidden !important; // Clip anything that exceeds the container
   }
 
@@ -404,13 +411,16 @@
   gap: 12px;
   max-height: 300px; // Fixed height in pixels for better control
   overflow-y: auto;
+  overflow-x: hidden; // Prevent horizontal scrolling
   scrollbar-width: thin;
-  max-width: 700px;
+  width: 100%; // Use full width
+  max-width: 700px; // But cap at 700px
   margin: 0 auto;
   padding: 12px;
   background: rgba(17, 17, 17, 0.95);
   border-radius: 12px;
   border: 1px solid rgba(0, 239, 178, 0.2);
+  box-sizing: border-box; // Include padding in width calculation
 
   @media (min-width: 1200px) {
     display: none; /* Hidden on desktop - content is in left sidebar */
