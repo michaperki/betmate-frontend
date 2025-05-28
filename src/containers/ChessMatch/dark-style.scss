@@ -96,7 +96,7 @@
 // Main content area using CSS Grid
 .game-content {
   display: grid;
-  grid-template-columns: 320px 1fr 320px; /* Increased sidebar widths from 280px to 320px */
+  grid-template-columns: 320px 1fr 320px; /* Sidebars and center column */
   grid-template-rows: 1fr auto auto;
   grid-template-areas:
     "left-sidebar board-area right-sidebar"
@@ -164,34 +164,65 @@
   flex-direction: column;
   gap: 4px;
   justify-content: center;
-  max-width: 550px;
   height: fit-content;
   margin: 0 auto; /* Center within grid area */
-  width: 100%;
   position: relative;
-
-  @media (max-width: 768px) {
-    max-width: 100%;
-    gap: 2px;
-    padding: 0;
-  }
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   align-self: center; /* Center vertically in grid area */
-  /* Ensure no padding that could offset the chessboard */
-  padding: 0;
+  padding: 8px;
+  overflow: visible; /* Allow content to be fully visible */
 
-  @media (max-width: 1200px) {
-    max-width: 600px; /* Larger when full width */
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    width: 550px; /* Fixed width on tablet */
+    max-width: 550px;
+    padding: 8px;
+  }
+
+  @media (min-width: 1201px) {
+    width: 500px; /* Fixed width on desktop */
+    max-width: 500px;
+    padding: 8px;
+  }
+}
+
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent overflow */
+
+  @media (max-width: 768px) {
+    gap: 8px;
   }
 }
 
 .chessboard-wrapper{
-  width:100%;
-  max-width:550px;
-  margin:auto;
-  position:relative;
+  width: 100%;
+  margin: auto;
+  position: relative;
+
+  @media (min-width: 1201px) {
+    width: 450px; // Fixed desktop size
+    height: 450px; // Fixed square height
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    width: 500px; // Fixed tablet size
+    height: 500px; // Fixed square height
+  }
 
   @media (max-width: 768px) {
     max-width: 320px !important;
@@ -204,6 +235,16 @@
   .cg-wrap,
   .cg-container,
   .cg-board {
+    @media (min-width: 1201px) {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
     @media (max-width: 768px) {
       max-width: 320px !important;
       width: 320px !important;
@@ -507,6 +548,11 @@
   align-items: stretch;
   position: relative;
 
+  @media (min-width: 1201px) {
+    width: 100%; // Full width on desktop
+    justify-content: flex-start; // Align normally on desktop
+  }
+
   @media (max-width: 768px) {
     justify-content: center; // Center the board and eval bar horizontally
     width: fit-content;
@@ -516,11 +562,18 @@
   .chessboard-wrapper {
     flex: 1;
     position: relative;
-    max-width: calc(100% - 50px); /* Leave space for eval bar */
+    width: 100%; /* Use full width */
+    height: auto; /* Allow height to adjust */
+
+    @media (min-width: 1201px) {
+      width: 100%; /* Use full width */
+      max-width: none; /* Remove max-width limitation */
+    }
 
     @media (max-width: 768px) {
       flex: none; // Don't stretch on mobile
-      max-width: calc(100% - 25px); // Less space needed for thinner eval bar
+      width: 100%; /* Full width on mobile */
+      max-width: 320px !important; /* Maintain mobile sizing */
     }
   }
 }

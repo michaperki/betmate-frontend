@@ -10,6 +10,11 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     color: #fff;
 
+    @media (min-width: 1201px) {
+        max-width: 450px; // Constrain on desktop to match chessboard
+        margin: 0 auto 8px auto; // Center the player info
+    }
+
     h3 {
         font-size: 16px;
         margin: 0;
