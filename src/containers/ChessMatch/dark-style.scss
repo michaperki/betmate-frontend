@@ -159,7 +159,9 @@
 
   .game-communication-panel {
     margin-top: 12px;
-    max-height: 300px;
+    max-height: 350px; /* Increase max height to accommodate all content */
+    display: flex;
+    flex-direction: column;
   }
 }
 

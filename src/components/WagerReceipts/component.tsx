@@ -14,8 +14,8 @@ export interface WagerReceiptsProps {
   moveHistory?: Array<any>; // Move history to track when moves are made
 }
 
-// Number of wagers to show initially
-const INITIAL_WAGERS_DISPLAY = 5;
+// Number of wagers to show initially (reduced to ensure proper display)
+const INITIAL_WAGERS_DISPLAY = 4;
 
 const WagerReceipts: React.FC<WagerReceiptsProps> = ({
   resolvedWagers,
@@ -69,12 +69,16 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
             ))}
           </div>
           
+          {/* Link to future wager history page instead of loading more */}
           {hasMoreWagers && (
-            <button 
-              className="view-more-button" 
-              onClick={handleViewMore}
+            <button
+              className="view-more-button"
+              onClick={() => {
+                // This will be replaced with navigation to wager history page in the future
+                alert('Wager history page coming soon!');
+              }}
             >
-              View More ({sortedWagers.length - displayCount} remaining)
+              View Wager History
             </button>
           )}
         </>
