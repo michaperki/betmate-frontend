@@ -70,7 +70,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   // Use either external or internal state for stake
   const selectedStake = externalSelectedStake !== undefined ? externalSelectedStake : internalSelectedStake;
   const setSelectedStake = externalSetSelectedStake || setInternalSelectedStake;
-  const [activeTab, setActiveTab] = useState<'move' | 'outcome'>('move');
   const [hasInitialized, setHasInitialized] = useState(false);
   const [hoveredMove, setHoveredMove] = useState<string | null>(null);
   const [moveMetrics, setMoveMetrics] = useState<MoveAnalysis | null>(null);
@@ -79,7 +78,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   // Define game
   const game = games[gameId];
   const moveOptions = game?.pool_wagers?.move?.options || [];
-  const outcomeOptions = game?.odds || {};
 
   // First run initializes the component without triggering panel events
   useEffect(() => {
@@ -124,24 +122,16 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     }
   }, [game?.state, game?.move_hist?.length, pendingBet, gameId, clearPendingBet, handleMoveUnhover]);
 
-  // This effect is for cleaning up when switching tabs
+  // Initialize move panel on component mount
   useEffect(() => {
     // Skip the effect on initial render
     if (!hasInitialized) return;
 
-    // First, make sure any existing arrows are cleared
-    if (handleMoveUnhover) {
-      handleMoveUnhover();
+    // Enter move panel mode when component is initialized
+    if (handleEnterMovePanel) {
+      handleEnterMovePanel();
     }
-
-    // Only handle leaving the move panel when switching tabs
-    if (activeTab === 'outcome' && handleLeaveMovePanel) {
-      handleLeaveMovePanel();
-    }
-
-    // Don't automatically show arrows when switching to move tab
-    // Arrows will only appear on mouse hover over specific moves
-  }, [activeTab, handleLeaveMovePanel, handleMoveUnhover, hasInitialized]);
+  }, [hasInitialized, handleEnterMovePanel]);
 
   // Fetch move analysis when hovered move changes
   useEffect(() => {
@@ -305,41 +295,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     }
   };
 
-  const handleBetOutcome = (outcome: string) => () => {
-    if (!isAuthenticated || !selectedStake) return;
-
-    if (quickBetMode) {
-      // Place bet immediately if in quick bet mode
-      placeBet(
-        gameId,
-        outcome,
-        selectedStake,
-        true, // is WDL
-        1 / (outcomeOptions[outcome] || 1),
-        game.move_hist.length + 1,
-      );
-
-      // Set hoveredMove so metrics stay visible briefly
-      setHoveredMove(outcome);
-
-      // Clear the arrow after a short delay
-      setTimeout(() => {
-        setHoveredMove(null);
-        setMoveMetrics(null);
-        if (handleMoveUnhover) {
-          handleMoveUnhover();
-        }
-      }, 1000);
-    } else {
-      // Set this as pending bet to show confirmation
-      setNewPendingBet({
-        moveString: outcome,
-        stake: selectedStake,
-        gameId,
-        isActive: true
-      });
-    }
-  };
 
   const formatPayout = (odds: number) => {
     // Ensure odds is a valid number
@@ -448,140 +403,89 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
     ));
   };
 
-  // Render outcome options
-  const renderOutcomeOptions = () => {
-    if (!outcomeOptions || Object.keys(outcomeOptions).length === 0) {
-      return <div className="no-options">No outcomes available to bet on</div>;
-    }
-
-    return (
-      <ul className="bet-options-list">
-        {Object.entries(outcomeOptions).map(([outcome, odds]) => (
-          <li
-            key={`outcome-${outcome}`}
-            className={`bet-option outcome-${outcome}`}
-            onClick={handleBetOutcome(outcome)}
-          >
-            <span className="option-name">{outcome}</span>
-            <span className="option-payout">
-              {formatPayout(1 / (odds as number))}
-            </span>
-          </li>
-        ))}
-      </ul>
-    );
-  };
 
   return (
     <div className="integrated-betting-sidebar">
-      {/* Tab Navigation */}
-      <div className="tab-navigation">
-        <button
-          className={`tab-button ${activeTab === 'move' ? 'active' : ''}`}
-          onClick={() => setActiveTab('move')}
-        >
-          Move
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'outcome' ? 'active' : ''}`}
-          onClick={() => setActiveTab('outcome')}
-        >
-          Outcome
-        </button>
+      {/* Header - No more tabs needed */}
+      <div className="panel-header">
+        <h3>Move Betting</h3>
       </div>
 
-      {/* Content Panel */}
-      <div className="tab-content">
-        {activeTab === 'move' ? (
-          /* Move Betting Panel */
-          <div className="move-betting-panel">
-            <div className="bet-explanation">
-              Bet on which move will happen next. Win tokens from the pool.
-            </div>
+      {/* Content Panel - Only Move Betting */}
+      <div className="content-panel">
+        <div className="move-betting-panel">
+          <div className="bet-explanation">
+            Bet on which move will happen next. Win tokens from the pool.
+          </div>
 
-            {/* Move Analysis Section - always present with fixed height */}
-            <div className="move-analysis-container">
-              {hoveredMove ? (
-                <div className="move-analysis">
-                  <div className="move-preview">
-                    <span className="move-label">Move:</span>
-                    <span className="move-value">{hoveredMove}</span>
+          {/* Move Analysis Section - always present with fixed height */}
+          <div className="move-analysis-container">
+            {hoveredMove ? (
+              <div className="move-analysis">
+                <div className="move-preview">
+                  <span className="move-label">Move:</span>
+                  <span className="move-value">{hoveredMove}</span>
+                </div>
+
+                {isAnalysisLoading ? (
+                  <div className="loading-metrics">Analyzing move...</div>
+                ) : moveMetrics ? (
+                  <div className="move-metrics">
+                    <div className="metric">
+                      <div className="metric-header">
+                        <div className="metric-label">Engine Quality</div>
+                        {moveMetrics.is_best_move && (
+                          <div className="metric-badge">Best Move</div>
+                        )}
+                      </div>
+                      <div className="metric-value">
+                        <div
+                          className={`metric-bar ${moveMetrics.percentile > 70 ? 'high' :
+                                                 moveMetrics.percentile > 40 ? 'medium' : 'low'}`}
+                          style={{ width: `${moveMetrics.percentile}%` }}
+                        ></div>
+                      </div>
+                      <div className="metric-description">
+                        {moveMetrics.percentile > 90 ? 'Excellent move!' :
+                         moveMetrics.percentile > 70 ? 'Strong move' :
+                         moveMetrics.percentile > 40 ? 'Reasonable move' :
+                         moveMetrics.percentile > 20 ? 'Dubious move' : 'Poor move'}
+                      </div>
+                    </div>
+
+                    <div className="metric">
+                      <div className="metric-label">Score: {Math.round(moveMetrics.score / 10) / 10}</div>
+                      <div className="metric-description">
+                        {moveMetrics.score > 200 ? 'Winning advantage' :
+                         moveMetrics.score > 100 ? 'Clear advantage' :
+                         moveMetrics.score > -100 ? 'Roughly equal' :
+                         moveMetrics.score > -200 ? 'Worse position' : 'Losing position'}
+                      </div>
+                    </div>
                   </div>
-
-                  {isAnalysisLoading ? (
-                    <div className="loading-metrics">Analyzing move...</div>
-                  ) : moveMetrics ? (
-                    <div className="move-metrics">
-                      <div className="metric">
-                        <div className="metric-header">
-                          <div className="metric-label">Engine Quality</div>
-                          {moveMetrics.is_best_move && (
-                            <div className="metric-badge">Best Move</div>
-                          )}
-                        </div>
-                        <div className="metric-value">
-                          <div
-                            className={`metric-bar ${moveMetrics.percentile > 70 ? 'high' :
-                                                   moveMetrics.percentile > 40 ? 'medium' : 'low'}`}
-                            style={{ width: `${moveMetrics.percentile}%` }}
-                          ></div>
-                        </div>
-                        <div className="metric-description">
-                          {moveMetrics.percentile > 90 ? 'Excellent move!' :
-                           moveMetrics.percentile > 70 ? 'Strong move' :
-                           moveMetrics.percentile > 40 ? 'Reasonable move' :
-                           moveMetrics.percentile > 20 ? 'Dubious move' : 'Poor move'}
-                        </div>
-                      </div>
-
-                      <div className="metric">
-                        <div className="metric-label">Score: {Math.round(moveMetrics.score / 10) / 10}</div>
-                        <div className="metric-description">
-                          {moveMetrics.score > 200 ? 'Winning advantage' :
-                           moveMetrics.score > 100 ? 'Clear advantage' :
-                           moveMetrics.score > -100 ? 'Roughly equal' :
-                           moveMetrics.score > -200 ? 'Worse position' : 'Losing position'}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="placeholder-metrics">
-                      Hover over a move to see analysis
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="move-analysis-placeholder">
-                  <div className="placeholder-text">Hover over a move to see analysis</div>
-                </div>
-              )}
-            </div>
-
-            {/* Display drag-and-drop instruction */}
-            <div className="drag-instruction">
-              {isAuthenticated ? "Drag pieces on the board to bet on a move" : "Sign in to place bets"}
-            </div>
-
-            {/* Move Options */}
-            <div className="options-container">
-              {renderMoveOptions()}
-            </div>
+                ) : (
+                  <div className="placeholder-metrics">
+                    Hover over a move to see analysis
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="move-analysis-placeholder">
+                <div className="placeholder-text">Hover over a move to see analysis</div>
+              </div>
+            )}
           </div>
-        ) : (
-          /* Outcome Betting Panel */
-          <div className="outcome-betting-panel">
-            <div className="bet-explanation">
-              Bet on the outcome of the game. Win tokens from the house.
-            </div>
 
-            {/* Spacer to maintain consistent height with move panel */}
-            <div className="spacer"></div>
-
-            <div className="options-container">
-              {renderOutcomeOptions()}
-            </div>
+          {/* Display drag-and-drop instruction */}
+          <div className="drag-instruction">
+            {isAuthenticated ? "Drag pieces on the board to bet on a move" : "Sign in to place bets"}
           </div>
-        )}
+
+          {/* Move Options */}
+          <div className="options-container">
+            {renderMoveOptions()}
+          </div>
+        </div>
 
         {/* Stake Selection and Quick Bet Controls */}
         <div className="betting-controls">
@@ -598,7 +502,7 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
             ))}
           </div>
 
-          {/* Quick Bet Toggle - Moved here from tab navigation */}
+          {/* Quick Bet Toggle */}
           {isAuthenticated && (
             <div className="quick-bet-toggle">
               <span className="toggle-label">Quick Bet</span>
@@ -647,8 +551,8 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
                     gameId, // Always use current gameId from URL, not from pendingBet
                     pendingBet.moveString,
                     pendingBet.stake,
-                    activeTab === 'outcome', // is WDL if on outcome tab
-                    activeTab === 'outcome' ? 1 / (outcomeOptions[pendingBet.moveString] || 1) : 1,
+                    false, // Move bets are not WDL
+                    1,
                     game.move_hist.length + 1,
                   );
 

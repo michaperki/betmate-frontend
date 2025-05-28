@@ -200,6 +200,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 isBlack={true}
                 gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
                 updatedAt={game?.updated_at}
+                onOutcomeBet={(outcome, stake) => {
+                  props.createWager(
+                    gameId,
+                    outcome,
+                    stake,
+                    true, // is WDL
+                    1 / (game?.odds?.[outcome] || 1),
+                    game.move_hist.length + 1,
+                  );
+                }}
+                gameOdds={game?.odds}
+                selectedStake={selectedStake}
+                isAuthenticated={props.isAuthenticated}
+                gameId={gameId}
               />
 
               <div className="game-layout">
@@ -251,6 +265,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 isBlack={false}
                 gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
                 updatedAt={game?.updated_at}
+                onOutcomeBet={(outcome, stake) => {
+                  props.createWager(
+                    gameId,
+                    outcome,
+                    stake,
+                    true, // is WDL
+                    1 / (game?.odds?.[outcome] || 1),
+                    game.move_hist.length + 1,
+                  );
+                }}
+                gameOdds={game?.odds}
+                selectedStake={selectedStake}
+                isAuthenticated={props.isAuthenticated}
+                gameId={gameId}
               />
             </div>
 

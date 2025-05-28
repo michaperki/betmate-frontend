@@ -1,7 +1,8 @@
 /* eslint-disable no-nested-ternary */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { gameOver, gameInProgress } from 'utils/chess';
 import { GameStatus } from 'types/resources/game';
+import { GameOdds } from 'types/resources/game';
 import './dark-style.scss';
 
 interface ChessMatchProps {
@@ -12,7 +13,14 @@ interface ChessMatchProps {
   time: number | undefined,
   isBlack: boolean,
   gameStatus: GameStatus,
-  updatedAt: string | undefined
+  updatedAt: string | undefined,
+  // Betting props
+  onOutcomeBet?: (outcome: string, stake: number) => void,
+  gameOdds?: GameOdds,
+  selectedStake?: number,
+  isAuthenticated?: boolean,
+  currentWagers?: { amount: number },
+  gameId?: string
 }
 
 const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
@@ -22,6 +30,15 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   const isGameInProgress = gameInProgress(props.gameStatus);
   const isPlayerTurn = props.isBlack === blackTurn && isGameInProgress;
   const [timer, setTimer] = useState(setInterval(() => {}, 1000000));
+
+  // Betting state
+  const [isHolding, setIsHolding] = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
+  const holdTimerRef = useRef<number | null>(null);
+  const holdStartRef = useRef<number>(0);
+  const progressTimerRef = useRef<number | null>(null);
+
+  const HOLD_DURATION = 800; // 800ms hold time
 
   useEffect(() => { // Update timers
     const doDecrease = playerTime >= 0 && isPlayerTurn;
@@ -77,8 +94,76 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
     }
   };
 
+  // Betting functionality
+  const clearHoldTimers = () => {
+    if (holdTimerRef.current) {
+      window.clearTimeout(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+    if (progressTimerRef.current) {
+      window.clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+  };
+
+  const handleBetStart = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!props.isAuthenticated || !props.onOutcomeBet || !props.selectedStake || !isGameInProgress) return;
+
+    e.preventDefault();
+    setIsHolding(true);
+    setHoldProgress(0);
+    holdStartRef.current = Date.now();
+
+    // Progress animation
+    progressTimerRef.current = window.setInterval(() => {
+      const elapsed = Date.now() - holdStartRef.current;
+      const progress = Math.min((elapsed / HOLD_DURATION) * 100, 100);
+      setHoldProgress(progress);
+    }, 16); // ~60fps
+
+    // Complete bet on hold duration
+    holdTimerRef.current = window.setTimeout(() => {
+      const outcome = props.isBlack ? 'black_win' : 'white_win';
+      props.onOutcomeBet?.(outcome, props.selectedStake!);
+      handleBetEnd();
+    }, HOLD_DURATION);
+  };
+
+  const handleBetEnd = () => {
+    clearHoldTimers();
+    setIsHolding(false);
+    setHoldProgress(0);
+  };
+
+  // Get betting display info
+  const getOdds = () => {
+    if (!props.gameOdds) return null;
+    const outcome = props.isBlack ? 'black_win' : 'white_win';
+    return props.gameOdds[outcome];
+  };
+
+  const getMultiplier = () => {
+    const odds = getOdds();
+    return odds ? (1 / odds).toFixed(1) : '0.0';
+  };
+
+  const getPayout = () => {
+    const odds = getOdds();
+    const stake = props.selectedStake || 0;
+    return odds ? (stake / odds).toFixed(0) : '0';
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearHoldTimers();
+    };
+  }, []);
+
+  const canBet = props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress;
+
   return (
-    <div className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''}`}>
+    <div className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''} ${isHolding ? 'betting-active' : ''}`}>
       <div className="player-details">
         <img
           src={props.icon}
@@ -92,6 +177,37 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
           )}
         </div>
       </div>
+
+      {/* Betting Area */}
+      {canBet && (
+        <div
+          className={`betting-area ${isHolding ? 'holding' : ''}`}
+          onMouseDown={handleBetStart}
+          onMouseUp={handleBetEnd}
+          onMouseLeave={handleBetEnd}
+          onTouchStart={handleBetStart}
+          onTouchEnd={handleBetEnd}
+        >
+          <div className="bet-info">
+            <div className="bet-stake">{props.selectedStake}</div>
+            <div className="bet-multiplier">{getMultiplier()}x</div>
+            <div className="bet-payout">→{getPayout()}</div>
+          </div>
+          {isHolding && (
+            <div className="hold-progress">
+              <div
+                className="progress-bar"
+                style={{ width: `${holdProgress}%` }}
+              />
+            </div>
+          )}
+          {props.currentWagers?.amount && (
+            <div className="current-wager">
+              Wagered: {props.currentWagers.amount}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className={`player-timer ${isPlayerTurn ? 'active' : ''}`}>
         {getTimeString(playerTime)}

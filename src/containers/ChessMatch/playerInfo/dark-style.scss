@@ -92,3 +92,119 @@
     box-shadow: 0 0 10px rgba(0, 239, 178, 0.3);
   }
 }
+
+// Betting area styles
+.betting-area {
+  position: relative;
+  padding: 8px 12px;
+  margin: 0 8px;
+  border-radius: 6px;
+  background-color: #1A1A1A;
+  border: 1px solid #333;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+
+  &:hover {
+    background-color: #222;
+    border-color: #00EFB2;
+  }
+
+  &.holding {
+    background-color: #00EFB2;
+    border-color: #00EFB2;
+    color: #111111;
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 768px) {
+    min-width: 120px;
+    padding: 6px 10px;
+    margin: 0 4px;
+
+    // Ensure touch targets are at least 44px
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.bet-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+    gap: 4px;
+  }
+}
+
+.bet-stake {
+  font-weight: 600;
+  color: #00EFB2;
+
+  .holding & {
+    color: #111111;
+  }
+}
+
+.bet-multiplier {
+  font-weight: 500;
+  color: #BDBDBD;
+
+  .holding & {
+    color: #111111;
+  }
+}
+
+.bet-payout {
+  font-weight: 600;
+  color: #F2F2F2;
+
+  .holding & {
+    color: #111111;
+  }
+}
+
+.hold-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #111111;
+  transition: width 16ms linear;
+}
+
+.current-wager {
+  font-size: 10px;
+  color: #888;
+  margin-top: 4px;
+  text-align: center;
+
+  .holding & {
+    color: #222;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 9px;
+  }
+}
+
+// Enhanced player panel when betting is active
+.player-info-dark.betting-active {
+  transform: scale(1.01);
+  box-shadow: 0 6px 20px rgba(0, 239, 178, 0.2);
+}
