@@ -102,23 +102,32 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
       console.log('[MoveBubbles] Fetching top moves for FEN:', gameState);
 
       try {
-        // Use the current top moves endpoint (returns move strings)
-        const response = await fetch(`/dev/top-moves?fen=${encodeURIComponent(gameState)}&n=6`);
+        // Use the enhanced top moves endpoint (returns analysis data)
+        const response = await fetch(`/dev/top-moves?fen=${encodeURIComponent(gameState)}&n=6&enhanced=true`);
         const data = await response.json();
 
         console.log('[MoveBubbles] Top moves response:', data);
 
         if (data.message === 'SUCCESS' && Array.isArray(data.data)) {
-          // Convert move strings to MoveData objects with placeholder analysis
-          const movesWithAnalysis: MoveData[] = data.data.map((move: string, index: number) => ({
-            move: move,
-            score: 100 - (index * 15), // Decreasing scores
-            percentile: Math.max(100 - (index * 12), 15), // Decreasing percentiles
-            is_best_move: index === 0
-          }));
-
-          setTopMoves(movesWithAnalysis);
-          console.log('[MoveBubbles] Set top moves:', movesWithAnalysis.length, 'moves');
+          // Check if we got enhanced format (objects) or legacy format (strings)
+          if (data.data.length > 0 && typeof data.data[0] === 'object' && data.data[0].move) {
+            // Enhanced format - use real analysis data
+            setTopMoves(data.data);
+            console.log('[MoveBubbles] Set top moves with REAL analysis:', data.data.length, 'moves');
+          } else if (data.data.length > 0 && typeof data.data[0] === 'string') {
+            // Legacy format - convert to analysis objects
+            const movesWithAnalysis: MoveData[] = data.data.map((move: string, index: number) => ({
+              move: move,
+              score: 100 - (index * 15), // Placeholder scores
+              percentile: Math.max(100 - (index * 12), 15), // Placeholder percentiles
+              is_best_move: index === 0
+            }));
+            setTopMoves(movesWithAnalysis);
+            console.log('[MoveBubbles] Set top moves with placeholder analysis:', movesWithAnalysis.length, 'moves');
+          } else {
+            console.warn('[MoveBubbles] Empty or invalid data format:', data);
+            useFallbackMoves();
+          }
         } else {
           console.warn('[MoveBubbles] Invalid response format or no moves:', data);
           // Fallback to existing move options with placeholder analysis
