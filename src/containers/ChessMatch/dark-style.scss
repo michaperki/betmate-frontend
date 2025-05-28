@@ -217,7 +217,7 @@
 
 .chessboard-wrapper{
   width: 100%;
-  margin: auto;
+  margin: 0; // Remove auto margin to eliminate spacing
   position: relative;
 
   @media (min-width: 1201px) {
@@ -238,10 +238,13 @@
     overflow: hidden !important; // Clip anything that exceeds the container
   }
 
-  // Force all chessground elements to respect container size
+  // Force all chessground elements to respect container size and remove spacing
   .cg-wrap,
   .cg-container,
   .cg-board {
+    margin: 0 !important;
+    padding: 0 !important;
+
     @media (min-width: 1201px) {
       width: 100% !important;
       height: 100% !important;
@@ -257,6 +260,23 @@
       width: min(90vw, 350px) !important;
       height: min(90vw, 350px) !important;
     }
+  }
+
+  // Target the large wrapper div that's creating spacing
+  .cg-wrap > div {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+  }
+
+  // Ensure the manipulable wrapper doesn't create extra space
+  .cg-wrap.manipulable {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: table !important;
+    table-layout: fixed !important;
   }
 }
 
@@ -613,7 +633,7 @@
 
 .eval-bar-container {
   width: 40px;
-  margin-left: 10px;
+  margin-left: 0; // Remove all margin to hug the board
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -621,12 +641,12 @@
 
   @media (max-width: 768px) {
     width: 16px; // Even thinner on mobile to save space
-    margin-left: 2px; // Minimal margin
+    margin-left: 0; // No margin on mobile
   }
 
   @media (max-width: 640px) {
     width: 16px; // Even thinner on very small screens
-    margin-left: 3px;
+    margin-left: 0; // No margin
   }
 }
 

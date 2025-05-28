@@ -106,8 +106,13 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
         🤝
       </div>
 
-      {/* Draw Label */}
-      <div className="draw-label">DRAW</div>
+      {/* Vertical DRAW text */}
+      <div className="draw-text-vertical">
+        <span>D</span>
+        <span>R</span>
+        <span>A</span>
+        <span>W</span>
+      </div>
 
       {/* Betting Info - integrated into the bubble */}
       {canBet && (
