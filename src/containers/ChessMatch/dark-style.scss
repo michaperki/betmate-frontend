@@ -580,8 +580,33 @@
 
     @media (max-width: 768px) {
       flex: none; // Don't stretch on mobile
-      width: min(90vw, 350px) !important; /* Match optimized sizing */
+      width: min(90vw, 350px) !important; /* Back to original sizing */
       max-width: min(90vw, 350px) !important; /* Use larger sizing */
+    }
+  }
+
+  // Draw bet bubble positioning - absolutely positioned to not affect layout
+  .draw-bet-bubble {
+    position: absolute;
+    left: -10px; // Overlap the board more to stay visible
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+
+    @media (min-width: 1201px) {
+      left: -15px; // Slight overlap on desktop
+    }
+
+    @media (min-width: 769px) and (max-width: 1200px) {
+      left: -12px; // Tablet positioning
+    }
+
+    @media (max-width: 768px) {
+      left: -5px; // More visible on mobile
+    }
+
+    @media (max-width: 640px) {
+      left: -2px; // Almost fully on the board on small screens
     }
   }
 }

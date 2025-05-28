@@ -16,6 +16,7 @@ import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
+import DrawBetBubble from 'components/DrawBetBubble';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, fetchGameStats, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
@@ -219,6 +220,25 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
               <div className="game-layout">
                 <div className="board-with-eval">
+                  {/* Draw Bet Bubble - positioned to the left of the board */}
+                  <DrawBetBubble
+                    gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
+                    onOutcomeBet={(outcome, stake) => {
+                      props.createWager(
+                        gameId,
+                        outcome,
+                        stake,
+                        true, // is WDL
+                        1 / (game?.odds?.[outcome] || 1),
+                        game.move_hist.length + 1,
+                      );
+                    }}
+                    gameOdds={game?.odds}
+                    selectedStake={selectedStake}
+                    isAuthenticated={props.isAuthenticated}
+                    gameId={gameId}
+                  />
+
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                     <ChessgroundWrapper
                       config={{

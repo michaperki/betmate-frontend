@@ -1,0 +1,178 @@
+.draw-bet-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 6px;
+  border-radius: 12px;
+  background-color: #111111;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  width: 50px;
+  position: relative;
+  user-select: none;
+
+  &.interactive {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #1A1A1A;
+      border-color: #3A88FE;
+    }
+  }
+
+  &.betting-active {
+    background-color: #3A88FE;
+    box-shadow: 0 4px 12px rgba(58, 136, 254, 0.3);
+    border-color: #3A88FE;
+    color: #111111;
+    transform: scale(1.02);
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 4px;
+    border-radius: 8px;
+    width: 44px;
+  }
+
+  @media (max-width: 640px) {
+    padding: 4px 3px;
+    width: 40px;
+  }
+}
+
+.draw-icon {
+  font-size: 16px;
+  margin-bottom: 2px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 1px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 12px;
+    margin-bottom: 1px;
+  }
+}
+
+.draw-label {
+  font-size: 8px;
+  font-weight: 600;
+  color: #3A88FE;
+  text-align: center;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+
+  .betting-active & {
+    color: #111111;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 7px;
+    margin-bottom: 1px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 6px;
+    margin-bottom: 1px;
+  }
+}
+
+.bet-stake {
+  font-weight: 600;
+  color: #3A88FE;
+  font-size: 9px;
+  margin-bottom: 1px;
+
+  .betting-active & {
+    color: #111111;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 8px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 7px;
+  }
+}
+
+.bet-multiplier {
+  font-weight: 500;
+  color: #BDBDBD;
+  font-size: 7px;
+  margin-bottom: 1px;
+
+  .betting-active & {
+    color: #111111;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 6px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 5px;
+  }
+}
+
+.bet-payout {
+  font-weight: 600;
+  color: #F2F2F2;
+  font-size: 7px;
+  margin-bottom: 1px;
+
+  .betting-active & {
+    color: #111111;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 6px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 5px;
+  }
+}
+
+.current-wager {
+  font-size: 6px;
+  color: #888;
+  margin-top: 1px;
+  text-align: center;
+
+  .betting-active & {
+    color: #222;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 5px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 4px;
+  }
+}
+
+.hold-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    height: 2px;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #111111;
+  transition: width 16ms linear;
+}
