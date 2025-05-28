@@ -40,7 +40,7 @@ const GameCard: React.FC<GameCardProps> = (props) => {
         <WDLBar
           odds={props.game.odds}
           height={props.topGame ? 30 : 15}
-          width={props.topGame ? 750 : 300}
+          // Remove fixed width to let CSS handle responsive sizing
         />
       </div>
 
