@@ -12,6 +12,7 @@ import PostgameModal from 'components/PostgameModal';
 import DragDropTip from 'components/DragDropTip';
 import ChatBox from 'components/ChatBox';
 import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
+import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
@@ -280,6 +281,30 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 isAuthenticated={props.isAuthenticated}
                 gameId={gameId}
               />
+
+              {/* Move Bubbles - positioned directly below white player */}
+              <MoveBubbles
+                gameId={gameId}
+                gameState={game?.state ?? ''}
+                moveOptions={game?.pool_wagers?.move?.options}
+                moveWagers={game?.pool_wagers?.move}
+                selectedStake={selectedStake}
+                isAuthenticated={props.isAuthenticated}
+                onMoveBet={(move, stake) => {
+                  props.createWager(
+                    gameId,
+                    move,
+                    stake,
+                    false, // not WDL
+                    1,
+                    game.move_hist.length + 1,
+                  );
+                }}
+                onMoveHover={props.onMoveHover}
+                onMoveUnhover={props.onMoveUnhover}
+                // hoveredMove={hoveredMove}  // TODO: Add if we track hovered move in parent
+                pendingBet={props.pendingBet}
+              />
             </div>
 
             {/* Right column - Betting options */}
@@ -288,18 +313,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 <IntegratedBettingSidebar
                   isAuthenticated={props.isAuthenticated}
                   games={props.games}
-                  createWager={props.createWager}
-                  rankings={props.rankings}
                   onEnterMovePanel={props.onEnterMovePanel}
                   onLeaveMovePanel={props.onLeaveMovePanel}
                   onMoveHover={props.onMoveHover}
                   onMoveUnhover={props.onMoveUnhover}
-                  createNewArrows={props.createNewArrows}
-                  quickBetMode={props.quickBetMode}
-                  toggleQuickBet={props.toggleQuickBet}
                   pendingBet={props.pendingBet}
-                  setPendingBet={props.setPendingBet}
-                  clearPendingBet={props.clearPendingBet}
                   selectedStake={selectedStake}
                   setSelectedStake={setSelectedStake}
                 />
