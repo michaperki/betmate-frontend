@@ -9,7 +9,7 @@ import {
   UpdateGameEndData,
   UpdateGameOddsData, UpdateGameStateData,
 } from 'types/resources/game';
-import { FetchWagersActions, WagerResultData } from 'types/resources/wager';
+import { FetchWagersActions, WagerResultData, WagerStatus } from 'types/resources/wager';
 import {
   ChannelCreator, SocketErrorData, Events, SocketErrorAction, SocketGameErrorAction, SocketGameErrorData,
 } from 'types/socket';
@@ -81,8 +81,28 @@ export const createUpdateGameStateChannel: ChannelCreator<GameUpdateActions> = (
 export const createUpdateWagerStateChannel: ChannelCreator<FetchWagersActions | BroadcastPoolWagerActions> = (socket) => eventChannel(
   (pushToChannel) => {
     const wagerResultHandler = (payload: WagerResultData) => {
-      const { wagers } = validateSchema(WagerResultSchema, payload);
-      pushToChannel({ type: 'FETCH_WAGERS', status: 'SUCCESS', payload: wagers });
+      try {
+        const { wagers } = validateSchema(WagerResultSchema, payload);
+
+        // Log wager results for debugging
+        console.log('Received wager results:', wagers);
+
+        // Check if any wagers are resolved but not marked as such
+        const hasIncompleteWagers = wagers.some(w =>
+          (w.status === WagerStatus.WON ||
+           w.status === WagerStatus.LOST ||
+           w.status === WagerStatus.CANCELLED) &&
+          !w.resolved
+        );
+
+        if (hasIncompleteWagers) {
+          console.warn('Some wagers have resolution status but are not marked as resolved');
+        }
+
+        pushToChannel({ type: 'FETCH_WAGERS', status: 'SUCCESS', payload: wagers });
+      } catch (error) {
+        console.error('Error handling wager result:', error);
+      }
     };
     const poolWagerHandler = (payload: BroadcastPoolWager) => {
       pushToChannel({

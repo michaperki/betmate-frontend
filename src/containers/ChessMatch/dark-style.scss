@@ -122,14 +122,15 @@
   // Mobile-first responsive layout
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto auto auto;
     grid-template-areas:
       "top-player"
       "board-area"
       "bottom-player"
       "info-panel"
       "betting-area"
-      "mobile-chat";
+      "mobile-chat"
+      "mobile-leaderboard";
     gap: 4px; // Reduce gap to save space
     padding: 4px; // Minimal padding on mobile
     height: auto; // Let content determine height on mobile
@@ -155,6 +156,11 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+
+  .game-communication-panel {
+    margin-top: 12px;
+    max-height: 300px;
+  }
 }
 
 // Board container - now using grid
@@ -424,6 +430,33 @@
 }
 
 // Mobile chat container - only visible on small screens
+.mobile-leaderboard-container {
+  grid-area: mobile-leaderboard;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  max-width: 700px;
+  margin: 0 auto;
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(17, 17, 17, 0.95);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 239, 178, 0.2);
+
+  @media (min-width: 1200px) {
+    display: none; /* Hidden on desktop - content is in left sidebar */
+  }
+
+  @media (max-width: 768px) {
+    display: flex; /* Ensure it shows on mobile */
+    order: 99; /* Ensure it's at the very bottom */
+    margin-bottom: 16px; /* Add space at the bottom */
+  }
+}
+
 .mobile-chat-container {
   grid-area: mobile-chat;
   display: flex;

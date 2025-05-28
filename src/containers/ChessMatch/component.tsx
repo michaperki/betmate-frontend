@@ -10,7 +10,7 @@ import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import DragDropTip from 'components/DragDropTip';
-import ChatBox from 'components/ChatBox';
+import GameCommunication from 'components/GameCommunication';
 import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
@@ -260,13 +260,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
         {/* Main content area */}
         <div className="game-content">
-          {/* Left column - Chat and wagers on larger screens */}
+          {/* Left column - Leaderboard on larger screens */}
           <div className="left-sidebar-container">
-              {/* Chat section */}
-              <div className="chat-section">
-                <ChatBox />
-              </div>
-
               {/* Leaderboard section */}
               <div className="leaderboard-section">
                 <MiniLeaderboard rankings={props.rankings || []} />
@@ -439,16 +434,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             </div>
 
 
-          {/* Mobile Chat Container - Only visible on smaller screens */}
-          <div className="mobile-chat-container">
-            <div className="chat-extras-section">
-              <ChatBox />
-              <div className="mobile-leaderboard-section">
-                <MiniLeaderboard rankings={props.rankings || []} />
-              </div>
-            </div>
-          </div>
-
           {/* Game Information Panel - Moved below main game area */}
           <div className="game-info-panel-container">
             <GameInfoPanel
@@ -459,6 +444,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               selectedStake={selectedStake}
               setSelectedStake={setSelectedStake}
             />
+
+            {/* Chat and Wager Receipts - Positioned beneath Bet Amount */}
+            <GameCommunication className="game-communication-panel" />
+          </div>
+
+          {/* Mobile Leaderboard - Only visible on smaller screens, now at the bottom */}
+          <div className="mobile-leaderboard-container">
+            <div className="mobile-leaderboard-section">
+              <MiniLeaderboard rankings={props.rankings || []} />
+            </div>
           </div>
         </div>
       </div>
