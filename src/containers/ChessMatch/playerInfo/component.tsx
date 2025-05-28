@@ -4,6 +4,7 @@ import { gameOver, gameInProgress } from 'utils/chess';
 import { GameStatus } from 'types/resources/game';
 import { GameOdds } from 'types/resources/game';
 import './dark-style.scss';
+import balanceIcon from 'assets/wager_panel/balance-icon.svg';
 
 interface ChessMatchProps {
   icon: string,
@@ -214,6 +215,7 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
 
         {/* Wager Total Display */}
         <div className="wager-total">
+          <img src={balanceIcon} alt="Total wagered" className="wager-total-icon" />
           <div className="wager-total-amount">{props.wagerTotal || 0}</div>
         </div>
       </div>

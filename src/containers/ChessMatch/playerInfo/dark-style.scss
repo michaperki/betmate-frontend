@@ -235,15 +235,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 4px 8px;
   background-color: #0A0A0A;
   border-radius: 6px;
   border: 1px solid rgba(0, 239, 178, 0.2);
-  min-width: 40px;
+  min-width: 60px;
 
   @media (max-width: 768px) {
     padding: 3px 6px;
-    min-width: 35px;
+    min-width: 50px;
+    gap: 3px;
+  }
+}
+
+.wager-total-icon {
+  width: 14px;
+  height: 14px;
+  filter: brightness(0) saturate(100%) invert(76%) sepia(98%) saturate(2618%) hue-rotate(140deg) brightness(100%) contrast(101%);
+
+  @media (max-width: 768px) {
+    width: 12px;
+    height: 12px;
   }
 }
 

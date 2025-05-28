@@ -18,6 +18,7 @@ import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
 import DrawBetBubble from 'components/DrawBetBubble';
 import EvaluationBar from './EvaluationBar';
+import balanceIcon from 'assets/wager_panel/balance-icon.svg';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, fetchGameStats, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
@@ -221,24 +222,32 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
               <div className="game-layout">
                 <div className="board-with-eval">
-                  {/* Draw Bet Bubble - positioned to the left of the board */}
-                  <DrawBetBubble
-                    gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-                    onOutcomeBet={(outcome, stake) => {
-                      props.createWager(
-                        gameId,
-                        outcome,
-                        stake,
-                        true, // is WDL
-                        1 / (game?.odds?.[outcome] || 1),
-                        game.move_hist.length + 1,
-                      );
-                    }}
-                    gameOdds={game?.odds}
-                    selectedStake={selectedStake}
-                    isAuthenticated={props.isAuthenticated}
-                    gameId={gameId}
-                  />
+                  {/* Draw Bet Area - positioned to the left of the board */}
+                  <div className="draw-bet-area">
+                    <DrawBetBubble
+                      gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
+                      onOutcomeBet={(outcome, stake) => {
+                        props.createWager(
+                          gameId,
+                          outcome,
+                          stake,
+                          true, // is WDL
+                          1 / (game?.odds?.[outcome] || 1),
+                          game.move_hist.length + 1,
+                        );
+                      }}
+                      gameOdds={game?.odds}
+                      selectedStake={selectedStake}
+                      isAuthenticated={props.isAuthenticated}
+                      gameId={gameId}
+                    />
+
+                    {/* Draw Wager Total */}
+                    <div className="draw-wager-total">
+                      <img src={balanceIcon} alt="Total wagered on draw" className="draw-wager-icon" />
+                      <div className="draw-wager-amount">{gameStats?.wdlWagerTotals?.['draw']?.totalAmount || 0}</div>
+                    </div>
+                  </div>
 
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                     <ChessgroundWrapper

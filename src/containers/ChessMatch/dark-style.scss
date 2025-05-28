@@ -587,6 +587,23 @@
     padding: 0; // Remove padding to save space
   }
 
+  .draw-bet-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 8px;
+    gap: 4px;
+
+    @media (max-width: 768px) {
+      margin-right: 4px;
+      gap: 3px;
+    }
+
+    @media (max-width: 640px) {
+      gap: 2px;
+    }
+  }
+
   .chessboard-wrapper {
     flex: 1;
     position: relative;
@@ -866,5 +883,82 @@
 
   span:last-child {
     text-align: right;
+  }
+}
+
+// Draw wager total styles - absolutely positioned below draw bubble
+.draw-wager-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 2px;
+  background-color: #0A0A0A;
+  border-radius: 6px;
+  border: 1px solid rgba(58, 136, 254, 0.2);
+  width: 24px;
+  min-height: 32px;
+  position: absolute;
+  left: -2px; // Centered under DRAW button
+  top: calc(50% + 60px); // Position below the draw bubble
+  z-index: 10;
+
+  @media (min-width: 1201px) {
+    left: -7px; // Centered under DRAW button on desktop
+    top: calc(50% + 65px);
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    left: -4px; // Centered under DRAW button on tablet
+    top: calc(50% + 62px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 3px 2px;
+    width: 20px;
+    min-height: 28px;
+    gap: 1px;
+    left: -2px; // Centered under DRAW button on mobile
+    top: calc(50% + 50px);
+  }
+
+  @media (max-width: 640px) {
+    width: 18px;
+    min-height: 24px;
+    left: -2px; // Centered under DRAW button on smallest screens
+    top: calc(50% + 45px);
+  }
+}
+
+.draw-wager-icon {
+  width: 10px;
+  height: 10px;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(3844%) hue-rotate(219deg) brightness(96%) contrast(115%);
+
+  @media (max-width: 768px) {
+    width: 8px;
+    height: 8px;
+  }
+
+  @media (max-width: 640px) {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+.draw-wager-amount {
+  font-size: 8px;
+  font-weight: 600;
+  color: #3A88FE;
+  text-align: center;
+  line-height: 1;
+
+  @media (max-width: 768px) {
+    font-size: 7px;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 6px;
   }
 }
