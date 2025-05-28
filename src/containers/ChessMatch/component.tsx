@@ -16,13 +16,12 @@ import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
-import DrawBetBubble from 'components/DrawBetBubble';
 import EvaluationBar from './EvaluationBar';
 import balanceIcon from 'assets/wager_panel/balance-icon.svg';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, fetchGameStats, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
-import { gameOver, getValidMoves } from 'utils/chess';
+import { gameOver, gameInProgress, getValidMoves } from 'utils/chess';
 import { Game, GameStatus } from 'types/resources/game';
 import { Rank } from 'types/leaderboard';
 import playerIconBlack from 'assets/player_icon_black.svg';
@@ -77,6 +76,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   // Default stake for placing bets directly
   const [selectedStake, setSelectedStake] = useState<number>(10);
+
+  // Draw betting state
+  const [isDrawHolding, setIsDrawHolding] = useState(false);
+  const [drawHoldProgress, setDrawHoldProgress] = useState(0);
+  const drawHoldTimerRef = useRef<number | null>(null);
+  const drawHoldStartRef = useRef<number>(0);
+  const drawProgressTimerRef = useRef<number | null>(null);
+
+  const DRAW_HOLD_DURATION = 800; // 800ms hold time
 
   useEffect(() => {
     props.fetchGameById(gameId);
@@ -155,6 +163,60 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }
   };
 
+  // Draw betting functionality
+  const clearDrawHoldTimers = () => {
+    if (drawHoldTimerRef.current) {
+      window.clearTimeout(drawHoldTimerRef.current);
+      drawHoldTimerRef.current = null;
+    }
+    if (drawProgressTimerRef.current) {
+      window.clearInterval(drawProgressTimerRef.current);
+      drawProgressTimerRef.current = null;
+    }
+  };
+
+  const handleDrawBetStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsDrawHolding(true);
+    setDrawHoldProgress(0);
+    drawHoldStartRef.current = Date.now();
+
+    // Progress animation
+    drawProgressTimerRef.current = window.setInterval(() => {
+      const elapsed = Date.now() - drawHoldStartRef.current;
+      const progress = Math.min((elapsed / DRAW_HOLD_DURATION) * 100, 100);
+      setDrawHoldProgress(progress);
+    }, 16); // ~60fps
+
+    // Complete bet on hold duration
+    drawHoldTimerRef.current = window.setTimeout(() => {
+      props.createWager(
+        gameId,
+        'draw',
+        selectedStake,
+        true, // is WDL
+        1 / (game?.odds?.['draw'] || 1),
+        game.move_hist.length + 1,
+      );
+      handleDrawBetEnd();
+    }, DRAW_HOLD_DURATION);
+  };
+
+  const handleDrawBetEnd = () => {
+    clearDrawHoldTimers();
+    setIsDrawHolding(false);
+    setDrawHoldProgress(0);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearDrawHoldTimers();
+    };
+  }, []);
+
+  const isGameInProgress = gameInProgress(game?.game_status as GameStatus);
+
   if (!game) {
     return (
       <div className="loading-container">
@@ -222,32 +284,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
               <div className="game-layout">
                 <div className="board-with-eval">
-                  {/* Draw Bet Area - positioned to the left of the board */}
-                  <div className="draw-bet-area">
-                    <DrawBetBubble
-                      gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-                      onOutcomeBet={(outcome, stake) => {
-                        props.createWager(
-                          gameId,
-                          outcome,
-                          stake,
-                          true, // is WDL
-                          1 / (game?.odds?.[outcome] || 1),
-                          game.move_hist.length + 1,
-                        );
-                      }}
-                      gameOdds={game?.odds}
-                      selectedStake={selectedStake}
-                      isAuthenticated={props.isAuthenticated}
-                      gameId={gameId}
-                    />
-
-                    {/* Draw Wager Total */}
-                    <div className="draw-wager-total">
-                      <img src={balanceIcon} alt="Total wagered on draw" className="draw-wager-icon" />
-                      <div className="draw-wager-amount">{gameStats?.wdlWagerTotals?.['draw']?.totalAmount || 0}</div>
-                    </div>
-                  </div>
 
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                     <ChessgroundWrapper
@@ -336,6 +372,48 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 // hoveredMove={hoveredMove}  // TODO: Add if we track hovered move in parent
                 pendingBet={props.pendingBet}
               />
+
+              {/* Draw Bet Button - positioned below move bubbles */}
+              <div className="draw-bet-button-container">
+                <div
+                  className={`draw-bet-button ${props.isAuthenticated && selectedStake && isGameInProgress ? 'interactive' : 'disabled'} ${isDrawHolding ? 'holding' : ''}`}
+                  onMouseDown={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
+                  onMouseUp={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
+                  onMouseLeave={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
+                  onTouchStart={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
+                  onTouchEnd={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
+                >
+                  <div className="draw-left-section">
+                    <div className="draw-icon">🤝</div>
+                    <div className="draw-label">DRAW</div>
+                  </div>
+
+                  <div className="draw-center-section">
+                    <div className="draw-details">
+                      <span className="stake">{selectedStake}</span>
+                      <span className="multiplier">{game?.odds?.['draw'] ? (1 / game.odds['draw']).toFixed(1) : '0.0'}x</span>
+                      <span className="payout">→{game?.odds?.['draw'] && selectedStake ? (selectedStake / game.odds['draw']).toFixed(0) : '0'}</span>
+                    </div>
+                  </div>
+
+                  <div className="draw-right-section">
+                    <div className="total-wagered">
+                      <img src={balanceIcon} alt="Total wagered" />
+                      <span>{gameStats?.wdlWagerTotals?.['draw']?.totalAmount || 0}</span>
+                    </div>
+                  </div>
+
+                  {/* Hold progress bar */}
+                  {isDrawHolding && (
+                    <div className="hold-progress">
+                      <div
+                        className="progress-bar"
+                        style={{ width: `${drawHoldProgress}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Right column - Betting options */}
