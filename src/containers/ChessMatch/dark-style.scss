@@ -456,6 +456,13 @@
     display: flex; /* Ensure it shows on mobile */
     order: 99; /* Ensure it's at the very bottom */
     margin-bottom: 16px; /* Add space at the bottom */
+    max-width: 100%; /* Take up full width on mobile */
+    width: 100%; /* Force full width */
+    border-radius: 0; /* Remove border radius on mobile */
+    margin: 16px 0 0 0; /* Remove horizontal margins, keep top margin */
+    border-left: none; /* Remove side borders on mobile */
+    border-right: none;
+    padding: 12px 8px; /* Slightly reduced horizontal padding */
   }
 }
 
@@ -481,6 +488,12 @@
   @media (max-width: 768px) {
     display: flex; /* Ensure it shows on mobile */
     padding: 8px;
+    max-width: 100%; /* Take up full width on mobile */
+    width: 100%; /* Force full width */
+    border-radius: 0; /* Remove border radius on mobile */
+    margin: 16px 0 0 0; /* Remove horizontal margins, add top margin */
+    border-left: none; /* Remove side borders on mobile */
+    border-right: none;
   }
 
   /* Custom scrollbar */
