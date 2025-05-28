@@ -11,7 +11,6 @@ import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import DragDropTip from 'components/DragDropTip';
 import ChatBox from 'components/ChatBox';
-import IntegratedBettingSidebar from 'components/IntegratedBettingSidebar';
 import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
@@ -439,22 +438,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               </div>
             </div>
 
-            {/* Right column - Betting options */}
-            <div className="right-sidebar-container">
-              <div className="betting-options-section">
-                <IntegratedBettingSidebar
-                  isAuthenticated={props.isAuthenticated}
-                  games={props.games}
-                  onEnterMovePanel={props.onEnterMovePanel}
-                  onLeaveMovePanel={props.onLeaveMovePanel}
-                  onMoveHover={props.onMoveHover}
-                  onMoveUnhover={props.onMoveUnhover}
-                  pendingBet={props.pendingBet}
-                  selectedStake={selectedStake}
-                  setSelectedStake={setSelectedStake}
-                />
-              </div>
-            </div>
 
           {/* Mobile Chat Container - Only visible on smaller screens */}
           <div className="mobile-chat-container">
@@ -473,6 +456,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               viewerCount={gameStats?.viewerCount || 0}
               moveWagerData={gameStats?.moveWagerData || {}}
               wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
+              selectedStake={selectedStake}
+              setSelectedStake={setSelectedStake}
             />
           </div>
         </div>

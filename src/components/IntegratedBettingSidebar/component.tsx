@@ -14,8 +14,6 @@ import {
 } from 'store/actionCreators/chessgroundActionCreators';
 import './style.scss';
 
-// Default stake options, matching those in existing components
-const STAKE_OPTIONS = [10, 50, 100];
 
 interface IntegratedBettingSidebarProps {
   isAuthenticated: boolean;
@@ -30,8 +28,6 @@ interface IntegratedBettingSidebarProps {
     gameId: string;
     isActive: boolean;
   } | null;
-  selectedStake?: number;
-  setSelectedStake?: (stake: number) => void;
 }
 
 const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
@@ -42,15 +38,8 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
   onMoveHover: handleMoveHover,
   onMoveUnhover: handleMoveUnhover,
   pendingBet,
-  selectedStake: externalSelectedStake,
-  setSelectedStake: externalSetSelectedStake,
 }) => {
   const { id: gameId } = useParams<{ id: string }>();
-  const [internalSelectedStake, setInternalSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
-
-  // Use either external or internal state for stake
-  const selectedStake = externalSelectedStake !== undefined ? externalSelectedStake : internalSelectedStake;
-  const setSelectedStake = externalSetSelectedStake || setInternalSelectedStake;
   const [hoveredMove, setHoveredMove] = useState<string | null>(null);
   const [moveMetrics, setMoveMetrics] = useState<MoveAnalysis | null>(null);
   const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
@@ -163,24 +152,6 @@ const IntegratedBettingSidebar: React.FC<IntegratedBettingSidebarProps> = ({
             • Tap move bubble to show arrow<br/>
             • Hold move bubble to place bet<br/>
             • Drag pieces on board to bet
-          </div>
-        </div>
-
-        {/* Stake Selection */}
-        <div className="betting-controls">
-          <div className="stake-section">
-            <div className="stake-label">Bet Amount:</div>
-            <div className="stake-buttons">
-              {STAKE_OPTIONS.map((stake) => (
-                <button
-                  key={`stake-${stake}`}
-                  className={`stake-button ${selectedStake === stake ? 'active' : ''}`}
-                  onClick={() => setSelectedStake(stake)}
-                >
-                  {stake}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

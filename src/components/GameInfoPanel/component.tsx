@@ -17,13 +17,20 @@ interface GameInfoPanelProps {
       averageOdds: number;
     };
   };
+  selectedStake?: number;
+  setSelectedStake?: (stake: number) => void;
 }
+
+// Default stake options, matching those in existing components
+const STAKE_OPTIONS = [10, 50, 100];
 
 const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
   game,
   viewerCount = 0,
   moveWagerData = {},
-  wdlWagerTotals = {}
+  wdlWagerTotals = {},
+  selectedStake,
+  setSelectedStake
 }) => {
   const currentMoveNumber = game.move_hist?.length || 0;
   const nextMoveNumber = currentMoveNumber + 1; // Wagers are placed on the NEXT move
@@ -105,6 +112,32 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Wager Sizing Buttons */}
+      {selectedStake !== undefined && setSelectedStake && (
+        <div className="bg-tertiary border border-secondary rounded py-2 px-3 mt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-primary">Bet Amount:</span>
+            <div className="flex gap-2">
+              {STAKE_OPTIONS.map((stake) => (
+                <button
+                  key={`stake-${stake}`}
+                  className={`
+                    px-3 py-1 text-sm font-semibold rounded border transition-colors
+                    ${selectedStake === stake
+                      ? 'bg-brand border-brand text-inverse'
+                      : 'bg-secondary border-secondary text-primary hover:bg-tertiary hover:border-primary'
+                    }
+                  `}
+                  onClick={() => setSelectedStake(stake)}
+                >
+                  {stake}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
