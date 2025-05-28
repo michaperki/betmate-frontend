@@ -87,6 +87,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // User-submitted moves from drag-and-drop
   const [userSubmittedMoves, setUserSubmittedMoves] = useState<Set<string>>(new Set());
 
+  // User-interacted moves (includes moves already in AI suggestions)
+  const [userInteractedMoves, setUserInteractedMoves] = useState<Set<string>>(new Set());
+
   const DRAW_HOLD_DURATION = 800; // 800ms hold time
 
   useEffect(() => {
@@ -100,6 +103,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Clear user-submitted moves when game state changes (after a real move is made)
   useEffect(() => {
     setUserSubmittedMoves(new Set());
+    setUserInteractedMoves(new Set());
   }, [game?.state]);
 
   useEffect(() => {
@@ -127,7 +131,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       });
 
       if (move) {
-        // Add the user's move to the candidate moves list
+        // Track all user interactions (both new moves and existing AI moves)
+        setUserInteractedMoves(prev => new Set(prev).add(move.san));
+
+        // Add the user's move to the candidate moves list (for new moves only)
         setUserSubmittedMoves(prev => new Set(prev).add(move.san));
 
         // Make sure the move panel is active to show arrows
@@ -386,6 +393,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 // hoveredMove={hoveredMove}  // TODO: Add if we track hovered move in parent
                 pendingBet={props.pendingBet}
                 userSubmittedMoves={userSubmittedMoves}
+                userInteractedMoves={userInteractedMoves}
               />
 
               {/* Draw Bet Button - positioned below move bubbles */}

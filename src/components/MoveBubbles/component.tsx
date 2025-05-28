@@ -31,6 +31,7 @@ interface MoveBubblesProps {
     isActive: boolean;
   } | null;
   userSubmittedMoves?: Set<string>;
+  userInteractedMoves?: Set<string>;
 }
 
 const MoveBubbles: React.FC<MoveBubblesProps> = ({
@@ -46,6 +47,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
   hoveredMove,
   pendingBet,
   userSubmittedMoves,
+  userInteractedMoves,
 }) => {
   const [topMoves, setTopMoves] = useState<MoveData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -334,6 +336,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
           // Only consider it user-submitted if it's not already in AI suggestions
           const isFromAI = topMoves.some(aiMove => aiMove.move === moveData.move);
           const isUserSubmitted = !isFromAI && (userSubmittedMoves?.has(moveData.move) || false);
+          const isUserInteracted = userInteractedMoves?.has(moveData.move) || false;
 
           return (
             <div
@@ -344,6 +347,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
                          ${isCurrentlyHolding ? 'holding' : ''}
                          ${isAuthenticated ? 'authenticated' : ''}
                          ${isUserSubmitted ? 'user-submitted' : ''}
+                         ${isUserInteracted && isFromAI ? 'user-interacted' : ''}
                          bubble-animate-in`}
               style={{
                 animationDelay: `${index * 50}ms`,
