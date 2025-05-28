@@ -1,20 +1,19 @@
-import { ChatWager } from 'components/ChatBox/helper_components';
 import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { Game, GameStatus } from 'types/resources/game';
 import { Wager, WagerStatus } from 'types/resources/wager';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { createResolvedFeedWager } from 'components/ChatBox/utils';
 import { StatLine } from './helperComponents';
 import './style.scss';
 
 interface PostgameModalProps {
   games: Record<string, Game>
-  resolvedWagers: Wager[],
+  resolvedWagers?: Wager[],
 }
 
 const PostgameModal: React.FC<PostgameModalProps> = (props) => {
+  const [expanded, setExpanded] = useState(false);
   const [hide, setHide] = useState(false);
 
   const { id: gameId } = useParams<{ id: string }>();
@@ -22,97 +21,117 @@ const PostgameModal: React.FC<PostgameModalProps> = (props) => {
 
   const game: Game | undefined = props.games[gameId];
 
-  const getGameResult = () => {
-    switch (game?.game_status) {
-      case GameStatus.WHITE_WIN:
-        return 'White wins!';
-      case GameStatus.BLACK_WIN:
-        return 'Black wins!';
-      case GameStatus.DRAW:
-        return 'It\'s a draw!';
-      default:
-        return '';
-    }
-  };
+  // Skip rendering if game is not available or modal is hidden
+  if (!game || hide) {
+    return null;
+  }
 
-  const winnings = props.resolvedWagers
-    .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.WON)
-    .reduce((currWinnings, wager) => (
-      currWinnings
-        + (wager.amount
-          * (
-            (wager.wdl
-              ? wager.odds
-              : wager.winning_pool_share)
-            - 1
-          ))
-    ), 0)
-    .toFixed(2);
+  // Use empty array if resolvedWagers is undefined
+  const wagers = props.resolvedWagers || [];
 
-  const losses = props.resolvedWagers
-    .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.LOST)
-    .reduce((loss, wager) => loss + wager.amount, 0)
-    .toFixed(2);
+  // Only calculate if we have wagers
+  const hasBets = wagers.length > 0;
 
-  const resolvedWagers = props.resolvedWagers
-    .filter((w) => w.game_id === gameId && w.resolved)
-    .map(createResolvedFeedWager)
-    .sort((fwA, fwB) => new Date(fwA.time).getTime() - new Date(fwB.time).getTime())
-    .map((fw) => <ChatWager wager={fw} key={`${fw._id}_${fw.time}`} />);
+  let winnings = '0.00';
+  let losses = '0.00';
+  let profit = 0;
+  let totalBets = 0;
 
-  const profit = Number(winnings) - Number(losses);
+  if (hasBets) {
+    // Calculate winnings
+    winnings = wagers
+      .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.WON)
+      .reduce((currWinnings, wager) => (
+        currWinnings
+          + (wager.amount
+            * (
+              (wager.wdl
+                ? wager.odds
+                : wager.winning_pool_share)
+              - 1
+            ))
+      ), 0)
+      .toFixed(2);
 
+    // Calculate losses
+    losses = wagers
+      .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.LOST)
+      .reduce((loss, wager) => loss + wager.amount, 0)
+      .toFixed(2);
+
+    // Calculate profit
+    profit = Number(winnings) - Number(losses);
+
+    // Count bets
+    totalBets = wagers
+      .filter((wager) => wager.game_id === gameId)
+      .length;
+  }
+  
   return (
-    (!game || hide)
-      ? null
-      : <div className="blur-background">
-        <div className="postgame-modal-container">
+    <div className="postgame-drawer-container">
+      {/* Collapse/expand button */}
+      <button 
+        className="postgame-drawer-toggle"
+        onClick={() => setExpanded(!expanded)}
+        type="button"
+      >
+        <span>Bet Summary</span>
+        <FontAwesomeIcon
+          icon={expanded ? faChevronDown : faChevronUp}
+          size="sm"
+        />
+      </button>
+      
+      {/* Drawer content */}
+      <div className={`postgame-drawer ${expanded ? 'expanded' : 'collapsed'}`}>
+        <div className="postgame-drawer-header">
+          <h3>Game Results</h3>
           <FontAwesomeIcon
-            className="postgame-x-icon"
+            className="postgame-close-icon"
             icon={faTimes}
-            size="2x"
             onClick={() => setHide(true)}
           />
-          <div className="postgame-padding-container">
-            <h1>White ({game.player_white.elo}) vs. Black ({game.player_black.elo})</h1>
-            <h4>{getGameResult()} Here’s a summary of your bets.</h4>
-            <div className="postgame-box-container">
-              <div className="postgame-box blue-border">
-                <div className="postgame-box-padding-container">
-                  <h4>Your bets</h4>
-                  {resolvedWagers.length
-                    ? resolvedWagers
-                    : <p className="no-bets-text">Looks like you didn&apos;t place any bets 😢 Theres always next game!</p>
-                  }
-                </div>
-              </div>
-              <div className="postgame-box orange-border">
-                <div className="postgame-box-padding-container">
-                  <h4>Stats</h4>
-                  <div className="postgame-stats-container">
-                    <StatLine winnings={winnings} losses={losses} betType='win' resolvedWagers={props.resolvedWagers} />
-                    <StatLine winnings={winnings} losses={losses} betType='loss' resolvedWagers={props.resolvedWagers} />
-                    <hr />
-                    <div className="stat-line">
-                      <p className="stat-line-left">Total</p>
-                      <div className="stat-line-right">
-                        <div />
-                        <p className={profit >= 0 ? 'green-text' : 'red-text'}>{profit >= 0 ? '+' : '-'}${Math.abs(profit).toFixed(2)}</p>
-                      </div>
-                    </div>
+        </div>
+        
+        <div className="postgame-drawer-content">
+          <div className="postgame-player-info">
+            <h4>White ({game.player_white.elo}) vs. Black ({game.player_black.elo})</h4>
+          </div>
+          
+          <div className="postgame-bet-summary">
+            {hasBets ? (
+              <div className="postgame-stats-container">
+                <StatLine winnings={winnings} losses={losses} betType='win' resolvedWagers={props.resolvedWagers} />
+                <StatLine winnings={winnings} losses={losses} betType='loss' resolvedWagers={props.resolvedWagers} />
+                <hr />
+                <div className="stat-line">
+                  <p className="stat-line-left">Total</p>
+                  <div className="stat-line-right">
+                    <div />
+                    <p className={profit >= 0 ? 'profit-positive' : 'profit-negative'}>
+                      {profit >= 0 ? '+' : '-'}${Math.abs(profit).toFixed(2)}
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => history.push('/')}
-            >
-              back to dashboard
-            </button>
+            ) : (
+              <p className="no-bets-text">
+                Looks like you didn&apos;t place any bets 😢 There's always next game!
+              </p>
+            )}
           </div>
+          
+          <button
+            type="button"
+            className="back-to-dashboard-btn"
+            onClick={() => history.push('/')}
+          >
+            Back to dashboard
+          </button>
         </div>
       </div>
+    </div>
   );
 };
 

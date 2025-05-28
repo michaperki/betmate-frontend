@@ -36,6 +36,8 @@ const mapStateToProps = (state: RootState) => ({
   rankings: state.leaderboard.rankings,
   quickBetMode: state.game.quickBetMode,
   pendingBet: state.game.pendingBet,
+  // Get all resolved wagers from the wager state
+  resolvedWagers: Object.values(state.wager.wagers).filter(wager => wager.resolved),
 });
 
 const mapDispatchToProps = {

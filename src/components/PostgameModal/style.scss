@@ -1,123 +1,305 @@
-// https://stackoverflow.com/a/53037637
-.postgame-modal-container {
-    position: relative;
-    border: solid 10px transparent;
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    border-radius: 9px;
-    background-image: radial-gradient(#1E1E22,#1E1E22), linear-gradient(109.85deg, #CD8CFF 18.57%, #FF00B7 182.53%);
-    h1 {
-        font-family: 'Roboto';
-        font-weight: bold;
-        font-size: 32px;
-        text-align: center;
-        color: #F2F2F2;
-        margin: 15px 0;
+// New postgame drawer design
+.postgame-drawer-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+
+  // All children should have pointer events
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.postgame-drawer-toggle {
+  background-color: #1E1E22;
+  color: white;
+  border: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 180px;
+  cursor: pointer;
+  margin-bottom: -1px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  animation: slideDown 0.4s ease-out;
+
+  span {
+    margin-right: 10px;
+  }
+
+  &:hover {
+    background-color: #252529;
+  }
+}
+
+.postgame-drawer {
+  background-color: #1E1E22;
+  width: 100%;
+  max-width: 800px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: height 0.3s ease-out, opacity 0.3s ease-out;
+  overflow: hidden;
+
+  &.expanded {
+    height: 70vh;
+    max-height: 600px;
+    opacity: 1;
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  &.collapsed {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+.postgame-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin: 0;
+    color: white;
+    font-weight: 500;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+  }
+
+  .postgame-close-icon {
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: white;
     }
-    h4 {
-        font-family: 'Roboto';
-        text-align: center;
-        font-weight: 400;
-        font-size: 16px;
-        color: #F2F2F2;
-        margin: 0 0 15px 0;
-    }
-    button {
-        background: #E5AF27;
-        border-radius: 28px;
-        padding: 7px 11px;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
-        font-family: 'Roboto';
-        margin: 20px auto 0 auto;
-        display: block;
-    }
+  }
 }
 
-.postgame-padding-container {
-    padding: 30px;
+.postgame-drawer-content {
+  padding: 20px;
+  height: calc(100% - 54px);
+  overflow-y: auto;
+  color: white;
+  background-color: #1E1E22;
 }
 
-.postgame-box-container {
-    display: flex;
-    justify-content: space-around;
+.postgame-player-info {
+  margin-bottom: 20px;
+  text-align: center;
+
+  h4 {
+    margin: 0;
+    color: #ddd;
+    font-weight: 500;
+    font-size: 1rem;
+  }
 }
 
-.postgame-box {
-    border: solid 5px transparent;
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    border-radius: 20px;
-    height: 250px;
-    width: 300px;
-    margin: 0 20px;
-    overflow-y: scroll;
-    h4 {
-        font-family: 'Roboto';
-        font-size: 16px;
-        color: #F2F2F2;
-    }
-}
-
-.postgame-box-padding-container {
-    padding: 10px 20px;
-}
-
-.no-bets-text {
-    color: #F2F2F2;
-    font-size: 14px;
-}
-
-.blue-border {
-    background-image: radial-gradient(#1E1E22,#1E1E22), linear-gradient(132.99deg, #00D1FF 5.49%, rgba(0, 79, 255, 0.83) 111.01%, #0034A8 111.01%);
-}
-
-.orange-border {
-    background-image: radial-gradient(#1E1E22,#1E1E22), linear-gradient(270deg, #E527AF -143.87%, #FEC83D 100%);
+.postgame-bet-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .postgame-stats-container {
-    display: flex;
-    flex-direction: column;
-    hr {
-        width: 100%;
-    }
+  background-color: #2a2a30;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  hr {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 10px 0;
+  }
 }
 
-.stat-line {
-    display: flex;
-    align-items: center;
-    margin: 8px 0;
-    p {
-        margin: 0;
-        color: #F2F2F2;
-        font-size: 14px;
+.postgame-wagers-list {
+  background-color: #2a2a30;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: #eee;
+  }
+
+  .wagers-container {
+    max-height: 200px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 6px;
     }
+
+    &::-webkit-scrollbar-track {
+      background: #222;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 3px;
+    }
+  }
+}
+
+// Preserve existing stat line styles with new class names
+.stat-line {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+
+  p {
+    margin: 0;
+    color: #F2F2F2;
+    font-size: 14px;
+  }
 }
 
 .stat-line-left {
-    flex: 1.4;
+  flex: 1.4;
 }
 
 .stat-line-right {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
 }
 
+.profit-positive {
+  color: #CDFFBC !important; // Light green
+  text-shadow: 0 0 8px rgba(205, 255, 188, 0.3);
+}
+
+.profit-negative {
+  color: #FFCDC6 !important; // Light red
+  text-shadow: 0 0 8px rgba(255, 205, 198, 0.3);
+}
+
+.no-bets-text {
+  color: #bbb;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+}
+
+.back-to-dashboard-btn {
+  background: #E5AF27;
+  border-radius: 28px;
+  padding: 8px 18px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: 'Roboto';
+  margin: 20px auto 0 auto;
+  display: block;
+  transition: background-color 0.2s, transform 0.2s;
+
+  &:hover {
+    background-color: #f5bf37;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .postgame-drawer {
+    &.expanded {
+      height: 80vh;
+    }
+  }
+
+  .postgame-drawer-toggle {
+    width: 150px;
+    font-size: 0.85rem;
+  }
+
+  .postgame-bet-summary {
+    gap: 15px;
+  }
+
+  .postgame-drawer-content {
+    padding: 15px;
+  }
+}
+
+// Extra small screens
+@media (max-width: 480px) {
+  .postgame-drawer-toggle {
+    width: 130px;
+    font-size: 0.8rem;
+  }
+
+  .postgame-drawer-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .postgame-player-info h4 {
+    font-size: 0.9rem;
+  }
+
+  .stat-line p {
+    font-size: 13px;
+  }
+}
+
+// Keep some old styles for compatibility
 .green-text {
-    color: #CDFFBC !important;
+  color: #CDFFBC !important;
 }
 
 .red-text {
-    color: #FFCDC6 !important;
-}
-
-.postgame-x-icon {
-    position: absolute;
-    color: #F2F2F2;
-    left: 15px;
-    top: 10px;
-    cursor: pointer;
+  color: #FFCDC6 !important;
 }

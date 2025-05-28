@@ -4,7 +4,7 @@ import { Wager, WagerStatus } from 'types/resources/wager';
 
 interface StatLineProps {
   betType: 'win' | 'loss'
-  resolvedWagers: Wager[]
+  resolvedWagers?: Wager[]
   winnings: string
   losses: string
 }
@@ -14,15 +14,18 @@ export const StatLine: React.FC<StatLineProps> = (props) => {
 
   const isWin = props.betType === 'win';
 
-  const betsWon = props.resolvedWagers
+  // Use empty array if resolvedWagers is undefined
+  const wagers = props.resolvedWagers || [];
+
+  const betsWon = wagers
     .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.WON)
     .length;
 
-  const betsLost = props.resolvedWagers
+  const betsLost = wagers
     .filter((wager) => wager.game_id === gameId && wager.status === WagerStatus.LOST)
     .length;
 
-  const totalBets = props.resolvedWagers
+  const totalBets = wagers
     .filter((wager) => wager.game_id === gameId)
     .length;
   return (

@@ -2,12 +2,32 @@
 import { AsyncAction, Action } from 'types/state';
 
 export enum GameStatus {
+  // Game state
   NOT_STARTED = 'not_started',
-  DRAW = 'draw',
-  BLACK_WIN = 'black_win',
-  WHITE_WIN = 'white_win',
   IN_PROGRESS = 'in_progress',
   ABORTED = 'aborted',
+
+  // Basic outcomes
+  BLACK_WIN = 'black_win',
+  WHITE_WIN = 'white_win',
+  DRAW = 'draw',
+
+  // Specific win reasons
+  BLACK_WIN_CHECKMATE = 'black_win_checkmate',
+  WHITE_WIN_CHECKMATE = 'white_win_checkmate',
+  BLACK_WIN_RESIGNATION = 'black_win_resignation',
+  WHITE_WIN_RESIGNATION = 'white_win_resignation',
+  BLACK_WIN_TIME = 'black_win_time',
+  WHITE_WIN_TIME = 'white_win_time',
+  BLACK_WIN_ABANDONMENT = 'black_win_abandonment',
+  WHITE_WIN_ABANDONMENT = 'white_win_abandonment',
+
+  // Specific draw reasons
+  DRAW_AGREEMENT = 'draw_agreement',
+  DRAW_STALEMATE = 'draw_stalemate',
+  DRAW_REPETITION = 'draw_repetition',
+  DRAW_FIFTY_MOVE = 'draw_fifty_move',
+  DRAW_INSUFFICIENT_MATERIAL = 'draw_insufficient_material',
 }
 
 export enum GameSource {

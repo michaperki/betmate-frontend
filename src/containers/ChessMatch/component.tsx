@@ -9,6 +9,7 @@ import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
 import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
+import GameEndOverlay from 'components/GameEndOverlay';
 import DragDropTip from 'components/DragDropTip';
 import GameCommunication from 'components/GameCommunication';
 import MoveBubbles from 'components/MoveBubbles';
@@ -65,6 +66,7 @@ interface ChessMatchProps {
     gameId: string;
     isActive: boolean;
   } | null;
+  resolvedWagers: any[]; // Add resolvedWagers prop
 }
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
@@ -248,7 +250,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   return (
     <>
       {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
-      {gameOver(game.game_status as GameStatus) && <PostgameModal/>}
+      {gameOver(game.game_status as GameStatus) && (
+        <>
+          {/* Display both the overlay and the modal */}
+          <PostgameModal />
+        </>
+      )}
 
       {/* Drag & Drop Tip */}
       <DragDropTip isAuthenticated={props.isAuthenticated} />
@@ -329,6 +336,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         },
                       }}
                     />
+                    {/* Game end overlay - only shown when game is over */}
+                    {gameOver(game.game_status as GameStatus) && (
+                      <GameEndOverlay
+                        gameStatus={game.game_status as GameStatus}
+                        resolvedWagers={props.resolvedWagers}
+                        gameId={gameId}
+                      />
+                    )}
                   </div>
 
                   {/* Vertical evaluation bar placed to the right of the board */}

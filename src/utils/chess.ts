@@ -21,12 +21,81 @@ export const CHESS_START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 export const gameOver = (game_status: GameStatus): boolean => {
   const gameOverStatuses: GameStatus[] = [
+    // Basic outcomes
     GameStatus.WHITE_WIN,
     GameStatus.BLACK_WIN,
     GameStatus.DRAW,
     GameStatus.ABORTED,
+
+    // Specific win reasons
+    GameStatus.BLACK_WIN_CHECKMATE,
+    GameStatus.WHITE_WIN_CHECKMATE,
+    GameStatus.BLACK_WIN_RESIGNATION,
+    GameStatus.WHITE_WIN_RESIGNATION,
+    GameStatus.BLACK_WIN_TIME,
+    GameStatus.WHITE_WIN_TIME,
+    GameStatus.BLACK_WIN_ABANDONMENT,
+    GameStatus.WHITE_WIN_ABANDONMENT,
+
+    // Specific draw reasons
+    GameStatus.DRAW_AGREEMENT,
+    GameStatus.DRAW_STALEMATE,
+    GameStatus.DRAW_REPETITION,
+    GameStatus.DRAW_FIFTY_MOVE,
+    GameStatus.DRAW_INSUFFICIENT_MATERIAL,
   ];
   return gameOverStatuses.includes(game_status);
+};
+
+/**
+ * Returns a user-friendly message describing how the game ended
+ */
+export const getGameEndMessage = (gameStatus: GameStatus): string => {
+  switch (gameStatus) {
+    // White win reasons
+    case GameStatus.WHITE_WIN:
+      return 'WHITE WINS';
+    case GameStatus.WHITE_WIN_CHECKMATE:
+      return 'CHECKMATE - WHITE WINS';
+    case GameStatus.WHITE_WIN_RESIGNATION:
+      return 'BLACK RESIGNED';
+    case GameStatus.WHITE_WIN_TIME:
+      return 'BLACK OUT OF TIME';
+    case GameStatus.WHITE_WIN_ABANDONMENT:
+      return 'BLACK ABANDONED';
+
+    // Black win reasons
+    case GameStatus.BLACK_WIN:
+      return 'BLACK WINS';
+    case GameStatus.BLACK_WIN_CHECKMATE:
+      return 'CHECKMATE - BLACK WINS';
+    case GameStatus.BLACK_WIN_RESIGNATION:
+      return 'WHITE RESIGNED';
+    case GameStatus.BLACK_WIN_TIME:
+      return 'WHITE OUT OF TIME';
+    case GameStatus.BLACK_WIN_ABANDONMENT:
+      return 'WHITE ABANDONED';
+
+    // Draw reasons
+    case GameStatus.DRAW:
+      return 'GAME DRAWN';
+    case GameStatus.DRAW_AGREEMENT:
+      return 'DRAW BY AGREEMENT';
+    case GameStatus.DRAW_STALEMATE:
+      return 'STALEMATE';
+    case GameStatus.DRAW_REPETITION:
+      return 'DRAW BY REPETITION';
+    case GameStatus.DRAW_FIFTY_MOVE:
+      return 'DRAW BY 50-MOVE RULE';
+    case GameStatus.DRAW_INSUFFICIENT_MATERIAL:
+      return 'DRAW - INSUFFICIENT MATERIAL';
+
+    // Other outcomes
+    case GameStatus.ABORTED:
+      return 'GAME ABORTED';
+    default:
+      return '';
+  }
 };
 
 export const gameInProgress = (game_status: GameStatus): boolean => {
