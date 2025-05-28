@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Chess } from 'chess.js';
+import { ROOT_URL } from 'utils';
 import './style.scss';
 
 interface MoveData {
@@ -70,19 +71,12 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
     console.log('[MoveBubbles] Fetching top moves for FEN:', gameState);
 
       try {
-        // Use the enhanced top moves endpoint (returns analysis data)
-        const response = await fetch('/dev/top-moves', {
-          method: 'POST',
+        // Use the backend analysis endpoint for top moves
+        const response = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(gameState)}&n=6`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            queryStringParameters: {
-              fen: gameState,
-              n: '6',
-              enhanced: 'true'
-            }
-          })
+          }
         });
         const data = await response.json();
 
