@@ -331,7 +331,9 @@ const MoveBubbles: React.FC<MoveBubblesProps> = ({
           const isCurrentMove = hoveredMove === moveData.move;
           const isPendingBet = pendingBet?.isActive && pendingBet.moveString === moveData.move;
           const isCurrentlyHolding = isHolding === moveData.move;
-          const isUserSubmitted = userSubmittedMoves?.has(moveData.move) || false;
+          // Only consider it user-submitted if it's not already in AI suggestions
+          const isFromAI = topMoves.some(aiMove => aiMove.move === moveData.move);
+          const isUserSubmitted = !isFromAI && (userSubmittedMoves?.has(moveData.move) || false);
 
           return (
             <div
