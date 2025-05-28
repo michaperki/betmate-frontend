@@ -216,6 +216,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 selectedStake={selectedStake}
                 isAuthenticated={props.isAuthenticated}
                 gameId={gameId}
+                wagerTotal={gameStats?.wdlWagerTotals?.['black_win']?.totalAmount || 0}
               />
 
               <div className="game-layout">
@@ -300,6 +301,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 selectedStake={selectedStake}
                 isAuthenticated={props.isAuthenticated}
                 gameId={gameId}
+                wagerTotal={gameStats?.wdlWagerTotals?.['white_win']?.totalAmount || 0}
               />
 
               {/* Move Bubbles - positioned directly below white player */}

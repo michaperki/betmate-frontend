@@ -208,3 +208,30 @@
   transform: scale(1.01);
   box-shadow: 0 6px 20px rgba(0, 239, 178, 0.2);
 }
+
+// Wager total display styles
+.wager-total {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 0;
+  padding: 4px 8px;
+  background-color: #0A0A0A;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 239, 178, 0.2);
+
+  @media (max-width: 768px) {
+    margin: 4px 0;
+    padding: 3px 6px;
+  }
+}
+
+.wager-total-amount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00EFB2;
+
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+}

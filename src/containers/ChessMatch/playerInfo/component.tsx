@@ -20,7 +20,9 @@ interface ChessMatchProps {
   selectedStake?: number,
   isAuthenticated?: boolean,
   currentWagers?: { amount: number },
-  gameId?: string
+  gameId?: string,
+  // Wager totals
+  wagerTotal?: number
 }
 
 const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
@@ -208,6 +210,11 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
           )}
         </div>
       )}
+
+      {/* Wager Total Display */}
+      <div className="wager-total">
+        <div className="wager-total-amount">{props.wagerTotal || 0}</div>
+      </div>
 
       <div className={`player-timer ${isPlayerTurn ? 'active' : ''}`}>
         {getTimeString(playerTime)}
