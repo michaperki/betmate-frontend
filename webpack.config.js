@@ -169,5 +169,13 @@ module.exports = {
       writeToDisk: false,
       stats: 'errors-warnings',
     },
+    proxy: {
+      '/dev/top-moves': {
+        target: 'http://localhost:8082',
+        pathRewrite: { '^/dev/top-moves': '/predict' },
+        changeOrigin: true,
+        logLevel: 'debug'
+      }
+    },
   },
 };
