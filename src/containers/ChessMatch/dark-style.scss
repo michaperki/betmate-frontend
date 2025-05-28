@@ -130,8 +130,8 @@
       "info-panel"
       "betting-area"
       "mobile-chat";
-    gap: 8px;
-    padding: 12px;
+    gap: 4px; // Reduce gap to save space
+    padding: 4px; // Minimal padding on mobile
     height: auto; // Let content determine height on mobile
     box-sizing: border-box;
   }
@@ -178,7 +178,11 @@
     width: 100%;
     max-width: 100%;
     gap: 2px;
-    padding: 4px;
+    padding: 0; // Remove padding to maximize board space
+    margin: 0; // Remove margins
+    box-shadow: none; // Remove box shadow on mobile
+    background-color: transparent; // Remove background on mobile
+    border-radius: 0; // Remove border radius on mobile
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
@@ -205,7 +209,9 @@
   overflow: hidden; /* Prevent overflow */
 
   @media (max-width: 768px) {
-    gap: 8px;
+    gap: 2px; // Minimal gap on mobile
+    margin: 0; // Remove margins
+    padding: 0; // Remove padding
   }
 }
 
@@ -225,9 +231,10 @@
   }
 
   @media (max-width: 768px) {
-    max-width: 320px !important;
-    width: 320px !important;
-    height: 320px !important;
+    max-width: min(90vw, 350px) !important; // Use more of viewport width
+    width: min(90vw, 350px) !important; // Allow larger board size
+    height: min(90vw, 350px) !important; // Maintain square aspect ratio
+    margin: 0 auto !important; // Center horizontally
     overflow: hidden !important; // Clip anything that exceeds the container
   }
 
@@ -246,9 +253,9 @@
     }
 
     @media (max-width: 768px) {
-      max-width: 320px !important;
-      width: 320px !important;
-      height: 320px !important;
+      max-width: min(90vw, 350px) !important;
+      width: min(90vw, 350px) !important;
+      height: min(90vw, 350px) !important;
     }
   }
 }
@@ -555,8 +562,9 @@
 
   @media (max-width: 768px) {
     justify-content: center; // Center the board and eval bar horizontally
-    width: fit-content;
-    margin: 0 auto; // Center the container itself
+    width: 100%; // Use full width
+    margin: 0; // Remove margins to save space
+    padding: 0; // Remove padding to save space
   }
 
   .chessboard-wrapper {
@@ -572,8 +580,8 @@
 
     @media (max-width: 768px) {
       flex: none; // Don't stretch on mobile
-      width: 100%; /* Full width on mobile */
-      max-width: 320px !important; /* Maintain mobile sizing */
+      width: min(90vw, 350px) !important; /* Match optimized sizing */
+      max-width: min(90vw, 350px) !important; /* Use larger sizing */
     }
   }
 }
@@ -587,8 +595,8 @@
   padding: 4px 0;
 
   @media (max-width: 768px) {
-    width: 20px; // Much thinner on mobile
-    margin-left: 4px; // Smaller margin
+    width: 16px; // Even thinner on mobile to save space
+    margin-left: 2px; // Minimal margin
   }
 
   @media (max-width: 640px) {
