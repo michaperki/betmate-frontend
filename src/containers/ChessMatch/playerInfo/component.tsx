@@ -180,40 +180,42 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
         </div>
       </div>
 
-      {/* Betting Area */}
-      {canBet && (
-        <div
-          className={`betting-area ${isHolding ? 'holding' : ''}`}
-          onMouseDown={handleBetStart}
-          onMouseUp={handleBetEnd}
-          onMouseLeave={handleBetEnd}
-          onTouchStart={handleBetStart}
-          onTouchEnd={handleBetEnd}
-        >
-          <div className="bet-info">
-            <div className="bet-stake">{props.selectedStake}</div>
-            <div className="bet-multiplier">{getMultiplier()}x</div>
-            <div className="bet-payout">→{getPayout()}</div>
+      <div className="player-actions">
+        {/* Betting Area */}
+        {canBet && (
+          <div
+            className={`betting-area ${isHolding ? 'holding' : ''}`}
+            onMouseDown={handleBetStart}
+            onMouseUp={handleBetEnd}
+            onMouseLeave={handleBetEnd}
+            onTouchStart={handleBetStart}
+            onTouchEnd={handleBetEnd}
+          >
+            <div className="bet-info">
+              <div className="bet-stake">{props.selectedStake}</div>
+              <div className="bet-multiplier">{getMultiplier()}x</div>
+              <div className="bet-payout">→{getPayout()}</div>
+            </div>
+            {isHolding && (
+              <div className="hold-progress">
+                <div
+                  className="progress-bar"
+                  style={{ width: `${holdProgress}%` }}
+                />
+              </div>
+            )}
+            {props.currentWagers?.amount && (
+              <div className="current-wager">
+                Wagered: {props.currentWagers.amount}
+              </div>
+            )}
           </div>
-          {isHolding && (
-            <div className="hold-progress">
-              <div
-                className="progress-bar"
-                style={{ width: `${holdProgress}%` }}
-              />
-            </div>
-          )}
-          {props.currentWagers?.amount && (
-            <div className="current-wager">
-              Wagered: {props.currentWagers.amount}
-            </div>
-          )}
-        </div>
-      )}
+        )}
 
-      {/* Wager Total Display */}
-      <div className="wager-total">
-        <div className="wager-total-amount">{props.wagerTotal || 0}</div>
+        {/* Wager Total Display */}
+        <div className="wager-total">
+          <div className="wager-total-amount">{props.wagerTotal || 0}</div>
+        </div>
       </div>
 
       <div className={`player-timer ${isPlayerTurn ? 'active' : ''}`}>

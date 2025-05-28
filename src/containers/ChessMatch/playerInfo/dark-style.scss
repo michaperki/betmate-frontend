@@ -36,6 +36,13 @@
 .player-details {
   display: flex;
   align-items: center;
+  flex: 0 0 160px; // Fixed width for consistent alignment
+  min-width: 160px;
+
+  @media (max-width: 768px) {
+    flex: 0 0 120px;
+    min-width: 120px;
+  }
 }
 
 .player-avatar {
@@ -53,14 +60,20 @@
 .player-data {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .player-name {
   font-weight: 500;
   color: #F2F2F2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 
   @media (max-width: 768px) {
     font-size: 14px;
+    max-width: 80px;
   }
 }
 
@@ -97,7 +110,6 @@
 .betting-area {
   position: relative;
   padding: 8px 12px;
-  margin: 0 8px;
   border-radius: 6px;
   background-color: #1A1A1A;
   border: 1px solid #333;
@@ -121,7 +133,6 @@
   @media (max-width: 768px) {
     min-width: 120px;
     padding: 6px 10px;
-    margin: 0 4px;
 
     // Ensure touch targets are at least 44px
     min-height: 44px;
@@ -209,20 +220,30 @@
   box-shadow: 0 6px 20px rgba(0, 239, 178, 0.2);
 }
 
+// Player actions container for better alignment
+.player-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
 // Wager total display styles
 .wager-total {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 6px 0;
   padding: 4px 8px;
   background-color: #0A0A0A;
   border-radius: 6px;
   border: 1px solid rgba(0, 239, 178, 0.2);
+  min-width: 40px;
 
   @media (max-width: 768px) {
-    margin: 4px 0;
     padding: 3px 6px;
+    min-width: 35px;
   }
 }
 
