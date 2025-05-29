@@ -84,9 +84,12 @@ export function log(event: LogEvent): void {
     console[level](`[${eventName}]${message ? ` ${message}` : ''}`, context || '');
   }
 
-  // Only send important logs to Axiom in production
-  if (!isDev || event.level === 'error') {
+  // Only send logs to Axiom in production
+  if (!isDev) {
     void sendToAxiom(event);
+  } else if (event.level === 'error') {
+    // In development, just log errors to console with a note that they would be sent to Axiom in production
+    console.warn('[DEV] In production, this error would be sent to Axiom');
   }
 }
 
