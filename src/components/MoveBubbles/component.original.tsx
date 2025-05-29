@@ -9,7 +9,6 @@ interface MoveData {
   percentile: number;
   is_best_move: boolean;
   loading?: boolean; // Optional flag to indicate loading state
-  transitioning?: boolean; // Optional flag to indicate transition from loading to analyzed
 }
 
 interface MoveBubblesProps {
@@ -146,29 +145,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         return validMove.san; // chess.js will add +/# as needed
       }
 
-      // If it has the format of origin-destination like "a6c5", try to format it properly
-      if (moveBase.length === 4 && /^[a-h][1-8][a-h][1-8]$/.test(moveBase)) {
-        const from = moveBase.substring(0, 2);
-        const to = moveBase.substring(2, 4);
-
-        // Try to make the move using from-to format
-        try {
-          const moveObj = chess.move({
-            from: from as any, // Cast to any to bypass type incompatibility
-            to: to as any,     // between string and Square types
-            promotion: 'q' // Default to queen promotion
-          });
-
-          if (moveObj) {
-            const san = moveObj.san;
-            chess.undo();
-            return san;
-          }
-        } catch (e) {
-          console.log(`[MoveBubbles] Invalid move format ${from}-${to}:`, e);
-        }
-      }
-
       // If it's just a destination square like "d5", find the piece that can move there
       if (/^[a-h][1-8]$/.test(moveBase)) {
         for (const legalMove of chess.moves({ verbose: true })) {
@@ -181,28 +157,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
               return san; // chess.js will add +/# as needed
             }
           }
-        }
-      }
-
-      // Check if it's in the "from-to" notation like "a6-c5"
-      const fromToMatch = moveBase.match(/^([a-h][1-8])-([a-h][1-8])$/);
-      if (fromToMatch) {
-        const [_, from, to] = fromToMatch;
-
-        try {
-          const moveObj = chess.move({
-            from: from as any, // Cast to any to bypass type incompatibility
-            to: to as any,     // between string and Square types
-            promotion: 'q' // Default to queen promotion
-          });
-
-          if (moveObj) {
-            const san = moveObj.san;
-            chess.undo();
-            return san;
-          }
-        } catch (e) {
-          console.log(`[MoveBubbles] Invalid move format ${from}-${to}:`, e);
         }
       }
 
@@ -347,56 +301,9 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         // Fix potential FEN format issues
         const cleanFen = cleanFEN(gameState);
         
-        console.log(`[MoveBubbles] ${debugId} - FEN: ${cleanFen}`);
-
-        // Validate that move and FEN parameters are well-formed
-        if (!move || typeof move !== 'string' || move.length === 0) {
-          console.error(`[MoveBubbles] ${debugId} - INVALID MOVE: Empty or null move`);
-        }
-
-        if (!cleanFen || typeof cleanFen !== 'string' || cleanFen.length === 0) {
-          console.error(`[MoveBubbles] ${debugId} - INVALID FEN: Empty or null FEN`);
-        }
-
-        // Check if the move is in the format {orig: 'a6', dest: 'c5'}
-        const origDestMatch = move.match(/^\{orig:\s*['"]([a-h][1-8])['"],\s*dest:\s*['"]([a-h][1-8])['"].*\}$/);
+        // For moves with "x" (captures), make sure we handle them specially
         let moveToUse = move;
-
-        // Check if the move is in UCI format (e.g., "g1f3")
-        const uciMatch = move.match(/^([a-h][1-8])([a-h][1-8])$/);
-
-        // Debug additional move format information
-        console.log(`[MoveBubbles] ${debugId} - Move format analysis:`, {
-          move,
-          isObjectNotation: origDestMatch !== null,
-          isUciFormat: uciMatch !== null,
-          hasCapture: move.includes('x'),
-          isCastling: move.includes('O-O'),
-          length: move.length
-        });
-
-        if (origDestMatch) {
-          // Extract and convert to SAN format
-          const [_, orig, dest] = origDestMatch;
-          console.log(`[MoveBubbles] ${debugId} - Converting from orig-dest format: ${orig}-${dest}`);
-
-          // Use chess.js to convert to SAN
-          const chess = new Chess(cleanFen);
-          try {
-            const moveObj = chess.move({
-              from: orig as any, // Cast to any to bypass type incompatibility
-              to: dest as any,   // between string and Square types
-              promotion: 'q'
-            });
-
-            if (moveObj) {
-              moveToUse = moveObj.san;
-              console.log(`[MoveBubbles] ${debugId} - Converted to SAN: ${moveToUse}`);
-            }
-          } catch (e) {
-            console.warn(`[MoveBubbles] ${debugId} - Failed to convert orig-dest format:`, e);
-          }
-        } else if (move.includes('x')) {
+        if (move.includes('x')) {
           // The microservice accepts "Qxg5" format directly
           moveToUse = move;
           console.log(`[MoveBubbles] ${debugId} - Using capture notation directly: ${moveToUse}`);
@@ -410,79 +317,15 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
           }
         }
 
-        console.log(`[MoveBubbles] ${debugId} - Final move to analyze: ${moveToUse}`);
-
-        // Special case handling for rook moves like Rg2
-        if (moveToUse.startsWith('R') && moveToUse.length === 3 && /R[a-h][1-8]/.test(moveToUse)) {
-          // Try to convert to proper SAN by finding valid moves
-          try {
-            const chess = new Chess(cleanFen);
-            const targetSquare = moveToUse.substring(1);
-            
-            // Get all legal moves
-            const legalMoves = chess.moves();
-            console.log(`[MoveBubbles] ${debugId} - Legal moves for rook move fix:`, legalMoves);
-            
-            // Look for rook moves to the target square
-            const rookMoves = legalMoves.filter(m => 
-              m.startsWith('R') && m.endsWith(targetSquare)
-            );
-            
-            if (rookMoves.length > 0) {
-              // Use the first legal rook move to this square
-              const properSAN = rookMoves[0];
-              console.log(`[MoveBubbles] ${debugId} - Fixed rook move: ${moveToUse} -> ${properSAN}`);
-              moveToUse = properSAN;
-            } else {
-              console.warn(`[MoveBubbles] ${debugId} - No legal rook move to ${targetSquare} found`);
-            }
-          } catch (e) {
-            console.error(`[MoveBubbles] ${debugId} - Error fixing rook move:`, e);
-          }
-        }
-
-        // Try to analyze the move first with chess.js to ensure it's valid
-        try {
-          const chess = new Chess(cleanFen);
-          const validMove = chess.move(moveToUse, { sloppy: true });
-
-          if (!validMove) {
-            console.warn(`[MoveBubbles] ${debugId} - Move ${moveToUse} is not valid for this position, listing legal moves...`);
-            const legalMoves = chess.moves();
-            console.log(`[MoveBubbles] ${debugId} - Legal moves: ${JSON.stringify(legalMoves)}`);
-            
-            // Try to find a similar move in the legal moves
-            const similarMoves = legalMoves.filter(m => 
-              m.includes(moveToUse.substring(1)) || // Same destination square
-              (moveToUse.length >= 2 && m.startsWith(moveToUse.charAt(0)))  // Same piece type
-            );
-            
-            if (similarMoves.length > 0) {
-              console.log(`[MoveBubbles] ${debugId} - Found similar legal moves: ${JSON.stringify(similarMoves)}`);
-              moveToUse = similarMoves[0]; // Use the first similar move
-              console.log(`[MoveBubbles] ${debugId} - Using similar move: ${moveToUse}`);
-            }
-          } else {
-            console.log(`[MoveBubbles] ${debugId} - Move ${moveToUse} is valid according to chess.js`);
-            // Use the SAN notation from chess.js
-            moveToUse = validMove.san;
-            console.log(`[MoveBubbles] ${debugId} - Using chess.js SAN: ${moveToUse}`);
-          }
-        } catch (e) {
-          console.error(`[MoveBubbles] ${debugId} - Error validating move with chess.js:`, e);
-        }
-        
-        const apiUrl = `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(moveToUse)}`;
-
-        console.log(`[MoveBubbles] ${debugId} - API URL: ${apiUrl}`);
-        console.log(`[MoveBubbles] ${debugId} - Encoded move: ${encodeURIComponent(moveToUse)}`);
-
+        // Fetch analysis for the move from the backend
+        const randomParam = Math.random().toString(36).substring(2, 10);
         const response = await fetch(
-          apiUrl,
+          `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(moveToUse)}&nocache=${randomParam}`,
           {
             method: 'GET',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
             }
           }
         );
@@ -490,110 +333,48 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         // Handle non-200 responses
         if (!response.ok) {
           console.warn(`[MoveBubbles] ${debugId} - Error response (${response.status}) for move ${move}`);
-          console.warn(`[MoveBubbles] ${debugId} - Request details: FEN=${cleanFen}, move=${moveToUse}`);
-          console.warn(`[MoveBubbles] ${debugId} - URL: ${apiUrl}`);
+          console.warn(`[MoveBubbles] ${debugId} - Move ${move} might be invalid, but the microservice accepts it directly. Retrying with direct microservice call...`);
 
-          // Try to get more details from the error response
+          // Try to bypass the backend and call the microservice directly (in a production environment, this would be handled differently)
           try {
-            const errorData = await response.json();
-            console.warn(`[MoveBubbles] ${debugId} - Error details:`, errorData);
-          } catch (jsonError) {
-            console.warn(`[MoveBubbles] ${debugId} - Could not parse error response:`, jsonError);
-            // Try to get text response
-            try {
-              const textResponse = await response.text();
-              console.warn(`[MoveBubbles] ${debugId} - Error response text:`, textResponse);
-            } catch (textError) {
-              console.warn(`[MoveBubbles] ${debugId} - Could not get response text:`, textError);
-            }
-          }
-
-          console.warn(`[MoveBubbles] ${debugId} - Move ${move} is being rejected by the backend. Using fallback analysis.`);
-
-          // For simple pawn moves like "b6", convert to UCI format (b7b6) and try again
-          if (/^[a-h][2-7]$/.test(moveToUse)) {
-            const rank = moveToUse.charAt(1);
-            const file = moveToUse.charAt(0);
-            const fromRank = rank === '6' ? '7' : (rank === '3' ? '2' : parseInt(rank) + (rank < '5' ? -1 : 1));
-            const uciMove = `${file}${fromRank}${moveToUse}`;
-
-            console.log(`[MoveBubbles] ${debugId} - Trying UCI format for pawn move: ${uciMove}`);
-
-            // Convert UCI to SAN
-            const chess = new Chess(cleanFen);
-            try {
-              const moveObj = chess.move({
-                from: `${file}${fromRank}` as any,
-                to: moveToUse as any,
-                promotion: 'q'
-              });
-
-              if (moveObj) {
-                const sanMove = moveObj.san;
-                console.log(`[MoveBubbles] ${debugId} - Converted to SAN: ${sanMove}`);
-
-                // Try again with SAN notation
-                const retryUrl = `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(sanMove)}`;
-                console.log(`[MoveBubbles] ${debugId} - Retry URL: ${retryUrl}`);
-                
-                const retryResponse = await fetch(
-                  retryUrl,
-                  {
-                    method: 'GET',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    }
-                  }
-                );
-
-                if (retryResponse.ok) {
-                  console.log(`[MoveBubbles] ${debugId} - Retry succeeded with SAN: ${sanMove}`);
-                  const data = await retryResponse.json();
-                  if (data && data.message === 'SUCCESS' && data.data) {
-                    console.log(`[MoveBubbles] ${debugId} - Retrieved analysis:`, data.data);
-
-                    setUserMoveAnalysis(prev => ({
-                      ...prev,
-                      [move]: {
-                        ...data.data,
-                        move: move // Always use original move for display
-                      }
-                    }));
-                    return; // Skip further processing
-                  } else {
-                    console.warn(`[MoveBubbles] ${debugId} - Retry received invalid data:`, data);
-                  }
-                } else {
-                  console.warn(`[MoveBubbles] ${debugId} - Retry also failed with SAN: ${sanMove}`);
-                  console.warn(`[MoveBubbles] ${debugId} - Retry status: ${retryResponse.status}`);
-                  
-                  // Try to get more details from the error response
-                  try {
-                    const errorData = await retryResponse.json();
-                    console.warn(`[MoveBubbles] ${debugId} - Retry error details:`, errorData);
-                  } catch (jsonError) {
-                    console.warn(`[MoveBubbles] ${debugId} - Could not parse retry error response:`, jsonError);
-                    try {
-                      const textResponse = await retryResponse.text();
-                      console.warn(`[MoveBubbles] ${debugId} - Retry error text:`, textResponse);
-                    } catch (textError) {
-                      console.warn(`[MoveBubbles] ${debugId} - Could not get retry response text:`, textError);
-                    }
-                  }
-                }
+            const directResponse = await fetch(`${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(move)}&nocache=${randomParam}&direct=true`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'X-Bypass-Backend': 'true' // Signal that we want to bypass backend validation
               }
-            } catch (e) {
-              console.warn(`[MoveBubbles] ${debugId} - Failed to convert to SAN:`, e);
+            });
+
+            if (directResponse.ok) {
+              console.log(`[MoveBubbles] ${debugId} - Direct call succeeded for ${move}`);
+              // Process the response as normal
+              const directData = await directResponse.json();
+
+              // Continue with normal processing
+              if (directData && directData.message === 'SUCCESS' && directData.data) {
+                // Store the analysis data
+                setUserMoveAnalysis(prev => ({
+                  ...prev,
+                  [move]: {
+                    ...directData.data,
+                    move: move // Use original move name
+                  }
+                }));
+                return; // Skip fallback
+              }
             }
+          } catch (directError) {
+            console.error(`[MoveBubbles] ${debugId} - Error in direct call:`, directError);
           }
 
-          // Fallback if backend returns error and retry fails
+          // Fallback if direct call failed
           setUserMoveAnalysis(prev => ({
             ...prev,
             [move]: {
               move,
               score: 0,
-              percentile: 40, // Default to "decent" move for rejected moves
+              percentile: 30, // Lower percentile for invalid moves
               is_best_move: false
             }
           }));
@@ -639,106 +420,36 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
           console.log(`[MoveBubbles] ${debugId} - Final analysis data:`, analysisData);
 
-          // Store the enhanced move analysis data with a transition flag
-          // First update with a transition state
-          setUserMoveAnalysis(prev => {
-            const prevData = prev[move];
-            // Only add transition flag if we're coming from loading state
-            const isTransitioning = prevData && prevData.loading;
-
-            return {
-              ...prev,
-              [move]: {
-                ...analysisData,
-                transitioning: isTransitioning // Add transitioning flag if coming from loading
-              }
-            };
-          });
-
-          // After a short delay, remove the transition flag
-          if (userMoveAnalysis[move]?.loading) {
-            setTimeout(() => {
-              setUserMoveAnalysis(prev => ({
-                ...prev,
-                [move]: {
-                  ...analysisData,
-                  transitioning: false
-                }
-              }));
-            }, 50); // Short delay to trigger CSS transition
-          }
+          // Store the enhanced move analysis data
+          setUserMoveAnalysis(prev => ({
+            ...prev,
+            [move]: analysisData
+          }));
         } else {
           // Log the issue and store fallback values
           console.warn(`[MoveBubbles] ${debugId} - Invalid analysis data received for ${move}:`, data);
-
-          // First update with a transition state
-          setUserMoveAnalysis(prev => {
-            const prevData = prev[move];
-            // Only add transition flag if we're coming from loading state
-            const isTransitioning = prevData && prevData.loading;
-
-            const fallbackData = {
+          setUserMoveAnalysis(prev => ({
+            ...prev,
+            [move]: {
               move,
               score: 0,
               percentile: 40, // Default to "decent" move
-              is_best_move: false,
-              transitioning: isTransitioning // Add transitioning flag if coming from loading
-            };
-
-            return {
-              ...prev,
-              [move]: fallbackData
-            };
-          });
-
-          // After a short delay, remove the transition flag
-          if (userMoveAnalysis[move]?.loading) {
-            setTimeout(() => {
-              setUserMoveAnalysis(prev => ({
-                ...prev,
-                [move]: {
-                  ...prev[move],
-                  transitioning: false
-                }
-              }));
-            }, 50); // Short delay to trigger CSS transition
-          }
+              is_best_move: false
+            }
+          }));
         }
       } catch (error) {
         console.error('[MoveBubbles] Failed to fetch move analysis:', error);
         // Store fallback values on error
-        // First update with a transition state
-        setUserMoveAnalysis(prev => {
-          const prevData = prev[move];
-          // Only add transition flag if we're coming from loading state
-          const isTransitioning = prevData && prevData.loading;
-
-          const fallbackData = {
+        setUserMoveAnalysis(prev => ({
+          ...prev,
+          [move]: {
             move,
             score: 0,
             percentile: 40, // Default to "decent" move
-            is_best_move: false,
-            transitioning: isTransitioning // Add transitioning flag if coming from loading
-          };
-
-          return {
-            ...prev,
-            [move]: fallbackData
-          };
-        });
-
-        // After a short delay, remove the transition flag
-        if (userMoveAnalysis[move]?.loading) {
-          setTimeout(() => {
-            setUserMoveAnalysis(prev => ({
-              ...prev,
-              [move]: {
-                ...prev[move],
-                transitioning: false
-              }
-            }));
-          }, 50); // Short delay to trigger CSS transition
-        }
+            is_best_move: false
+          }
+        }));
       }
     });
   }, [userSubmittedMoves, gameState, topMoves, userMoveAnalysis]);
@@ -761,15 +472,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
     const chess = new Chess(gameState);
     try {
-      // Check if it's already in the format {orig: 'a6', dest: 'c5'}
-      const origDestMatch = move.match(/^\{orig:\s*['"]([a-h][1-8])['"],\s*dest:\s*['"]([a-h][1-8])['"].*\}$/);
-      if (origDestMatch) {
-        const [_, orig, dest] = origDestMatch;
-        console.log(`[MoveBubbles] Parsed orig-dest format: orig=${orig}, dest=${dest}`);
-        onMoveHover([{ orig, dest }]);
-        return;
-      }
-
       // Remove check/checkmate indicators ('+', '#') for processing
       const moveBase = move.replace(/[+#]$/, '');
 
@@ -791,33 +493,13 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       }
 
       if (moveObj) {
-        console.log(`[MoveBubbles] Found move: from ${moveObj.from} to ${moveObj.to}`);
         onMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
       } else {
-        // Check if it's in "from-to" format like "a6-c5"
-        const fromToMatch = moveBase.match(/^([a-h][1-8])-([a-h][1-8])$/);
-        if (fromToMatch) {
-          const [_, from, to] = fromToMatch;
-          console.log(`[MoveBubbles] Using from-to format: ${from}-${to}`);
-          onMoveHover([{ orig: from, dest: to }]);
-          return;
-        }
-
-        // If it has the format of origin-destination like "a6c5", try to format it properly
-        if (moveBase.length === 4 && /^[a-h][1-8][a-h][1-8]$/.test(moveBase)) {
-          const from = moveBase.substring(0, 2);
-          const to = moveBase.substring(2, 4);
-          console.log(`[MoveBubbles] Using compact from-to format: ${from}${to}`);
-          onMoveHover([{ orig: from, dest: to }]);
-          return;
-        }
-
         // Try one more approach - compare against all legal moves
         const allLegalMoves = chess.moves({ verbose: true });
         for (const legalMove of allLegalMoves) {
           // Compare move names - legalMove.san already contains the SAN notation
           if (legalMove.san && legalMove.san.replace(/[+#]$/, '') === moveBase) {
-            console.log(`[MoveBubbles] Found by SAN match: ${legalMove.san}`);
             onMoveHover([{ orig: legalMove.from, dest: legalMove.to }]);
             break;
           }
@@ -826,7 +508,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
       chess.undo(); // Reset position
     } catch (e) {
-      console.error('[MoveBubbles] Invalid move', e);
+      console.error('Invalid move', e);
     }
   };
 
@@ -1019,7 +701,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
                          ${isAuthenticated ? 'authenticated' : ''}
                          ${isUserSubmitted ? 'user-submitted' : ''}
                          ${isUserInteracted && isFromAI ? 'user-interacted' : ''}
-                         ${moveData.transitioning ? 'transitioning' : ''}
                          bubble-animate-in`}
               style={{
                 animationDelay: `${index * 50}ms`,

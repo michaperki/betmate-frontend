@@ -3,6 +3,7 @@ import { RequestReturnType } from 'types/state';
 
 // Types for move analysis response
 export interface MoveAnalysis {
+  move: string;        // The move in SAN notation
   score: number;       // Raw engine score
   percentile: number;  // Percentile rank compared to best move (0-100)
   is_best_move: boolean; // Whether this is the engine's top choice

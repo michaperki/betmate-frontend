@@ -1,20 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
-// @ts-ignore - Suppress defaultProps warnings from ScrollToBottom
-import ScrollToBottom from 'react-scroll-to-bottom';
-import { FeedWager, Wager } from 'types/resources/wager';
-import { fetchWagers } from 'store/actionCreators/wagerActionCreators';
-
 import './style.scss';
 import { FeedChat } from 'types/resources/game';
 import { sendGameChat } from 'store/actionCreators/gameActionCreators';
-import { ChatItem } from './helper_components';
-import { createFeedWagers } from './utils';
+import { ChatMessage } from './helper_components';
 
-interface ChatBoxProps {
-  resolvedWagers: Wager[]
+export interface ChatBoxProps {
   chats: FeedChat[]
-  fetchWagers: typeof fetchWagers
   sendGameChat: typeof sendGameChat
 }
 
@@ -22,18 +14,10 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const [chat, setChat] = useState('');
 
-  useEffect(() => {
-    props.fetchWagers();
-  }, []);
-
-  const wagerFeed: FeedWager[] = props.resolvedWagers
-    .filter((w) => w.game_id === gameId)
-    .map(createFeedWagers)
-    .flat();
-
-  const feed = (wagerFeed as (FeedWager | FeedChat)[])
-    .concat(props.chats)
-    .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+  // Sort chats by time
+  const sortedChats = [...props.chats].sort(
+    (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+  );
 
   const handleChatUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChat(e.target.value);
@@ -49,12 +33,20 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
 
   return (
     <div className="chat-container">
-      <h1>Game Chat & Wagers</h1>
       {/* Custom wrapper to prevent console warnings about defaultProps */}
       <div className="scroll-wrapper">
-        <ScrollToBottom className="chat-box" followButtonClassName="follow-button">
-          {feed.map((f) => <ChatItem item={f} key={`${f.time}-${f.type === 'wager' ? f._id : f.userId}`} />)}
-        </ScrollToBottom>
+        <div className="chat-box">
+          {sortedChats.length > 0 ? (
+            sortedChats.map((chatMsg) => (
+              <ChatMessage chat={chatMsg} key={`${chatMsg.userId}_${chatMsg.time}`} />
+            ))
+          ) : (
+            <div className="empty-chat">
+              <p>No messages yet</p>
+              <p className="empty-hint">Be the first to start the conversation!</p>
+            </div>
+          )}
+        </div>
       </div>
       <form className="chat-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Type a message..." value={chat} onChange={handleChatUpdate} />

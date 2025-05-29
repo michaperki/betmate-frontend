@@ -142,7 +142,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         props.onEnterMovePanel();
 
         // Show arrow for the move
-        console.log('Drag-drop: Adding arrow for move:', { orig: orig.toString(), dest: dest.toString() });
+        console.log('Drag-drop: Adding arrow for move:', { orig: orig.toString(), dest: dest.toString(), san: move.san });
         props.onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
 
         if (props.quickBetMode) {
