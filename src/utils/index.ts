@@ -14,8 +14,8 @@ export const authTokenName = 'authToken';
 export const requestTimeout = 3000;
 
 // Export all utilities
-export { default as chess } from './chess';
-export { default as leaderboard } from './leaderboard';
+export * as chess from './chess';
+export * as leaderboard from './leaderboard';
 export { default as logger } from './logger';
 export * from './error';
 export * from './config';
