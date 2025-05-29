@@ -11,7 +11,7 @@ import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import DragDropTip from 'components/DragDropTip';
-import GameCommunication from 'components/GameCommunication';
+import GameCommunication from '../../components/GameCommunication';
 import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
