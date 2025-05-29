@@ -10,13 +10,6 @@ interface GameInfoPanelProps {
       betCount: number;
     };
   };
-  wdlWagerTotals?: {
-    [outcome: string]: {
-      totalAmount: number;
-      betCount: number;
-      averageOdds: number;
-    };
-  };
   selectedStake?: number;
   setSelectedStake?: (stake: number) => void;
 }
@@ -28,7 +21,6 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
   game,
   viewerCount = 0,
   moveWagerData = {},
-  wdlWagerTotals = {},
   selectedStake,
   setSelectedStake
 }) => {
@@ -36,10 +28,7 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
   const nextMoveNumber = currentMoveNumber + 1; // Wagers are placed on the NEXT move
   const currentMoveWagers = moveWagerData[nextMoveNumber] || { totalAmount: 0, betCount: 0 };
 
-  // Extract WDL totals
-  const whiteWinTotal = wdlWagerTotals['white_win'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
-  const blackWinTotal = wdlWagerTotals['black_win'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
-  const drawTotal = wdlWagerTotals['draw'] || { totalAmount: 0, betCount: 0, averageOdds: 0 };
+  // We're no longer displaying the outcome betting section
 
   // Get recent moves for betting indicators (last 5 moves)
   const recentMoves = game.move_hist?.slice(-5) || [];
@@ -47,10 +36,10 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
 
   return (
     <div className="bg-secondary border border-primary rounded py-1 px-2 sm:p-3">
-      {/* Mobile: Stack vertically, Desktop: Keep horizontal */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6">
-        {/* Top row on mobile: Game Stats - Compact */}
-        <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 flex-wrap">
+      {/* Main info row */}
+      <div className="flex flex-row items-center justify-between flex-wrap gap-3">
+        {/* Game Stats */}
+        <div className="flex items-center gap-4 sm:gap-6">
           <div className="text-center">
             <div className="text-xs text-muted uppercase leading-tight">Move</div>
             <div className="text-sm sm:text-lg font-bold text-brand leading-tight">{nextMoveNumber}</div>
@@ -65,10 +54,10 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
           </div>
         </div>
 
-        {/* Middle row on mobile: Recent Move Bets - Compact */}
-        <div className="flex items-center justify-center sm:justify-start gap-2">
+        {/* Recent Move Bets */}
+        <div className="flex items-center gap-2 ml-auto">
           <span className="text-sm font-medium text-primary hidden sm:inline">Recent:</span>
-          <span className="text-xs font-medium text-primary sm:hidden">Recent Moves:</span>
+          <span className="text-xs font-medium text-primary sm:hidden">Recent:</span>
           <div className="flex gap-1">
             {Array.from({ length: 5 }, (_, i) => {
               const moveNum = startMoveIndex + i + 1;
@@ -90,25 +79,6 @@ const GameInfoPanel: React.FC<GameInfoPanelProps> = ({
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* Bottom row on mobile: Game Outcome Betting - Compact */}
-        <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-4">
-          <span className="text-xs sm:text-sm font-medium text-primary">Outcome:</span>
-          <div className="flex gap-2 sm:gap-3">
-            <div className="text-center">
-              <div className="text-xs text-muted uppercase">W</div>
-              <div className="font-bold text-brand text-xs sm:text-sm">${whiteWinTotal.totalAmount}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-muted uppercase">D</div>
-              <div className="font-bold text-brand text-xs sm:text-sm">${drawTotal.totalAmount}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs text-muted uppercase">B</div>
-              <div className="font-bold text-brand text-xs sm:text-sm">${blackWinTotal.totalAmount}</div>
-            </div>
           </div>
         </div>
       </div>

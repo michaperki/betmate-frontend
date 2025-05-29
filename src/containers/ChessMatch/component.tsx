@@ -455,7 +455,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               game={game}
               viewerCount={gameStats?.viewerCount || 0}
               moveWagerData={gameStats?.moveWagerData || {}}
-              wdlWagerTotals={gameStats?.wdlWagerTotals || {}}
               selectedStake={selectedStake}
               setSelectedStake={setSelectedStake}
             />
