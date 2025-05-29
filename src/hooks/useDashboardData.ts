@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Game } from 'types/resources/game';
 import { User } from 'types/resources/auth';
 
@@ -18,13 +18,30 @@ export const useDashboardData = (games: Game[], user: User | null) => {
   });
 
   const [featuredGame, setFeaturedGame] = useState<Game | null>(null);
+  const prevGamesLength = useRef(games.length);
+
+  // Track games changes
+  useEffect(() => {
+    if (prevGamesLength.current !== games.length) {
+      prevGamesLength.current = games.length;
+    }
+  }, [games]);
 
   useEffect(() => {
-    if (games.length === 0) return;
+    // Handle empty games array
+    if (games.length === 0) {
+      setFeaturedGame(null);
+      setStats(prev => ({
+        ...prev,
+        activeMatches: 0,
+        currentBalance: user?.account || 0,
+      }));
+      return;
+    }
 
     // Find featured game (highest rating)
     const gameRating = (game: Game) => game.player_black.elo + game.player_white.elo;
-    const featured = games.reduce((top, game) => 
+    const featured = games.reduce((top, game) =>
       gameRating(top) > gameRating(game) ? top : game
     );
 
@@ -38,6 +55,16 @@ export const useDashboardData = (games: Game[], user: User | null) => {
       // TODO: Integrate with actual user stats from backend
     }));
   }, [games, user]);
+
+  // Also listen for game_ended events directly in this hook
+  useEffect(() => {
+    const handleGameEnd = () => {
+      // No-op, just update the reference on next render
+    };
+
+    window.addEventListener('game_ended', handleGameEnd);
+    return () => window.removeEventListener('game_ended', handleGameEnd);
+  }, []);
 
   return {
     stats,

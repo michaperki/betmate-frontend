@@ -270,3 +270,57 @@ export function* betUpdateHandler(socket: Socket) {
     }
   }
 }
+
+/**
+ * Saga that watches for game end events and refreshes the dashboard games list
+ * @param socket socket to watch for events on
+ */
+export function* gameEndRefreshHandler(socket: Socket) {
+  const socketChannel: EventChannel<GameUpdateActions> = yield call(createUpdateGameStateChannel, socket);
+  console.log('Game end handler started - monitoring for game_over events');
+
+  while (true) {
+    try {
+      const action: GameUpdateActions = yield take(socketChannel);
+
+      // When a game ends, refresh the dashboard games list
+      if (action.type === 'UPDATE_GAME_END' && action.status === 'SUCCESS') {
+        // Type guard to ensure we have the correct payload type
+        if ('gameId' in action.payload) {
+          console.log('Game ended:', action.payload.gameId);
+
+          // Refresh the games list to fetch only active games
+          yield put<Actions>({
+            type: 'FETCH_GAMES',
+            status: 'REQUEST',
+            payload: { game_status: ['not_started', 'in_progress'] }
+          });
+
+          // Dispatch a custom event that components can listen for
+          const gameEndEvent = new CustomEvent('game_ended', {
+            detail: {
+              gameId: action.payload.gameId,
+              gameStatus: action.payload.game_status,
+              timestamp: Date.now(),
+              complete: action.payload.complete
+            }
+          });
+
+          window.dispatchEvent(gameEndEvent);
+
+          // Dispatch a second refresh after a delay as a backup
+          yield new Promise(resolve => setTimeout(resolve, 1500));
+          yield put<Actions>({
+            type: 'FETCH_GAMES',
+            status: 'REQUEST',
+            payload: { game_status: ['not_started', 'in_progress'] }
+          });
+        } else {
+          console.error('Error: UPDATE_GAME_END payload missing gameId:', action.payload);
+        }
+      }
+    } catch (error) {
+      console.error('Game end refresh handler error:', error);
+    }
+  }
+}
