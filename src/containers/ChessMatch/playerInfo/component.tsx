@@ -166,63 +166,64 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   const canBet = props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress;
 
   return (
-    <div className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''} ${isHolding ? 'betting-active' : ''}`}>
-      <div className="player-details">
+    <div
+      className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''} ${isHolding ? 'betting-active' : ''} ${canBet ? 'can-bet' : ''}`}
+      onMouseDown={canBet ? handleBetStart : undefined}
+      onMouseUp={canBet ? handleBetEnd : undefined}
+      onMouseLeave={canBet ? handleBetEnd : undefined}
+      onTouchStart={canBet ? handleBetStart : undefined}
+      onTouchEnd={canBet ? handleBetEnd : undefined}
+    >
+      <div className="player-icon-stake">
         <img
           src={props.icon}
           alt={props.isBlack ? 'Black player' : 'White player'}
           className="player-avatar"
         />
-        <div className="player-data">
-          <div className="player-name">{props.name || 'Unknown'}</div>
+        {canBet && (
+          <div className="bet-stake">{props.selectedStake}</div>
+        )}
+      </div>
+
+      <div className="player-identity">
+        <div className="player-name">{props.name || 'Unknown'}</div>
+        <div className="player-stats">
           {props.elo !== undefined && (
-            <div className="player-elo">{props.elo}</div>
+            <span className="player-elo">{props.elo}</span>
+          )}
+          {props.wagerTotal !== undefined && props.wagerTotal > 0 && (
+            <span className="wager-total-display">
+              <img src={balanceIcon} alt="Total wagered" className="wager-total-icon" />
+              <span className="wager-total-amount">{props.wagerTotal}</span>
+            </span>
           )}
         </div>
       </div>
 
-      <div className="player-actions">
-        {/* Betting Area */}
-        {canBet && (
-          <div
-            className={`betting-area ${isHolding ? 'holding' : ''}`}
-            onMouseDown={handleBetStart}
-            onMouseUp={handleBetEnd}
-            onMouseLeave={handleBetEnd}
-            onTouchStart={handleBetStart}
-            onTouchEnd={handleBetEnd}
-          >
-            <div className="bet-info">
-              <div className="bet-stake">{props.selectedStake}</div>
-              <div className="bet-multiplier">{getMultiplier()}x</div>
-              <div className="bet-payout">→{getPayout()}</div>
+      {canBet && (
+        <div className="bet-info">
+          <div className="bet-multiplier">{getMultiplier()}x</div>
+          <div className="bet-payout">→{getPayout()}</div>
+          {props.currentWagers?.amount && (
+            <div className="current-wager">
+              ({props.currentWagers.amount})
             </div>
-            {isHolding && (
-              <div className="hold-progress">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${holdProgress}%` }}
-                />
-              </div>
-            )}
-            {props.currentWagers?.amount && (
-              <div className="current-wager">
-                Wagered: {props.currentWagers.amount}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Wager Total Display */}
-        <div className="wager-total">
-          <img src={balanceIcon} alt="Total wagered" className="wager-total-icon" />
-          <div className="wager-total-amount">{props.wagerTotal || 0}</div>
+          )}
         </div>
-      </div>
+      )}
 
       <div className={`player-timer ${isPlayerTurn ? 'active' : ''}`}>
         {getTimeString(playerTime)}
       </div>
+
+      {isHolding && (
+        <div className="hold-progress">
+          <div
+            className="progress-bar"
+            style={{ width: `${holdProgress}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 };

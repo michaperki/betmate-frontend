@@ -1,13 +1,14 @@
 .player-info-dark {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
   border-radius: 8px;
   background-color: #111111;
   margin-bottom: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 
   &.player-turn {
     background-color: #1E1E1E;
@@ -15,52 +16,76 @@
     border-left: 3px solid #00EFB2;
   }
 
+  &.can-bet {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #1A1A1A;
+      border-color: rgba(0, 239, 178, 0.3);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.betting-active {
+    background-color: #1A1A1A;
+    border-color: rgba(0, 239, 178, 0.8);
+    transform: scale(1.01);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
   @media (max-width: 768px) {
-    padding: 8px 12px;
+    padding: 10px 12px;
     margin-bottom: 4px;
     border-radius: 6px;
-
-    &.top-player {
-      grid-area: top-player;
-      margin-bottom: 8px;
-    }
-
-    &.bottom-player {
-      grid-area: bottom-player;
-      margin-top: 8px;
-      margin-bottom: 0;
-    }
   }
 }
 
-.player-details {
+.player-icon-stake {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  flex: 0 0 160px; // Fixed width for consistent alignment
-  min-width: 160px;
+  margin-right: 12px;
+  position: relative;
 
-  @media (max-width: 768px) {
-    flex: 0 0 120px;
-    min-width: 120px;
+  .bet-stake {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background-color: #00EFB2;
+    color: #111111;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    min-width: 16px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    .betting-active & {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      font-size: 10px;
+      padding: 1px 3px;
+    }
   }
 }
 
 .player-avatar {
   width: 40px;
   height: 40px;
-  margin-right: 12px;
 
   @media (max-width: 768px) {
     width: 32px;
     height: 32px;
-    margin-right: 8px;
   }
 }
 
-.player-data {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.player-identity {
+  flex: 1;
+  min-width: 0;
+  margin-right: 12px;
 }
 
 .player-name {
@@ -69,16 +94,23 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
+  font-size: 15px;
 
   @media (max-width: 768px) {
     font-size: 14px;
-    max-width: 80px;
   }
 }
 
+.player-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
 .player-elo {
-  font-size: 14px;
+  font-size: 13px;
   color: #BDBDBD;
 
   @media (max-width: 768px) {
@@ -86,11 +118,39 @@
   }
 }
 
+.wager-total-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #00EFB2;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    gap: 2px;
+  }
+}
+
+.wager-total-icon {
+  width: 12px;
+  height: 12px;
+  filter: brightness(0) saturate(100%) invert(76%) sepia(98%) saturate(2618%) hue-rotate(140deg) brightness(100%) contrast(101%);
+
+  @media (max-width: 768px) {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+.wager-total-amount {
+  font-weight: 600;
+}
+
 .player-timer {
-  padding: 6px 14px;
-  min-width: 70px;
+  padding: 6px 12px;
+  min-width: 68px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 6px;
   background-color: #1E1E1E;
   color: #F2F2F2;
   transition: all 0.3s ease;
@@ -98,87 +158,73 @@
   font-size: 16px;
   font-family: 'Roboto Mono', monospace;
   letter-spacing: 0.5px;
+  margin-left: auto;
 
   &.active {
     background-color: #00EFB2;
     color: #111111;
     box-shadow: 0 0 10px rgba(0, 239, 178, 0.3);
   }
-}
-
-// Betting area styles
-.betting-area {
-  position: relative;
-  padding: 8px 12px;
-  border-radius: 6px;
-  background-color: #1A1A1A;
-  border: 1px solid #333;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s ease;
-  min-width: 140px;
-
-  &:hover {
-    background-color: #222;
-    border-color: #00EFB2;
-  }
-
-  &.holding {
-    background-color: #00EFB2;
-    border-color: #00EFB2;
-    color: #111111;
-    transform: scale(1.02);
-  }
 
   @media (max-width: 768px) {
-    min-width: 120px;
-    padding: 6px 10px;
-
-    // Ensure touch targets are at least 44px
-    min-height: 44px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 4px 8px;
+    font-size: 14px;
+    min-width: 60px;
   }
 }
 
+// Betting components
 .bet-info {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 6px;
-  font-size: 12px;
+  margin-right: 12px;
+  white-space: nowrap;
 
   @media (max-width: 768px) {
-    font-size: 11px;
     gap: 4px;
-  }
-}
-
-.bet-stake {
-  font-weight: 600;
-  color: #00EFB2;
-
-  .holding & {
-    color: #111111;
+    margin-right: 8px;
   }
 }
 
 .bet-multiplier {
   font-weight: 500;
   color: #BDBDBD;
+  font-size: 13px;
 
-  .holding & {
-    color: #111111;
+  .betting-active & {
+    color: #00EFB2;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
   }
 }
 
 .bet-payout {
   font-weight: 600;
   color: #F2F2F2;
+  font-size: 13px;
 
-  .holding & {
-    color: #111111;
+  .betting-active & {
+    color: #00EFB2;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+}
+
+.current-wager {
+  font-size: 11px;
+  color: #888;
+
+  .betting-active & {
+    color: #BDBDBD;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 10px;
   }
 }
 
@@ -187,85 +233,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 0 0 6px 6px;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background-color: #111111;
+  background-color: #00EFB2;
   transition: width 16ms linear;
-}
-
-.current-wager {
-  font-size: 10px;
-  color: #888;
-  margin-top: 4px;
-  text-align: center;
-
-  .holding & {
-    color: #222;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 9px;
-  }
-}
-
-// Enhanced player panel when betting is active
-.player-info-dark.betting-active {
-  transform: scale(1.01);
-  box-shadow: 0 6px 20px rgba(0, 239, 178, 0.2);
-}
-
-// Player actions container for better alignment
-.player-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-  justify-content: center;
-}
-
-// Wager total display styles
-.wager-total {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background-color: #0A0A0A;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 239, 178, 0.2);
-  min-width: 60px;
-
-  @media (max-width: 768px) {
-    padding: 3px 6px;
-    min-width: 50px;
-    gap: 3px;
-  }
-}
-
-.wager-total-icon {
-  width: 14px;
-  height: 14px;
-  filter: brightness(0) saturate(100%) invert(76%) sepia(98%) saturate(2618%) hue-rotate(140deg) brightness(100%) contrast(101%);
-
-  @media (max-width: 768px) {
-    width: 12px;
-    height: 12px;
-  }
-}
-
-.wager-total-amount {
-  font-size: 12px;
-  font-weight: 600;
-  color: #00EFB2;
-
-  @media (max-width: 768px) {
-    font-size: 11px;
-  }
 }
