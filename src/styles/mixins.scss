@@ -376,12 +376,12 @@
 
   &::-webkit-scrollbar-track {
     background: $track-color;
-    border-radius: #{$width / 2};
+    border-radius: calc(#{$width} / 2);
   }
 
   &::-webkit-scrollbar-thumb {
     background: $thumb-color;
-    border-radius: #{$width / 2};
+    border-radius: calc(#{$width} / 2);
     
     &:hover {
       background: rgba($thumb-color, 0.8);
