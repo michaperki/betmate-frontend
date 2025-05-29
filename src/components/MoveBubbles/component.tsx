@@ -1072,8 +1072,8 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
                 />
               )}
 
-              {/* Percentile score (for debugging/development) */}
-              {process.env.NODE_ENV === 'development' && !moveData.loading && (
+              {/* Percentile score (always visible) */}
+              {!moveData.loading && (
                 <div className="debug-percentile">{moveData.percentile}%</div>
               )}
             </div>
