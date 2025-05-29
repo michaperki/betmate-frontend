@@ -52,21 +52,30 @@ export const ChatWager: React.FC<ChatWagerProps> = ({ wager }) => {
 };
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ chat }) => {
+  // Format username to show first name and last initial for privacy
   const [firstName, lastName] = chat.userName.split(' ').slice(0, 2);
+  const formattedName = firstName + (lastName ? ` ${lastName[0]}.` : '');
+
+  // Format timestamp for accessibility
+  const messageTime = new Date(chat.time).toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return (
-    <div className="flex items-start gap-3 p-3 rounded bg-secondary mb-2" key={`${chat.userId}_${chat.time}`}>
+    <div className="chat-message" key={`${chat.userId}_${chat.time}`}>
       <img
-        className="w-6 h-6 rounded-full flex-shrink-0"
+        className="user-icon"
         src={playerIconWhite}
-        alt="User"
+        alt="User avatar"
         width="24"
         height="24"
       />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-primary mb-1 truncate">
-          {firstName} {lastName ? `${lastName[0]}.` : ''}
+      <div className="chat-data">
+        <p className="user-name" title={`Sent at ${messageTime}`}>
+          {formattedName}
         </p>
-        <p className="text-sm text-secondary leading-relaxed break-words">
+        <p className="chat-text">
           {chat.chat}
         </p>
       </div>

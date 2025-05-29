@@ -1,0 +1,32 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/tokens.scss';
+
+// GameCommunication - Mobile-first styling
+.game-communication {
+  width: 100%;
+  margin-top: $space-4;
+  border-radius: $radius-lg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Hide overflow at the container level
+  box-shadow: $shadow-lg;
+  height: auto;
+  max-height: 350px; // Set a reasonable height on mobile
+  
+  // Fade-in animation 
+  animation: fadeIn 0.3s ease-in-out;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  // Responsive adjustments
+  @include tablet-up {
+    max-height: 400px; // Taller on larger screens
+  }
+  
+  @include desktop-up {
+    max-height: 450px; // Even taller on desktop
+  }
+}

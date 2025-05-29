@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './style.scss';
+import './dark-style.scss'; // Use the new dark mobile-first styling
 
 interface TabPanelProps {
   tabs: {
@@ -12,8 +12,8 @@ interface TabPanelProps {
   className?: string;
 }
 
-const TabPanel: React.FC<TabPanelProps> = ({ 
-  tabs, 
+const TabPanel: React.FC<TabPanelProps> = ({
+  tabs,
   defaultTabId,
   className = ''
 }) => {

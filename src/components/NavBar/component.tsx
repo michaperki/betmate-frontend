@@ -1,22 +1,20 @@
-import SignOutPanel from 'containers/authentication/signOutPanel';
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.svg';
 import CoinBalance from '../CoinBalance';
-import './unified-navbar.scss';
+import SignOutPanel from 'containers/authentication/signOutPanel';
+import './mobile-navbar.scss';
 
 export interface NavBarProps {
-  isAuthenticated: boolean,
-  firstName: string,
-  isDarkTheme?: boolean,
-  balance?: number,
-  compact?: boolean, // Whether to use the compact variant (for game screens)
+  isAuthenticated: boolean;
+  firstName: string;
+  balance?: number;
+  compact?: boolean; // Whether to use the compact variant (for game screens)
 }
 
-const NavBar: React.FC<NavBarProps> = (props) => {
-  const { balance, compact = false } = props;
-  const location = useLocation();
+const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
   // Don't show balance on dashboard since it's displayed in HeroSection
   const showBalance = location.pathname !== '/';
@@ -34,8 +32,8 @@ const NavBar: React.FC<NavBarProps> = (props) => {
         </NavLink>
 
         {/* Mobile menu toggle */}
-        <button
-          className={`navbar__toggle ${menuOpen ? 'open' : ''}`}
+        <button 
+          className={`navbar__toggle ${menuOpen ? 'open' : ''}`} 
           onClick={toggleMenu}
           aria-label="Toggle navigation menu"
         >
@@ -48,23 +46,26 @@ const NavBar: React.FC<NavBarProps> = (props) => {
         <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
           <NavLink
             to="/"
-            className={`navbar__item ${location.pathname === '/' ? 'active' : ''}`}
+            exact
+            activeClassName="active"
+            className="navbar__item"
             onClick={() => setMenuOpen(false)}
           >
             Home
           </NavLink>
 
-          {props.isAuthenticated && (
+          {isAuthenticated && (
             <NavLink
               to="/raffles"
-              className={`navbar__item ${location.pathname === '/raffles' ? 'active' : ''}`}
+              activeClassName="active"
+              className="navbar__item"
               onClick={() => setMenuOpen(false)}
             >
               Raffles
             </NavLink>
           )}
 
-          {props.isAuthenticated ? (
+          {isAuthenticated ? (
             <div className="navbar__item navbar__item--button" onClick={() => setMenuOpen(false)}>
               <SignOutPanel />
             </div>
@@ -72,14 +73,16 @@ const NavBar: React.FC<NavBarProps> = (props) => {
             <>
               <NavLink
                 to="/signin"
-                className={`navbar__item ${location.pathname === '/signin' ? 'active' : ''}`}
+                activeClassName="active"
+                className="navbar__item"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign In
               </NavLink>
               <NavLink
                 to="/signup"
-                className={`navbar__item navbar__item--button ${location.pathname === '/signup' ? 'active' : ''}`}
+                activeClassName="active"
+                className="navbar__item navbar__item--button"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign Up
@@ -88,7 +91,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
           )}
 
           {/* Show balance if authenticated and not on dashboard */}
-          {props.isAuthenticated && showBalance && (
+          {isAuthenticated && showBalance && (
             <div className="navbar__balance">
               <CoinBalance balance={balance} compact={compact} />
             </div>

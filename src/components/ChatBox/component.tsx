@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
-import './style.scss';
+import './dark-style.scss'; // Use the new dark mobile-first styling
 import { FeedChat } from 'types/resources/game';
 import { sendGameChat } from 'store/actionCreators/gameActionCreators';
 import { ChatMessage } from './helper_components';
@@ -33,7 +33,6 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
 
   return (
     <div className="chat-container">
-      {/* Custom wrapper to prevent console warnings about defaultProps */}
       <div className="scroll-wrapper">
         <div className="chat-box">
           {sortedChats.length > 0 ? (
@@ -49,8 +48,21 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
         </div>
       </div>
       <form className="chat-form" onSubmit={handleSubmit}>
-        <input type="text" placeholder="Type a message..." value={chat} onChange={handleChatUpdate} />
-        <div className="chat-send" onClick={handleSubmit}>Send</div>
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={chat}
+          onChange={handleChatUpdate}
+          aria-label="Chat message"
+        />
+        <div
+          className="chat-send"
+          onClick={handleSubmit}
+          role="button"
+          aria-label="Send message"
+        >
+          Send
+        </div>
       </form>
     </div>
   );

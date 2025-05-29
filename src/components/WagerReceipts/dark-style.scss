@@ -1,0 +1,320 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/tokens.scss';
+
+// WagerReceipts - Mobile-first styling
+.wager-receipts {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  // Scrollable container for receipts
+  .receipts-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+    width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 $space-2 $space-2;
+
+    // Custom scrollbar
+    @include custom-scrollbar(4px, rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.2));
+
+    @include tablet-up {
+      gap: $space-3;
+      padding: 0 $space-3 $space-3;
+    }
+  }
+
+  // Individual wager receipt card
+  .wager-receipt-card {
+    border-radius: $radius-md;
+    background-color: rgba(30, 30, 46, 0.7);
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+    position: relative;
+    transition: background-color 0.15s ease;
+    width: 100%;
+
+    // Different hover effect on desktop vs mobile
+    @include tablet-up {
+      &:hover {
+        background-color: rgba(40, 40, 56, 0.8);
+      }
+    }
+
+    // Touch feedback for mobile
+    &:active {
+      background-color: rgba(40, 40, 56, 0.9);
+    }
+
+    // Status-based styling with left border indicator
+    &.status-pending {
+      border-left: 3px solid $brand-primary;
+    }
+
+    &.status-won {
+      border-left: 3px solid $success;
+
+      .potential-payout .value {
+        color: $success;
+        font-weight: $font-bold;
+      }
+    }
+
+    &.status-lost {
+      border-left: 3px solid $error; // Fixed: using $error instead of $danger
+    }
+
+    &.status-cancelled {
+      border-left: 3px solid $warning;
+    }
+
+    // Main content area with responsive layout
+    .receipt-content {
+      padding: $space-2;
+      display: flex;
+      flex-direction: column;
+
+      @include tablet-up {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      // Bet information (left side)
+      .bet-info {
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+        width: 100%;
+        margin-bottom: $space-2;
+
+        @include tablet-up {
+          flex: 1;
+          margin-bottom: 0;
+          min-width: 0; // For text truncation
+        }
+
+        .status-icon {
+          font-size: $text-lg;
+          flex-shrink: 0;
+        }
+
+        .bet-description {
+          font-weight: $font-semibold;
+          font-size: $text-sm;
+          flex: 1;
+          @include truncate;
+
+          @include tablet-up {
+            font-size: $text-base;
+          }
+        }
+
+        .wager-time {
+          font-size: $text-xs;
+          color: $text-muted;
+          margin-left: auto;
+          flex-shrink: 0;
+
+          @media (max-width: 480px) {
+            display: none; // Hide on very small screens
+          }
+        }
+      }
+
+      // Bet financial details (right side)
+      .bet-details {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: $space-2;
+        width: 100%;
+
+        @include tablet-up {
+          flex-wrap: nowrap;
+          margin-left: $space-2;
+          flex-shrink: 0;
+          width: auto;
+          justify-content: flex-end;
+        }
+
+        // Common styling for value displays
+        .value {
+          font-weight: $font-semibold;
+          font-size: $text-sm;
+        }
+
+        // Specific styling for different data types
+        .amount-staked .value {
+          color: $text-primary;
+        }
+
+        .odds .value {
+          color: $warning;
+        }
+
+        .pool-indicator .value {
+          color: $brand-primary;
+          font-size: $text-xs;
+          background-color: rgba($brand-primary, 0.1);
+          padding: $space-1 $space-2;
+          border-radius: $radius-sm;
+          border: 1px solid rgba($brand-primary, 0.2);
+        }
+
+        .potential-payout .value {
+          color: rgba($success, 0.7);
+        }
+
+        // Pulsing dot for pending wagers
+        .pending-dot {
+          display: flex;
+          align-items: center;
+          margin-left: $space-1;
+
+          .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: $brand-primary;
+            animation: pulse 2s infinite;
+          }
+        }
+
+        // Time indicator for when status changed
+        .status-change-time {
+          font-size: $text-xs;
+          color: $text-secondary;
+          background-color: rgba(0, 0, 0, 0.2);
+          padding: $space-1 $space-2;
+          border-radius: $radius-sm;
+
+          .value {
+            font-weight: $font-medium;
+          }
+
+          // Style based on status
+          .status-won & {
+            background-color: rgba($success, 0.1);
+            border: 1px solid rgba($success, 0.2);
+
+            .value {
+              color: rgba($success, 0.9);
+            }
+          }
+
+          .status-lost & {
+            background-color: rgba($error, 0.1); // Fixed: using $error instead of $danger
+            border: 1px solid rgba($error, 0.2); // Fixed: using $error instead of $danger
+
+            .value {
+              color: rgba($error, 0.9); // Fixed: using $error instead of $danger
+            }
+          }
+
+          .status-cancelled & {
+            background-color: rgba($warning, 0.1);
+            border: 1px solid rgba($warning, 0.2);
+
+            .value {
+              color: rgba($warning, 0.9);
+            }
+          }
+
+          @media (max-width: 480px) {
+            display: none; // Hide on very small screens
+          }
+        }
+      }
+    }
+
+    // Pulsing animation for pending wagers
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba($brand-primary, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 4px rgba($brand-primary, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba($brand-primary, 0);
+      }
+    }
+  }
+
+  // View more/history button
+  .view-more-button {
+    margin: $space-2 $space-3 $space-1;
+    padding: $space-2;
+    background-color: transparent;
+    border: none;
+    border-radius: $radius-md;
+    color: $brand-primary;
+    font-weight: $font-semibold;
+    font-size: $text-sm;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: auto;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+    text-decoration: underline;
+
+    &:hover {
+      background-color: rgba($brand-primary, 0.15);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  // Empty state styling
+  .empty-receipts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: $space-6 $space-4;
+    color: $text-muted;
+    text-align: center;
+
+    .empty-icon {
+      font-size: $text-4xl;
+      margin-bottom: $space-4;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: $text-lg;
+      font-weight: $font-semibold;
+      margin: $space-2 0;
+      color: $text-primary;
+    }
+
+    .empty-hint {
+      font-size: $text-sm;
+      opacity: 0.7;
+      margin: $space-1 0;
+      max-width: 250px;
+      line-height: 1.5;
+
+      @media (max-width: 480px) {
+        max-width: 100%;
+        padding: 0 $space-4;
+      }
+    }
+
+    .place-bet-hint {
+      margin-top: $space-4;
+      font-size: $text-sm;
+      font-weight: $font-semibold;
+      color: $brand-primary;
+    }
+  }
+}

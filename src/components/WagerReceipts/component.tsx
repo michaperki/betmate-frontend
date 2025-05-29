@@ -5,7 +5,7 @@ import { fetchWagers } from 'store/actionCreators/wagerActionCreators';
 import { processWagers } from './utils';
 import WagerReceiptCard from './WagerReceiptCard';
 
-import './style.scss';
+import './dark-style.scss'; // Use the new dark mobile-first styling
 
 export interface WagerReceiptsProps {
   resolvedWagers: Wager[];
@@ -14,7 +14,7 @@ export interface WagerReceiptsProps {
   moveHistory?: Array<any>; // Move history to track when moves are made
 }
 
-// Number of wagers to show initially (reduced to ensure proper display)
+// Number of wagers to show initially (adjusted for responsive design)
 const INITIAL_WAGERS_DISPLAY = 4;
 
 const WagerReceipts: React.FC<WagerReceiptsProps> = ({
@@ -62,14 +62,14 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
         <>
           <div className="receipts-list">
             {displayedWagers.map((wager) => (
-              <WagerReceiptCard 
-                wager={wager} 
-                key={`${wager.time}-${wager._id}`} 
+              <WagerReceiptCard
+                wager={wager}
+                key={`${wager.time}-${wager._id}`}
               />
             ))}
           </div>
-          
-          {/* Link to future wager history page instead of loading more */}
+
+          {/* Link to future wager history page */}
           {hasMoreWagers && (
             <button
               className="view-more-button"
@@ -77,6 +77,7 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
                 // This will be replaced with navigation to wager history page in the future
                 alert('Wager history page coming soon!');
               }}
+              aria-label="View complete wager history"
             >
               View Wager History
             </button>
@@ -84,7 +85,7 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
         </>
       ) : (
         <div className="empty-receipts">
-          <div className="empty-icon">💰</div>
+          <div className="empty-icon" aria-hidden="true">💰</div>
           <h3 className="empty-title">No Wagers Yet</h3>
           <p className="empty-hint">
             Place your first bet to see your wager activity and track your results here

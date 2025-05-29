@@ -5,7 +5,7 @@ import ChatBox from '../ChatBox';
 import WagerReceipts from '../WagerReceipts';
 import { Wager } from 'types/resources/wager';
 import { FeedChat } from 'types/resources/game';
-import './style.scss';
+import './dark-style.scss'; // Use the new dark mobile-first styling
 
 interface GameCommunicationProps {
   resolvedWagers: Wager[];
