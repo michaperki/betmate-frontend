@@ -1,8 +1,9 @@
 import SignOutPanel from 'containers/authentication/signOutPanel';
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.svg';
 import CoinBalance from '../CoinBalance';
+import './unified-navbar.scss';
 
 export interface NavBarProps {
   isAuthenticated: boolean,
@@ -15,60 +16,84 @@ export interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = (props) => {
   const { balance, compact = false } = props;
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Don't show balance on dashboard since it's displayed in HeroSection
   const showBalance = location.pathname !== '/';
 
-  return (
-    <nav className={`nav ${compact ? 'nav--compact' : ''}`}>
-      <NavLink to="/" className="nav__brand">
-        <img src={logo} alt="BetMate Logo" />
-        <span className={compact ? 'hidden md:block' : ''}>BetMate</span>
-      </NavLink>
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
-      <div className="nav__menu">
-        <NavLink
-          to="/"
-          className={`nav__item ${location.pathname === '/' ? 'active' : ''}`}
-        >
-          home
+  return (
+    <nav className={`navbar ${compact ? 'navbar--compact' : ''}`}>
+      <div className="navbar__container">
+        <NavLink to="/" className="navbar__brand" onClick={() => setMenuOpen(false)}>
+          <img src={logo} alt="BetMate Logo" />
+          <span>BetMate</span>
         </NavLink>
 
-        {props.isAuthenticated && (
+        {/* Mobile menu toggle */}
+        <button
+          className={`navbar__toggle ${menuOpen ? 'open' : ''}`}
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
+        </button>
+
+        {/* Navigation menu */}
+        <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
           <NavLink
-            to="/raffles"
-            className={`nav__item ${location.pathname === '/raffles' ? 'active' : ''}`}
+            to="/"
+            className={`navbar__item ${location.pathname === '/' ? 'active' : ''}`}
+            onClick={() => setMenuOpen(false)}
           >
-            raffles
+            Home
           </NavLink>
-        )}
 
-        {props.isAuthenticated ? (
-          <div className="nav__item">
-            <SignOutPanel />
-          </div>
-        ) : (
-          <>
+          {props.isAuthenticated && (
             <NavLink
-              to="/signin"
-              className={`nav__item ${location.pathname === '/signin' ? 'active' : ''}`}
+              to="/raffles"
+              className={`navbar__item ${location.pathname === '/raffles' ? 'active' : ''}`}
+              onClick={() => setMenuOpen(false)}
             >
-              sign in
+              Raffles
             </NavLink>
-            <NavLink
-              to="/signup"
-              className={`nav__item ${location.pathname === '/signup' ? 'active' : ''}`}
-            >
-              sign up
-            </NavLink>
-          </>
-        )}
+          )}
 
-        {props.isAuthenticated && showBalance && (
-          <div className="ml-4">
-            <CoinBalance balance={balance} compact={compact} />
-          </div>
-        )}
+          {props.isAuthenticated ? (
+            <div className="navbar__item navbar__item--button" onClick={() => setMenuOpen(false)}>
+              <SignOutPanel />
+            </div>
+          ) : (
+            <>
+              <NavLink
+                to="/signin"
+                className={`navbar__item ${location.pathname === '/signin' ? 'active' : ''}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Sign In
+              </NavLink>
+              <NavLink
+                to="/signup"
+                className={`navbar__item navbar__item--button ${location.pathname === '/signup' ? 'active' : ''}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Sign Up
+              </NavLink>
+            </>
+          )}
+
+          {/* Show balance if authenticated and not on dashboard */}
+          {props.isAuthenticated && showBalance && (
+            <div className="navbar__balance">
+              <CoinBalance balance={balance} compact={compact} />
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

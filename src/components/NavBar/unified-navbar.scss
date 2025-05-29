@@ -1,0 +1,259 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
+// Mobile-first navigation component
+.navbar {
+  width: 100%;
+  background-color: $bg-secondary;
+  box-shadow: $shadow-lg;
+  position: relative;
+  z-index: $z-fixed;
+  padding: $space-1 0;
+  
+  // Default is mobile size
+  height: 60px;
+  
+  @include tablet-up {
+    height: 70px;
+  }
+  
+  @include desktop-up {
+    height: 80px;
+  }
+  
+  // Compact variant for game screens
+  &--compact {
+    height: 50px;
+    padding: $space-1 0;
+    background-color: rgba($bg-secondary, 0.95);
+    box-shadow: $shadow-base;
+  }
+  
+  // Container for content with max width
+  &__container {
+    max-width: $container-xl;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 $space-4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    @include mobile {
+      padding: 0 $space-3;
+    }
+    
+    .navbar--compact & {
+      padding: 0 $space-3;
+      
+      @include mobile {
+        padding: 0 $space-2;
+      }
+    }
+  }
+  
+  // Brand section with logo and text
+  &__brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: $brand-primary;
+    transition: all $duration-base $ease-out;
+    padding: $space-2 0;
+    
+    &:hover {
+      opacity: 0.9;
+    }
+    
+    img {
+      width: 40px;
+      height: 40px;
+      
+      @include tablet-up {
+        width: 45px;
+        height: 45px;
+      }
+      
+      @include desktop-up {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .navbar--compact & {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    span {
+      font-size: $text-xl;
+      font-weight: $font-semibold;
+      margin-left: $space-3;
+      color: $brand-primary;
+      
+      @include mobile {
+        display: none;
+      }
+      
+      .navbar--compact & {
+        font-size: $text-lg;
+        margin-left: $space-2;
+        
+        @include tablet-up {
+          display: block;
+        }
+      }
+    }
+  }
+  
+  // Navigation menu (desktop version)
+  &__menu {
+    display: flex;
+    align-items: center;
+    
+    @include mobile {
+      display: none; // Hide on mobile when menu is closed
+    }
+    
+    &.open {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: $bg-secondary;
+      box-shadow: $shadow-lg;
+      padding: $space-4 $space-3;
+      z-index: $z-dropdown;
+      
+      .navbar__item {
+        width: 100%;
+        margin: $space-1 0;
+        padding: $space-3;
+        text-align: center;
+        border-radius: $radius-base;
+        
+        &.active {
+          background-color: rgba($brand-primary, 0.1);
+        }
+      }
+    }
+  }
+  
+  // Mobile menu toggle button
+  &__toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    
+    @include tablet-up {
+      display: none;
+    }
+    
+    .bar {
+      width: 100%;
+      height: 2px;
+      background-color: $text-primary;
+      transition: all 0.3s $ease-out;
+      
+      &:nth-child(1) {
+        transform-origin: top left;
+      }
+      
+      &:nth-child(3) {
+        transform-origin: bottom left;
+      }
+    }
+    
+    &.open {
+      .bar:nth-child(1) {
+        transform: rotate(45deg);
+      }
+      
+      .bar:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .bar:nth-child(3) {
+        transform: rotate(-45deg);
+      }
+    }
+  }
+  
+  // Navigation item (link or button)
+  &__item {
+    color: $text-secondary;
+    text-decoration: none;
+    font-size: $text-sm;
+    font-weight: $font-medium;
+    padding: $space-2 $space-3;
+    border-radius: $radius-base;
+    transition: all $duration-base $ease-out;
+    margin-left: $space-2;
+    text-transform: capitalize;
+    
+    &:hover {
+      color: $text-primary;
+      background-color: rgba($brand-primary, 0.05);
+    }
+    
+    &.active {
+      color: $brand-primary;
+      font-weight: $font-semibold;
+    }
+    
+    &--button {
+      background-color: transparent;
+      border: 1px solid $brand-primary;
+      color: $brand-primary;
+      
+      &:hover {
+        background-color: rgba($brand-primary, 0.1);
+        box-shadow: 0 0 0 3px rgba($brand-primary, 0.1);
+      }
+      
+      &.active {
+        background-color: $brand-primary;
+        color: $text-inverse;
+      }
+    }
+    
+    // Compact mode adjustments
+    .navbar--compact & {
+      padding: $space-1 $space-2;
+      font-size: $text-xs;
+      
+      @include tablet-up {
+        font-size: $text-sm;
+        padding: $space-1 $space-3;
+      }
+    }
+  }
+  
+  // Balance display
+  &__balance {
+    margin-left: $space-3;
+    
+    @include mobile {
+      margin-top: $space-3;
+    }
+    
+    .navbar--compact & {
+      margin-left: $space-2;
+    }
+    
+    // Will be visible in mobile menu when open
+    .navbar__menu.open & {
+      display: block;
+      margin: $space-3 auto;
+    }
+  }
+}
