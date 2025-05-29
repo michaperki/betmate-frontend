@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useHistory } from 'react-router';
 import { signInUser as signInUserType } from 'store/actionCreators/authActionCreators';
 import logo from '../../../assets/logo.svg';
+import '../dark-style.scss';
+import '../inline-reset.css';
 
 export interface SignInPanelProps extends RouteComponentProps {
   isAuthenticated: boolean,
@@ -55,30 +57,55 @@ const SignInPanel: React.FC<SignInPanelProps> = (props) => {
             <img src={logo} alt="logo"/>
           </div>
           <form className="form-container" onSubmit={handleSubmit}>
-            <p>Email</p>
-            <input type="email" value={email} onChange={handleEmailUpdate} />
-            <p>Password</p>
-            <input type="password" value={password} onChange={handlePasswordUpdate} />
-            <input type="submit" value="Sign In" />
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={handleEmailUpdate}
+              autoComplete="email"
+              placeholder="Enter your email"
+            />
+
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={handlePasswordUpdate}
+              autoComplete="current-password"
+              placeholder="Enter your password"
+            />
+
+            <input
+              type="submit"
+              value="Sign In"
+              disabled={props.isLoading}
+            />
           </form>
+
           <div className="auth-status-message-container">
-            {props.isLoading ? <div>Authenticating...</div> : <div>{props.errorMessages[0]}</div>}
+            {props.isLoading ?
+              <div className="loading-message">Authenticating...</div> :
+              <div>{props.errorMessages[0]}</div>
+            }
             {formValidationErrors && <div>{formValidationErrors}</div>}
           </div>
+
           <div className="auth-redirect-links">
-            <p
+            <span
               className="auth-redirect-link"
               onClick={() => history.push('/')}
             >
-              dashboard
-            </p>
-            <p className="auth-redirect-link"> | </p>
-            <p
+              Dashboard
+            </span>
+            <span className="divider">|</span>
+            <span
               className="auth-redirect-link"
               onClick={() => history.push('/signup')}
             >
-              create account
-            </p>
+              Create Account
+            </span>
           </div>
         </div>
       </div>

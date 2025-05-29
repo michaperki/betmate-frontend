@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { signUpUser as signUpUserType } from 'store/actionCreators/authActionCreators';
 import logo from '../../../assets/logo.svg';
+import '../dark-style.scss';
+import '../inline-reset.css';
 
 export interface SignUpPanelProps {
   isAuthenticated: boolean,
@@ -62,37 +64,87 @@ const SignUpPanel: React.FC<SignUpPanelProps> = (props) => {
             <h1>Betmate</h1>
             <img src={logo} alt="logo"/>
           </div>
+
           <form className="form-container" onSubmit={handleSubmit}>
-            <p>First Name</p>
-            <input type="text" value={firstName} onChange={handleInputUpdate(setFirstName)} />
-            <p>Last Name</p>
-            <input type="text" value={lastName} onChange={handleInputUpdate(setLastName)} />
-            <p>Email</p>
-            <input type="email" value={email} onChange={handleInputUpdate(setEmail)} />
-            <p>Password</p>
-            <input type="password" value={password} onChange={handleInputUpdate(setPassword)} />
-            <p>Confirm Password</p>
-            <input type="password" value={confirmPassword} onChange={handleInputUpdate(setConfirmPassword)} />
-            <input type="submit" value="create account" />
+            <label htmlFor="firstName">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              value={firstName}
+              onChange={handleInputUpdate(setFirstName)}
+              autoComplete="given-name"
+              placeholder="Enter your first name"
+            />
+
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              value={lastName}
+              onChange={handleInputUpdate(setLastName)}
+              autoComplete="family-name"
+              placeholder="Enter your last name"
+            />
+
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={handleInputUpdate(setEmail)}
+              autoComplete="email"
+              placeholder="Enter your email"
+            />
+
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={handleInputUpdate(setPassword)}
+              autoComplete="new-password"
+              placeholder="Create a password"
+            />
+
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={handleInputUpdate(setConfirmPassword)}
+              autoComplete="new-password"
+              placeholder="Confirm your password"
+            />
+
+            <input
+              type="submit"
+              value="Create Account"
+              disabled={props.isLoading}
+            />
           </form>
+
           <div className="auth-status-message-container">
-            {props.isLoading ? <div>Authenticating...</div> : <div>{props.errorMessages[0]}</div>}
+            {props.isLoading ?
+              <div className="loading-message">Authenticating...</div> :
+              <div>{props.errorMessages[0]}</div>
+            }
             {formValidationErrors && <div>{formValidationErrors}</div>}
           </div>
+
           <div className="auth-redirect-links">
-            <p
+            <span
               className="auth-redirect-link"
               onClick={() => history.push('/')}
             >
-              dashboard
-            </p>
-            <p className="auth-redirect-link"> | </p>
-            <p
+              Dashboard
+            </span>
+            <span className="divider">|</span>
+            <span
               className="auth-redirect-link"
               onClick={() => history.push('/signin')}
             >
-              sign in
-            </p>
+              Sign In
+            </span>
           </div>
         </div>
       </div>
