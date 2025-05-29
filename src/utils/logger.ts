@@ -1,0 +1,169 @@
+/**
+ * Logging utility for the frontend
+ * 
+ * Provides consistent logging across the application with options to:
+ * - Log to console in development
+ * - Send important events to Axiom in production
+ * - Track errors and user actions
+ */
+
+// Environment detection
+const isDev = process.env.NODE_ENV === 'development';
+const AXIOM_ENDPOINT = '/api/log'; // Backend proxy endpoint for Axiom
+
+// Log levels
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+// Log event structure (matches backend)
+export interface LogEvent {
+  level: LogLevel;
+  message?: string;
+  event: string;
+  service?: string;
+  trace_id?: string;
+  context?: Record<string, any>;
+}
+
+/**
+ * Generate a random trace ID for correlation
+ */
+export function generateTraceId(): string {
+  return Math.random().toString(36).substring(2, 10);
+}
+
+/**
+ * Send log to backend for Axiom processing
+ * Backend will handle authentication and proper formatting
+ */
+async function sendToAxiom(event: LogEvent): Promise<void> {
+  try {
+    // Skip debug logs in production
+    if (event.level === 'debug' && !isDev) {
+      return;
+    }
+
+    // Add timestamp and service info
+    const payload = {
+      ...event,
+      service: event.service || 'frontend',
+      ts: new Date().toISOString(),
+    };
+
+    // In development, just log to console
+    if (isDev) {
+      console[event.level]('[LOGGER]', payload);
+      return;
+    }
+
+    // In production, send to backend proxy
+    const response = await fetch(AXIOM_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      // Log locally if failed
+      console.error('Failed to send log to Axiom:', response.status, response.statusText);
+    }
+  } catch (error) {
+    // Failsafe - don't let logging break the app
+    console.error('Logging error:', error);
+  }
+}
+
+/**
+ * Main logging function
+ */
+export function log(event: LogEvent): void {
+  // Always log to console in development
+  if (isDev) {
+    const { level, message, event: eventName, context } = event;
+    console[level](`[${eventName}]${message ? ` ${message}` : ''}`, context || '');
+  }
+
+  // Only send important logs to Axiom in production
+  if (!isDev || event.level === 'error') {
+    void sendToAxiom(event);
+  }
+}
+
+/**
+ * Log error with additional context
+ * Ensures errors are always sent to Axiom
+ */
+export function logError(
+  error: Error | string,
+  context?: Record<string, any>,
+  eventName = 'frontend_error'
+): void {
+  const errorMessage = error instanceof Error ? error.message : error;
+  const stack = error instanceof Error ? error.stack : undefined;
+  
+  log({
+    level: 'error',
+    event: eventName,
+    message: errorMessage,
+    context: {
+      ...context,
+      stack,
+      url: window.location.href,
+    },
+  });
+}
+
+/**
+ * Log user interactions
+ */
+export function logUserAction(
+  action: string,
+  context?: Record<string, any>
+): void {
+  log({
+    level: 'info',
+    event: 'user_action',
+    message: action,
+    context,
+  });
+}
+
+/**
+ * Initialize error tracking
+ * Catches unhandled errors and sends them to Axiom
+ */
+export function initErrorTracking(): void {
+  window.addEventListener('error', (event) => {
+    logError(event.error || event.message, {
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    });
+  });
+
+  window.addEventListener('unhandledrejection', (event) => {
+    logError(`Unhandled Promise rejection: ${event.reason}`, {
+      reason: event.reason,
+    });
+  });
+}
+
+// Export default logger object with convenience methods
+export default {
+  debug: (event: string, message?: string, context?: Record<string, any>) => 
+    log({ level: 'debug', event, message, context }),
+  
+  info: (event: string, message?: string, context?: Record<string, any>) => 
+    log({ level: 'info', event, message, context }),
+  
+  warn: (event: string, message?: string, context?: Record<string, any>) => 
+    log({ level: 'warn', event, message, context }),
+  
+  error: (event: string, message?: string, context?: Record<string, any>) => 
+    log({ level: 'error', event, message, context }),
+  
+  logError,
+  logUserAction,
+  initErrorTracking,
+};

@@ -12,3 +12,10 @@ export const authTokenName = 'authToken';
 
 // Number of ms before an axios request times out
 export const requestTimeout = 3000;
+
+// Export all utilities
+export { default as chess } from './chess';
+export { default as leaderboard } from './leaderboard';
+export { default as logger } from './logger';
+export * from './error';
+export * from './config';

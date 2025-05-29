@@ -10,6 +10,7 @@ import App from 'components/app';
 import reducers from './store/reducers';
 import rootSaga from './store/sagas';
 
+import { logger } from './utils';
 import './style.scss';
 import './styles/chessboard-global.css';
 
@@ -22,6 +23,16 @@ const store = createStore(
 );
 
 sagaMiddleware.run(rootSaga);
+
+// Initialize error tracking
+logger.initErrorTracking();
+
+// Log application startup
+logger.info('app_start', 'Application starting', {
+  version: process.env.npm_package_version || 'unknown',
+  environment: process.env.NODE_ENV,
+  target: process.env.TARGET_ENV,
+});
 
 const container = document.getElementById('main');
 if (container) {
