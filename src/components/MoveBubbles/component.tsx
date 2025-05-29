@@ -118,7 +118,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         return fenParts.join(' ');
       }
     } catch (e) {
-      console.error('[MoveBubbles] Error parsing FEN:', e);
+      console.error('Error parsing FEN:', e);
     }
     return fen;
   };
@@ -165,7 +165,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
             return san;
           }
         } catch (e) {
-          console.log(`[MoveBubbles] Invalid move format ${from}-${to}:`, e);
         }
       }
 
@@ -202,7 +201,6 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
             return san;
           }
         } catch (e) {
-          console.log(`[MoveBubbles] Invalid move format ${from}-${to}:`, e);
         }
       }
 
@@ -214,7 +212,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         }
       }
     } catch (e) {
-      console.error('[MoveBubbles] Error getting SAN notation:', e);
+      console.error('Error getting SAN notation:', e);
     }
 
     return null;
@@ -251,8 +249,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         try {
           parsedData = JSON.parse(data.body);
         } catch (error) {
-          console.error('[MoveBubbles] Failed to parse response body:', error);
-          parsedData = data;
+                    parsedData = data;
         }
       } else {
         parsedData = data;
@@ -273,17 +270,15 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
           lastGameStateRef.current = gameState;
           console.log('[MoveBubbles] Set top moves with REAL analysis:', filteredMoves.length, 'moves (filtered from', parsedData.data.length, ')');
         } else {
-          console.warn('[MoveBubbles] No valid move data available');
-          setTopMoves([]);
+                    setTopMoves([]);
           setAnimatingOut(false);
         }
       } else {
-        console.warn('[MoveBubbles] Invalid response format or no moves:', parsedData);
-        setTopMoves([]);
+                setTopMoves([]);
         setAnimatingOut(false);
       }
     } catch (error) {
-      console.error('[MoveBubbles] Failed to fetch top moves:', error);
+      console.error('Failed to fetch top moves:', error);
       setTopMoves([]);
       setAnimatingOut(false);
     } finally {
@@ -469,8 +464,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
             console.log(`[MoveBubbles] ${debugId} - Using chess.js SAN: ${moveToUse}`);
           }
         } catch (e) {
-          console.error(`[MoveBubbles] ${debugId} - Error validating move with chess.js:`, e);
-        }
+                  }
         
         const apiUrl = `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(moveToUse)}`;
 
@@ -705,7 +699,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
           }
         }
       } catch (error) {
-        console.error('[MoveBubbles] Failed to fetch move analysis:', error);
+        console.error('Failed to fetch move analysis:', error);
         // Store fallback values on error
         // First update with a transition state
         setUserMoveAnalysis(prev => {
@@ -826,7 +820,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
       chess.undo(); // Reset position
     } catch (e) {
-      console.error('[MoveBubbles] Invalid move', e);
+      console.error('Invalid move', e);
     }
   };
 
