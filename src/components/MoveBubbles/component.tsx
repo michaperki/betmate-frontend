@@ -166,8 +166,15 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
       // If it's just a destination square like "d5", find the piece that can move there
       if (/^[a-h][1-8]$/.test(moveBase)) {
+        // Check if there's a piece type prefix (like N for knight)
+        const pieceMatch = /^([NBRQK])?([a-h][1-8])$/.exec(moveBase);
+        const pieceType = pieceMatch?.[1]?.toLowerCase() || 'p'; // Default to pawn if no piece specified
+
         for (const legalMove of chess.moves({ verbose: true })) {
-          if (legalMove.to === moveBase) {
+          if (legalMove.to === moveBase &&
+              // Match piece type or use pawn for simple squares
+              (legalMove.piece === pieceType ||
+               (pieceType === 'p' && legalMove.piece === 'p'))) {
             // Use this move's SAN notation
             const testMove = chess.move(legalMove);
             if (testMove) {
@@ -645,10 +652,17 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       let moveObj;
 
       if (/^[a-h][1-8]$/.test(moveBase)) {
-        // This is just a destination square, look for a piece that can move there
+        // This is just a destination square like "e4"
+        const pieceMatch = /^([NBRQK])?([a-h][1-8])$/.exec(moveBase);
+        const pieceType = pieceMatch?.[1]?.toLowerCase() || 'p'; // Default to pawn if no piece specified
+
+        // Find a matching piece that can move there
         for (const legalMove of chess.moves({ verbose: true })) {
-          if (legalMove.to === moveBase) {
-            // Found a valid move
+          if (legalMove.to === moveBase &&
+              // Either match piece type or use pawn for simple squares
+              (legalMove.piece === pieceType ||
+               (pieceType === 'p' && legalMove.piece === 'p'))) {
+            // Found the right piece moving to this square
             moveObj = legalMove;
             break;
           }

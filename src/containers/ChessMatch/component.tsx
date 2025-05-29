@@ -199,6 +199,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const handleDrawBetStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    // Prevent context menu on mobile
+    if ('ontouchstart' in window) {
+      document.addEventListener('contextmenu', preventContextMenu, { once: true });
+    }
+
     setIsDrawHolding(true);
     setDrawHoldProgress(0);
     drawHoldStartRef.current = Date.now();
@@ -222,6 +229,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       );
       handleDrawBetEnd();
     }, DRAW_HOLD_DURATION);
+  };
+
+  // Prevent context menu during touch interactions
+  const preventContextMenu = (e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
   };
 
   const handleDrawBetEnd = () => {
@@ -414,6 +428,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   onMouseLeave={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
                   onTouchStart={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
                   onTouchEnd={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
+                  onTouchCancel={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                  }}
                 >
                   <div className="draw-left-section">
                     <div className="draw-icon">🤝</div>
