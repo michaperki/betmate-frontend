@@ -9,7 +9,7 @@ import './style.scss';
 const ActiveBetsPage: React.FC = () => {
   const dispatch = useDispatch();
   const { activeWagers, loading, error } = useSelector((state: RootState) => state.wager);
-  const [refreshInterval, setRefreshInterval] = useState<number | null>(null);
+  const [refreshInterval, setRefreshInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   // Fetch active wagers on component mount
   useEffect(() => {
