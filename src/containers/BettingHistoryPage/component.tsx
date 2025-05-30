@@ -149,7 +149,9 @@ const BettingHistoryPage: React.FC = () => {
                 <div className="bet-result">
                   <div className="amount">{wager.amount} tokens</div>
                   <div className={`status ${getStatusClass(wager.status)}`}>
-                    {wager.status.charAt(0).toUpperCase() + wager.status.slice(1)}
+                    {typeof wager.status === 'string'
+                      ? wager.status.charAt(0).toUpperCase() + wager.status.slice(1)
+                      : wager.status}
                   </div>
                 </div>
               </div>

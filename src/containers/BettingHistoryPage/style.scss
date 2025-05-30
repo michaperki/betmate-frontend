@@ -2,6 +2,8 @@
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #333;
 
   .header {
     display: flex;
@@ -13,19 +15,27 @@
       font-size: 2rem;
       font-weight: 600;
       margin: 0;
+      color: #333;
     }
 
     .filter-controls {
       display: flex;
       gap: 1rem;
-      
+
       select {
         padding: 0.5rem;
         border-radius: 4px;
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-input);
-        color: var(--text-primary);
+        border: 1px solid #ddd;
+        background-color: white;
+        color: #333;
         font-size: 0.9rem;
+        min-width: 120px;
+        cursor: pointer;
+
+        &:focus {
+          outline: none;
+          border-color: #5b6be8;
+        }
       }
     }
   }
@@ -38,47 +48,48 @@
 
     .stat-card {
       flex: 1;
-      background-color: var(--bg-panel);
+      background-color: white;
       border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
 
       .stat-value {
         font-size: 1.8rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
+        color: #333;
       }
 
       .stat-label {
-        color: var(--text-secondary);
+        color: #666;
         font-size: 0.9rem;
       }
 
       &--won {
         .stat-value {
-          color: var(--success-color);
+          color: #4caf50;
         }
       }
 
       &--lost {
         .stat-value {
-          color: var(--danger-color);
+          color: #e74c3c;
         }
       }
     }
   }
 
   .history-container {
-    background-color: var(--bg-panel);
+    background-color: white;
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
   .bet-history-item {
     display: flex;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid #eaeaea;
     padding: 1rem 0;
 
     &:last-child {
@@ -91,11 +102,12 @@
       .players {
         font-weight: 500;
         margin-bottom: 0.5rem;
+        color: #333;
       }
 
       .date {
         font-size: 0.9rem;
-        color: var(--text-secondary);
+        color: #666;
       }
     }
 
@@ -106,10 +118,12 @@
       .bet-type {
         font-weight: 500;
         margin-bottom: 0.5rem;
+        color: #333;
       }
 
       .odds {
         font-size: 0.9rem;
+        color: #666;
       }
     }
 
@@ -120,6 +134,7 @@
       .amount {
         font-weight: 500;
         margin-bottom: 0.5rem;
+        color: #333;
       }
 
       .status {
@@ -129,18 +144,18 @@
         display: inline-block;
 
         &.won {
-          background-color: rgba(39, 174, 96, 0.1);
-          color: var(--success-color);
+          background-color: rgba(76, 175, 80, 0.1);
+          color: #4caf50;
         }
 
         &.lost {
           background-color: rgba(231, 76, 60, 0.1);
-          color: var(--danger-color);
+          color: #e74c3c;
         }
 
         &.cancelled {
           background-color: rgba(149, 165, 166, 0.1);
-          color: var(--text-secondary);
+          color: #95a5a6;
         }
       }
     }
@@ -154,20 +169,20 @@
 
     button {
       padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color);
-      background-color: var(--bg-panel);
+      border: 1px solid #ddd;
+      background-color: white;
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: var(--bg-hover);
+        background-color: #f5f5f5;
       }
 
       &.active {
-        background-color: var(--primary-color);
+        background-color: #5b6be8;
         color: white;
-        border-color: var(--primary-color);
+        border-color: #5b6be8;
       }
 
       &:disabled {
@@ -184,16 +199,17 @@
     h3 {
       font-size: 1.5rem;
       margin-bottom: 1rem;
+      color: #333;
     }
 
     p {
-      color: var(--text-secondary);
+      color: #666;
       margin-bottom: 1.5rem;
     }
 
     .cta-button {
       padding: 0.75rem 1.5rem;
-      background-color: var(--primary-color);
+      background-color: #5b6be8;
       color: white;
       border-radius: 4px;
       font-weight: 500;
@@ -202,7 +218,7 @@
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: var(--primary-dark);
+        background-color: #4957d9;
       }
     }
   }
@@ -213,6 +229,44 @@
     justify-content: center;
     align-items: center;
     min-height: 200px;
+
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #5b6be8;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  }
+
+  // Error state
+  .error-state {
+    text-align: center;
+    padding: 2rem 0;
+
+    p {
+      color: #e74c3c;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background-color: #5b6be8;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #4957d9;
+      }
+    }
   }
 
   // Responsive styles
