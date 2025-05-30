@@ -53,6 +53,7 @@
       border-radius: $radius-md;
       padding: $space-2;
       background: $bg-primary;
+      overflow: hidden;
 
       @include mobile {
         width: 100%;
@@ -68,9 +69,115 @@
         font-size: 14px;
       }
 
-      .recharts-line-chart {
+      .enhanced-chart {
         width: 100%;
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        animation: fadeIn 0.6s ease-out;
+        max-height: 180px;
+
+        .chart-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 0 $space-2 $space-1;
+
+          .chart-title {
+            font-size: $text-sm;
+            color: $text-secondary;
+            font-weight: $font-medium;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .chart-info {
+            text-align: right;
+
+            .chart-value {
+              font-size: $text-base;
+              font-weight: $font-semibold;
+              color: $text-primary;
+
+              .chart-token {
+                font-size: $text-xs;
+                color: $text-secondary;
+                font-weight: $font-normal;
+                margin-left: 2px;
+              }
+            }
+
+            .chart-change {
+              font-size: $text-xs;
+              line-height: 1;
+
+              &.positive {
+                color: $brand-primary;
+              }
+
+              &.negative {
+                color: $error;
+              }
+            }
+          }
+        }
+
+        .chart-container {
+          flex: 1;
+          position: relative;
+          min-height: 110px;
+
+          svg {
+            width: 100%;
+            height: 100%;
+
+            .grid-line {
+              stroke: rgba($border-secondary, 0.3);
+              stroke-width: 0.5;
+              stroke-dasharray: 2 2;
+            }
+
+            .chart-area {
+              animation: fadeIn 1s ease-out;
+            }
+
+            .chart-line {
+              stroke-dasharray: 1000;
+              stroke-dashoffset: 1000;
+              animation: drawLine 2s ease-out forwards;
+              stroke-opacity: 0.9;
+            }
+
+            .chart-endpoint {
+              animation: pulsePoint 2s infinite alternate;
+            }
+          }
+        }
+
+        .chart-footer {
+          padding: 0 $space-2;
+
+          .time-range {
+            font-size: $text-xs;
+            color: $text-muted;
+            text-align: right;
+          }
+        }
+      }
+
+      // Define animations
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes drawLine {
+        to { stroke-dashoffset: 0; }
+      }
+
+      @keyframes pulsePoint {
+        from { r: 1.5; }
+        to { r: 2.5; }
       }
     }
   }
