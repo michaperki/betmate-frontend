@@ -21,9 +21,24 @@ export interface User {
   is_bot?: boolean
 }
 
+export interface BalanceHistoryItem {
+  _id: string
+  user_id: string
+  amount: number
+  balance: number
+  reason: string
+  reference_id?: string
+  reference_type?: string
+  created_at: string
+  updated_at: string
+}
+
 export interface AuthState {
   isAuthenticated: boolean,
   user: User | null,
+  balanceHistory: BalanceHistoryItem[],
+  loadingBalanceHistory: boolean,
+  balanceHistoryError: string | null,
 }
 
 /* -------- Action Types -------- */
@@ -32,12 +47,15 @@ export const SIGN_IN_USER = 'SIGN_IN_USER';
 export const DEAUTH_USER = 'DEAUTH_USER';
 export const CREATE_USER = 'CREATE_USER';
 export const JWT_SIGN_IN = 'JWT_SIGN_IN';
+export const GET_BALANCE_HISTORY = 'GET_BALANCE_HISTORY';
 
 export type CreateUserRequestData = { email: string, password: string, firstName: string, lastName: string };
 export type SignInRequestData = { email: string, password: string };
 export type JwtSignInRequestData = { token: string };
+export type GetBalanceHistoryRequestData = { limit?: number };
 export type AuthUserResponseData = { user: User, token: string };
 export type JwtSignInResponseData = { user: User };
+export type BalanceHistoryResponseData = BalanceHistoryItem[];
 
 export type DeAuthUserData = Empty;
 
@@ -45,6 +63,18 @@ export type CreateUserActions = AsyncAction<typeof CREATE_USER, AuthUserResponse
 export type SignInUserActions = AsyncAction<typeof SIGN_IN_USER, AuthUserResponseData, SignInRequestData>;
 export type JwtSignInActions = AsyncAction<typeof JWT_SIGN_IN, JwtSignInResponseData, JwtSignInRequestData>;
 export type DeAuthUserActions = Action<typeof DEAUTH_USER, DeAuthUserData>;
+export type GetBalanceHistoryActions = AsyncAction<typeof GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryRequestData>;
 
-export type AuthActions = CreateUserActions | SignInUserActions | DeAuthUserActions | JwtSignInActions;
-export type AuthActionTypes = typeof CREATE_USER | typeof SIGN_IN_USER | typeof DEAUTH_USER | typeof JWT_SIGN_IN;
+export type AuthActions =
+  | CreateUserActions
+  | SignInUserActions
+  | DeAuthUserActions
+  | JwtSignInActions
+  | GetBalanceHistoryActions;
+
+export type AuthActionTypes =
+  | typeof CREATE_USER
+  | typeof SIGN_IN_USER
+  | typeof DEAUTH_USER
+  | typeof JWT_SIGN_IN
+  | typeof GET_BALANCE_HISTORY;

@@ -18,4 +18,5 @@ const rootReducer = combineReducers({
   wager: wagerReducer,
 });
 
+export type RootState = ReturnType<typeof rootReducer>;
 export default rootReducer;

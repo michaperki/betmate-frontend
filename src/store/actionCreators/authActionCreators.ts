@@ -1,3 +1,4 @@
+import { BalanceHistoryItem, GET_BALANCE_HISTORY } from 'types/resources/auth';
 import { Actions } from 'types/state';
 import { authTokenName } from 'utils';
 
@@ -31,4 +32,22 @@ export const jwtSignIn = (): Actions => ({
   type: 'JWT_SIGN_IN',
   status: 'REQUEST',
   payload: { token: localStorage.getItem(authTokenName) || '' },
+});
+
+export const getBalanceHistory = (limit = 30): Actions => ({
+  type: GET_BALANCE_HISTORY,
+  status: 'REQUEST',
+  payload: { limit },
+});
+
+export const getBalanceHistorySuccess = (history: BalanceHistoryItem[]): Actions => ({
+  type: GET_BALANCE_HISTORY,
+  status: 'SUCCESS',
+  payload: history,
+});
+
+export const getBalanceHistoryFailure = (error: string): Actions => ({
+  type: GET_BALANCE_HISTORY,
+  status: 'FAILURE',
+  payload: { message: error, code: null },
 });

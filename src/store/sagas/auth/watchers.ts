@@ -3,11 +3,13 @@
 import { call, take, put } from 'redux-saga/effects';
 
 import * as authRequests from 'store/requests/authRequests';
+import { getBalanceHistoryFailure, getBalanceHistorySuccess } from 'store/actionCreators/authActionCreators';
 import { getErrorPayload } from 'utils/error';
 
 import { Actions, RequestReturnType } from 'types/state';
 import {
   AuthUserResponseData, SignInUserActions, CreateUserActions, JwtSignInActions, JwtSignInResponseData,
+  GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions
 } from 'types/resources/auth';
 import { setBearerToken } from 'store/actionCreators';
 
@@ -55,6 +57,22 @@ export function* watchJwtSignIn() {
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: { user: response.data.user }, status: 'SUCCESS' });
     } catch (error) {
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: getErrorPayload(error), status: 'FAILURE' });
+    }
+  }
+}
+
+export function* watchGetBalanceHistory() {
+  while (true) {
+    try {
+      const action: GetBalanceHistoryActions = yield take((a: Actions) => (a.type === GET_BALANCE_HISTORY && a.status === 'REQUEST'));
+      if (action.status !== 'REQUEST') continue; // Type protection only
+
+      const limit = action.payload.limit || 30;
+      const response: RequestReturnType<BalanceHistoryResponseData> = yield call(authRequests.getBalanceHistory, limit);
+
+      yield put(getBalanceHistorySuccess(response.data));
+    } catch (error) {
+      yield put(getBalanceHistoryFailure(error.message || 'Failed to fetch balance history'));
     }
   }
 }
