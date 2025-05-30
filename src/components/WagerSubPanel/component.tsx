@@ -27,12 +27,25 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
   const handleSubmit = useCallback((wdl: boolean) => (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
     if (wagerAmount && props.isAuthenticated) {
+      // Map wager string to the correct odds property name
+      let oddsValue = 1;
+      if (wdl) {
+        // For WDL wagers, map the wager type to the correct odds property
+        if (wager === 'white_win') {
+          oddsValue = 1 / props.games[gameId].odds.white_win;
+        } else if (wager === 'black_win') {
+          oddsValue = 1 / props.games[gameId].odds.black_win;
+        } else if (wager === 'draw') {
+          oddsValue = 1 / props.games[gameId].odds.draw;
+        }
+      }
+
       props.createWager(
         gameId,
         wager,
         wagerAmount,
         wdl,
-        wdl ? 1 / props.games[gameId].odds[wager] : 1,
+        oddsValue,
         props.games[gameId].move_hist.length + 1,
       );
       setPanelLoading(true);
