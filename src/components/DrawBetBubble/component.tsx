@@ -89,20 +89,20 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
 
     // Touch event handlers with non-passive option
     const touchStartHandler = (e: TouchEvent) => {
-      if (canBet) {
+      if (props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress) {
         e.preventDefault();
         handleBetStart(e as unknown as React.TouchEvent);
       }
     };
 
     const touchEndHandler = (e: TouchEvent) => {
-      if (canBet) {
+      if (props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress) {
         handleBetEnd();
       }
     };
 
     // Add event listeners with passive: false
-    if (bubbleElement && canBet) {
+    if (bubbleElement && props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress) {
       bubbleElement.addEventListener('touchstart', touchStartHandler, { passive: false });
       bubbleElement.addEventListener('touchend', touchEndHandler, { passive: false });
     }
@@ -115,8 +115,9 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
         bubbleElement.removeEventListener('touchend', touchEndHandler);
       }
     };
-  }, [canBet]);
+  }, [props.isAuthenticated, props.onOutcomeBet, props.selectedStake, isGameInProgress]);
 
+  // Define canBet variable for UI rendering
   const canBet = props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress;
 
   return (
