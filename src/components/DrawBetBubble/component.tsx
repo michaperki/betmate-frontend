@@ -83,12 +83,39 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
     return odds ? (stake / odds).toFixed(0) : '0';
   };
 
-  // Cleanup on unmount
+  // Add touch event listeners with passive: false option
   useEffect(() => {
+    const bubbleElement = document.querySelector('.draw-bet-bubble');
+
+    // Touch event handlers with non-passive option
+    const touchStartHandler = (e: TouchEvent) => {
+      if (canBet) {
+        e.preventDefault();
+        handleBetStart(e as unknown as React.TouchEvent);
+      }
+    };
+
+    const touchEndHandler = (e: TouchEvent) => {
+      if (canBet) {
+        handleBetEnd();
+      }
+    };
+
+    // Add event listeners with passive: false
+    if (bubbleElement && canBet) {
+      bubbleElement.addEventListener('touchstart', touchStartHandler, { passive: false });
+      bubbleElement.addEventListener('touchend', touchEndHandler, { passive: false });
+    }
+
+    // Cleanup on unmount
     return () => {
       clearHoldTimers();
+      if (bubbleElement) {
+        bubbleElement.removeEventListener('touchstart', touchStartHandler);
+        bubbleElement.removeEventListener('touchend', touchEndHandler);
+      }
     };
-  }, []);
+  }, [canBet]);
 
   const canBet = props.isAuthenticated && props.onOutcomeBet && props.selectedStake && isGameInProgress;
 
@@ -98,8 +125,6 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
       onMouseDown={canBet ? handleBetStart : undefined}
       onMouseUp={canBet ? handleBetEnd : undefined}
       onMouseLeave={canBet ? handleBetEnd : undefined}
-      onTouchStart={canBet ? handleBetStart : undefined}
-      onTouchEnd={canBet ? handleBetEnd : undefined}
     >
       {/* Handshake Icon */}
       <div className="draw-icon">

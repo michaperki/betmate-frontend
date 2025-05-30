@@ -244,14 +244,53 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     setDrawHoldProgress(0);
   };
 
-  // Cleanup on unmount
+  // Define game progress state before it's used in the effect
+  const isGameInProgress = game ? gameInProgress(game.game_status as GameStatus) : false;
+
+  // Add touch event listeners with passive: false option
   useEffect(() => {
+    // Ensure we're not running this effect before game data is loaded
+    if (!game) return;
+    const drawBetButton = document.querySelector('.draw-bet-button');
+
+    // Touch event handlers with non-passive option
+    const touchStartHandler = (e: TouchEvent) => {
+      if (props.isAuthenticated && selectedStake && isGameInProgress) {
+        handleDrawBetStart(e as unknown as React.TouchEvent);
+      }
+    };
+
+    const touchEndHandler = (e: TouchEvent) => {
+      if (props.isAuthenticated && selectedStake && isGameInProgress) {
+        handleDrawBetEnd();
+      }
+    };
+
+    const touchCancelHandler = (e: TouchEvent) => {
+      if (props.isAuthenticated && selectedStake && isGameInProgress) {
+        handleDrawBetEnd();
+      }
+    };
+
+    // Add event listeners with passive: false
+    if (drawBetButton) {
+      drawBetButton.addEventListener('touchstart', touchStartHandler, { passive: false });
+      drawBetButton.addEventListener('touchend', touchEndHandler, { passive: false });
+      drawBetButton.addEventListener('touchcancel', touchCancelHandler, { passive: false });
+    }
+
+    // Cleanup on unmount
     return () => {
       clearDrawHoldTimers();
+      if (drawBetButton) {
+        drawBetButton.removeEventListener('touchstart', touchStartHandler);
+        drawBetButton.removeEventListener('touchend', touchEndHandler);
+        drawBetButton.removeEventListener('touchcancel', touchCancelHandler);
+      }
     };
-  }, []);
+  }, [props.isAuthenticated, selectedStake, isGameInProgress]);
 
-  const isGameInProgress = gameInProgress(game?.game_status as GameStatus);
+  // Moving this variable declaration before its usage in the useEffect
 
   if (!game) {
     return (
@@ -426,9 +465,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   onMouseDown={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
                   onMouseUp={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
                   onMouseLeave={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
-                  onTouchStart={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
-                  onTouchEnd={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
-                  onTouchCancel={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
                   onContextMenu={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
