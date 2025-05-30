@@ -1,0 +1,240 @@
+.betting-history-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 1rem;
+      
+      select {
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-input);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+
+    .stat-card {
+      flex: 1;
+      background-color: var(--bg-panel);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      &--won {
+        .stat-value {
+          color: var(--success-color);
+        }
+      }
+
+      &--lost {
+        .stat-value {
+          color: var(--danger-color);
+        }
+      }
+    }
+  }
+
+  .history-container {
+    background-color: var(--bg-panel);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .bet-history-item {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .game-info {
+      flex: 1;
+
+      .players {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .date {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+    }
+
+    .bet-details {
+      flex: 2;
+      padding: 0 1rem;
+
+      .bet-type {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .odds {
+        font-size: 0.9rem;
+      }
+    }
+
+    .bet-result {
+      flex: 1;
+      text-align: right;
+
+      .amount {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .status {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        display: inline-block;
+
+        &.won {
+          background-color: rgba(39, 174, 96, 0.1);
+          color: var(--success-color);
+        }
+
+        &.lost {
+          background-color: rgba(231, 76, 60, 0.1);
+          color: var(--danger-color);
+        }
+
+        &.cancelled {
+          background-color: rgba(149, 165, 166, 0.1);
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-panel);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--bg-hover);
+      }
+
+      &.active {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 0;
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-button {
+      padding: 0.75rem 1.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 4px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--primary-dark);
+      }
+    }
+  }
+
+  // Loading state
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  // Responsive styles
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .stats-bar {
+      flex-direction: column;
+    }
+
+    .bet-history-item {
+      flex-direction: column;
+      gap: 1rem;
+
+      .bet-details, .bet-result {
+        padding: 0;
+        text-align: left;
+      }
+    }
+  }
+}

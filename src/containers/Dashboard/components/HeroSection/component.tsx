@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { DashboardStats } from 'hooks/useDashboardData';
 import './style.scss';
 
@@ -25,12 +26,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ userName = 'Player', stats })
       </div>
 
       <div className="hero-actions">
-        <button className="btn btn-primary hero-btn">
+        <Link to="/active-bets" className="btn btn-primary hero-btn">
           View Active Bets
-        </button>
-        <button className="btn btn-secondary hero-btn">
+        </Link>
+        <Link to="/betting-history" className="btn btn-secondary hero-btn">
           Betting History
-        </button>
+        </Link>
       </div>
     </section>
   );

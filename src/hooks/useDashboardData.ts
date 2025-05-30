@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Game } from 'types/resources/game';
 import { User } from 'types/resources/auth';
+import { fetchUserBettingStats } from 'store/actionCreators/wagerActionCreators';
+import { RootState } from 'types/state';
 
 export interface DashboardStats {
   totalWagers: number;
@@ -10,15 +13,25 @@ export interface DashboardStats {
 }
 
 export const useDashboardData = (games: Game[], user: User | null) => {
+  const dispatch = useDispatch();
+  const userBettingStats = useSelector((state: RootState) => state.wager.stats);
+
   const [stats, setStats] = useState<DashboardStats>({
     totalWagers: 0,
     winRate: 0,
-    currentBalance: user?.account || 0, // Use real user balance
+    currentBalance: user?.account || 0,
     activeMatches: 0,
   });
 
   const [featuredGame, setFeaturedGame] = useState<Game | null>(null);
   const prevGamesLength = useRef(games.length);
+
+  // Fetch user betting stats on mount and when user changes
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchUserBettingStats());
+    }
+  }, [dispatch, user]);
 
   // Track games changes
   useEffect(() => {
@@ -27,6 +40,7 @@ export const useDashboardData = (games: Game[], user: User | null) => {
     }
   }, [games]);
 
+  // Update stats when any of the dependencies change
   useEffect(() => {
     // Handle empty games array
     if (games.length === 0) {
@@ -47,24 +61,27 @@ export const useDashboardData = (games: Game[], user: User | null) => {
 
     setFeaturedGame(featured);
 
-    // Calculate stats
-    setStats(prev => ({
-      ...prev,
+    // Calculate stats from real backend data
+    setStats({
+      totalWagers: userBettingStats?.totalWagers || 0,
+      winRate: userBettingStats?.winRate || 0,
+      currentBalance: user?.account || 0,
       activeMatches: games.length,
-      currentBalance: user?.account || 0, // Update balance when user changes
-      // TODO: Integrate with actual user stats from backend
-    }));
-  }, [games, user]);
+    });
+  }, [games, user, userBettingStats]);
 
   // Also listen for game_ended events directly in this hook
   useEffect(() => {
     const handleGameEnd = () => {
-      // No-op, just update the reference on next render
+      // When a game ends, refresh betting stats
+      if (user) {
+        dispatch(fetchUserBettingStats());
+      }
     };
 
     window.addEventListener('game_ended', handleGameEnd);
     return () => window.removeEventListener('game_ended', handleGameEnd);
-  }, []);
+  }, [dispatch, user]);
 
   return {
     stats,

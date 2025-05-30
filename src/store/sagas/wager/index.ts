@@ -6,4 +6,7 @@ export default function* wagerSaga() {
   yield fork(wagerWatchers.watchCreateWager);
   yield fork(wagerWatchers.watchFetchWagerById);
   yield fork(wagerWatchers.watchFetchWagers);
+  yield fork(wagerWatchers.watchFetchUserBettingStats);
+  yield fork(wagerWatchers.watchFetchActiveWagers);
+  yield fork(wagerWatchers.watchFetchWagerHistory);
 }

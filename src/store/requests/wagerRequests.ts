@@ -1,7 +1,7 @@
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { createBackendAxiosRequest } from 'store/requests';
 
-import { FetchWagerData, FetchWagersData } from 'types/resources/wager';
+import { FetchWagerData, FetchWagersData, UserBettingStats, WagerStatus } from 'types/resources/wager';
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { WagerArraySchema, WagerSchema } from 'validation/wager';
@@ -45,6 +45,46 @@ export const fetchWagers = async (): Promise<RequestReturnType<FetchWagersData>>
   const result = await createBackendAxiosRequest<FetchWagersData>({
     method: 'GET',
     url: '/wager',
+    headers: getBearerTokenHeader(),
+  });
+
+  return validateSchema(WagerArraySchema, result, (d) => d.data);
+};
+
+export const fetchUserBettingStats = async (): Promise<RequestReturnType<UserBettingStats>> => {
+  return await createBackendAxiosRequest<UserBettingStats>({
+    method: 'GET',
+    url: '/wager/stats',
+    headers: getBearerTokenHeader(),
+  });
+};
+
+export const fetchActiveWagers = async (): Promise<RequestReturnType<FetchWagersData>> => {
+  const result = await createBackendAxiosRequest<FetchWagersData>({
+    method: 'GET',
+    url: '/wager/active',
+    headers: getBearerTokenHeader(),
+  });
+
+  return validateSchema(WagerArraySchema, result, (d) => d.data);
+};
+
+export const fetchWagerHistory = async (
+  status?: WagerStatus,
+  limit?: number,
+  skip?: number
+): Promise<RequestReturnType<FetchWagersData>> => {
+  // Build query params
+  const params = new URLSearchParams();
+  if (status) params.append('status', status);
+  if (limit) params.append('limit', limit.toString());
+  if (skip) params.append('skip', skip.toString());
+
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+
+  const result = await createBackendAxiosRequest<FetchWagersData>({
+    method: 'GET',
+    url: `/wager/history${queryString}`,
     headers: getBearerTokenHeader(),
   });
 

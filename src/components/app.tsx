@@ -15,7 +15,10 @@ import UserPage from 'containers/UserPage';
 import RafflePage from 'containers/RafflePage';
 import Dashboard from '../containers/Dashboard';
 import ChessMatch from '../containers/ChessMatch';
+import ActiveBetsPage from 'containers/ActiveBetsPage';
+import BettingHistoryPage from 'containers/BettingHistoryPage';
 import NavBar from './NavBar';
+import RequireAuthHOC from 'hocs/requireAuth';
 
 const Welcome = () => {
   return (
@@ -52,6 +55,18 @@ const App: React.FC<AppProps> = (props) => {
           <Route exact path="/" component={Welcome} />
           <Route exact path="/chess/:id" component={ChessMatch} />
           <Route exact path="/raffles" component={RafflePage} />
+          <Route exact path="/active-bets" render={() => (
+              <div className="dashboard-page">
+                <NavBar />
+                <ActiveBetsPage />
+              </div>
+          )} />
+          <Route exact path="/betting-history" render={() => (
+              <div className="dashboard-page">
+                <NavBar />
+                <BettingHistoryPage />
+              </div>
+          )} />
           <Route exact path="/signin" component={SignInPanel} />
           <Route exact path="/signup" component={SignUpPanel} />
           <Route exact path="/signout" component={SignOutPanel} />

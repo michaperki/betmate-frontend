@@ -38,8 +38,18 @@ export interface FeedWager extends Wager {
 
 /* -------- State -------- */
 
+export interface UserBettingStats {
+  totalWagers: number;
+  winRate: number;
+}
+
 export interface WagerState {
   wagers: Record<string, Wager>,
+  activeWagers: Wager[],
+  wagerHistory: Wager[],
+  stats: UserBettingStats,
+  loading: boolean,
+  error: string | null,
 }
 
 /* -------- Action Types -------- */
@@ -47,6 +57,9 @@ export interface WagerState {
 export const CREATE_WAGER = 'CREATE_WAGER';
 export const FETCH_WAGER = 'FETCH_WAGER';
 export const FETCH_WAGERS = 'FETCH_WAGERS';
+export const FETCH_USER_BETTING_STATS = 'FETCH_USER_BETTING_STATS';
+export const FETCH_ACTIVE_WAGERS = 'FETCH_ACTIVE_WAGERS';
+export const FETCH_WAGER_HISTORY = 'FETCH_WAGER_HISTORY';
 
 export type CreateWagerRequestData = {
   gameId: string,
@@ -58,14 +71,38 @@ export type CreateWagerRequestData = {
 };
 export type FetchWagerRequestData = { id: string };
 export type DeleteWagerRequestData = { id: string };
+export type FetchWagerHistoryRequestData = {
+  status?: WagerStatus,
+  limit?: number,
+  skip?: number
+};
 
 export type FetchWagerData = Wager;
 export type FetchWagersData = Wager[];
+export type FetchUserBettingStatsData = UserBettingStats;
+export type FetchActiveWagersData = Wager[];
+export type FetchWagerHistoryData = Wager[];
 export type WagerResultData = { gameId: string, wagers: Wager[] }; // ws
 
 export type CreateWagerActions = AsyncAction<typeof CREATE_WAGER, FetchWagerData, CreateWagerRequestData>;
 export type FetchWagerActions = AsyncAction<typeof FETCH_WAGER, FetchWagerData, FetchWagerRequestData>;
 export type FetchWagersActions = AsyncAction<typeof FETCH_WAGERS, FetchWagersData>;
+export type FetchUserBettingStatsActions = AsyncAction<typeof FETCH_USER_BETTING_STATS, FetchUserBettingStatsData>;
+export type FetchActiveWagersActions = AsyncAction<typeof FETCH_ACTIVE_WAGERS, FetchActiveWagersData>;
+export type FetchWagerHistoryActions = AsyncAction<typeof FETCH_WAGER_HISTORY, FetchWagerHistoryData, FetchWagerHistoryRequestData>;
 
-export type WagerActions = CreateWagerActions | FetchWagerActions | FetchWagersActions;
-export type WagerActionTypes = typeof CREATE_WAGER | typeof FETCH_WAGER | typeof FETCH_WAGERS;
+export type WagerActions =
+  | CreateWagerActions
+  | FetchWagerActions
+  | FetchWagersActions
+  | FetchUserBettingStatsActions
+  | FetchActiveWagersActions
+  | FetchWagerHistoryActions;
+
+export type WagerActionTypes =
+  | typeof CREATE_WAGER
+  | typeof FETCH_WAGER
+  | typeof FETCH_WAGERS
+  | typeof FETCH_USER_BETTING_STATS
+  | typeof FETCH_ACTIVE_WAGERS
+  | typeof FETCH_WAGER_HISTORY;
