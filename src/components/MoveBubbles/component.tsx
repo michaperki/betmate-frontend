@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Chess } from 'chess.js';
 import { ROOT_URL } from 'utils';
 import './style.scss';
@@ -619,8 +619,8 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     });
   }, [userSubmittedMoves, gameState, topMoves, userMoveAnalysis]);
 
-  // Clear hold timers
-  const clearHoldTimers = () => {
+  // Clear hold timers - memoized with useCallback
+  const clearHoldTimers = useCallback(() => {
     if (holdTimerRef.current) {
       window.clearTimeout(holdTimerRef.current);
       holdTimerRef.current = null;
@@ -629,10 +629,10 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       window.clearInterval(progressTimerRef.current);
       progressTimerRef.current = null;
     }
-  };
+  }, []);
 
-  // Handle tap to show arrow
-  const handleTap = (move: string) => {
+  // Handle tap to show arrow - memoized with useCallback
+  const handleTap = useCallback((move: string) => {
     if (!gameState) return;
 
     const chess = new Chess(gameState);
@@ -706,10 +706,23 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     } catch (e) {
       console.error('Invalid move', e);
     }
-  };
+  }, [gameState, onMoveHover]);
 
-  // Handle tap and hold to place bet
-  const handleBetStart = (move: string) => (e: React.MouseEvent | React.TouchEvent) => {
+  // Prevent context menu during touch interactions - memoized with useCallback
+  const preventContextMenu = useCallback((e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }, []);
+
+  const handleBetEnd = useCallback(() => {
+    clearHoldTimers();
+    setIsHolding(null);
+    setHoldProgress(0);
+  }, [clearHoldTimers]);
+
+  // Handle tap and hold to place bet - memoized with useCallback
+  const handleBetStart = useCallback((move: string) => (e: React.MouseEvent | React.TouchEvent) => {
     if (!isAuthenticated || !selectedStake) return;
 
     e.preventDefault();
@@ -736,20 +749,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       onMoveBet(move, selectedStake);
       handleBetEnd();
     }, HOLD_DURATION);
-  };
-
-  // Prevent context menu during touch interactions
-  const preventContextMenu = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  };
-
-  const handleBetEnd = () => {
-    clearHoldTimers();
-    setIsHolding(null);
-    setHoldProgress(0);
-  };
+  }, [isAuthenticated, selectedStake, preventContextMenu, onMoveBet, handleBetEnd, HOLD_DURATION]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -758,8 +758,8 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     };
   }, []);
 
-  // Get bubble styling based on move quality
-  const getBubbleClass = (moveData: MoveData): string => {
+  // Get bubble styling based on move quality - memoized with useCallback
+  const getBubbleClass = useCallback((moveData: MoveData): string => {
     const { percentile, is_best_move, loading } = moveData;
 
     // Special case for loading state
@@ -779,10 +779,10 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     }
 
     return qualityClass;
-  };
+  }, []);
 
-  // Get the sweep color based on move quality
-  const getSweepColor = (moveData: MoveData): string => {
+  // Get the sweep color based on move quality - memoized with useCallback
+  const getSweepColor = useCallback((moveData: MoveData): string => {
     const { percentile, is_best_move } = moveData;
 
     if (is_best_move || percentile >= 90) {
@@ -794,61 +794,66 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     } else {
       return '#DC2626'; // Darker shade of poor-move red
     }
-  };
+  }, []);
 
-  // Get quality badge text
-  const getQualityBadge = (moveData: MoveData): string | null => {
+  // Get quality badge text - memoized with useCallback
+  const getQualityBadge = useCallback((moveData: MoveData): string | null => {
     const { percentile, is_best_move } = moveData;
 
     if (is_best_move) return 'BEST';
     if (percentile >= 90) return 'EXCELLENT';
     if (percentile >= 70) return 'GOOD';
     return null; // No badge for decent moves, and poor moves are filtered out
-  };
+  }, []);
 
-  // Calculate total wagers for a move from actual wager data
-  const getTotalWagered = (move: string): number => {
+  // Calculate total wagers for a move from actual wager data - memoized with useCallback
+  const getTotalWagered = useCallback((move: string): number => {
     if (!moveWagers?.wagers) return 50; // Default minimum
 
     return moveWagers.wagers
       .filter(wager => wager.data === move)
       .reduce((total, wager) => total + wager.amount, 0) || 50; // Default minimum
-  };
+  }, [moveWagers]);
 
-  // Get bubble size based on total wagered
-  const getBubbleSize = (totalWagered: number): string => {
+  // Get bubble size based on total wagered - memoized with useCallback
+  const getBubbleSize = useCallback((totalWagered: number): string => {
     if (totalWagered > 300) return 'large';
     if (totalWagered > 150) return 'medium';
     return 'small';
-  };
+  }, []);
 
-  // Create user-submitted move data for moves not already in AI suggestions
-  const userMoveData: MoveData[] = [];
-  if (userSubmittedMoves) {
-    userSubmittedMoves.forEach(move => {
-      // Only add if not already in AI suggestions
-      const alreadyExists = topMoves.some(aiMove => aiMove.move === move);
-      if (!alreadyExists) {
-        // Use analyzed data if available, otherwise mark as loading
-        if (userMoveAnalysis[move]) {
-          // Make sure we're using the analysis data and not showing 50%
-          userMoveData.push(userMoveAnalysis[move]);
-        } else {
-          // Add with special loading flag - no percentile shown while loading
-          userMoveData.push({
-            move,
-            score: 0,
-            percentile: 0, // Will be hidden when loading=true
-            is_best_move: false,
-            loading: true // Special flag to indicate loading state
-          });
+  // Create user-submitted move data for moves not already in AI suggestions - memoized with useMemo
+  const userMoveData = useMemo(() => {
+    const moveData: MoveData[] = [];
+
+    if (userSubmittedMoves) {
+      userSubmittedMoves.forEach(move => {
+        // Only add if not already in AI suggestions
+        const alreadyExists = topMoves.some(aiMove => aiMove.move === move);
+        if (!alreadyExists) {
+          // Use analyzed data if available, otherwise mark as loading
+          if (userMoveAnalysis[move]) {
+            // Make sure we're using the analysis data and not showing 50%
+            moveData.push(userMoveAnalysis[move]);
+          } else {
+            // Add with special loading flag - no percentile shown while loading
+            moveData.push({
+              move,
+              score: 0,
+              percentile: 0, // Will be hidden when loading=true
+              is_best_move: false,
+              loading: true // Special flag to indicate loading state
+            });
+          }
         }
-      }
-    });
-  }
+      });
+    }
 
-  // Combine AI moves with user-submitted moves
-  const allMoves = [...topMoves, ...userMoveData];
+    return moveData;
+  }, [userSubmittedMoves, topMoves, userMoveAnalysis]);
+
+  // Combine AI moves with user-submitted moves - memoized with useMemo
+  const allMoves = useMemo(() => [...topMoves, ...userMoveData], [topMoves, userMoveData]);
 
   // Only show loading if we don't have any moves and aren't animating
   if (isLoading && allMoves.length === 0 && !animatingOut) {
@@ -962,4 +967,5 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
   );
 };
 
-export default MoveBubbles;
+// Wrap component with React.memo to prevent unnecessary re-renders
+export default React.memo(MoveBubbles);

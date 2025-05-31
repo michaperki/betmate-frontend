@@ -24,6 +24,12 @@ export const SOCKET_ERROR = 'SOCKET_ERROR';
 export const SOCKET_GAME_ERROR = 'SOCKET_GAME_ERROR';
 export const JOIN_AUTH = 'JOIN_AUTH';
 export const LEAVE_AUTH = 'LEAVE_AUTH';
+export const SOCKET_CONNECTION_STATE = 'SOCKET_CONNECTION_STATE';
+export const SOCKET_RECONNECTING = 'SOCKET_RECONNECTING';
+export const SOCKET_RECONNECTED = 'SOCKET_RECONNECTED';
+export const SOCKET_RECONNECT_FAILED = 'SOCKET_RECONNECT_FAILED';
+export const QUEUE_SOCKET_MESSAGE = 'QUEUE_SOCKET_MESSAGE';
+export const CLEAR_SOCKET_QUEUE = 'CLEAR_SOCKET_QUEUE';
 
 export type InitializeSocketData = { url: string };
 export type SocketErrorData = { message: string };
@@ -31,6 +37,16 @@ export type SocketGameErrorData = { gameId: string, message: string };
 export type CloseSocketData = Empty;
 export type JoinAuthData = { token: string };
 export type LeaveAuthData = { token: string };
+export type SocketConnectionStateData = {
+  state: 'disconnected' | 'connecting' | 'connected' | 'error',
+  reason?: string,
+  error?: string
+};
+export type SocketReconnectingData = { attempt: number, delay: number };
+export type SocketReconnectedData = { attempts: number };
+export type SocketReconnectFailedData = { maxAttempts: number };
+export type QueueSocketMessageData = { event: string, payload: any };
+export type ClearSocketQueueData = Empty;
 
 export type InitializeSocketAction = Action<typeof INITIALIZE_SOCKET, InitializeSocketData>;
 export type SocketErrorAction = Action<typeof SOCKET_ERROR, SocketErrorData>;
@@ -38,6 +54,37 @@ export type SocketGameErrorAction = Action<typeof SOCKET_GAME_ERROR, SocketGameE
 export type CloseSocketAction = Action<typeof CLOSE_SOCKET, CloseSocketData>;
 export type JoinAuthActions = AsyncAction<typeof JOIN_AUTH, JoinAuthData, JoinAuthData>;
 export type LeaveAuthActions = AsyncAction<typeof LEAVE_AUTH, LeaveAuthData, LeaveAuthData>;
+export type SocketConnectionStateAction = Action<typeof SOCKET_CONNECTION_STATE, SocketConnectionStateData>;
+export type SocketReconnectingAction = Action<typeof SOCKET_RECONNECTING, SocketReconnectingData>;
+export type SocketReconnectedAction = Action<typeof SOCKET_RECONNECTED, SocketReconnectedData>;
+export type SocketReconnectFailedAction = Action<typeof SOCKET_RECONNECT_FAILED, SocketReconnectFailedData>;
+export type QueueSocketMessageAction = Action<typeof QUEUE_SOCKET_MESSAGE, QueueSocketMessageData>;
+export type ClearSocketQueueAction = Action<typeof CLEAR_SOCKET_QUEUE, ClearSocketQueueData>;
 
-export type SocketActions = InitializeSocketAction | SocketErrorAction | SocketGameErrorAction | CloseSocketAction | JoinAuthActions | LeaveAuthActions;
-export type SocketActionTypes = typeof INITIALIZE_SOCKET | typeof SOCKET_ERROR | typeof SOCKET_GAME_ERROR | typeof CLOSE_SOCKET | typeof JOIN_AUTH | typeof LEAVE_AUTH;
+export type SocketActions =
+  InitializeSocketAction |
+  SocketErrorAction |
+  SocketGameErrorAction |
+  CloseSocketAction |
+  JoinAuthActions |
+  LeaveAuthActions |
+  SocketConnectionStateAction |
+  SocketReconnectingAction |
+  SocketReconnectedAction |
+  SocketReconnectFailedAction |
+  QueueSocketMessageAction |
+  ClearSocketQueueAction;
+
+export type SocketActionTypes =
+  typeof INITIALIZE_SOCKET |
+  typeof SOCKET_ERROR |
+  typeof SOCKET_GAME_ERROR |
+  typeof CLOSE_SOCKET |
+  typeof JOIN_AUTH |
+  typeof LEAVE_AUTH |
+  typeof SOCKET_CONNECTION_STATE |
+  typeof SOCKET_RECONNECTING |
+  typeof SOCKET_RECONNECTED |
+  typeof SOCKET_RECONNECT_FAILED |
+  typeof QUEUE_SOCKET_MESSAGE |
+  typeof CLEAR_SOCKET_QUEUE;

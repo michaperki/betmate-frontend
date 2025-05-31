@@ -7,6 +7,7 @@ import leaderboardReducer from 'store/reducers/leaderboardReducer';
 import requestReducer from 'store/reducers/requestReducer';
 import raffleReducer from 'store/reducers/raffleReducer';
 import wagerReducer from 'store/reducers/wagerReducer';
+import socketReducer from 'store/reducers/socketReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   requests: requestReducer,
   raffle: raffleReducer,
   wager: wagerReducer,
+  socket: socketReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

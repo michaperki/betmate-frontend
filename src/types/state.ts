@@ -51,6 +51,9 @@ export type RequestReturnType<D> = AxiosResponse<D>;
 
 /* -------- State -------- */
 
+// Import the socket state type
+import { SocketState } from '../store/reducers/socketReducer';
+
 export interface RootState {
   auth: AuthState,
   chessground: ChessgroundState,
@@ -58,5 +61,6 @@ export interface RootState {
   leaderboard: LeaderboardState,
   requests: RequestState,
   raffle: RaffleState,
-  wager: WagerState
+  wager: WagerState,
+  socket: SocketState
 }

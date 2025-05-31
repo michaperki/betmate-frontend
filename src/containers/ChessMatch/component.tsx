@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router';
 import ChessgroundWrapper from '../../components/ChessgroundWrapper';
 import { DrawShape } from 'chessground/draw';
@@ -16,6 +16,7 @@ import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
+import ConnectionStatus from 'components/ConnectionStatus';
 import EvaluationBar from './EvaluationBar';
 import balanceIcon from 'assets/wager_panel/balance-icon.svg';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
@@ -119,7 +120,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   }, [gameId, props.fetchGameById, props.fetchGameStats, props.getGameLeaderboard]);
 
   // Handle drag-and-drop move - now respects quick bet mode
-  const handleDragMove = (orig: Key, dest: Key, metadata?: MoveMetadata) => {
+  // Memoized with useCallback to prevent unnecessary rerenders
+  const handleDragMove = useCallback((orig: Key, dest: Key, metadata?: MoveMetadata) => {
     if (!game) return;
 
     // Convert from/to positions to SAN notation
@@ -183,10 +185,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     } catch (e) {
       console.error('Invalid move', e);
     }
-  };
+  }, [
+    game,
+    gameId,
+    selectedStake,
+    props.onEnterMovePanel,
+    props.onMoveHover,
+    props.onMoveUnhover,
+    props.quickBetMode,
+    props.createWager,
+    props.clearPendingBet
+  ]);
 
-  // Draw betting functionality
-  const clearDrawHoldTimers = () => {
+  // Draw betting functionality - memoized with useCallback
+  const clearDrawHoldTimers = useCallback(() => {
     if (drawHoldTimerRef.current) {
       window.clearTimeout(drawHoldTimerRef.current);
       drawHoldTimerRef.current = null;
@@ -195,9 +207,24 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       window.clearInterval(drawProgressTimerRef.current);
       drawProgressTimerRef.current = null;
     }
-  };
+  }, []);
 
-  const handleDrawBetStart = (e: React.MouseEvent | React.TouchEvent) => {
+  // Prevent context menu during touch interactions - memoized with useCallback
+  const preventContextMenu = useCallback((e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }, []);
+
+  // Handle end of draw bet - memoized with useCallback
+  const handleDrawBetEnd = useCallback(() => {
+    clearDrawHoldTimers();
+    setIsDrawHolding(false);
+    setDrawHoldProgress(0);
+  }, [clearDrawHoldTimers]);
+
+  // Handle start of draw bet - memoized with useCallback
+  const handleDrawBetStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -219,33 +246,35 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
     // Complete bet on hold duration
     drawHoldTimerRef.current = window.setTimeout(() => {
-      props.createWager(
-        gameId,
-        'draw',
-        selectedStake,
-        true, // is WDL
-        1 / (game?.odds?.['draw'] || 1),
-        game.move_hist.length + 1,
-      );
+      if (game) {
+        props.createWager(
+          gameId,
+          'draw',
+          selectedStake,
+          true, // is WDL
+          1 / (game?.odds?.['draw'] || 1),
+          game.move_hist.length + 1,
+        );
+      }
       handleDrawBetEnd();
     }, DRAW_HOLD_DURATION);
-  };
+  }, [
+    preventContextMenu,
+    setIsDrawHolding,
+    setDrawHoldProgress,
+    DRAW_HOLD_DURATION,
+    props.createWager,
+    gameId,
+    selectedStake,
+    game,
+    handleDrawBetEnd
+  ]);
 
-  // Prevent context menu during touch interactions
-  const preventContextMenu = (e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  };
-
-  const handleDrawBetEnd = () => {
-    clearDrawHoldTimers();
-    setIsDrawHolding(false);
-    setDrawHoldProgress(0);
-  };
-
-  // Define game progress state before it's used in the effect
-  const isGameInProgress = game ? gameInProgress(game.game_status as GameStatus) : false;
+  // Define game progress state before it's used in the effect - memoized with useMemo
+  const isGameInProgress = useMemo(() =>
+    game ? gameInProgress(game.game_status as GameStatus) : false,
+    [game?.game_status]
+  );
 
   // Add touch event listeners with passive: false option
   useEffect(() => {
@@ -315,6 +344,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
       {/* Using a structure similar to index.html for consistent page layout */}
       <div className="dark-game-page">
+        {/* Connection status indicator */}
+        <ConnectionStatus />
         {/* Top navigation bar - Using the compact variant of NavBar */}
         <NavBar compact={true} />
 
@@ -362,7 +393,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                     <ChessgroundWrapper
-                      config={{
+                      config={useMemo(() => ({
                         ...props.config,
                         coordinates: true,
                         viewOnly: props.isAuthenticated ? false : true, // Allow moves only for authenticated users
@@ -387,7 +418,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
                           eraseOnClick: false,
                         },
-                      }}
+                      }), [
+                        props.config,
+                        props.isAuthenticated,
+                        game.state,
+                        game.move_hist,
+                        props.autoShapes,
+                        handleDragMove
+                      ])}
                     />
                     {/* Game end overlay - only shown when game is over */}
                     {gameOver(game.game_status as GameStatus) && (
@@ -531,4 +569,5 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   );
 };
 
-export default ChessMatch;
+// Wrap with React.memo to prevent unnecessary re-renders
+export default React.memo(ChessMatch);
