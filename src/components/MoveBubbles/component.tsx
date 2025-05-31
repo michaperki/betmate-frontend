@@ -719,7 +719,8 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     clearHoldTimers();
     setIsHolding(null);
     setHoldProgress(0);
-  }, [clearHoldTimers]);
+    onMoveUnhover(); // Remove the arrow when the bet interaction ends
+  }, [clearHoldTimers, onMoveUnhover]);
 
   // Handle tap and hold to place bet - memoized with useCallback
   const handleBetStart = useCallback((move: string) => (e: React.MouseEvent | React.TouchEvent) => {
@@ -731,6 +732,28 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
     // Prevent context menu on mobile
     if ('ontouchstart' in window) {
       document.addEventListener('contextmenu', preventContextMenu, { once: true });
+    }
+
+    // Show arrow immediately when touch/click starts
+    // Instead of calling handleTap (which would create a circular dependency),
+    // directly invoke the onMoveHover with the move information
+    if (gameState) {
+      const chess = new Chess(gameState);
+      try {
+        // Process the move to get origin and destination
+        let moveObj = chess.move(move, { sloppy: true });
+        if (moveObj) {
+          onMoveHover([{ orig: moveObj.from, dest: moveObj.to }]);
+          chess.undo(); // Reset position
+        } else if (move.length === 4 && /^[a-h][1-8][a-h][1-8]$/.test(move)) {
+          // If it's in the format "e2e4"
+          const from = move.substring(0, 2);
+          const to = move.substring(2, 4);
+          onMoveHover([{ orig: from, dest: to }]);
+        }
+      } catch (e) {
+        console.error('Error processing move for arrow display:', e);
+      }
     }
 
     setIsHolding(move);
@@ -749,7 +772,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       onMoveBet(move, selectedStake);
       handleBetEnd();
     }, HOLD_DURATION);
-  }, [isAuthenticated, selectedStake, preventContextMenu, onMoveBet, handleBetEnd, HOLD_DURATION]);
+  }, [isAuthenticated, selectedStake, preventContextMenu, onMoveBet, handleBetEnd, HOLD_DURATION, gameState, onMoveHover]);
 
   // Cleanup on unmount
   useEffect(() => {
