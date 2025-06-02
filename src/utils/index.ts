@@ -4,7 +4,7 @@
 export const ROOT_URL = process.env.TARGET_ENV === 'prod'
   ? 'https://betmate-prod-1d67bb013aa8.herokuapp.com'
   : process.env.TARGET_ENV === 'dev'
-    ? 'https://betmate-c5e3b1b52828.herokuapp.com'
+    ? 'https://betmate-staging-b13c28d0322d.herokuapp.com'
     : 'http://localhost:9090';
 
 // Auth token name for storage and transmission to backend
