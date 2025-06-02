@@ -17,14 +17,22 @@
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   }
 
-  @media (min-width: 769px) {
-    position: fixed; // Keep fixed position on desktop
+  @media (min-width: 1201px) {
+    position: fixed; // Keep fixed position on large desktop only
     height: 100vh;
     width: 100vw;
     top: 0;
     left: 0;
     z-index: 1;
-    overflow: hidden; // Prevent scrolling on desktop
+    overflow: hidden; // Prevent scrolling on large desktop
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    position: relative; // Use relative positioning for tablet
+    min-height: 100vh;
+    width: 100%;
+    overflow-y: auto; // Allow vertical scrolling
+    padding-bottom: 20px; // Bottom padding for spacing
   }
 }
 
@@ -113,9 +121,15 @@
     overflow: visible; // Allow content to overflow and be scrollable
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 1201px) {
     height: calc(100% - 24px);
-    overflow: hidden; // Keep contained on desktop
+    overflow: hidden; // Keep contained only on large desktop
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    height: auto;
+    overflow-y: auto; // Allow scrolling on tablet sizes
+    padding-bottom: 32px; // Add space at the bottom
   }
 
   // Mobile-first responsive layout
@@ -154,7 +168,8 @@
     grid-template-areas:
       "board-area"
       "right-sidebar"
-      "mobile-chat";
+      "mobile-chat"
+      "mobile-leaderboard";
     gap: 16px;
     padding: 16px;
     height: auto;
@@ -503,8 +518,15 @@
   border-radius: 12px;
   border: 1px solid rgba(0, 239, 178, 0.2);
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1201px) {
     display: none; /* Hidden on desktop - content is in left sidebar */
+  }
+
+  @media (min-width: 769px) and (max-width: 1200px) {
+    grid-area: mobile-leaderboard; /* Position it in the proper grid area */
+    display: flex; /* Ensure it's visible */
+    margin-top: 0;
+    max-width: 700px;
   }
 
   @media (max-width: 768px) {
