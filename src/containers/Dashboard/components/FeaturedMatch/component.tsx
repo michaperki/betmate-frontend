@@ -28,70 +28,36 @@ const FeaturedMatch: React.FC<FeaturedMatchProps> = ({ game }) => {
       </div>
 
       <div className="featured-game-content">
-        {isMobile ? (
-          // Mobile-optimized vertical layout with pawn decorations
-          <div className="mobile-game-layout">
-            <div className="match-info">
-              <div className="players-with-pawns">
-                <img src={blackPawn} alt="Black Pawn" className="pawn-decoration pawn-left" />
+        {/* Use the same layout for both mobile and desktop to ensure consistent appearance */}
+        <div className={isMobile ? "mobile-game-layout" : "desktop-game-layout"}>
+          <div className="match-info">
+            <div className="players-with-pawns">
+              <img src={blackPawn} alt="Black Pawn" className="pawn-decoration pawn-left" />
 
-                <div className="players-vertical">
-                  <div className="player">
-                    <span className="player-name">{game.player_black.name}</span>
-                    <span className="player-rating">({game.player_black.elo})</span>
-                  </div>
-                  <div className="vs-divider">VS</div>
-                  <div className="player">
-                    <span className="player-name">{game.player_white.name}</span>
-                    <span className="player-rating">({game.player_white.elo})</span>
-                  </div>
+              <div className="players-vertical">
+                <div className="player">
+                  <span className="player-name">{game.player_black.name}</span>
+                  <span className="player-rating">({game.player_black.elo})</span>
                 </div>
-
-                <img src={whitePawn} alt="White Pawn" className="pawn-decoration pawn-right" />
+                <div className="vs-divider">VS</div>
+                <div className="player">
+                  <span className="player-name">{game.player_white.name}</span>
+                  <span className="player-rating">({game.player_white.elo})</span>
+                </div>
               </div>
 
-              <div className="odds-bar">
-                <WDLBar
-                  odds={game.odds}
-                  height={20}
-                  width={280}
-                />
-              </div>
+              <img src={whitePawn} alt="White Pawn" className="pawn-decoration pawn-right" />
+            </div>
+
+            <div className="odds-bar">
+              <WDLBar
+                odds={game.odds}
+                height={isMobile ? 20 : 30}
+                width={isMobile ? 280 : 400}
+              />
             </div>
           </div>
-        ) : (
-          // Desktop layout - use original GameCard
-          <div className="desktop-game-layout">
-            <div className="game-card-wrapper">
-              <div className='game-card'>
-                <div className='game-title'>
-                  <div className="player-side">
-                    <div className="player-info">
-                      <p className='player-name'>{game.player_black.name}</p>
-                      <p className='player-rating'>({game.player_black.elo})</p>
-                    </div>
-                  </div>
-                  <div className="vs-section">
-                    <p className='vs-text'>VS</p>
-                  </div>
-                  <div className="player-side">
-                    <div className="player-info">
-                      <p className='player-name'>{game.player_white.name}</p>
-                      <p className='player-rating'>({game.player_white.elo})</p>
-                    </div>
-                  </div>
-                </div>
-                <div className='wdl-bar'>
-                  <WDLBar
-                    odds={game.odds}
-                    height={25}
-                    width={400}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
       <div className="featured-actions">
