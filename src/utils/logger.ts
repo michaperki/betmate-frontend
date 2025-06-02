@@ -1,11 +1,13 @@
 /**
  * Logging utility for the frontend
- * 
+ *
  * Provides consistent logging across the application with options to:
  * - Log to console in development
  * - Send important events to Axiom in production
  * - Track errors and user actions
  */
+
+import { ROOT_URL } from './index';
 
 // Environment detection
 const isDev = process.env.NODE_ENV === 'development';
@@ -56,7 +58,7 @@ async function sendToAxiom(event: LogEvent): Promise<void> {
     }
 
     // In production, send to backend proxy
-    const response = await fetch(AXIOM_ENDPOINT, {
+    const response = await fetch(`${ROOT_URL}${AXIOM_ENDPOINT}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
