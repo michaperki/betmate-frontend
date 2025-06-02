@@ -28,7 +28,10 @@
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
-    position: relative; // Use relative positioning for tablet
+    position: absolute; // Use absolute positioning to ensure it starts from the top
+    top: 0;
+    left: 0;
+    right: 0;
     min-height: 100vh;
     width: 100%;
     overflow-y: auto; // Allow vertical scrolling
@@ -171,7 +174,7 @@
       "mobile-chat"
       "mobile-leaderboard";
     gap: 16px;
-    padding: 16px;
+    padding: 90px 16px 24px; /* Add padding-top to account for navbar */
     height: auto;
 
     .game-info-panel-container {
