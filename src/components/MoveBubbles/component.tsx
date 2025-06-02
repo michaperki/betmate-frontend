@@ -726,8 +726,11 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
   const handleBetStart = useCallback((move: string) => (e: React.MouseEvent | React.TouchEvent) => {
     if (!isAuthenticated || !selectedStake) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+    // Only call preventDefault for mouse events (not touch events)
+    if (e.type.startsWith('mouse')) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
     // Prevent context menu on mobile
     if ('ontouchstart' in window) {
@@ -948,8 +951,11 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
               onTouchEnd={handleBetEnd}
               onTouchCancel={handleBetEnd}
               onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+                // Only prevent default on non-touch devices
+                if (!('ontouchstart' in window)) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
                 return false;
               }}
             >
