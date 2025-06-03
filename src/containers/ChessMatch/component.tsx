@@ -347,7 +347,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
                     viewOnly: true,
                     coordinates: true,
-                    turnColor: game?.state?.includes(' w ') ? 'white' : 'black',
+                    turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
                     lastMove: game?.move_hist?.length > 0
                       ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
                       : undefined,
@@ -453,7 +453,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           ...props.config,
                           coordinates: true,
                           viewOnly: false,
-                          turnColor: game?.state?.includes(' w ') ? 'white' : 'black',
+                          turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
                           fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', // Default starting position as fallback
                           lastMove: game?.move_hist?.length > 0
                             ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
