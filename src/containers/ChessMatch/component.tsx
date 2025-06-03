@@ -341,33 +341,36 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <p>Sign in to place bets on this chess match!</p>
             <div className="preview-board">
               <ChessgroundWrapper
-                config={{
-                  fen: game?.state,
-                  viewOnly: true,
-                  coordinates: true,
-                  turnColor: game.state.includes(' w ') ? 'white' : 'black',
-                  lastMove: game?.move_hist?.length > 0
-                    ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                    : undefined,
-                  movable: {
-                    free: false,
-                    color: 'both',
-                    rookCastle: true
-                  },
-                  highlight: {
-                    lastMove: true,
-                    check: true
-                  },
-                  animation: {
-                    duration: 200
-                  },
-                  drawable: {
-                    enabled: false,
-                    visible: false,
-                    defaultSnapToValidMove: true,
-                    eraseOnClick: false,
-                  }
-                }}
+                config={useMemo(() => {
+                  // Create a valid config for unauthenticated users
+                  return {
+                    fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+                    viewOnly: true,
+                    coordinates: true,
+                    turnColor: game?.state?.includes(' w ') ? 'white' : 'black',
+                    lastMove: game?.move_hist?.length > 0
+                      ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
+                      : undefined,
+                    movable: {
+                      free: false,
+                      color: 'both',
+                      rookCastle: true
+                    },
+                    highlight: {
+                      lastMove: true,
+                      check: true
+                    },
+                    animation: {
+                      duration: 200
+                    },
+                    drawable: {
+                      enabled: false,
+                      visible: false,
+                      defaultSnapToValidMove: true,
+                      eraseOnClick: false,
+                    }
+                  };
+                }, [game?.state, game?.move_hist])}
               />
             </div>
             <div className="auth-buttons">
@@ -444,35 +447,48 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
                   <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
                     <ChessgroundWrapper
-                      config={useMemo(() => ({
-                        ...props.config,
-                        coordinates: true,
-                        viewOnly: false, // For authenticated users we'll allow interactions
-                        turnColor: game.state.includes(' w ') ? 'white' : 'black', // Determine current turn from FEN
-                        movable: {
-                          free: false, // Don't allow free movement - must be valid chess moves
-                          color: 'both', // Allow moving both colors for betting purposes
-                          dests: getValidMoves(game.state), // Get valid moves from current position
-                          rookCastle: true, // Add this to fix the rookCastle error
-                          events: {
-                            after: handleDragMove // Handle drag events
+                      config={useMemo(() => {
+                        // Create a base configuration that's always valid
+                        const baseConfig = {
+                          ...props.config,
+                          coordinates: true,
+                          viewOnly: false,
+                          turnColor: game?.state?.includes(' w ') ? 'white' : 'black',
+                          fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', // Default starting position as fallback
+                          lastMove: game?.move_hist?.length > 0
+                            ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
+                            : undefined,
+                          drawable: {
+                            enabled: true,
+                            visible: true,
+                            defaultSnapToValidMove: true,
+                            autoShapes: props.autoShapes || [],
+                            eraseOnClick: false,
                           }
-                        },
-                        fen: game?.state,
-                        lastMove: game?.move_hist?.length > 0
-                          ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                          : undefined,
-                        drawable: {
-                          enabled: true,
-                          visible: true,
-                          defaultSnapToValidMove: true,
-                          autoShapes: props.autoShapes || [], // Always use autoShapes regardless of flag
-                          eraseOnClick: false,
-                        },
-                      }), [
+                        };
+
+                        // Only add movable property if game state is valid
+                        if (game?.state) {
+                          return {
+                            ...baseConfig,
+                            movable: {
+                              free: false,
+                              color: 'both',
+                              dests: getValidMoves(game.state),
+                              rookCastle: true,
+                              events: {
+                                after: handleDragMove
+                              }
+                            }
+                          };
+                        }
+
+                        // Return a simpler config without movable property when game state is loading
+                        return baseConfig;
+                      }, [
                         props.config,
-                        game.state,
-                        game.move_hist,
+                        game?.state,
+                        game?.move_hist,
                         props.autoShapes,
                         handleDragMove
                       ])}
