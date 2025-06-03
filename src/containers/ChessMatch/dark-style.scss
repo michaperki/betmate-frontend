@@ -632,6 +632,108 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Styles for unauthenticated users */
+.unauthenticated-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px); /* Adjust for navbar */
+  width: 100%;
+  padding: 20px;
+  background-color: #1e1e2e;
+  color: #ffffff;
+}
+
+.unauthenticated-content {
+  width: 100%;
+  max-width: 800px; /* Increased from 500px */
+  text-align: center;
+
+  h2 {
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: #ffffff;
+  }
+
+  p {
+    font-size: 18px;
+    margin-bottom: 24px;
+    color: #b4b4c8;
+  }
+
+  .preview-board {
+    width: 450px;
+    height: 450px;
+    margin: 0 auto 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+
+    @media (max-width: 768px) {
+      width: 400px;
+      height: 400px;
+    }
+
+    @media (max-width: 500px) {
+      width: 300px;
+      height: 300px;
+    }
+
+    // Constrain the chessboard size
+    .cg-wrap {
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    // Force all chessground elements to respect container size
+    .cg-container,
+    .cg-board {
+      width: 100% !important;
+      height: 100% !important;
+      position: relative !important;
+    }
+  }
+
+  .auth-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+
+    .auth-button {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &.signin {
+        background-color: #45a0f5;
+        color: white;
+
+        &:hover {
+          background-color: #3b86cb;
+        }
+      }
+
+      &.signup {
+        background-color: #4caf50;
+        color: white;
+
+        &:hover {
+          background-color: #3d8b40;
+        }
+      }
+    }
+  }
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;

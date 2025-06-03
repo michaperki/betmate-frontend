@@ -321,10 +321,61 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   // Moving this variable declaration before its usage in the useEffect
 
+  // Handle loading state or no game data
   if (!game) {
     return (
       <div className="loading-container">
         <div className="loading-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  // Handle unauthenticated users with a welcome screen rather than a black screen
+  if (!props.isAuthenticated) {
+    return (
+      <div className="dark-game-page">
+        <NavBar compact={true} />
+        <div className="unauthenticated-container">
+          <div className="unauthenticated-content">
+            <h2>Welcome to Betmate</h2>
+            <p>Sign in to place bets on this chess match!</p>
+            <div className="preview-board">
+              <ChessgroundWrapper
+                config={{
+                  fen: game?.state,
+                  viewOnly: true,
+                  coordinates: true,
+                  turnColor: game.state.includes(' w ') ? 'white' : 'black',
+                  lastMove: game?.move_hist?.length > 0
+                    ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
+                    : undefined,
+                  movable: {
+                    free: false,
+                    color: 'both',
+                    rookCastle: true
+                  },
+                  highlight: {
+                    lastMove: true,
+                    check: true
+                  },
+                  animation: {
+                    duration: 200
+                  },
+                  drawable: {
+                    enabled: false,
+                    visible: false,
+                    defaultSnapToValidMove: true,
+                    eraseOnClick: false,
+                  }
+                }}
+              />
+            </div>
+            <div className="auth-buttons">
+              <a href="/signin" className="auth-button signin">Sign In</a>
+              <a href="/signup" className="auth-button signup">Sign Up</a>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -396,9 +447,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       config={useMemo(() => ({
                         ...props.config,
                         coordinates: true,
-                        viewOnly: props.isAuthenticated ? false : true, // Allow moves only for authenticated users
+                        viewOnly: false, // For authenticated users we'll allow interactions
                         turnColor: game.state.includes(' w ') ? 'white' : 'black', // Determine current turn from FEN
-                        movable: props.isAuthenticated ? {
+                        movable: {
                           free: false, // Don't allow free movement - must be valid chess moves
                           color: 'both', // Allow moving both colors for betting purposes
                           dests: getValidMoves(game.state), // Get valid moves from current position
@@ -406,7 +457,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           events: {
                             after: handleDragMove // Handle drag events
                           }
-                        } : undefined,
+                        },
                         fen: game?.state,
                         lastMove: game?.move_hist?.length > 0
                           ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
@@ -420,7 +471,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         },
                       }), [
                         props.config,
-                        props.isAuthenticated,
                         game.state,
                         game.move_hist,
                         props.autoShapes,
