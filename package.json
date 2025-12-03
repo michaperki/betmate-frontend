@@ -13,7 +13,8 @@
   "private": true,
   "license": "none",
   "scripts": {
-    "dev": " webpack serve",
+    "dev": "node ./scripts/dev-server.js",
+    "dev:webpack": "webpack serve",
     "test": "eslint src",
     "build-dev": "NODE_ENV=production TARGET_ENV=dev webpack",
     "build-prod": "NODE_ENV=production TARGET_ENV=prod webpack",

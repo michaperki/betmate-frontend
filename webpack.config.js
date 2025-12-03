@@ -12,6 +12,9 @@ const finalCSSLoader = isProd ? MiniCssExtractPlugin.loader : 'style-loader';
 module.exports = {
   mode: env,
   entry: './src/index.tsx',
+  infrastructureLogging: {
+    level: isProd ? 'info' : 'warn',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
@@ -163,7 +166,7 @@ module.exports = {
         errors: true,
         warnings: false,
       },
-      logging: 'warn',
+      logging: 'none',
     },
     devMiddleware: {
       writeToDisk: false,
@@ -174,7 +177,7 @@ module.exports = {
         target: 'http://localhost:8082',
         pathRewrite: { '^/dev/top-moves': '/predict' },
         changeOrigin: true,
-        logLevel: 'debug'
+        logLevel: 'warn'
       }
     },
   },

@@ -66,6 +66,8 @@ This branch implements a redesigned game page with a modern dark theme, neumorph
 3. Run `yarn dev` to start running the site locally at localhost:8080
 4. Go to the [backend repo](https://github.com/dali-lab/betmate-backend) and follow instructions on its README to get the server running locally at localhost:9090. Go to the [python microservice](https://github.com/dali-lab/betmate-model-microservice) repo and follow its README to get a local server running for our chess engine ML model at localhost:3000.
 
+`yarn dev` now sets `BROWSERSLIST_IGNORE_OLD_DATA=1` automatically to suppress CLI warnings when offline. When you do have network access you can manually refresh the Browserslist database by running `npx update-browserslist-db@latest --update-db`.
+
 ## Deploying this site
 All pull requests merged into the 'dev' branch are automatically deployed to https://betmate-dev.netlify.app/
 
