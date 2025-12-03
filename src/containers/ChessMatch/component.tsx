@@ -10,13 +10,13 @@ import CoinBalance from 'components/CoinBalance';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
-import DragDropTip from 'components/DragDropTip';
 import GameCommunication from '../../components/GameCommunication';
 import MoveBubbles from 'components/MoveBubbles';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import NavBar from 'components/NavBar';
 import GameInfoPanel from 'components/GameInfoPanel';
 import ConnectionStatus from 'components/ConnectionStatus';
+import OnboardingGate from 'components/OnboardingGate';
 import EvaluationBar from './EvaluationBar';
 import balanceIcon from 'assets/wager_panel/balance-icon.svg';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
@@ -393,8 +393,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         </>
       )}
 
-      {/* Drag & Drop Tip */}
-      <DragDropTip isAuthenticated={props.isAuthenticated} />
+      <OnboardingGate isAuthenticated={props.isAuthenticated} />
 
       {/* Using a structure similar to index.html for consistent page layout */}
       <div className="dark-game-page">

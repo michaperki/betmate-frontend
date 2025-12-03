@@ -16,6 +16,7 @@ export interface User {
   last_name: string
   full_name: string
   account: number // This is the user's token balance for betting
+  onboarding_version_seen?: number
   role?: UserRole
   _id: string
   is_bot?: boolean
