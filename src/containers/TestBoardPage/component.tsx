@@ -273,7 +273,6 @@ const TestBoardPage: React.FC = () => {
   const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
   const isAtLatestSnapshot = positionIndex === latestSnapshotIndex;
   const betsLocked = !isAtLatestSnapshot;
-  const evalWidth = 60;
   const arrowShapes = useMemo(() => (
     hoverArrow ? [{
       orig: hoverArrow[0],
@@ -312,6 +311,8 @@ const TestBoardPage: React.FC = () => {
   const mobileMoveOwner = isWhiteTurn ? PLAYER_WHITE : PLAYER_BLACK;
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
+  const BOARD_STACK_GAP = 12;
+  const boardStackWidth = boardSize + evalBarWidth + BOARD_STACK_GAP;
 
   const MIN_CAP = 8;
   const MIN_BLUE = 8;
@@ -799,7 +800,7 @@ const TestBoardPage: React.FC = () => {
               <div
                 ref={boardFrameRef}
                 className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
-                style={{ width: boardSize + evalWidth + 48 }}
+                style={{ width: boardStackWidth }}
               >
                 <div className="player-header">
                   <div className="player-meta">
@@ -811,7 +812,7 @@ const TestBoardPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
+                <div className="board-eval-stack" style={{ width: boardStackWidth, gap: BOARD_STACK_GAP }}>
                   <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
                     <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
                       <ChessgroundWrapper config={boardConfig} />

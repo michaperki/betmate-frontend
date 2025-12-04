@@ -184,32 +184,27 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  align-items: center;
-  padding: 16px 16px 32px;
+  gap: 10px;
+  align-items: stretch;
+  padding: 0;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.45);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
+  border: 1px solid rgba(47, 209, 190, 0.4);
+  background: rgba(7, 13, 23, 0.9);
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
+  overflow: visible;
 
   &::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: transparent;
+    background: linear-gradient(135deg, rgba(36, 231, 206, 0.14), transparent 65%);
     pointer-events: none;
     transition: background 0.2s ease, border-color 0.2s ease;
   }
 
-  &--rewound {
-    border-color: rgba(239, 68, 68, 0.5);
-    box-shadow: 0 18px 45px rgba(239, 68, 68, 0.25);
-
-    &::after {
-      background: linear-gradient(180deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.02));
-    }
+  &--rewound::after {
+    background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
   }
 }
 
@@ -217,7 +212,7 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
 }
 
@@ -230,6 +225,8 @@
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 12px;
+  box-sizing: border-box;
 
   .player-meta {
     display: flex;
@@ -250,6 +247,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-right: 6px;
+    flex: 0 0 auto;
 
     .player-clock {
       font-size: 16px;
@@ -687,16 +686,17 @@
 
 .board-resize-handle {
   position: absolute;
-  width: 44px;
-  height: 44px;
-  bottom: -6px;
-  right: -6px;
+  width: 28px;
+  height: 28px;
+  bottom: 6px;
+  right: 14px;
   border: none;
-  background: linear-gradient(135deg, transparent 0%, transparent 40%, rgba(0, 239, 178, 0.6) 40%, rgba(0, 239, 178, 0.8) 100%);
+  background: linear-gradient(135deg, transparent 0%, transparent 45%, rgba(0, 239, 178, 0.65) 45%, rgba(0, 239, 178, 0.9) 100%);
   cursor: se-resize;
-  opacity: 0.8;
-  border-bottom-right-radius: 12px;
+  opacity: 0.9;
+  border-bottom-right-radius: 6px;
   transition: opacity 0.2s ease;
+  z-index: 2;
 
   &.dragging {
     opacity: 1;
@@ -1095,7 +1095,8 @@
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, opacity 0.2s ease;
-  min-width: 160px;
+  width: 100%;
+  min-width: 0;
 
   &:hover:not(:disabled):not(.state-loading) {
     transform: translateY(-1px);
