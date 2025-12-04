@@ -635,6 +635,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return filtered.slice(0, 10);
   }, [allWagersMap, fetchedHistory, gameId]);
 
+  // As a backstop, when we observe a draw wager for this game appear in receipts,
+  // ensure the Draw button exits loading state to success and then resets.
+  useEffect(() => {
+    const anyDraw = receipts.some(
+      (w) => w.wdl && w.game_id === gameId && String(w.data).toLowerCase().includes('draw')
+    );
+    if (anyDraw && outcomeStates['draw'] === 'loading') {
+      updateOutcomeState('draw', 'success');
+      scheduleOutcomeReset('draw', 600);
+    }
+  }, [receipts, gameId, outcomeStates, scheduleOutcomeReset, updateOutcomeState]);
+
   const formatReceiptLabel = useCallback((w: Wager) => {
     if (w.wdl) {
       const data = (w.data || '').toLowerCase();
