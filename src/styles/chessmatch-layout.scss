@@ -928,10 +928,42 @@
     position: relative;
     overflow: hidden;
 
-    span:last-child {
+    .move-option__left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .move-option__icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: #fff; // black 3D piece on white background
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    .move-option__icon img {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .move-option__dest {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .move-option__meta {
       font-weight: 400;
       font-size: 12px;
       color: rgba(255, 255, 255, 0.65);
+      margin-left: 10px;
+      white-space: nowrap;
     }
 
     &:hover,

@@ -478,6 +478,27 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return null;
   }, [activeSnapshot?.fen, game?.state, normalizeMoveNotation]);
 
+  const getPieceTypeFromSAN = useCallback((san: string): 'pawn' | 'knight' | 'bishop' | 'rook' | 'queen' | 'king' => {
+    const raw = sanitizeMoveLabel(san);
+    if (/^O-O/.test(raw)) return 'king';
+    const lead = raw.charAt(0);
+    switch (lead) {
+      case 'K': return 'king';
+      case 'Q': return 'queen';
+      case 'R': return 'rook';
+      case 'B': return 'bishop';
+      case 'N': return 'knight';
+      default: return 'pawn';
+    }
+  }, [sanitizeMoveLabel]);
+
+  const getTargetSquareFromSAN = useCallback((san: string): string | null => {
+    const raw = sanitizeMoveLabel(san).replace(/[+#!?]+$/g, '');
+    if (/^O-O/.test(raw)) return raw; // show castle as-is
+    const matches = raw.match(/[a-h][1-8]/g);
+    return matches && matches.length ? matches[matches.length - 1] : null;
+  }, [sanitizeMoveLabel]);
+
   const handleMoveHoverStart = useCallback((move: string) => {
     const arrow = computeArrowForMove(move);
     setHoverArrow(arrow);
@@ -641,7 +662,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!options.length) {
       return (
         <div className="move-panel__empty">
-          {color === 'white' ? 'Waiting on White' : 'Waiting on Black'}
+          Loading
         </div>
       );
     }
@@ -649,6 +670,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return options.map((option) => {
       const moveKey = `${positionIndex}-${option.move}`;
       const visualState = moveStates[moveKey] ?? 'idle';
+      const piece = getPieceTypeFromSAN(option.move);
+      const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
       return (
         <button
           key={`${color}-${option.move}`}
@@ -664,8 +687,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           data-state={visualState}
           disabled={!canPlaceWagers}
         >
-          <span>{sanitizeMoveLabel(option.move)}</span>
-          <span>{`${option.percent.toFixed(0)}% • ${option.payout.toFixed(1)}x`}</span>
+          <span className="move-option__left">
+            <span className="move-option__icon" aria-hidden>
+              <img src={`/pieces/${piece}.png`} alt="" />
+            </span>
+            <span className="move-option__dest">{dest}</span>
+          </span>
+          <span className="move-option__meta">{`${option.percent.toFixed(0)}% • ${option.payout.toFixed(1)}x`}</span>
         </button>
       );
     });
