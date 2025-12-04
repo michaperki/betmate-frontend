@@ -690,13 +690,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const triggerOutcomeBet = useCallback(async (outcomeId: OutcomeId) => {
     if (!canPlaceWagers || !game) return;
-    let started = false;
-    setOutcomeStates((prev) => {
-      if (prev[outcomeId] === 'loading') return prev;
-      started = true;
-      return { ...prev, [outcomeId]: 'loading' };
-    });
-    if (!started) return;
+    // Prevent double submission using current render state snapshot
+    if (outcomeStates[outcomeId] === 'loading') return;
+    setOutcomeStates((prev) => ({ ...prev, [outcomeId]: 'loading' }));
 
     // Set a safety fallback so we never stay in loading forever
     if (outcomeLoadingSafety.current[outcomeId]) {
@@ -734,7 +730,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         outcomeLoadingSafety.current[outcomeId] = null;
       }
     }
-  }, [canPlaceWagers, createWager, game, gameId, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
+  }, [canPlaceWagers, createWager, game, gameId, outcomeStates, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
 
   const handleMoveBet = useCallback(async (move: string) => {
     if (!canPlaceWagers || !game) return;
