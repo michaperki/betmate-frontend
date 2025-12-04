@@ -931,14 +931,14 @@
     .move-option__left {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px; // bring target square closer to the piece
       min-width: 0;
     }
 
     .move-option__icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       background: transparent; // bubble is white; avoid bubble-in-bubble
       display: inline-flex;
       align-items: center;
@@ -947,8 +947,8 @@
     }
 
     .move-option__icon img {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       display: block;
     }
 
