@@ -92,6 +92,7 @@ interface MoveOption {
   move: string;
   percent: number;
   payout: number;
+  wagered: number;
 }
 
 interface NotationEntry {
@@ -365,7 +366,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const wagerTotal = totals[move] ?? 0;
       const percent = poolTotal ? (wagerTotal / poolTotal) * 100 : fallbackPercent;
       const payout = wagerTotal ? Math.max(1, poolTotal / wagerTotal) : options.length;
-      return { move, percent, payout };
+      return { move, percent, payout, wagered: wagerTotal };
     });
   }, [game?.pool_wagers?.move]);
 
@@ -672,6 +673,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const visualState = moveStates[moveKey] ?? 'idle';
       const piece = getPieceTypeFromSAN(option.move);
       const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
+      const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
       return (
         <button
           key={`${color}-${option.move}`}
@@ -693,7 +695,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             </span>
             <span className="move-option__dest">{dest}</span>
           </span>
-          <span className="move-option__meta">{`${option.percent.toFixed(0)}% • ${option.payout.toFixed(1)}x`}</span>
+          <span className="move-option__meta">{wageredText}</span>
         </button>
       );
     });
