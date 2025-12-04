@@ -1238,9 +1238,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       <div className="outcome-rail-column__actions">
                         {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
                       </div>
-                      <div className="outcome-rail-column__subactions">
-                        {renderOutcomeButton('draw', 'Draw', 'draw')}
-                      </div>
                     </div>
                     <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
                       {renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)}
@@ -1249,9 +1246,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
                       <div className="outcome-rail-column__actions">
                         {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
-                      </div>
-                      <div className="outcome-rail-column__subactions">
-                        {renderOutcomeButton('draw', 'Draw', 'draw')}
                       </div>
                     </div>
                   </>
