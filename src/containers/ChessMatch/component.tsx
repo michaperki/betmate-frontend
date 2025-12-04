@@ -137,8 +137,30 @@ const PIECE_SYMBOLS: Record<string, { white: string; black: string }> = {
   N: { white: '♘', black: '♞' },
 };
 
-const formatClock = (milliseconds: number) => {
-  const seconds = Math.max(0, Math.floor(milliseconds / 1000));
+// Heuristic clock formatter that accepts seconds or milliseconds.
+// Uses game time_format (e.g., "3+2") when available to infer units reliably.
+const parseInitialSeconds = (timeFormat?: string): number | null => {
+  if (!timeFormat) return null;
+  const base = String(timeFormat).split('+')[0]?.trim();
+  const mins = Number.parseInt(base, 10);
+  if (Number.isFinite(mins) && mins >= 0) return mins * 60;
+  return null;
+};
+
+const formatClock = (value: number, timeFormat?: string) => {
+  const initialSecs = parseInitialSeconds(timeFormat);
+  let seconds: number;
+
+  if (initialSecs != null) {
+    // If value is much larger than plausible seconds for this control,
+    // treat as milliseconds. The factor 10 gives headroom for increments.
+    seconds = value > initialSecs * 10 ? Math.floor(value / 1000) : Math.floor(value);
+  } else {
+    // Fallback heuristic: large values are milliseconds.
+    seconds = value > 10000 ? Math.floor(value / 1000) : Math.floor(value);
+  }
+
+  seconds = Math.max(0, seconds);
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -341,8 +363,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const evalScore = activeSnapshot?.eval ?? 0;
   const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
 
-  const whiteClock = formatClock(game?.time_white ?? 0);
-  const blackClock = formatClock(game?.time_black ?? 0);
+  const whiteClock = formatClock(game?.time_white ?? 0, game?.time_format);
+  const blackClock = formatClock(game?.time_black ?? 0, game?.time_format);
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
   const squareSize = boardSize / 8;
