@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   useCallback,
@@ -198,7 +199,9 @@ const TestBoardPage: React.FC = () => {
     startX: 0,
     startY: 0,
     startSize: 420,
+    anchorTop: null as number | null,
   });
+  const boardFrameRef = useRef<HTMLDivElement | null>(null);
   const [selectedStake, setSelectedStake] = useState(STAKE_PRESETS[2]);
 
   useEffect(() => {
@@ -645,6 +648,7 @@ const TestBoardPage: React.FC = () => {
       startX: clientX,
       startY: clientY,
       startSize: boardSize,
+      anchorTop: boardFrameRef.current?.getBoundingClientRect().top ?? null,
     };
     setIsDragging(true);
   }, [boardSize]);
@@ -663,6 +667,7 @@ const TestBoardPage: React.FC = () => {
     };
     const handleEnd = () => {
       setIsDragging(false);
+      dragStateRef.current.anchorTop = null;
     };
     window.addEventListener('mousemove', handleMove, { passive: false });
     window.addEventListener('mouseup', handleEnd);
@@ -678,12 +683,24 @@ const TestBoardPage: React.FC = () => {
     };
   }, [clampSize, isDragging]);
 
+  useLayoutEffect(() => {
+    if (!isDragging) return;
+    const anchorTop = dragStateRef.current.anchorTop;
+    if (anchorTop == null) return;
+    const frameTop = boardFrameRef.current?.getBoundingClientRect().top ?? null;
+    if (frameTop == null) return;
+    const delta = frameTop - anchorTop;
+    if (delta !== 0) {
+      window.scrollBy({ top: delta });
+      dragStateRef.current.anchorTop = boardFrameRef.current?.getBoundingClientRect().top ?? anchorTop;
+    }
+  }, [boardSize, isDragging]);
+
 
   return (
     <div className="test-board-page">
       <NavBar compact={true} />
       <div className="test-board-page__content">
-        <div className="test-board-controls" />
         <button
           type="button"
           className={`dev-floating-toggle ${isDevPanelOpen ? 'is-open' : ''}`}
@@ -780,6 +797,7 @@ const TestBoardPage: React.FC = () => {
                 </div>
               </aside>
               <div
+                ref={boardFrameRef}
                 className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
                 style={{ width: boardSize + evalWidth + 48 }}
               >
@@ -867,7 +885,6 @@ const TestBoardPage: React.FC = () => {
             </div>
           </div>
         </div>
-
         <div className="desktop-post-board">
           <section className="game-controls-card">
             <header>

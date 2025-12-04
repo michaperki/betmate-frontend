@@ -15,12 +15,12 @@
 .test-board-page__content {
   flex: 1;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px 64px;
+  max-width: none;
+  margin: 0;
+  padding: 8px clamp(16px, 4vw, 64px) 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .test-board-controls {
@@ -210,11 +210,6 @@
     &::after {
       background: linear-gradient(180deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.02));
     }
-
-    .player-header {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(239, 68, 68, 0.4);
-    }
   }
 }
 
@@ -231,10 +226,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   .player-meta {
     display: flex;
@@ -242,23 +237,23 @@
   }
 
   .player-name {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
   }
 
   .player-rating {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   .player-clock-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 
     .player-clock {
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 600;
     }
   }
 }
