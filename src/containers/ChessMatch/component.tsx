@@ -388,7 +388,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
 
       if (quickBetMode && canPlaceWagers) {
-        createWager(
+        const wagerPromise = createWager(
           gameId,
           move.san,
           selectedStake,
@@ -396,6 +396,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           1,
           game.move_hist.length + 1,
         );
+        Promise.resolve(wagerPromise).then(() => {
+          try { dispatch(fetchWagerHistory(undefined, 10, 0)); } catch (_) {}
+        });
         window.setTimeout(() => {
           if (onMoveUnhover) onMoveUnhover();
         }, 1000);
