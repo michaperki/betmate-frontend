@@ -526,11 +526,31 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   }, []);
 
   // Wager receipts (simple, minimal panel below Notation)
+  // Fetch a page on mount for historical continuity
   useEffect(() => {
     dispatch(fetchWagerHistory(undefined, 10, 0));
   }, [dispatch]);
 
-  const receipts = useSelector((state: RootState) => state.wager?.wagerHistory ?? []);
+  // Combine fast-updating local wagers (dictionary) with fetched history,
+  // then filter to current game and sort by created time (desc)
+  const allWagersMap = useSelector((state: RootState) => state.wager?.wagers ?? {});
+  const fetchedHistory = useSelector((state: RootState) => state.wager?.wagerHistory ?? []);
+  const receipts = useMemo<Wager[]>(() => {
+    const local = Object.values(allWagersMap) as Wager[];
+    const merged = [...local, ...fetchedHistory];
+    const seen: Record<string, boolean> = {};
+    const filtered = merged.filter((w) => {
+      if (!w || seen[w._id]) return false;
+      seen[w._id] = true;
+      return w.game_id === gameId;
+    });
+    filtered.sort((a, b) => {
+      const ta = a.created_at ? Date.parse(a.created_at) : 0;
+      const tb = b.created_at ? Date.parse(b.created_at) : 0;
+      return tb - ta;
+    });
+    return filtered.slice(0, 10);
+  }, [allWagersMap, fetchedHistory, gameId]);
 
   const formatReceiptLabel = useCallback((w: Wager) => {
     if (w.wdl) {
