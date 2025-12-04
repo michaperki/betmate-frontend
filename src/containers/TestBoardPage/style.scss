@@ -161,7 +161,7 @@
   gap: 16px;
   align-items: flex-start;
   justify-content: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   width: 100%;
 }
 
@@ -170,11 +170,15 @@
   align-items: flex-start;
   gap: 16px;
   flex-wrap: nowrap;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
 @media (max-width: 1024px) {
+  .board-layout {
+    flex-direction: column;
+  }
+
   .board-layout__main {
     flex-wrap: wrap;
   }
@@ -186,7 +190,7 @@
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
-  padding: 0;
+  padding: 0 0 0 4px;
   border-radius: 20px;
   border: 1px solid rgba(47, 209, 190, 0.4);
   background: rgba(7, 13, 23, 0.9);
@@ -432,41 +436,21 @@
 
 .desktop-post-board {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: 100%;
+  align-items: flex-start;
 }
 
-.game-controls-card,
-.wager-history-card {
-  flex: 1 1 320px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 16px 18px;
+.game-controls-inline,
+.wager-history-inline {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  gap: 10px;
 }
 
-.card-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.card-sub {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.game-controls-card header,
-.wager-history-card header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
+.game-controls-inline {
+  flex: 1;
 }
 
 .live-pill {
@@ -488,19 +472,19 @@
   }
 }
 
-.game-controls-card__stakes {
+
+.stake-chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .stake-chip {
-  flex: 1 1 calc(33% - 8px);
-  min-width: 80px;
+  flex: 0 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   text-align: center;
   font-weight: 600;
   color: #fff;
@@ -635,8 +619,9 @@
 
 
 .outcome-rail-column {
-  min-width: 160px;
-  flex: 1 1 160px;
+  min-width: 240px;
+  max-width: 280px;
+  flex: 0 0 260px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -688,8 +673,8 @@
   position: absolute;
   width: 28px;
   height: 28px;
-  bottom: 6px;
-  right: 14px;
+  bottom: 0;
+  right: 0;
   border: none;
   background: linear-gradient(135deg, transparent 0%, transparent 45%, rgba(0, 239, 178, 0.65) 45%, rgba(0, 239, 178, 0.9) 100%);
   cursor: se-resize;

@@ -311,8 +311,10 @@ const TestBoardPage: React.FC = () => {
   const mobileMoveOwner = isWhiteTurn ? PLAYER_WHITE : PLAYER_BLACK;
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
-  const BOARD_STACK_GAP = 12;
+  const BOARD_STACK_GAP = 4;
+  const FRAME_HORIZONTAL_PADDING = 12;
   const boardStackWidth = boardSize + evalBarWidth + BOARD_STACK_GAP;
+  const boardFrameWidth = boardStackWidth + FRAME_HORIZONTAL_PADDING;
 
   const MIN_CAP = 8;
   const MIN_BLUE = 8;
@@ -746,61 +748,34 @@ const TestBoardPage: React.FC = () => {
 
         <div className="board-demo">
           <div className="board-layout">
+            <div
+              className={['outcome-rail-column', betsLocked ? 'is-locked' : ''].join(' ')}
+              data-locked={betsLocked}
+            >
+              <div className="outcome-rail-column__item">
+                <header>
+                  <span>Black</span>
+                  {renderOutcomeButton('black_win', `Bet ${PLAYER_BLACK.name.split(' ')[0]}`, 'black')}
+                </header>
+                {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool, betsLocked)}
+              </div>
+              <div className="draw-panel">
+                {renderOutcomeButton('draw', 'Bet Draw', 'draw')}
+                <div className="draw-panel__hint">Hold for instant draw bet</div>
+              </div>
+              <div className="outcome-rail-column__item">
+                <header>
+                  <span>White</span>
+                  {renderOutcomeButton('white_win', `Bet ${PLAYER_WHITE.name.split(' ')[0]}`, 'white')}
+                </header>
+                {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool, betsLocked)}
+              </div>
+            </div>
             <div className="board-layout__main">
-              <aside className="notation-rail">
-                <div className="notation-rail__header">
-                  <div>
-                    <div className="notation-rail__title">Moves</div>
-                    <div className="notation-rail__subtitle">
-                      {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
-                    </div>
-                  </div>
-                  {!isAtLatestSnapshot && (
-                    <span className="notation-rail__status-tag">Not Live</span>
-                  )}
-                </div>
-                <div className="notation-rail__list">
-                  {notationPairs.length ? notationPairs.map((pair) => (
-                    <div
-                      key={`notation-move-${pair.moveNumber}`}
-                      className="notation-row"
-                    >
-                      <span className="notation-row__number">{pair.moveNumber}.</span>
-                      {renderNotationMove(pair.white, 'white')}
-                      {renderNotationMove(pair.black, 'black')}
-                    </div>
-                  )) : (
-                    <div className="notation-row notation-row--empty">
-                      <span className="notation-row__move">
-                        Moves will appear here
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="notation-rail__playback">
-                  <button type="button" onClick={() => handleStep(-1)} disabled={positionIndex === 0}>
-                    Prev
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleStep(1)}
-                    disabled={positionIndex === latestSnapshotIndex}
-                  >
-                    Next
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleJumpToLive}
-                    disabled={isAtLatestSnapshot}
-                  >
-                    Jump to Live
-                  </button>
-                </div>
-              </aside>
               <div
                 ref={boardFrameRef}
                 className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
-                style={{ width: boardStackWidth }}
+                style={{ width: boardFrameWidth }}
               >
                 <div className="player-header">
                   <div className="player-meta">
@@ -860,46 +835,68 @@ const TestBoardPage: React.FC = () => {
                   aria-label="Resize board"
                 />
               </div>
-            </div>
-            <div
-              className={['outcome-rail-column', betsLocked ? 'is-locked' : ''].join(' ')}
-              data-locked={betsLocked}
-            >
-              <div className="outcome-rail-column__item">
-                <header>
-                  <span>Black</span>
-                  {renderOutcomeButton('black_win', `Bet ${PLAYER_BLACK.name.split(' ')[0]}`, 'black')}
-                </header>
-                {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool, betsLocked)}
-              </div>
-              <div className="draw-panel">
-                {renderOutcomeButton('draw', 'Bet Draw', 'draw')}
-                <div className="draw-panel__hint">Hold for instant draw bet</div>
-              </div>
-              <div className="outcome-rail-column__item">
-                <header>
-                  <span>White</span>
-                  {renderOutcomeButton('white_win', `Bet ${PLAYER_WHITE.name.split(' ')[0]}`, 'white')}
-                </header>
-                {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool, betsLocked)}
-              </div>
+              <aside className="notation-rail">
+                <div className="notation-rail__header">
+                  <div>
+                    <div className="notation-rail__title">Moves</div>
+                    <div className="notation-rail__subtitle">
+                      {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
+                    </div>
+                  </div>
+                  {!isAtLatestSnapshot && (
+                    <span className="notation-rail__status-tag">Not Live</span>
+                  )}
+                </div>
+                <div className="notation-rail__list">
+                  {notationPairs.length ? notationPairs.map((pair) => (
+                    <div
+                      key={`notation-move-${pair.moveNumber}`}
+                      className="notation-row"
+                    >
+                      <span className="notation-row__number">{pair.moveNumber}.</span>
+                      {renderNotationMove(pair.white, 'white')}
+                      {renderNotationMove(pair.black, 'black')}
+                    </div>
+                  )) : (
+                    <div className="notation-row notation-row--empty">
+                      <span className="notation-row__move">
+                        Moves will appear here
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="notation-rail__playback">
+                  <button type="button" onClick={() => handleStep(-1)} disabled={positionIndex === 0}>
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleStep(1)}
+                    disabled={positionIndex === latestSnapshotIndex}
+                  >
+                    Next
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleJumpToLive}
+                    disabled={isAtLatestSnapshot}
+                  >
+                    Jump to Live
+                  </button>
+                </div>
+              </aside>
             </div>
           </div>
         </div>
-        <div className="desktop-post-board">
-          <section className="game-controls-card">
-            <header>
-              <div>
-                <div className="card-label">Game Controls</div>
-                <div className="card-sub">
-                  Configure stake & playback
-                </div>
-              </div>
-              <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
-                {isAtLatestSnapshot ? 'Live' : 'Not Live'}
-              </span>
-            </header>
-            <div className="game-controls-card__stakes">
+        <div
+          className="desktop-post-board"
+          style={{ width: boardFrameWidth, maxWidth: '100%', alignSelf: 'flex-start' }}
+        >
+          <div className="game-controls-inline">
+            <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
+              {isAtLatestSnapshot ? 'Live' : 'Not Live'}
+            </span>
+            <div className="stake-chip-row">
               {STAKE_PRESETS.map((value) => (
                 <button
                   key={`stake-${value}`}
@@ -911,56 +908,26 @@ const TestBoardPage: React.FC = () => {
                 </button>
               ))}
             </div>
-            <div className="game-controls-card__actions">
-              <div className="game-controls-card__summary">
-                <span>Selected Stake</span>
-                <strong>${selectedStake.toFixed(2)}</strong>
-              </div>
-              <button
-                type="button"
-                className="primary-action"
-                onClick={handleJumpToLive}
-                disabled={isAtLatestSnapshot}
+          </div>
+          <div className="wager-history-inline">
+            {MOCK_WAGER_HISTORY.slice(0, 3).map((entry) => (
+              <div
+                key={entry.id}
+                className={`wager-history-row wager-history-row--${entry.status}`}
               >
-                Jump to Live
-              </button>
-              <button
-                type="button"
-                className="primary-action"
-                disabled={betsLocked}
-              >
-                {betsLocked ? 'Historical View' : 'Confirm Stake'}
-              </button>
-            </div>
-            <div className="game-controls-card__hint">
-              {betsLocked ? 'Rewound positions lock betting. Jump to the live move to resume.' : 'Stake ready. Bets update instantly when live.'}
-            </div>
-          </section>
-          <section className="wager-history-card">
-            <header>
-              <div className="card-label">Wager History</div>
-              <div className="card-sub">Sandboxed events</div>
-            </header>
-            <div className="wager-history-card__list">
-              {MOCK_WAGER_HISTORY.map((entry) => (
-                <div
-                  key={entry.id}
-                  className={`wager-history-row wager-history-row--${entry.status}`}
-                >
-                  <div>
-                    <div className="wager-history-row__title">{entry.title}</div>
-                    <div className="wager-history-row__meta">{entry.time}</div>
-                  </div>
-                  <div className="wager-history-row__amount">
-                    ${entry.amount.toFixed(2)}
-                    {entry.status === 'won' && entry.payout ? (
-                      <span>+${entry.payout.toFixed(2)}</span>
-                    ) : null}
-                  </div>
+                <div>
+                  <div className="wager-history-row__title">{entry.title}</div>
+                  <div className="wager-history-row__meta">{entry.time}</div>
                 </div>
-              ))}
-            </div>
-          </section>
+                <div className="wager-history-row__amount">
+                  ${entry.amount.toFixed(2)}
+                  {entry.status === 'won' && entry.payout ? (
+                    <span>+${entry.payout.toFixed(2)}</span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="mobile-move-market">
