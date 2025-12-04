@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   useCallback,
@@ -56,6 +57,18 @@ interface MoveSet {
   blackMoves: MoveOption[];
 }
 
+interface NotationEntry {
+  index: number;
+  label: string;
+  eval: number;
+}
+
+interface NotationPair {
+  moveNumber: number;
+  white?: NotationEntry;
+  black?: NotationEntry;
+}
+
 type OutcomeId = 'black_win' | 'draw' | 'white_win';
 type OutcomeVisualState = 'idle' | 'loading' | 'success' | 'error';
 type OutcomeDevMode = 'success' | 'error';
@@ -69,8 +82,6 @@ const OUTCOME_LABELS: Record<OutcomeId, string> = {
   white_win: 'White',
 };
 const OUTCOME_SEQUENCE: OutcomeId[] = ['black_win', 'draw', 'white_win'];
-const MOVE_DEV_SEQUENCE = ['desktop', 'mobile'] as const;
-
 const MOVE_SETS: MoveSet[] = [
   {
     whiteMoves: [
@@ -114,6 +125,25 @@ const MOVE_SETS: MoveSet[] = [
   },
 ];
 
+const STAKE_PRESETS = [10, 25, 50, 100, 250];
+
+type WagerStatus = 'pending' | 'won' | 'lost';
+
+interface WagerHistoryEntry {
+  id: string;
+  title: string;
+  amount: number;
+  status: WagerStatus;
+  payout?: number;
+  time: string;
+}
+
+const MOCK_WAGER_HISTORY: WagerHistoryEntry[] = [
+  { id: 'w1', title: 'Bet White Win', amount: 50, status: 'won', payout: 94.5, time: '00:32 ago' },
+  { id: 'w2', title: 'Bet Draw', amount: 25, status: 'pending', time: '02:18 ago' },
+  { id: 'w3', title: 'Bet Black Move ...Nf6', amount: 15, status: 'lost', time: '05:51 ago' },
+  { id: 'w4', title: 'Bet White Move Bc4', amount: 20, status: 'won', payout: 56, time: '11:05 ago' },
+];
 const TestBoardPage: React.FC = () => {
   const snapshots = useMemo<Snapshot[]>(() => {
     const chess = new Chess();
@@ -144,7 +174,6 @@ const TestBoardPage: React.FC = () => {
   const [boardSize, setBoardSize] = useState(420);
   const [maxBoardSize, setMaxBoardSize] = useState(420);
   const [positionIndex, setPositionIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [hoverArrow, setHoverArrow] = useState<[Key, Key] | null>(null);
   const [isDevPanelOpen, setIsDevPanelOpen] = useState(false);
@@ -166,7 +195,14 @@ const TestBoardPage: React.FC = () => {
   const [moveStates, setMoveStates] = useState<Record<string, MoveVisualState>>({});
   const [moveDevMode, setMoveDevMode] = useState<MoveDevMode>('success');
   const moveResetTimers = useRef<Record<string, number | null>>({});
-  const dragStateRef = useRef({ startX: 0, startY: 0, startSize: 420 });
+  const dragStateRef = useRef({
+    startX: 0,
+    startY: 0,
+    startSize: 420,
+    lastFrameTop: null as number | null,
+  });
+  const boardFrameRef = useRef<HTMLDivElement | null>(null);
+  const [selectedStake, setSelectedStake] = useState(STAKE_PRESETS[2]);
 
   useEffect(() => {
     const computeMax = () => {
@@ -185,23 +221,58 @@ const TestBoardPage: React.FC = () => {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
+  const latestSnapshotIndex = useMemo(() => (
+    Math.max(0, snapshots.length - 1)
+  ), [snapshots.length]);
+
+  const notationPairs = useMemo<NotationPair[]>(() => {
+    const pairs: NotationPair[] = [];
+    let moveNumber = 1;
+    for (let index = 1; index < snapshots.length; moveNumber += 1) {
+      const whiteSnapshot = snapshots[index];
+      const blackSnapshot = snapshots[index + 1];
+      const pair: NotationPair = {
+        moveNumber,
+        white: whiteSnapshot ? {
+          index,
+          label: whiteSnapshot.label,
+          eval: whiteSnapshot.eval,
+        } : undefined,
+        black: blackSnapshot ? {
+          index: index + 1,
+          label: blackSnapshot.label,
+          eval: blackSnapshot.eval,
+        } : undefined,
+      };
+      pairs.push(pair);
+      index += 2;
+    }
+    return pairs;
+  }, [snapshots]);
+
   useEffect(() => {
-    if (!isPlaying) return undefined;
-    const timer = setInterval(() => {
-      setPositionIndex((prev) => (prev + 1) % snapshots.length);
-    }, 2200);
-    return () => clearInterval(timer);
-  }, [isPlaying, snapshots.length]);
+    setPositionIndex((prev) => Math.min(prev, latestSnapshotIndex));
+  }, [latestSnapshotIndex]);
 
   const handleStep = useCallback((direction: 1 | -1) => {
     setPositionIndex((prev) => {
-      const next = prev + direction;
-      if (next < 0) return snapshots.length - 1;
-      return next % snapshots.length;
+      const next = Math.min(latestSnapshotIndex, Math.max(0, prev + direction));
+      return next;
     });
-  }, [snapshots.length]);
+  }, [latestSnapshotIndex]);
+
+  const handleSelectSnapshot = useCallback((index: number) => {
+    const nextIndex = Math.min(latestSnapshotIndex, Math.max(0, index));
+    setPositionIndex(nextIndex);
+  }, [latestSnapshotIndex]);
+
+  const handleJumpToLive = useCallback(() => {
+    setPositionIndex(latestSnapshotIndex);
+  }, [latestSnapshotIndex]);
 
   const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
+  const isAtLatestSnapshot = positionIndex === latestSnapshotIndex;
+  const betsLocked = !isAtLatestSnapshot;
   const evalWidth = 60;
   const arrowShapes = useMemo(() => (
     hoverArrow ? [{
@@ -294,6 +365,7 @@ const TestBoardPage: React.FC = () => {
   }, [updateOutcomeState]);
 
   const triggerOutcomeBet = useCallback((outcomeId: OutcomeId) => {
+    if (!isAtLatestSnapshot) return;
     let started = false;
     setOutcomeStates((prev) => {
       if (prev[outcomeId] === 'loading') return prev;
@@ -319,7 +391,7 @@ const TestBoardPage: React.FC = () => {
       updateOutcomeState(outcomeId, 'error');
       scheduleOutcomeReset(outcomeId, 520);
     });
-  }, [devOutcomeMode, handleOutcomeBet, scheduleOutcomeReset, updateOutcomeState]);
+  }, [devOutcomeMode, handleOutcomeBet, isAtLatestSnapshot, scheduleOutcomeReset, updateOutcomeState]);
 
   const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
     setMoveStates((prev) => {
@@ -340,6 +412,7 @@ const TestBoardPage: React.FC = () => {
   }, [updateMoveState]);
 
   const handleMoveBet = useCallback((move: string) => {
+    if (!isAtLatestSnapshot) return;
     const moveKey = `${positionIndex}-${move}`;
     if (moveStates[moveKey] === 'loading') return;
     updateMoveState(moveKey, 'loading');
@@ -360,7 +433,7 @@ const TestBoardPage: React.FC = () => {
       updateMoveState(moveKey, 'error');
       scheduleMoveReset(moveKey, 520);
     });
-  }, [moveDevMode, moveStates, positionIndex, scheduleMoveReset, updateMoveState]);
+  }, [isAtLatestSnapshot, moveDevMode, moveStates, positionIndex, scheduleMoveReset, updateMoveState]);
 
   const normalizeMoveNotation = useCallback((move: string) => (
     move
@@ -370,6 +443,10 @@ const TestBoardPage: React.FC = () => {
   ), []);
 
   const sanitizeMoveLabel = useCallback((move: string) => normalizeMoveNotation(move), [normalizeMoveNotation]);
+
+  const formatEvalDisplay = useCallback((value: number) => (
+    value >= 0 ? `+${value.toFixed(1)}` : value.toFixed(1)
+  ), []);
 
   const computeArrowForMove = useCallback((move: string): [Key, Key] | null => {
     try {
@@ -404,7 +481,7 @@ const TestBoardPage: React.FC = () => {
     });
   }, []);
 
-  const renderMoveOptions = (options: MoveOption[], color: 'white' | 'black') => {
+  const renderMoveOptions = (options: MoveOption[], color: 'white' | 'black', isLocked: boolean) => {
     if (!options.length) {
       return (
         <div className="move-panel__empty">
@@ -429,6 +506,7 @@ const TestBoardPage: React.FC = () => {
           onTouchStart={() => handleMoveHoverStart(option.move)}
           onTouchEnd={handleMoveHoverEnd}
           data-state={visualState}
+          disabled={isLocked}
         >
           <span>{sanitizeMoveLabel(option.move)}</span>
           <span>{`${option.percent}% • ${option.payout.toFixed(1)}x`}</span>
@@ -442,22 +520,65 @@ const TestBoardPage: React.FC = () => {
     alignmentClass: 'move-panel--top' | 'move-panel--bottom',
     isActive: boolean,
     options: MoveOption[],
+    isLocked: boolean,
   ) => (
     <div
       className={[
         'move-panel',
         alignmentClass,
         isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
+        isLocked ? 'move-panel--locked' : '',
       ].join(' ')}
+      data-locked={isLocked}
       aria-live={isActive ? 'polite' : 'off'}
     >
-      {isActive ? renderMoveOptions(options, color) : (
+      {isActive ? renderMoveOptions(options, color, isLocked) : (
         <div className="move-panel__status">
-          {color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
+          {isLocked ? 'Historical snapshot' : color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
         </div>
       )}
     </div>
   );
+
+  const renderNotationMove = (
+    entry: NotationEntry | undefined,
+    color: 'white' | 'black',
+  ) => {
+    if (!entry) {
+      return (
+        <span className={[
+          'notation-row__move-button',
+          'notation-row__move-button--empty',
+          `notation-row__move-button--${color}`,
+        ].join(' ')}
+        >
+          —
+        </span>
+      );
+    }
+
+    const isActive = positionIndex === entry.index;
+    const isLatest = entry.index === latestSnapshotIndex;
+    return (
+      <button
+        type="button"
+        className={[
+          'notation-row__move-button',
+          `notation-row__move-button--${color}`,
+          isActive ? 'is-active' : '',
+          isLatest ? 'is-latest' : '',
+        ].join(' ')}
+        onClick={() => handleSelectSnapshot(entry.index)}
+      >
+        <span className="notation-row__move">
+          {sanitizeMoveLabel(entry.label)}
+        </span>
+        <span className="notation-row__meta">
+          {formatEvalDisplay(entry.eval)}
+        </span>
+      </button>
+    );
+  };
 
   const renderOutcomeButton = (
     outcomeId: OutcomeId,
@@ -465,13 +586,15 @@ const TestBoardPage: React.FC = () => {
     variant: 'white' | 'black' | 'draw',
   ) => {
     const visualState = outcomeStates[outcomeId];
+    const isDisabled = visualState === 'loading' || betsLocked;
     return (
       <button
         type="button"
         className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
         data-state={visualState}
+        data-locked={betsLocked}
         onClick={() => triggerOutcomeBet(outcomeId)}
-        disabled={visualState === 'loading'}
+        disabled={isDisabled}
       >
         <span className="outcome-rail__label">{label}</span>
         <span className="outcome-rail__spinner" aria-hidden />
@@ -497,6 +620,7 @@ const TestBoardPage: React.FC = () => {
           onTouchStart={() => handleMoveHoverStart(option.move)}
           onTouchEnd={handleMoveHoverEnd}
           data-state={visualState}
+          disabled={betsLocked}
         >
           <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
           <span className="mobile-move-chip__meta">
@@ -524,6 +648,7 @@ const TestBoardPage: React.FC = () => {
       startX: clientX,
       startY: clientY,
       startSize: boardSize,
+      lastFrameTop: boardFrameRef.current?.getBoundingClientRect().top ?? null,
     };
     setIsDragging(true);
   }, [boardSize]);
@@ -540,7 +665,10 @@ const TestBoardPage: React.FC = () => {
       const nextSize = clampSize(dragStateRef.current.startSize + delta);
       setBoardSize(nextSize);
     };
-    const handleEnd = () => setIsDragging(false);
+    const handleEnd = () => {
+      setIsDragging(false);
+      dragStateRef.current.lastFrameTop = null;
+    };
     window.addEventListener('mousemove', handleMove, { passive: false });
     window.addEventListener('mouseup', handleEnd);
     window.addEventListener('touchmove', handleMove, { passive: false });
@@ -554,6 +682,21 @@ const TestBoardPage: React.FC = () => {
       window.removeEventListener('touchcancel', handleEnd);
     };
   }, [clampSize, isDragging]);
+
+  useLayoutEffect(() => {
+    if (!isDragging) return;
+    if (typeof window === 'undefined') return;
+    const frameTop = boardFrameRef.current?.getBoundingClientRect().top ?? null;
+    if (frameTop === null) return;
+    const previousTop = dragStateRef.current.lastFrameTop;
+    if (previousTop !== null) {
+      const diff = frameTop - previousTop;
+      if (diff !== 0) {
+        window.scrollBy({ top: diff });
+      }
+    }
+    dragStateRef.current.lastFrameTop = frameTop;
+  }, [boardSize, isDragging]);
 
   return (
     <div className="test-board-page">
@@ -570,18 +713,6 @@ const TestBoardPage: React.FC = () => {
 
         {isDevPanelOpen && (
           <div className="test-dev-panel">
-            <div className="test-dev-panel__section">
-              <div className="test-dev-panel__title">Playback</div>
-              <div className="playback-controls">
-                <button type="button" onClick={() => handleStep(-1)}>Prev</button>
-                <button type="button" onClick={() => setIsPlaying((prev) => !prev)}>
-                  {isPlaying ? 'Pause Loop' : 'Play Loop'}
-                </button>
-                <button type="button" onClick={() => handleStep(1)}>Next</button>
-                <span className="playback-label">{activeSnapshot.label}</span>
-              </div>
-            </div>
-
             <div className="test-dev-panel__section">
               <div className="test-dev-panel__title">Outcome Modes</div>
               <div className="dev-outcome-grid">
@@ -616,8 +747,59 @@ const TestBoardPage: React.FC = () => {
 
         <div className="board-demo">
           <div className="board-layout">
+            <aside className="notation-rail">
+              <div className="notation-rail__header">
+                <div>
+                  <div className="notation-rail__title">Moves</div>
+                  <div className="notation-rail__subtitle">
+                    {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
+                  </div>
+                </div>
+                {!isAtLatestSnapshot && (
+                  <span className="notation-rail__status-tag">Not Live</span>
+                )}
+              </div>
+              <div className="notation-rail__list">
+                {notationPairs.length ? notationPairs.map((pair) => (
+                  <div
+                    key={`notation-move-${pair.moveNumber}`}
+                    className="notation-row"
+                  >
+                    <span className="notation-row__number">{pair.moveNumber}.</span>
+                    {renderNotationMove(pair.white, 'white')}
+                    {renderNotationMove(pair.black, 'black')}
+                  </div>
+                )) : (
+                  <div className="notation-row notation-row--empty">
+                    <span className="notation-row__move">
+                      Moves will appear here
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="notation-rail__playback">
+                <button type="button" onClick={() => handleStep(-1)} disabled={positionIndex === 0}>
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStep(1)}
+                  disabled={positionIndex === latestSnapshotIndex}
+                >
+                  Next
+                </button>
+                <button
+                  type="button"
+                  onClick={handleJumpToLive}
+                  disabled={isAtLatestSnapshot}
+                >
+                  Jump to Live
+                </button>
+              </div>
+            </aside>
             <div
-              className="board-frame"
+              ref={boardFrameRef}
+              className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
               style={{ width: boardSize + evalWidth + 48 }}
             >
               <div className="player-header">
@@ -679,13 +861,16 @@ const TestBoardPage: React.FC = () => {
               />
             </div>
 
-            <div className="outcome-rail-column">
+            <div
+              className={['outcome-rail-column', betsLocked ? 'is-locked' : ''].join(' ')}
+              data-locked={betsLocked}
+            >
               <div className="outcome-rail-column__item">
                 <header>
                   <span>Black</span>
                   {renderOutcomeButton('black_win', `Bet ${PLAYER_BLACK.name.split(' ')[0]}`, 'black')}
                 </header>
-                {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
+                {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool, betsLocked)}
               </div>
               <div className="draw-panel">
                 {renderOutcomeButton('draw', 'Bet Draw', 'draw')}
@@ -696,10 +881,87 @@ const TestBoardPage: React.FC = () => {
                   <span>White</span>
                   {renderOutcomeButton('white_win', `Bet ${PLAYER_WHITE.name.split(' ')[0]}`, 'white')}
                 </header>
-                {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
+                {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool, betsLocked)}
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="desktop-post-board">
+          <section className="game-controls-card">
+            <header>
+              <div>
+                <div className="card-label">Game Controls</div>
+                <div className="card-sub">
+                  Configure stake & playback
+                </div>
+              </div>
+              <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
+                {isAtLatestSnapshot ? 'Live' : 'Not Live'}
+              </span>
+            </header>
+            <div className="game-controls-card__stakes">
+              {STAKE_PRESETS.map((value) => (
+                <button
+                  key={`stake-${value}`}
+                  type="button"
+                  className={`stake-chip ${selectedStake === value ? 'is-active' : ''}`}
+                  onClick={() => setSelectedStake(value)}
+                >
+                  ${value}
+                </button>
+              ))}
+            </div>
+            <div className="game-controls-card__actions">
+              <div className="game-controls-card__summary">
+                <span>Selected Stake</span>
+                <strong>${selectedStake.toFixed(2)}</strong>
+              </div>
+              <button
+                type="button"
+                className="primary-action"
+                onClick={handleJumpToLive}
+                disabled={isAtLatestSnapshot}
+              >
+                Jump to Live
+              </button>
+              <button
+                type="button"
+                className="primary-action"
+                disabled={betsLocked}
+              >
+                {betsLocked ? 'Historical View' : 'Confirm Stake'}
+              </button>
+            </div>
+            <div className="game-controls-card__hint">
+              {betsLocked ? 'Rewound positions lock betting. Jump to the live move to resume.' : 'Stake ready. Bets update instantly when live.'}
+            </div>
+          </section>
+          <section className="wager-history-card">
+            <header>
+              <div className="card-label">Wager History</div>
+              <div className="card-sub">Sandboxed events</div>
+            </header>
+            <div className="wager-history-card__list">
+              {MOCK_WAGER_HISTORY.map((entry) => (
+                <div
+                  key={entry.id}
+                  className={`wager-history-row wager-history-row--${entry.status}`}
+                >
+                  <div>
+                    <div className="wager-history-row__title">{entry.title}</div>
+                    <div className="wager-history-row__meta">{entry.time}</div>
+                  </div>
+                  <div className="wager-history-row__amount">
+                    ${entry.amount.toFixed(2)}
+                    {entry.status === 'won' && entry.payout ? (
+                      <span>+${entry.payout.toFixed(2)}</span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
 
         <div className="mobile-move-market">
