@@ -662,9 +662,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const renderMoveOptions = (options: MoveOption[], color: HoverableColor) => {
     if (!options.length) {
       return (
-        <div className="move-panel__empty">
-          Loading
-        </div>
+        <div className="move-panel__empty">No moves</div>
       );
     }
 
@@ -1135,9 +1133,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         </div>
                       </div>
                       <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
-                        {isWhiteTurn
-                          ? renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)
-                          : renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
+                        {renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)}
+                        {renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
                       </div>
                       <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
                         <div className="outcome-rail-column__actions">

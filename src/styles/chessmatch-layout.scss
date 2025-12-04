@@ -745,11 +745,19 @@
     // Animate move bubble background subtly between turns
     --move-bubble-bg: #ffffff;
     --move-bubble-border: rgba(0, 0, 0, 0.12);
+    --move-bubble-fg: #0b0b0b;
   }
 
   &__center.is-black-turn {
-    --move-bubble-bg: #eef2f6;
-    --move-bubble-border: rgba(0, 0, 0, 0.18);
+    --move-bubble-bg: #ffffff;
+    --move-bubble-border: rgba(0, 0, 0, 0.12);
+    --move-bubble-fg: #0b0b0b;
+  }
+
+  &__center.is-white-turn {
+    --move-bubble-bg: #0f172a;
+    --move-bubble-border: rgba(255, 255, 255, 0.18);
+    --move-bubble-fg: #ffffff;
   }
 
   .draw-panel {
@@ -928,7 +936,7 @@
     border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
     border-radius: 12px;
     background: var(--move-bubble-bg, #ffffff); // unified bubble with animated bg
-    color: #0b0b0b;
+    color: var(--move-bubble-fg, #0b0b0b);
     font-weight: 600;
     padding: 8px 10px;
     font-size: 13px;
@@ -947,7 +955,7 @@
       width: 32px;
       height: 32px;
       border-radius: 8px;
-      background: transparent; // default transparent; colorized per side below
+      background: transparent;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -960,16 +968,7 @@
       display: block;
     }
 
-    // Provide contrasting backplates for piece PNGs per side
-    .move-option__icon[data-color="black"] {
-      background: #ffffff; // black piece pops on white
-      border: 1px solid rgba(0,0,0,0.06);
-    }
-
-    .move-option__icon[data-color="white"] {
-      background: #0f172a; // white piece pops on dark
-      border: 1px solid rgba(255,255,255,0.1);
-    }
+    // No backplates: rely on bubble bg contrast per turn
 
     .move-option__dest {
       font-weight: 700;
@@ -1070,6 +1069,11 @@
     max-height: 38px;
     opacity: 0.65;
     pointer-events: none;
+  }
+
+  // In center layout, hide the inactive panel to avoid double stacking
+  &.move-panel--center.move-panel--collapsed {
+    display: none;
   }
 
   &--locked {
