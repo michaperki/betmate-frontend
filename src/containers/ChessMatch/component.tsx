@@ -674,6 +674,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const piece = getPieceTypeFromSAN(option.move);
       const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
       const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
+      const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
       return (
         <button
           key={`${color}-${option.move}`}
@@ -690,8 +691,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           disabled={!canPlaceWagers}
         >
           <span className="move-option__left">
-            <span className="move-option__icon" aria-hidden>
-              <img src={`/pieces/${piece}.png`} alt="" />
+            <span className="move-option__icon" aria-hidden data-color={color}>
+              <img src={pieceSrc} alt="" />
             </span>
             <span className="move-option__dest">{dest}</span>
           </span>
@@ -1133,7 +1134,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           {renderOutcomeButton('draw', 'Draw', 'draw')}
                         </div>
                       </div>
-                      <div className="outcome-rail-column__center">
+                      <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
                         {isWhiteTurn
                           ? renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)
                           : renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
