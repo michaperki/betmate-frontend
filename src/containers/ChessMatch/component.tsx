@@ -186,6 +186,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     draw: null,
     white_win: null,
   });
+  // Safety timers to ensure we never get stuck in a loading visual state
+  const outcomeLoadingSafety = useRef<Record<OutcomeId, number | null>>({
+    black_win: null,
+    draw: null,
+    white_win: null,
+  });
   const moveResetTimers = useRef<Record<string, number | null>>({});
   const dragStateRef = useRef({
     startX: 0,
@@ -692,6 +698,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     });
     if (!started) return;
 
+    // Set a safety fallback so we never stay in loading forever
+    if (outcomeLoadingSafety.current[outcomeId]) {
+      window.clearTimeout(outcomeLoadingSafety.current[outcomeId]!);
+    }
+    outcomeLoadingSafety.current[outcomeId] = window.setTimeout(() => {
+      updateOutcomeState(outcomeId, 'idle');
+      outcomeLoadingSafety.current[outcomeId] = null;
+    }, 4000);
+
     try {
       const wagerPromise = createWager(
         gameId,
@@ -704,12 +719,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       await Promise.resolve(wagerPromise);
       updateOutcomeState(outcomeId, 'success');
       scheduleOutcomeReset(outcomeId, 600);
+      if (outcomeLoadingSafety.current[outcomeId]) {
+        window.clearTimeout(outcomeLoadingSafety.current[outcomeId]!);
+        outcomeLoadingSafety.current[outcomeId] = null;
+      }
       // Refresh receipts so new wagers appear promptly
       dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
       console.error('Outcome bet failed', error);
       updateOutcomeState(outcomeId, 'error');
       scheduleOutcomeReset(outcomeId, 800);
+      if (outcomeLoadingSafety.current[outcomeId]) {
+        window.clearTimeout(outcomeLoadingSafety.current[outcomeId]!);
+        outcomeLoadingSafety.current[outcomeId] = null;
+      }
     }
   }, [canPlaceWagers, createWager, game, gameId, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
 
@@ -742,6 +765,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   useEffect(() => () => {
     (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
       const timer = outcomeResetTimers.current[outcomeId];
+      if (timer) window.clearTimeout(timer);
+    });
+    (Object.keys(outcomeLoadingSafety.current) as OutcomeId[]).forEach((outcomeId) => {
+      const timer = outcomeLoadingSafety.current[outcomeId];
       if (timer) window.clearTimeout(timer);
     });
     Object.values(moveResetTimers.current).forEach((timer) => {
@@ -1386,7 +1413,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               </div>
               <div className="mobile-outcome-row">
                 {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
-                {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
+                {renderOutcomeButton('draw', 'Draw', 'draw')}
                 {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
               </div>
             </div>
