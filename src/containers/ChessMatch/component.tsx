@@ -1341,6 +1341,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         viewerCount={viewerCount}
         onOpenChat={openChat}
         onOpenLeaderboard={openLeaderboard}
+        isLive={isAtLatestSnapshot}
       />
 
       {/* Fullscreen overlays */}

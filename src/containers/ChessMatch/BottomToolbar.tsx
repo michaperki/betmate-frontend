@@ -9,6 +9,7 @@ interface BottomToolbarProps {
   viewerCount: number;
   onOpenChat: () => void;
   onOpenLeaderboard: () => void;
+  isLive: boolean;
 }
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({
@@ -18,10 +19,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   viewerCount,
   onOpenChat,
   onOpenLeaderboard,
+  isLive,
 }) => {
   return (
     <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
-      <div className="bottom-toolbar__left" />
+      <div className="bottom-toolbar__left">
+        <span className={`live-pill ${isLive ? 'is-live' : 'is-paused'}`}>
+          {isLive ? 'Live' : 'Not Live'}
+        </span>
+      </div>
       <div className="bottom-toolbar__center">
         <div className="stake-chip-row">
           {stakePresets.map((value) => (
@@ -67,4 +73,3 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
 };
 
 export default BottomToolbar;
-
