@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import { Chess } from 'chess.js';
 import { Key } from 'chessground/types';
 import ChessgroundWrapper from 'components/ChessgroundWrapper';
@@ -37,7 +43,7 @@ const formatClock = (seconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const MIN_BOARD_SIZE = 260;
+const MIN_BOARD_SIZE = 350;
 
 interface MoveOption {
   move: string;
@@ -49,6 +55,21 @@ interface MoveSet {
   whiteMoves: MoveOption[];
   blackMoves: MoveOption[];
 }
+
+type OutcomeId = 'black_win' | 'draw' | 'white_win';
+type OutcomeVisualState = 'idle' | 'loading' | 'success' | 'error';
+type OutcomeDevMode = 'success' | 'error';
+
+type MoveVisualState = 'idle' | 'loading' | 'success' | 'error';
+type MoveDevMode = 'success' | 'error';
+
+const OUTCOME_LABELS: Record<OutcomeId, string> = {
+  black_win: 'Black',
+  draw: 'Draw',
+  white_win: 'White',
+};
+const OUTCOME_SEQUENCE: OutcomeId[] = ['black_win', 'draw', 'white_win'];
+const MOVE_DEV_SEQUENCE = ['desktop', 'mobile'] as const;
 
 const MOVE_SETS: MoveSet[] = [
   {
@@ -125,6 +146,26 @@ const TestBoardPage: React.FC = () => {
   const [positionIndex, setPositionIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [hoverArrow, setHoverArrow] = useState<[Key, Key] | null>(null);
+  const [isDevPanelOpen, setIsDevPanelOpen] = useState(false);
+  const [outcomeStates, setOutcomeStates] = useState<Record<OutcomeId, OutcomeVisualState>>({
+    black_win: 'idle',
+    draw: 'idle',
+    white_win: 'idle',
+  });
+  const [devOutcomeMode, setDevOutcomeMode] = useState<Record<OutcomeId, OutcomeDevMode>>({
+    black_win: 'success',
+    draw: 'success',
+    white_win: 'success',
+  });
+  const outcomeResetTimers = useRef<Record<OutcomeId, number | null>>({
+    black_win: null,
+    draw: null,
+    white_win: null,
+  });
+  const [moveStates, setMoveStates] = useState<Record<string, MoveVisualState>>({});
+  const [moveDevMode, setMoveDevMode] = useState<MoveDevMode>('success');
+  const moveResetTimers = useRef<Record<string, number | null>>({});
   const dragStateRef = useRef({ startX: 0, startY: 0, startSize: 420 });
 
   useEffect(() => {
@@ -162,7 +203,13 @@ const TestBoardPage: React.FC = () => {
 
   const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
   const evalWidth = 60;
-  const headerHeight = 64;
+  const arrowShapes = useMemo(() => (
+    hoverArrow ? [{
+      orig: hoverArrow[0],
+      dest: hoverArrow[1],
+      brush: 'green',
+    }] : []
+  ), [hoverArrow]);
 
   const boardConfig = useMemo<Config>(() => ({
     fen: activeSnapshot.fen,
@@ -171,7 +218,13 @@ const TestBoardPage: React.FC = () => {
     animation: { enabled: true, duration: 450 },
     orientation: 'white',
     lastMove: activeSnapshot.lastMove,
-  }), [activeSnapshot]);
+    drawable: {
+      enabled: true,
+      visible: true,
+      autoShapes: arrowShapes,
+      defaultSnapToValidMove: false,
+    },
+  }), [activeSnapshot, arrowShapes]);
 
   const evalScore = activeSnapshot.eval;
   const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
@@ -184,6 +237,8 @@ const TestBoardPage: React.FC = () => {
   const activeMoveSet = MOVE_SETS[moveSetIndex] ?? { whiteMoves: [], blackMoves: [] };
   const whiteMovePool = activeMoveSet.whiteMoves ?? [];
   const blackMovePool = activeMoveSet.blackMoves ?? [];
+  const mobileMovePool = isWhiteTurn ? whiteMovePool : blackMovePool;
+  const mobileMoveOwner = isWhiteTurn ? PLAYER_WHITE : PLAYER_BLACK;
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
 
@@ -210,8 +265,143 @@ const TestBoardPage: React.FC = () => {
     console.log('Bet outcome', outcomeId);
   }, []);
 
+  const handleDevOutcomeModeChange = useCallback((outcomeId: OutcomeId, mode: OutcomeDevMode) => {
+    setDevOutcomeMode((prev) => ({ ...prev, [outcomeId]: mode }));
+  }, []);
+
+  const handleDevMoveModeChange = useCallback((mode: MoveDevMode) => {
+    setMoveDevMode(mode);
+  }, []);
+
+  const updateOutcomeState = useCallback((outcomeId: OutcomeId, next: OutcomeVisualState) => {
+    setOutcomeStates((prev) => {
+      if (prev[outcomeId] === next) return prev;
+      console.log(`[dev] outcome ${outcomeId} -> ${next}`);
+      return { ...prev, [outcomeId]: next };
+    });
+  }, []);
+
+  const scheduleOutcomeReset = useCallback((outcomeId: OutcomeId, delay: number) => {
+    const currentTimer = outcomeResetTimers.current[outcomeId];
+    if (currentTimer) {
+      window.clearTimeout(currentTimer);
+    }
+    const timerId = window.setTimeout(() => {
+      updateOutcomeState(outcomeId, 'idle');
+      outcomeResetTimers.current[outcomeId] = null;
+    }, delay);
+    outcomeResetTimers.current[outcomeId] = timerId;
+  }, [updateOutcomeState]);
+
+  const triggerOutcomeBet = useCallback((outcomeId: OutcomeId) => {
+    let started = false;
+    setOutcomeStates((prev) => {
+      if (prev[outcomeId] === 'loading') return prev;
+      started = true;
+      return { ...prev, [outcomeId]: 'loading' };
+    });
+    if (!started) return;
+
+    const simulate = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 320 + Math.random() * 200));
+      handleOutcomeBet(outcomeId);
+      const outcome = devOutcomeMode[outcomeId];
+      if (outcome === 'success') {
+        updateOutcomeState(outcomeId, 'success');
+        scheduleOutcomeReset(outcomeId, 420);
+      } else {
+        updateOutcomeState(outcomeId, 'error');
+        scheduleOutcomeReset(outcomeId, 520);
+      }
+    };
+
+    simulate().catch(() => {
+      updateOutcomeState(outcomeId, 'error');
+      scheduleOutcomeReset(outcomeId, 520);
+    });
+  }, [devOutcomeMode, handleOutcomeBet, scheduleOutcomeReset, updateOutcomeState]);
+
+  const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
+    setMoveStates((prev) => {
+      if (prev[moveKey] === next) return prev;
+      console.log(`[dev] move ${moveKey} -> ${next}`);
+      return { ...prev, [moveKey]: next };
+    });
+  }, []);
+
+  const scheduleMoveReset = useCallback((moveKey: string, delay: number) => {
+    const activeTimer = moveResetTimers.current[moveKey];
+    if (activeTimer) window.clearTimeout(activeTimer);
+    const timerId = window.setTimeout(() => {
+      updateMoveState(moveKey, 'idle');
+      moveResetTimers.current[moveKey] = null;
+    }, delay);
+    moveResetTimers.current[moveKey] = timerId;
+  }, [updateMoveState]);
+
   const handleMoveBet = useCallback((move: string) => {
-    console.log('Bet move', move);
+    const moveKey = `${positionIndex}-${move}`;
+    if (moveStates[moveKey] === 'loading') return;
+    updateMoveState(moveKey, 'loading');
+
+    const simulate = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 180));
+      console.log('Bet move', move);
+      if (moveDevMode === 'success') {
+        updateMoveState(moveKey, 'success');
+        scheduleMoveReset(moveKey, 400);
+      } else {
+        updateMoveState(moveKey, 'error');
+        scheduleMoveReset(moveKey, 520);
+      }
+    };
+
+    simulate().catch(() => {
+      updateMoveState(moveKey, 'error');
+      scheduleMoveReset(moveKey, 520);
+    });
+  }, [moveDevMode, moveStates, positionIndex, scheduleMoveReset, updateMoveState]);
+
+  const normalizeMoveNotation = useCallback((move: string) => (
+    move
+      .replace(/^\d+\.{1}\s*/, '')
+      .replace(/^\.{3}\s*/, '')
+      .trim()
+  ), []);
+
+  const sanitizeMoveLabel = useCallback((move: string) => normalizeMoveNotation(move), [normalizeMoveNotation]);
+
+  const computeArrowForMove = useCallback((move: string): [Key, Key] | null => {
+    try {
+      const chess = new Chess(activeSnapshot.fen);
+      const candidate = chess.move(normalizeMoveNotation(move), { sloppy: true });
+      if (candidate) {
+        return [candidate.from as Key, candidate.to as Key];
+      }
+    } catch (error) {
+      console.warn('Unable to draw arrow for move', move, error);
+    }
+    return null;
+  }, [activeSnapshot.fen, normalizeMoveNotation]);
+
+  const handleMoveHoverStart = useCallback((move: string) => {
+    const arrow = computeArrowForMove(move);
+    setHoverArrow(arrow);
+  }, [computeArrowForMove]);
+
+  const handleMoveHoverEnd = useCallback(() => {
+    setHoverArrow(null);
+  }, []);
+
+  useEffect(() => {
+    setHoverArrow(null);
+  }, [activeSnapshot.fen]);
+
+  useEffect(() => () => {
+    (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
+      const timer = outcomeResetTimers.current[outcomeId];
+      if (timer) window.clearTimeout(timer);
+    });
   }, []);
 
   const renderMoveOptions = (options: MoveOption[], color: 'white' | 'black') => {
@@ -223,16 +413,28 @@ const TestBoardPage: React.FC = () => {
       );
     }
 
-    return options.map((option) => (
-      <button
-        key={`${color}-${option.move}`}
-        type="button"
-        onClick={() => handleMoveBet(option.move)}
-      >
-        <span>{option.move}</span>
-        <span>{`${option.percent}% • ${option.payout.toFixed(1)}x`}</span>
-      </button>
-    ));
+    return options.map((option) => {
+      const moveKey = `${positionIndex}-${option.move}`;
+      const visualState = moveStates[moveKey] ?? 'idle';
+      return (
+        <button
+          key={`${color}-${option.move}`}
+          type="button"
+          className={`move-option state-${visualState}`}
+          onClick={() => handleMoveBet(option.move)}
+          onMouseEnter={() => handleMoveHoverStart(option.move)}
+          onMouseLeave={handleMoveHoverEnd}
+          onFocus={() => handleMoveHoverStart(option.move)}
+          onBlur={handleMoveHoverEnd}
+          onTouchStart={() => handleMoveHoverStart(option.move)}
+          onTouchEnd={handleMoveHoverEnd}
+          data-state={visualState}
+        >
+          <span>{sanitizeMoveLabel(option.move)}</span>
+          <span>{`${option.percent}% • ${option.payout.toFixed(1)}x`}</span>
+        </button>
+      );
+    });
   };
 
   const renderMovePanel = (
@@ -254,6 +456,58 @@ const TestBoardPage: React.FC = () => {
           {color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
         </div>
       )}
+    </div>
+  );
+
+  const renderOutcomeButton = (
+    outcomeId: OutcomeId,
+    label: string,
+    variant: 'white' | 'black' | 'draw',
+  ) => {
+    const visualState = outcomeStates[outcomeId];
+    return (
+      <button
+        type="button"
+        className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
+        data-state={visualState}
+        onClick={() => triggerOutcomeBet(outcomeId)}
+        disabled={visualState === 'loading'}
+      >
+        <span className="outcome-rail__label">{label}</span>
+        <span className="outcome-rail__spinner" aria-hidden />
+        <span className="outcome-rail__check" aria-hidden>✓</span>
+      </button>
+    );
+  };
+
+  const mobileMoveOptions = mobileMovePool.length ? (
+    mobileMovePool.map((option) => {
+      const moveKey = `${positionIndex}-${option.move}`;
+      const visualState = moveStates[moveKey] ?? 'idle';
+      return (
+        <button
+          key={`mobile-${option.move}`}
+          type="button"
+          className={`mobile-move-chip state-${visualState}`}
+          onClick={() => handleMoveBet(option.move)}
+          onMouseEnter={() => handleMoveHoverStart(option.move)}
+          onMouseLeave={handleMoveHoverEnd}
+          onFocus={() => handleMoveHoverStart(option.move)}
+          onBlur={handleMoveHoverEnd}
+          onTouchStart={() => handleMoveHoverStart(option.move)}
+          onTouchEnd={handleMoveHoverEnd}
+          data-state={visualState}
+        >
+          <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
+          <span className="mobile-move-chip__meta">
+            {option.percent}% · {option.payout.toFixed(1)}x
+          </span>
+        </button>
+      );
+    })
+  ) : (
+    <div className="mobile-move-chip mobile-move-chip--empty">
+      Waiting on {isWhiteTurn ? 'Black' : 'White'} to move
     </div>
   );
 
@@ -305,16 +559,60 @@ const TestBoardPage: React.FC = () => {
     <div className="test-board-page">
       <NavBar compact={true} />
       <div className="test-board-page__content">
-        <div className="test-board-controls">
-          <div className="playback-controls">
-            <button type="button" onClick={() => handleStep(-1)}>Prev</button>
-            <button type="button" onClick={() => setIsPlaying((prev) => !prev)}>
-              {isPlaying ? 'Pause Loop' : 'Play Loop'}
-            </button>
-            <button type="button" onClick={() => handleStep(1)}>Next</button>
-            <span>{activeSnapshot.label}</span>
+        <div className="test-board-controls" />
+        <button
+          type="button"
+          className={`dev-floating-toggle ${isDevPanelOpen ? 'is-open' : ''}`}
+          onClick={() => setIsDevPanelOpen((prev) => !prev)}
+        >
+          {isDevPanelOpen ? 'Close Dev Panel' : 'Dev Tools'}
+        </button>
+
+        {isDevPanelOpen && (
+          <div className="test-dev-panel">
+            <div className="test-dev-panel__section">
+              <div className="test-dev-panel__title">Playback</div>
+              <div className="playback-controls">
+                <button type="button" onClick={() => handleStep(-1)}>Prev</button>
+                <button type="button" onClick={() => setIsPlaying((prev) => !prev)}>
+                  {isPlaying ? 'Pause Loop' : 'Play Loop'}
+                </button>
+                <button type="button" onClick={() => handleStep(1)}>Next</button>
+                <span className="playback-label">{activeSnapshot.label}</span>
+              </div>
+            </div>
+
+            <div className="test-dev-panel__section">
+              <div className="test-dev-panel__title">Outcome Modes</div>
+              <div className="dev-outcome-grid">
+                {OUTCOME_SEQUENCE.map((outcomeId) => (
+                  <label key={`mode-${outcomeId}`} className="dev-outcome-control">
+                    <span>{OUTCOME_LABELS[outcomeId]}</span>
+                    <select
+                      value={devOutcomeMode[outcomeId]}
+                      onChange={(event) => handleDevOutcomeModeChange(outcomeId, event.target.value as OutcomeDevMode)}
+                    >
+                      <option value="success">Success</option>
+                      <option value="error">Error</option>
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="test-dev-panel__section">
+              <div className="test-dev-panel__title">Outcome States</div>
+              <div className="dev-outcome-states">
+                {OUTCOME_SEQUENCE.map((outcomeId) => (
+                  <div key={`state-${outcomeId}`} className="dev-outcome-state">
+                    <span>{OUTCOME_LABELS[outcomeId]}</span>
+                    <strong>{outcomeStates[outcomeId]}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="board-demo">
           <div className="board-layout">
@@ -323,102 +621,108 @@ const TestBoardPage: React.FC = () => {
               style={{ width: boardSize + evalWidth + 48 }}
             >
               <div className="player-header">
-              <div className="player-meta">
-                <span className="player-name">{PLAYER_BLACK.name}</span>
-                <span className="player-rating">{PLAYER_BLACK.rating}</span>
-              </div>
-              <div className="player-clock-group">
-                <span className="player-clock">{blackClock}</span>
-              </div>
-            </div>
-
-            <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
-              <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
-                <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
-                  <ChessgroundWrapper config={boardConfig} />
+                <div className="player-meta">
+                  <span className="player-name">{PLAYER_BLACK.name}</span>
+                  <span className="player-rating">{PLAYER_BLACK.rating}</span>
+                </div>
+                <div className="player-clock-group">
+                  <span className="player-clock">{blackClock}</span>
                 </div>
               </div>
-              <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
-                <div
-                  className="eval-bar-segment eval-bar-segment--black"
-                  style={{ height: `${blackShare}%`, top: 0 }}
-                />
-                <div
-                  className="eval-bar-segment eval-bar-segment--blue"
-                  style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
-                />
-                <div
-                  className="eval-bar-segment eval-bar-segment--white"
-                  style={{ height: `${whiteShare}%`, bottom: 0 }}
-                />
-                {evalScore >= 0 ? (
-                  <div className="eval-bar-demo__value eval-bar-demo__value--white">
-                    +{evalScore.toFixed(1)}
-                  </div>
-                ) : (
-                  <div className="eval-bar-demo__value eval-bar-demo__value--black">
-                    {evalScore.toFixed(1)}
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className="player-header">
-              <div className="player-meta">
-                <span className="player-name">{PLAYER_WHITE.name}</span>
-                <span className="player-rating">{PLAYER_WHITE.rating}</span>
+              <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
+                <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
+                  <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
+                    <ChessgroundWrapper config={boardConfig} />
+                  </div>
+                </div>
+                <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
+                  <div
+                    className="eval-bar-segment eval-bar-segment--black"
+                    style={{ height: `${blackShare}%`, top: 0 }}
+                  />
+                  <div
+                    className="eval-bar-segment eval-bar-segment--blue"
+                    style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
+                  />
+                  <div
+                    className="eval-bar-segment eval-bar-segment--white"
+                    style={{ height: `${whiteShare}%`, bottom: 0 }}
+                  />
+                  {evalScore >= 0 ? (
+                    <div className="eval-bar-demo__value eval-bar-demo__value--white">
+                      +{evalScore.toFixed(1)}
+                    </div>
+                  ) : (
+                    <div className="eval-bar-demo__value eval-bar-demo__value--black">
+                      {evalScore.toFixed(1)}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="player-clock-group">
-                <span className="player-clock">{whiteClock}</span>
+
+              <div className="player-header">
+                <div className="player-meta">
+                  <span className="player-name">{PLAYER_WHITE.name}</span>
+                  <span className="player-rating">{PLAYER_WHITE.rating}</span>
+                </div>
+                <div className="player-clock-group">
+                  <span className="player-clock">{whiteClock}</span>
+                </div>
               </div>
-            </div>
-            <button
-              type="button"
-              className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
-              onMouseDown={beginDrag}
-              onTouchStart={beginDrag}
-              aria-label="Resize board"
-            />
+              <button
+                type="button"
+                className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
+                onMouseDown={beginDrag}
+                onTouchStart={beginDrag}
+                aria-label="Resize board"
+              />
             </div>
 
             <div className="outcome-rail-column">
               <div className="outcome-rail-column__item">
                 <header>
                   <span>Black</span>
-                  <button
-                    type="button"
-                    className="outcome-rail__button black"
-                    onClick={() => handleOutcomeBet('black_win')}
-                  >
-                    Bet {PLAYER_BLACK.name.split(' ')[0]}
-                  </button>
+                  {renderOutcomeButton('black_win', `Bet ${PLAYER_BLACK.name.split(' ')[0]}`, 'black')}
                 </header>
                 {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
               </div>
               <div className="draw-panel">
-                <button
-                  type="button"
-                  className="outcome-rail__button draw"
-                  onClick={() => handleOutcomeBet('draw')}
-                >
-                  Bet Draw
-                </button>
+                {renderOutcomeButton('draw', 'Bet Draw', 'draw')}
                 <div className="draw-panel__hint">Hold for instant draw bet</div>
               </div>
               <div className="outcome-rail-column__item">
                 <header>
                   <span>White</span>
-                  <button
-                    type="button"
-                    className="outcome-rail__button white"
-                    onClick={() => handleOutcomeBet('white_win')}
-                  >
-                    Bet {PLAYER_WHITE.name.split(' ')[0]}
-                  </button>
+                  {renderOutcomeButton('white_win', `Bet ${PLAYER_WHITE.name.split(' ')[0]}`, 'white')}
                 </header>
                 {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="mobile-move-market">
+          <div className="mobile-move-market__header">
+            <div>
+              <span className="mobile-move-market__label">
+                {isWhiteTurn ? 'White to move' : 'Black to move'}
+              </span>
+              <span className="mobile-move-market__sub">
+                {mobileMoveOwner.name} • {mobileMoveOwner.rating}
+              </span>
+            </div>
+            <span className="mobile-move-market__hint">
+              {mobileMovePool.length ? `${mobileMovePool.length} candidate moves` : 'Waiting on opponent'}
+            </span>
+          </div>
+          <div className="mobile-move-bubbles">
+            {mobileMoveOptions}
+          </div>
+          <div className="mobile-outcome-row">
+            {renderOutcomeButton('black_win', `Bet ${PLAYER_BLACK.name.split(' ')[0]}`, 'black')}
+            {renderOutcomeButton('draw', 'Bet Draw', 'draw')}
+            {renderOutcomeButton('white_win', `Bet ${PLAYER_WHITE.name.split(' ')[0]}`, 'white')}
           </div>
         </div>
       </div>
