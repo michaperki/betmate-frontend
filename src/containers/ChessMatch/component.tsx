@@ -115,8 +115,7 @@ const ENABLE_RESIZE_DEBUG = false;
 // If set (non-null), overrides computed max board size. Leave null to keep existing behavior.
 const DEV_FORCE_MAX_BOARD_SIZE: number | null = null;
 // Stage 2 prototype flags
-const ENABLE_CENTERED_MOVES = true;
-const ENABLE_DRAW_SHIFT = true;
+// Centered moves layout is now the default
 const STAKE_PRESETS = [10, 25, 50, 100, 250];
 const OUTCOME_LABELS: Record<OutcomeId, string> = {
   black_win: 'Black',
@@ -125,7 +124,6 @@ const OUTCOME_LABELS: Record<OutcomeId, string> = {
 };
 const OUTCOME_SEQUENCE: OutcomeId[] = ['black_win', 'draw', 'white_win'];
 const DEFAULT_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-const DRAW_HOLD_DURATION = 800;
 const PIECE_SYMBOLS: Record<string, { white: string; black: string }> = {
   K: { white: '♔', black: '♚' },
   Q: { white: '♕', black: '♛' },
@@ -167,9 +165,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     startSize: 420,
     anchorTop: null as number | null,
   });
-  const drawHoldTimerRef = useRef<number | null>(null);
-  const drawHoldStartRef = useRef<number>(0);
-  const drawProgressTimerRef = useRef<number | null>(null);
 
   const [selectedStake, setSelectedStake] = useState<number>(25);
   const [boardSize, setBoardSize] = useState(420);
@@ -183,8 +178,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     white_win: 'idle',
   });
   const [moveStates, setMoveStates] = useState<Record<string, MoveVisualState>>({});
-  const [isDrawHolding, setIsDrawHolding] = useState(false);
-  const [drawHoldProgress, setDrawHoldProgress] = useState(0);
   const [isFollowingLive, setIsFollowingLive] = useState(true);
   const [isNotationHovered, setIsNotationHovered] = useState(false);
   const notationListRef = useRef<HTMLDivElement | null>(null);
@@ -604,50 +597,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }
   }, [canPlaceWagers, createWager, game, gameId, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState]);
 
-  const preventContextMenu = useCallback((event: Event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    return false;
-  }, []);
-
-  const handleDrawBetEnd = useCallback(() => {
-    if (drawHoldTimerRef.current) {
-      window.clearTimeout(drawHoldTimerRef.current);
-      drawHoldTimerRef.current = null;
-    }
-    if (drawProgressTimerRef.current) {
-      window.clearInterval(drawProgressTimerRef.current);
-      drawProgressTimerRef.current = null;
-    }
-    setIsDrawHolding(false);
-    setDrawHoldProgress(0);
-  }, []);
-
-  const handleDrawBetStart = useCallback((event: React.MouseEvent | React.TouchEvent) => {
-    if (!canPlaceWagers || betsLocked) return;
-    event.preventDefault();
-    event.stopPropagation();
-
-    if ('ontouchstart' in window) {
-      document.addEventListener('contextmenu', preventContextMenu, { once: true });
-    }
-
-    setIsDrawHolding(true);
-    setDrawHoldProgress(0);
-    drawHoldStartRef.current = Date.now();
-
-    drawProgressTimerRef.current = window.setInterval(() => {
-      const elapsed = Date.now() - drawHoldStartRef.current;
-      const progress = Math.min((elapsed / DRAW_HOLD_DURATION) * 100, 100);
-      setDrawHoldProgress(progress);
-    }, 16);
-
-    drawHoldTimerRef.current = window.setTimeout(() => {
-      triggerOutcomeBet('draw');
-      handleDrawBetEnd();
-    }, DRAW_HOLD_DURATION);
-  }, [betsLocked, canPlaceWagers, handleDrawBetEnd, preventContextMenu, triggerOutcomeBet]);
-
   useEffect(() => () => {
     (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
       const timer = outcomeResetTimers.current[outcomeId];
@@ -656,8 +605,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     Object.values(moveResetTimers.current).forEach((timer) => {
       if (timer) window.clearTimeout(timer);
     });
-    handleDrawBetEnd();
-  }, [handleDrawBetEnd]);
+  }, []);
 
   const renderMoveOptions = (options: MoveOption[], color: HoverableColor) => {
     if (!options.length) {
@@ -1106,49 +1054,28 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   ].join(' ')}
                   data-locked={betsLocked}
                 >
-                  {ENABLE_CENTERED_MOVES ? (
-                    <>
-                      <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
-                        <div className="outcome-rail-column__actions">
-                          {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
-                        </div>
-                        <div className="outcome-rail-column__subactions">
-                          {renderOutcomeButton('draw', 'Draw', 'draw')}
-                        </div>
+                  <>
+                    <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
+                      <div className="outcome-rail-column__actions">
+                        {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
                       </div>
-                      <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
-                        {renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)}
-                        {renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
+                      <div className="outcome-rail-column__subactions">
+                        {renderOutcomeButton('draw', 'Draw', 'draw')}
                       </div>
-                      <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
-                        <div className="outcome-rail-column__actions">
-                          {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
-                        </div>
-                        <div className="outcome-rail-column__subactions">
-                          {renderOutcomeButton('draw', 'Draw', 'draw')}
-                        </div>
+                    </div>
+                    <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
+                      {renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)}
+                      {renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
+                    </div>
+                    <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
+                      <div className="outcome-rail-column__actions">
+                        {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="outcome-rail-column__item">
-                        <header>
-                          {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
-                        </header>
-                        {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
+                      <div className="outcome-rail-column__subactions">
+                        {renderOutcomeButton('draw', 'Draw', 'draw')}
                       </div>
-                      <div className="draw-panel">
-                        {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
-                        <div className="draw-panel__hint">Hold to bet draw</div>
-                      </div>
-                      <div className="outcome-rail-column__item">
-                        {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
-                        <div className="outcome-rail-column__actions">
-                          {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                    </div>
+                  </>
                 </div>
                 <div className="board-layout__main">
                   <div
