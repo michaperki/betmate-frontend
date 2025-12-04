@@ -1275,15 +1275,16 @@
     color: #e0f2ff;
   }
 
-  &__label {
+  /* Align selectors to actual markup classes (not nested BEM) */
+  .outcome-rail__label {
     transition: opacity 0.14s ease;
     color: inherit;
     position: relative;
     z-index: 2;
   }
 
-  &__spinner,
-  &__check {
+  .outcome-rail__spinner,
+  .outcome-rail__check {
     position: absolute;
     inset: 0;
     display: flex;
@@ -1293,9 +1294,10 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.12s ease;
+    z-index: 3;
   }
 
-  &__spinner::before {
+  .outcome-rail__spinner::before {
     content: '';
     width: 20px;
     height: 20px;
@@ -1305,7 +1307,7 @@
     animation: wagerSpin 0.75s linear infinite;
   }
 
-  &__check {
+  .outcome-rail__check {
     font-size: 16px;
     font-weight: 700;
     color: inherit;
@@ -1314,33 +1316,16 @@
   &.state-loading {
     transform: scale(0.97);
 
-    .outcome-rail__label {
-      opacity: 0.55;
-    }
-
-    .outcome-rail__spinner {
-      opacity: 1;
-      visibility: visible;
-    }
+    .outcome-rail__label { opacity: 0.55; }
+    .outcome-rail__spinner { opacity: 1; visibility: visible; }
   }
 
   &.state-success {
     box-shadow: 0 10px 26px rgba(0, 239, 178, 0.25);
 
-    .outcome-rail__label {
-      opacity: 1;
-    }
-
-    .outcome-rail__spinner {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__check {
-      opacity: 1;
-      visibility: visible;
-      animation: checkFlash 0.32s ease;
-    }
+    .outcome-rail__label { opacity: 0; } /* Replace label with check briefly */
+    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .outcome-rail__check { opacity: 1; visibility: visible; animation: checkFlash 0.32s ease; }
   }
 
   &.state-error {
@@ -1348,19 +1333,9 @@
     box-shadow: 0 8px 20px rgba(248, 113, 113, 0.25);
     animation: wagerShake 0.45s ease;
       
-    .outcome-rail__spinner {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__check {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__label {
-      opacity: 1;
-    }
+    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .outcome-rail__check { opacity: 0; visibility: hidden; }
+    .outcome-rail__label { opacity: 1; }
   }
 
   &:disabled {
