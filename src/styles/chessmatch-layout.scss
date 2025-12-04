@@ -234,20 +234,15 @@
   align-items: stretch;
   padding: 0 0 0 4px;
   border-radius: 20px;
-  border: 1px solid rgba(47, 209, 190, 0.4);
+  /* Neutralize border to remove green tint */
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(7, 13, 23, 0.9);
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
   overflow: visible;
 
   &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(36, 231, 206, 0.14), transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    /* Remove green glow overlay behind the board */
+    content: none;
   }
 
   & > * {
@@ -256,14 +251,9 @@
   }
 }
 
-.board-frame--rewound {
-  border-color: rgba(239, 68, 68, 0.35);
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
-}
-
-.board-frame--rewound::before {
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
-}
+/* Remove red tint when rewound; keep same neutral border and shadow */
+.board-frame--rewound { }
+.board-frame--rewound::before { content: none; }
 
 .board-eval-stack {
   display: flex;

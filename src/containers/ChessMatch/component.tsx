@@ -366,7 +366,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const evalScore = activeSnapshot?.eval ?? 0;
   const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
 
-  // Initialize display clocks when game or turn updates
+  // Initialize display clocks when server-provided times change or turn flips
   useEffect(() => {
     if (!game) return;
     const baseWhite = Math.max(0, game?.time_white ?? 0);
@@ -381,17 +381,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const whiteBaseSecs = toSecs(baseWhite);
     const blackBaseSecs = toSecs(baseBlack);
 
-    const now = Date.now();
-    const updatedAtMs = game?.updated_at ? new Date(game.updated_at).getTime() : now;
-    const elapsed = Math.max(0, Math.floor((now - updatedAtMs) / 1000));
-
-    const shouldTick = isAtLatestSnapshot && isGameInProgress;
-    const whiteStart = shouldTick && activeSnapshot?.turn === 'w' ? Math.max(0, whiteBaseSecs - elapsed) : whiteBaseSecs;
-    const blackStart = shouldTick && activeSnapshot?.turn === 'b' ? Math.max(0, blackBaseSecs - elapsed) : blackBaseSecs;
-
-    setDisplayWhiteSecs(whiteStart);
-    setDisplayBlackSecs(blackStart);
-  }, [game?.time_white, game?.time_black, game?.updated_at, game?.time_format, activeSnapshot?.turn, isAtLatestSnapshot, isGameInProgress]);
+    // Use server-provided values directly; the ticker will handle real-time decay
+    setDisplayWhiteSecs(whiteBaseSecs);
+    setDisplayBlackSecs(blackBaseSecs);
+  }, [game?.time_white, game?.time_black, game?.time_format, activeSnapshot?.turn]);
 
   // Ticking effect – decrement active side every second when live and in progress
   useEffect(() => {
