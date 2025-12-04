@@ -21,6 +21,7 @@ import OnboardingGate from 'components/OnboardingGate';
 import PregameModal from 'components/PregameModal';
 import PostgameModal from 'components/PostgameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
+import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
   fetchGameById,
@@ -42,6 +43,7 @@ import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import './style.scss';
 import './dark-style.scss';
+import './evaluation-bar.scss';
 import './bottom-toolbar.scss';
 import BottomToolbar from './BottomToolbar';
 // Removed legacy GameInfoPanel styles
@@ -369,8 +371,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     ];
   }, [autoShapes, hoverArrow]);
 
-  const evalScore = activeSnapshot?.eval ?? 0;
-  const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
+  // Eval bar uses live odds directly via EvaluationBar
 
   // Initialize display clocks when server-provided times change or turn flips
   useEffect(() => {
@@ -1149,14 +1150,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }
   }, [isNotationHovered, positionIndex]);
 
-  const whiteShareRaw = Math.max(8, evalPercent);
-  const blackShareRaw = Math.max(8, 100 - evalPercent);
-  const blueShareRaw = Math.max(8, 100 - whiteShareRaw - blackShareRaw);
-  const totalShare = whiteShareRaw + blackShareRaw + blueShareRaw;
-  const whiteShare = (whiteShareRaw / totalShare) * 100;
-  const blackShare = (blackShareRaw / totalShare) * 100;
-  const blueShare = 100 - whiteShare - blackShare;
-
   // Removed live status chip from UI
 
   // Loading + unauthenticated states from legacy implementation
@@ -1278,28 +1271,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           )}
                         </div>
                       </div>
-                      <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
-                        <div
-                          className="eval-bar-segment eval-bar-segment--black"
-                          style={{ height: `${blackShare}%`, top: 0 }}
-                        />
-                        <div
-                          className="eval-bar-segment eval-bar-segment--blue"
-                          style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
-                        />
-                        <div
-                          className="eval-bar-segment eval-bar-segment--white"
-                          style={{ height: `${whiteShare}%`, bottom: 0 }}
-                        />
-                        {evalScore >= 0 ? (
-                          <div className="eval-bar-demo__value eval-bar-demo__value--white">
-                            +{evalScore.toFixed(1)}
-                          </div>
-                        ) : (
-                          <div className="eval-bar-demo__value eval-bar-demo__value--black">
-                            {evalScore.toFixed(1)}
-                          </div>
-                        )}
+                      <div className="eval-bar-container" style={{ height: boardSize, width: evalBarWidth }}>
+                        <EvaluationBar odds={game?.odds} width={evalBarWidth} />
                       </div>
                     </div>
                     <div className="player-header">
