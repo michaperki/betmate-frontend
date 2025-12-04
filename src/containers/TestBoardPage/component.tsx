@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useLayoutEffect,
   useMemo,
   useState,
   useCallback,
@@ -199,9 +198,7 @@ const TestBoardPage: React.FC = () => {
     startX: 0,
     startY: 0,
     startSize: 420,
-    lastFrameTop: null as number | null,
   });
-  const boardFrameRef = useRef<HTMLDivElement | null>(null);
   const [selectedStake, setSelectedStake] = useState(STAKE_PRESETS[2]);
 
   useEffect(() => {
@@ -648,7 +645,6 @@ const TestBoardPage: React.FC = () => {
       startX: clientX,
       startY: clientY,
       startSize: boardSize,
-      lastFrameTop: boardFrameRef.current?.getBoundingClientRect().top ?? null,
     };
     setIsDragging(true);
   }, [boardSize]);
@@ -667,7 +663,6 @@ const TestBoardPage: React.FC = () => {
     };
     const handleEnd = () => {
       setIsDragging(false);
-      dragStateRef.current.lastFrameTop = null;
     };
     window.addEventListener('mousemove', handleMove, { passive: false });
     window.addEventListener('mouseup', handleEnd);
@@ -683,20 +678,6 @@ const TestBoardPage: React.FC = () => {
     };
   }, [clampSize, isDragging]);
 
-  useLayoutEffect(() => {
-    if (!isDragging) return;
-    if (typeof window === 'undefined') return;
-    const frameTop = boardFrameRef.current?.getBoundingClientRect().top ?? null;
-    if (frameTop === null) return;
-    const previousTop = dragStateRef.current.lastFrameTop;
-    if (previousTop !== null) {
-      const diff = frameTop - previousTop;
-      if (diff !== 0) {
-        window.scrollBy({ top: diff });
-      }
-    }
-    dragStateRef.current.lastFrameTop = frameTop;
-  }, [boardSize, isDragging]);
 
   return (
     <div className="test-board-page">
@@ -747,120 +728,120 @@ const TestBoardPage: React.FC = () => {
 
         <div className="board-demo">
           <div className="board-layout">
-            <aside className="notation-rail">
-              <div className="notation-rail__header">
-                <div>
-                  <div className="notation-rail__title">Moves</div>
-                  <div className="notation-rail__subtitle">
-                    {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
-                  </div>
-                </div>
-                {!isAtLatestSnapshot && (
-                  <span className="notation-rail__status-tag">Not Live</span>
-                )}
-              </div>
-              <div className="notation-rail__list">
-                {notationPairs.length ? notationPairs.map((pair) => (
-                  <div
-                    key={`notation-move-${pair.moveNumber}`}
-                    className="notation-row"
-                  >
-                    <span className="notation-row__number">{pair.moveNumber}.</span>
-                    {renderNotationMove(pair.white, 'white')}
-                    {renderNotationMove(pair.black, 'black')}
-                  </div>
-                )) : (
-                  <div className="notation-row notation-row--empty">
-                    <span className="notation-row__move">
-                      Moves will appear here
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="notation-rail__playback">
-                <button type="button" onClick={() => handleStep(-1)} disabled={positionIndex === 0}>
-                  Prev
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleStep(1)}
-                  disabled={positionIndex === latestSnapshotIndex}
-                >
-                  Next
-                </button>
-                <button
-                  type="button"
-                  onClick={handleJumpToLive}
-                  disabled={isAtLatestSnapshot}
-                >
-                  Jump to Live
-                </button>
-              </div>
-            </aside>
-            <div
-              ref={boardFrameRef}
-              className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
-              style={{ width: boardSize + evalWidth + 48 }}
-            >
-              <div className="player-header">
-                <div className="player-meta">
-                  <span className="player-name">{PLAYER_BLACK.name}</span>
-                  <span className="player-rating">{PLAYER_BLACK.rating}</span>
-                </div>
-                <div className="player-clock-group">
-                  <span className="player-clock">{blackClock}</span>
-                </div>
-              </div>
-
-              <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
-                <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
-                  <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
-                    <ChessgroundWrapper config={boardConfig} />
-                  </div>
-                </div>
-                <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
-                  <div
-                    className="eval-bar-segment eval-bar-segment--black"
-                    style={{ height: `${blackShare}%`, top: 0 }}
-                  />
-                  <div
-                    className="eval-bar-segment eval-bar-segment--blue"
-                    style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
-                  />
-                  <div
-                    className="eval-bar-segment eval-bar-segment--white"
-                    style={{ height: `${whiteShare}%`, bottom: 0 }}
-                  />
-                  {evalScore >= 0 ? (
-                    <div className="eval-bar-demo__value eval-bar-demo__value--white">
-                      +{evalScore.toFixed(1)}
+            <div className="board-layout__main">
+              <aside className="notation-rail">
+                <div className="notation-rail__header">
+                  <div>
+                    <div className="notation-rail__title">Moves</div>
+                    <div className="notation-rail__subtitle">
+                      {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
                     </div>
-                  ) : (
-                    <div className="eval-bar-demo__value eval-bar-demo__value--black">
-                      {evalScore.toFixed(1)}
+                  </div>
+                  {!isAtLatestSnapshot && (
+                    <span className="notation-rail__status-tag">Not Live</span>
+                  )}
+                </div>
+                <div className="notation-rail__list">
+                  {notationPairs.length ? notationPairs.map((pair) => (
+                    <div
+                      key={`notation-move-${pair.moveNumber}`}
+                      className="notation-row"
+                    >
+                      <span className="notation-row__number">{pair.moveNumber}.</span>
+                      {renderNotationMove(pair.white, 'white')}
+                      {renderNotationMove(pair.black, 'black')}
+                    </div>
+                  )) : (
+                    <div className="notation-row notation-row--empty">
+                      <span className="notation-row__move">
+                        Moves will appear here
+                      </span>
                     </div>
                   )}
                 </div>
-              </div>
+                <div className="notation-rail__playback">
+                  <button type="button" onClick={() => handleStep(-1)} disabled={positionIndex === 0}>
+                    Prev
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleStep(1)}
+                    disabled={positionIndex === latestSnapshotIndex}
+                  >
+                    Next
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleJumpToLive}
+                    disabled={isAtLatestSnapshot}
+                  >
+                    Jump to Live
+                  </button>
+                </div>
+              </aside>
+              <div
+                className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
+                style={{ width: boardSize + evalWidth + 48 }}
+              >
+                <div className="player-header">
+                  <div className="player-meta">
+                    <span className="player-name">{PLAYER_BLACK.name}</span>
+                    <span className="player-rating">{PLAYER_BLACK.rating}</span>
+                  </div>
+                  <div className="player-clock-group">
+                    <span className="player-clock">{blackClock}</span>
+                  </div>
+                </div>
 
-              <div className="player-header">
-                <div className="player-meta">
-                  <span className="player-name">{PLAYER_WHITE.name}</span>
-                  <span className="player-rating">{PLAYER_WHITE.rating}</span>
+                <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
+                  <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
+                    <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
+                      <ChessgroundWrapper config={boardConfig} />
+                    </div>
+                  </div>
+                  <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
+                    <div
+                      className="eval-bar-segment eval-bar-segment--black"
+                      style={{ height: `${blackShare}%`, top: 0 }}
+                    />
+                    <div
+                      className="eval-bar-segment eval-bar-segment--blue"
+                      style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
+                    />
+                    <div
+                      className="eval-bar-segment eval-bar-segment--white"
+                      style={{ height: `${whiteShare}%`, bottom: 0 }}
+                    />
+                    {evalScore >= 0 ? (
+                      <div className="eval-bar-demo__value eval-bar-demo__value--white">
+                        +{evalScore.toFixed(1)}
+                      </div>
+                    ) : (
+                      <div className="eval-bar-demo__value eval-bar-demo__value--black">
+                        {evalScore.toFixed(1)}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="player-clock-group">
-                  <span className="player-clock">{whiteClock}</span>
+
+                <div className="player-header">
+                  <div className="player-meta">
+                    <span className="player-name">{PLAYER_WHITE.name}</span>
+                    <span className="player-rating">{PLAYER_WHITE.rating}</span>
+                  </div>
+                  <div className="player-clock-group">
+                    <span className="player-clock">{whiteClock}</span>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
+                  onMouseDown={beginDrag}
+                  onTouchStart={beginDrag}
+                  aria-label="Resize board"
+                />
               </div>
-              <button
-                type="button"
-                className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
-                onMouseDown={beginDrag}
-                onTouchStart={beginDrag}
-                aria-label="Resize board"
-              />
             </div>
-
             <div
               className={['outcome-rail-column', betsLocked ? 'is-locked' : ''].join(' ')}
               data-locked={betsLocked}

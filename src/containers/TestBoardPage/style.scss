@@ -161,12 +161,21 @@
   gap: 16px;
   align-items: flex-start;
   justify-content: flex-start;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   width: 100%;
 }
 
-@media (max-width: 1180px) {
-  .board-layout {
+.board-layout__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .board-layout__main {
     flex-wrap: wrap;
   }
 }
