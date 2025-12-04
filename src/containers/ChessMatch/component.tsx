@@ -593,6 +593,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       await Promise.resolve(wagerPromise);
       updateOutcomeState(outcomeId, 'success');
       scheduleOutcomeReset(outcomeId, 600);
+      // Refresh receipts so new wagers appear promptly
+      dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
       console.error('Outcome bet failed', error);
       updateOutcomeState(outcomeId, 'error');
@@ -617,6 +619,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       await Promise.resolve(wagerPromise);
       updateMoveState(moveKey, 'success');
       scheduleMoveReset(moveKey, 500);
+      // Refresh receipts so new wagers appear promptly
+      dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
       console.error('Move bet failed', error);
       updateMoveState(moveKey, 'error');
