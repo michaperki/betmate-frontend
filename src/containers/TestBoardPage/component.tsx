@@ -38,6 +38,12 @@ const formatClock = (seconds: number) => {
 
 const MIN_BOARD_SIZE = 260;
 
+const DEMO_MOVE_MARKET = [
+  { move: 'Nf3', percent: 34, payout: 2.4 },
+  { move: 'Bc4', percent: 22, payout: 3.1 },
+  { move: 'Qh5', percent: 12, payout: 5.5 },
+];
+
 const TestBoardPage: React.FC = () => {
   const snapshots = useMemo<Snapshot[]>(() => {
     const chess = new Chess();
@@ -121,6 +127,35 @@ const TestBoardPage: React.FC = () => {
 
   const whiteClock = formatClock(300 - positionIndex * 7);
   const blackClock = formatClock(300 - positionIndex * 5);
+  const squareSize = boardSize / 8;
+  const evalBarWidth = Math.max(14, squareSize / 2);
+
+  const MIN_CAP = 8;
+  const MIN_BLUE = 8;
+  let whiteShare = Math.max(MIN_CAP, evalPercent);
+  let blackShare = Math.max(MIN_CAP, 100 - evalPercent);
+  let blueShare = 100 - whiteShare - blackShare;
+  if (blueShare < MIN_BLUE) {
+    const deficit = MIN_BLUE - blueShare;
+    if (whiteShare > blackShare) {
+      whiteShare = Math.max(MIN_CAP, whiteShare - deficit);
+    } else {
+      blackShare = Math.max(MIN_CAP, blackShare - deficit);
+    }
+    blueShare = MIN_BLUE;
+  }
+  const totalShare = whiteShare + blackShare + blueShare;
+  whiteShare = (whiteShare / totalShare) * 100;
+  blackShare = (blackShare / totalShare) * 100;
+  blueShare = 100 - whiteShare - blackShare;
+
+  const handleOutcomeBet = useCallback((outcomeId: string) => {
+    console.log('Bet outcome', outcomeId);
+  }, []);
+
+  const handleMoveBet = useCallback((move: string) => {
+    console.log('Bet move', move);
+  }, []);
 
   const clampSize = useCallback((value: number) => (
     Math.max(MIN_BOARD_SIZE, Math.min(maxBoardSize, value))
@@ -182,16 +217,19 @@ const TestBoardPage: React.FC = () => {
         </div>
 
         <div className="board-demo">
-          <div
-            className="board-frame"
-            style={{ width: boardSize + evalWidth + 48 }}
-          >
-            <div className="player-header">
+          <div className="board-layout">
+            <div
+              className="board-frame"
+              style={{ width: boardSize + evalWidth + 48 }}
+            >
+              <div className="player-header">
               <div className="player-meta">
                 <span className="player-name">{PLAYER_BLACK.name}</span>
                 <span className="player-rating">{PLAYER_BLACK.rating}</span>
               </div>
-              <span className="player-clock">{blackClock}</span>
+              <div className="player-clock-group">
+                <span className="player-clock">{blackClock}</span>
+              </div>
             </div>
 
             <div className="board-eval-stack" style={{ width: boardSize + evalWidth, gap: 12 }}>
@@ -200,12 +238,28 @@ const TestBoardPage: React.FC = () => {
                   <ChessgroundWrapper config={boardConfig} />
                 </div>
               </div>
-              <div className="eval-bar-demo" style={{ height: boardSize, width: evalWidth }}>
-                <div className="eval-bar-demo__fill" style={{ height: `${evalPercent}%` }} />
-                <div className="eval-bar-demo__marker" style={{ top: `${100 - evalPercent}%` }} />
-                <div className="eval-bar-demo__value">
-                  {evalScore >= 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)}
-                </div>
+              <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
+                <div
+                  className="eval-bar-segment eval-bar-segment--black"
+                  style={{ height: `${blackShare}%`, top: 0 }}
+                />
+                <div
+                  className="eval-bar-segment eval-bar-segment--blue"
+                  style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
+                />
+                <div
+                  className="eval-bar-segment eval-bar-segment--white"
+                  style={{ height: `${whiteShare}%`, bottom: 0 }}
+                />
+                {evalScore >= 0 ? (
+                  <div className="eval-bar-demo__value eval-bar-demo__value--white">
+                    +{evalScore.toFixed(1)}
+                  </div>
+                ) : (
+                  <div className="eval-bar-demo__value eval-bar-demo__value--black">
+                    {evalScore.toFixed(1)}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -214,7 +268,9 @@ const TestBoardPage: React.FC = () => {
                 <span className="player-name">{PLAYER_WHITE.name}</span>
                 <span className="player-rating">{PLAYER_WHITE.rating}</span>
               </div>
-              <span className="player-clock">{whiteClock}</span>
+              <div className="player-clock-group">
+                <span className="player-clock">{whiteClock}</span>
+              </div>
             </div>
             <button
               type="button"
@@ -223,6 +279,68 @@ const TestBoardPage: React.FC = () => {
               onTouchStart={beginDrag}
               aria-label="Resize board"
             />
+            </div>
+
+            <div className="outcome-rail-column">
+              <div className="outcome-rail-column__item">
+                <header>
+                  <span>Black</span>
+                  <button
+                    type="button"
+                    className="outcome-rail__button black"
+                    onClick={() => handleOutcomeBet('black_win')}
+                  >
+                    Bet {PLAYER_BLACK.name.split(' ')[0]}
+                  </button>
+                </header>
+                <div className="move-panel move-panel--top">
+                  {DEMO_MOVE_MARKET.map((option) => (
+                    <button
+                      key={`black-${option.move}`}
+                      type="button"
+                      onClick={() => handleMoveBet(option.move)}
+                    >
+                      <span>{option.move}</span>
+                      <span>{option.payout.toFixed(1)}x</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="draw-panel">
+                <button
+                  type="button"
+                  className="outcome-rail__button draw"
+                  onClick={() => handleOutcomeBet('draw')}
+                >
+                  Bet Draw
+                </button>
+                <div className="draw-panel__hint">Hold for instant draw bet</div>
+              </div>
+              <div className="outcome-rail-column__item">
+                <header>
+                  <span>White</span>
+                  <button
+                    type="button"
+                    className="outcome-rail__button white"
+                    onClick={() => handleOutcomeBet('white_win')}
+                  >
+                    Bet {PLAYER_WHITE.name.split(' ')[0]}
+                  </button>
+                </header>
+                <div className="move-panel move-panel--bottom">
+                  {DEMO_MOVE_MARKET.map((option) => (
+                    <button
+                      key={`white-${option.move}`}
+                      type="button"
+                      onClick={() => handleMoveBet(option.move)}
+                    >
+                      <span>{option.move}</span>
+                      <span>{option.payout.toFixed(1)}x</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

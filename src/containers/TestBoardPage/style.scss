@@ -72,6 +72,13 @@
   justify-content: center;
 }
 
+.board-layout {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
 .board-frame {
   position: relative;
   display: flex;
@@ -118,9 +125,15 @@
     color: rgba(255, 255, 255, 0.6);
   }
 
-  .player-clock {
-    font-size: 18px;
-    font-weight: 700;
+  .player-clock-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .player-clock {
+      font-size: 18px;
+      font-weight: 700;
+    }
   }
 }
 
@@ -130,6 +143,77 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   flex: none;
+}
+
+
+.outcome-rail-column {
+  min-width: 160px;
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+
+  @media (max-width: 640px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px;
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+
+      span {
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    @media (max-width: 640px) {
+      flex: 1 1 calc(33% - 8px);
+    }
+  }
+}
+
+.outcome-rail__button {
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+
+  &.white {
+    border-color: rgba(0, 239, 178, 0.4);
+    color: #00efb2;
+  }
+
+  &.black {
+    border-color: rgba(244, 114, 182, 0.4);
+    color: #f472b6;
+  }
+
+  &.draw {
+    border-color: rgba(96, 165, 250, 0.4);
+    color: #60a5fa;
+  }
 }
 
 .board-resize-handle {
@@ -155,41 +239,56 @@
 }
 
 .eval-bar-demo {
-  width: 60px;
+  width: 32px;
   height: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, #ffffff 0%, #ffffff 45%, #00a08a 50%, #101010 55%, #101010 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #050505;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
 }
 
-.eval-bar-demo__fill {
+.eval-bar-segment {
   position: absolute;
   left: 0;
-  bottom: 0;
   width: 100%;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #f9f9f9 0%, #60fbd0 45%, #111 100%);
-  transition: height 0.3s ease;
 }
 
-.eval-bar-demo__marker {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 2px;
-  background: rgba(0, 0, 0, 0.4);
+.eval-bar-segment--black {
+  top: 0;
+  background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+}
+
+.eval-bar-segment--blue {
+  background: linear-gradient(180deg, #4873ff 0%, #6cd0ff 100%);
+}
+
+.eval-bar-segment--white {
+  bottom: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #eaeaea 100%);
 }
 
 .eval-bar-demo__value {
   position: absolute;
-  transform: rotate(-90deg);
+  left: 50%;
+  transform: translateX(-50%) rotate(-90deg);
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.65);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 999px;
+
+  &--white {
+    bottom: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+  }
+
+  &--black {
+    top: 8px;
+    background: rgba(255, 255, 255, 0.25);
+    color: #0b0b0b;
+  }
 }
 
 @media (max-width: 768px) {
@@ -199,7 +298,48 @@
   }
 
   .eval-bar-demo {
-    width: 40px;
-    min-height: 200px;
+    width: 28px;
+  }
+}
+.draw-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+
+  &__hint {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+.move-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font-weight: 600;
+    padding: 6px 8px;
+    font-size: 13px;
+
+    span:last-child {
+      font-weight: 400;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+    }
   }
 }
