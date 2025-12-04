@@ -1429,6 +1429,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         onOpenChat={openChat}
         onOpenLeaderboard={openLeaderboard}
         isLive={isAtLatestSnapshot}
+        onDraw={() => triggerOutcomeBet('draw')}
+        drawState={outcomeStates['draw']}
+        canDraw={canPlaceWagers}
       />
 
       {/* Fullscreen overlays */}

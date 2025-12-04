@@ -83,6 +83,86 @@
   }
 }
 
+.bt-draw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  background: linear-gradient(135deg, #0f172a, #0b1120);
+  color: #e0f2ff;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled):not(.state-loading) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  }
+
+  .bt-draw-btn__label {
+    position: relative;
+    z-index: 2;
+    transition: opacity 0.12s ease;
+  }
+
+  .bt-draw-btn__spinner,
+  .bt-draw-btn__check {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease;
+    z-index: 3;
+  }
+
+  .bt-draw-btn__spinner::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #60a5fa;
+    animation: wagerSpin 0.75s linear infinite;
+  }
+
+  .bt-draw-btn__check { font-size: 14px; }
+
+  &.state-loading {
+    transform: scale(0.97);
+    .bt-draw-btn__label { opacity: 0.55; }
+    .bt-draw-btn__spinner { opacity: 1; visibility: visible; }
+  }
+
+  &.state-success {
+    box-shadow: 0 8px 18px rgba(96, 165, 250, 0.25);
+    .bt-draw-btn__label { opacity: 0; }
+    .bt-draw-btn__spinner { opacity: 0; visibility: hidden; }
+    .bt-draw-btn__check { opacity: 1; visibility: visible; }
+  }
+
+  &.state-error {
+    border-color: rgba(248, 113, 113, 0.6);
+    box-shadow: 0 8px 18px rgba(248, 113, 113, 0.25);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
 /* Fullscreen overlay (modal) for Chat/Leaderboard */
 .cm-overlay-backdrop {
   position: fixed;
@@ -149,4 +229,3 @@
   overflow: auto;
   padding: 10px;
 }
-

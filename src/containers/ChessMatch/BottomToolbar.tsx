@@ -10,6 +10,10 @@ interface BottomToolbarProps {
   onOpenChat: () => void;
   onOpenLeaderboard: () => void;
   isLive: boolean;
+  // Draw action
+  onDraw: () => void;
+  drawState: 'idle' | 'loading' | 'success' | 'error';
+  canDraw: boolean;
 }
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({
@@ -20,6 +24,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   onOpenChat,
   onOpenLeaderboard,
   isLive,
+  onDraw,
+  drawState,
+  canDraw,
 }) => {
   return (
     <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
@@ -45,6 +52,19 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         </div>
       </div>
       <div className="bottom-toolbar__right">
+        <button
+          type="button"
+          className={`bt-draw-btn state-${drawState}`}
+          onClick={onDraw}
+          disabled={!canDraw || drawState === 'loading'}
+          aria-label="Bet on Draw"
+          aria-busy={drawState === 'loading'}
+          title="Bet Draw"
+        >
+          <span className="bt-draw-btn__label">Draw</span>
+          <span className="bt-draw-btn__spinner" aria-hidden />
+          <span className="bt-draw-btn__check" aria-hidden>✓</span>
+        </button>
         <div className="bt-viewers" title="Viewers" aria-label="Viewers">
           <span className="bt-viewers__icon" aria-hidden>👁</span>
           <span className="bt-viewers__count">{viewerCount || 0}</span>
