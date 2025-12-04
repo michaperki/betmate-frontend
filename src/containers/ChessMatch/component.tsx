@@ -211,6 +211,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const [isNotationHovered, setIsNotationHovered] = useState(false);
   const notationListRef = useRef<HTMLDivElement | null>(null);
   const notationCellRefs = useRef<Record<number, HTMLElement | null>>({});
+  // Real-time ticking clocks (seconds)
+  const [displayWhiteSecs, setDisplayWhiteSecs] = useState<number>(0);
+  const [displayBlackSecs, setDisplayBlackSecs] = useState<number>(0);
 
   const {
     fetchGameById,
@@ -363,8 +366,50 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const evalScore = activeSnapshot?.eval ?? 0;
   const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
 
-  const whiteClock = formatClock(game?.time_white ?? 0, game?.time_format);
-  const blackClock = formatClock(game?.time_black ?? 0, game?.time_format);
+  // Initialize display clocks when game or turn updates
+  useEffect(() => {
+    if (!game) return;
+    const baseWhite = Math.max(0, game?.time_white ?? 0);
+    const baseBlack = Math.max(0, game?.time_black ?? 0);
+
+    const toSecs = (raw: number): number => {
+      const initialSecs = parseInitialSeconds(game?.time_format ?? undefined);
+      if (initialSecs != null) return raw > initialSecs * 10 ? Math.floor(raw / 1000) : Math.floor(raw);
+      return raw > 10000 ? Math.floor(raw / 1000) : Math.floor(raw);
+    };
+
+    const whiteBaseSecs = toSecs(baseWhite);
+    const blackBaseSecs = toSecs(baseBlack);
+
+    const now = Date.now();
+    const updatedAtMs = game?.updated_at ? new Date(game.updated_at).getTime() : now;
+    const elapsed = Math.max(0, Math.floor((now - updatedAtMs) / 1000));
+
+    const shouldTick = isAtLatestSnapshot && isGameInProgress;
+    const whiteStart = shouldTick && activeSnapshot?.turn === 'w' ? Math.max(0, whiteBaseSecs - elapsed) : whiteBaseSecs;
+    const blackStart = shouldTick && activeSnapshot?.turn === 'b' ? Math.max(0, blackBaseSecs - elapsed) : blackBaseSecs;
+
+    setDisplayWhiteSecs(whiteStart);
+    setDisplayBlackSecs(blackStart);
+  }, [game?.time_white, game?.time_black, game?.updated_at, game?.time_format, activeSnapshot?.turn, isAtLatestSnapshot, isGameInProgress]);
+
+  // Ticking effect – decrement active side every second when live and in progress
+  useEffect(() => {
+    if (!game) return undefined;
+    if (!isAtLatestSnapshot || !isGameInProgress) return undefined;
+    const isWhiteActive = activeSnapshot?.turn === 'w';
+    const id = window.setInterval(() => {
+      if (isWhiteActive) {
+        setDisplayWhiteSecs((s) => Math.max(0, s - 1));
+      } else {
+        setDisplayBlackSecs((s) => Math.max(0, s - 1));
+      }
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [game?._id, activeSnapshot?.turn, isAtLatestSnapshot, isGameInProgress]);
+
+  const whiteClock = formatClock(displayWhiteSecs, game?.time_format);
+  const blackClock = formatClock(displayBlackSecs, game?.time_format);
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
   const squareSize = boardSize / 8;
