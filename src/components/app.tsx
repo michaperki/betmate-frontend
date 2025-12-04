@@ -15,7 +15,6 @@ import UserPage from 'containers/UserPage';
 import RafflePage from 'containers/RafflePage';
 import Dashboard from '../containers/Dashboard';
 import ChessMatch from '../containers/ChessMatch';
-import TestBoardPage from '../containers/TestBoardPage';
 import ActiveBetsPage from 'containers/ActiveBetsPage';
 import BettingHistoryPage from 'containers/BettingHistoryPage';
 import NavBar from './NavBar';
@@ -68,7 +67,6 @@ const App: React.FC<AppProps> = (props) => {
                 <BettingHistoryPage />
               </div>
           )} />
-          <Route exact path="/test" component={TestBoardPage} />
           <Route exact path="/signin" component={SignInPanel} />
           <Route exact path="/signup" component={SignUpPanel} />
           <Route exact path="/signout" component={SignOutPanel} />
