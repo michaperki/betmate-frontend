@@ -1173,6 +1173,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       aria-label="Resize board"
                     />
                   </div>
+                  <div className="notation-column">
                   <aside className="notation-rail">
                     <div className="notation-nav">
                       <button
@@ -1246,6 +1247,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       )}
                     </div>
                   </section>
+                  </div>
                 </div>
               </div>
             </div>
