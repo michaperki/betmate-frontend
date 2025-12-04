@@ -18,6 +18,7 @@ interface Snapshot {
   label: string;
   eval: number;
   lastMove?: [Key, Key];
+  turn: 'w' | 'b';
 }
 
 const PLAYER_WHITE = {
@@ -38,10 +39,58 @@ const formatClock = (seconds: number) => {
 
 const MIN_BOARD_SIZE = 260;
 
-const DEMO_MOVE_MARKET = [
-  { move: 'Nf3', percent: 34, payout: 2.4 },
-  { move: 'Bc4', percent: 22, payout: 3.1 },
-  { move: 'Qh5', percent: 12, payout: 5.5 },
+interface MoveOption {
+  move: string;
+  percent: number;
+  payout: number;
+}
+
+interface MoveSet {
+  whiteMoves: MoveOption[];
+  blackMoves: MoveOption[];
+}
+
+const MOVE_SETS: MoveSet[] = [
+  {
+    whiteMoves: [
+      { move: 'e4', percent: 41, payout: 1.9 },
+      { move: 'd4', percent: 33, payout: 2.4 },
+      { move: 'Nf3', percent: 26, payout: 2.9 },
+    ],
+    blackMoves: [],
+  },
+  {
+    whiteMoves: [],
+    blackMoves: [
+      { move: '... c5', percent: 39, payout: 2.2 },
+      { move: '... e5', percent: 36, payout: 2.5 },
+      { move: '... d6', percent: 18, payout: 4.1 },
+    ],
+  },
+  {
+    whiteMoves: [
+      { move: 'Bc4', percent: 31, payout: 2.8 },
+      { move: 'Bb5', percent: 28, payout: 3.0 },
+      { move: 'd4', percent: 23, payout: 3.2 },
+    ],
+    blackMoves: [],
+  },
+  {
+    whiteMoves: [],
+    blackMoves: [
+      { move: '... exd4', percent: 45, payout: 1.8 },
+      { move: '... Nf6', percent: 27, payout: 3.3 },
+      { move: '... c5', percent: 16, payout: 5.0 },
+    ],
+  },
+  {
+    whiteMoves: [
+      { move: 'Nc3', percent: 35, payout: 2.6 },
+      { move: 'c4', percent: 29, payout: 3.3 },
+      { move: 'f4', percent: 18, payout: 4.4 },
+    ],
+    blackMoves: [],
+  },
 ];
 
 const TestBoardPage: React.FC = () => {
@@ -52,6 +101,7 @@ const TestBoardPage: React.FC = () => {
       label: 'Starting Position',
       eval: 0,
       lastMove: undefined,
+      turn: chess.turn(),
     }];
 
     DEMO_MOVES.forEach(({ move, label, eval: evalScore }) => {
@@ -62,6 +112,7 @@ const TestBoardPage: React.FC = () => {
           label,
           eval: evalScore,
           lastMove: [result.from, result.to],
+          turn: chess.turn(),
         });
       }
     });
@@ -127,6 +178,12 @@ const TestBoardPage: React.FC = () => {
 
   const whiteClock = formatClock(300 - positionIndex * 7);
   const blackClock = formatClock(300 - positionIndex * 5);
+  const isWhiteTurn = activeSnapshot.turn === 'w';
+  const isBlackTurn = !isWhiteTurn;
+  const moveSetIndex = positionIndex % MOVE_SETS.length;
+  const activeMoveSet = MOVE_SETS[moveSetIndex] ?? { whiteMoves: [], blackMoves: [] };
+  const whiteMovePool = activeMoveSet.whiteMoves ?? [];
+  const blackMovePool = activeMoveSet.blackMoves ?? [];
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
 
@@ -156,6 +213,49 @@ const TestBoardPage: React.FC = () => {
   const handleMoveBet = useCallback((move: string) => {
     console.log('Bet move', move);
   }, []);
+
+  const renderMoveOptions = (options: MoveOption[], color: 'white' | 'black') => {
+    if (!options.length) {
+      return (
+        <div className="move-panel__empty">
+          {color === 'white' ? 'Waiting on White' : 'Waiting on Black'}
+        </div>
+      );
+    }
+
+    return options.map((option) => (
+      <button
+        key={`${color}-${option.move}`}
+        type="button"
+        onClick={() => handleMoveBet(option.move)}
+      >
+        <span>{option.move}</span>
+        <span>{`${option.percent}% • ${option.payout.toFixed(1)}x`}</span>
+      </button>
+    ));
+  };
+
+  const renderMovePanel = (
+    color: 'white' | 'black',
+    alignmentClass: 'move-panel--top' | 'move-panel--bottom',
+    isActive: boolean,
+    options: MoveOption[],
+  ) => (
+    <div
+      className={[
+        'move-panel',
+        alignmentClass,
+        isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
+      ].join(' ')}
+      aria-live={isActive ? 'polite' : 'off'}
+    >
+      {isActive ? renderMoveOptions(options, color) : (
+        <div className="move-panel__status">
+          {color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
+        </div>
+      )}
+    </div>
+  );
 
   const clampSize = useCallback((value: number) => (
     Math.max(MIN_BOARD_SIZE, Math.min(maxBoardSize, value))
@@ -293,18 +393,7 @@ const TestBoardPage: React.FC = () => {
                     Bet {PLAYER_BLACK.name.split(' ')[0]}
                   </button>
                 </header>
-                <div className="move-panel move-panel--top">
-                  {DEMO_MOVE_MARKET.map((option) => (
-                    <button
-                      key={`black-${option.move}`}
-                      type="button"
-                      onClick={() => handleMoveBet(option.move)}
-                    >
-                      <span>{option.move}</span>
-                      <span>{option.payout.toFixed(1)}x</span>
-                    </button>
-                  ))}
-                </div>
+                {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
               </div>
               <div className="draw-panel">
                 <button
@@ -327,18 +416,7 @@ const TestBoardPage: React.FC = () => {
                     Bet {PLAYER_WHITE.name.split(' ')[0]}
                   </button>
                 </header>
-                <div className="move-panel move-panel--bottom">
-                  {DEMO_MOVE_MARKET.map((option) => (
-                    <button
-                      key={`white-${option.move}`}
-                      type="button"
-                      onClick={() => handleMoveBet(option.move)}
-                    >
-                      <span>{option.move}</span>
-                      <span>{option.payout.toFixed(1)}x</span>
-                    </button>
-                  ))}
-                </div>
+                {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
               </div>
             </div>
           </div>
