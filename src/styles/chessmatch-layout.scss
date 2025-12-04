@@ -1447,20 +1447,7 @@
   }
 }
 
-// Sub-actions (e.g., Draw) rendered under main bet buttons
-.outcome-rail-column__subactions {
-  display: flex;
-  margin-top: 6px;
-}
-
-.outcome-rail-column__subactions .outcome-rail__button--draw {
-  padding: 6px 10px;
-  font-size: 11px;
-  border-radius: 10px;
-  background: rgba(15, 23, 42, 0.5);
-  border-color: rgba(96, 165, 250, 0.28);
-  letter-spacing: 0.06em;
-}
+/* Removed subactions row under left/right rail; draw now lives in toolbar and mobile row */
 
 @keyframes wagerSpin {
   from { transform: rotate(0deg); }
