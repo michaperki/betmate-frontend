@@ -554,12 +554,23 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const formatReceiptLabel = useCallback((w: Wager) => {
     if (w.wdl) {
-      if (w.data === 'win') return 'Outcome: Win';
-      if (w.data === 'draw') return 'Outcome: Draw';
-      return 'Outcome: Loss';
+      const data = (w.data || '').toLowerCase();
+      if (data.includes('white')) {
+        const name = game?.player_white?.name || 'White';
+        return `Outcome: ${name} (White)`;
+      }
+      if (data.includes('black')) {
+        const name = game?.player_black?.name || 'Black';
+        return `Outcome: ${name} (Black)`;
+      }
+      if (data.includes('draw')) return 'Outcome: Draw';
+      // Fallbacks for legacy values like 'win'/'loss'
+      if (data === 'win') return 'Outcome: Win';
+      if (data === 'loss') return 'Outcome: Loss';
+      return `Outcome: ${w.data}`;
     }
     return `Move: ${sanitizeMoveLabel(w.data)}`;
-  }, [sanitizeMoveLabel]);
+  }, [game?.player_black?.name, game?.player_white?.name, sanitizeMoveLabel]);
 
   const formatReceiptMeta = useCallback((w: Wager) => {
     const amount = `$${(w.amount ?? 0).toFixed(0)}`;
