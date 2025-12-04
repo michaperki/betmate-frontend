@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import ChessgroundWrapper from 'components/ChessgroundWrapper';
 import { Config } from 'chessground/config';
@@ -33,6 +34,9 @@ import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { gameInProgress, gameOver, getValidMoves } from 'utils/chess';
 import { Game, GameOdds, GameStatus } from 'types/resources/game';
 import { Rank } from 'types/leaderboard';
+import { RootState } from 'types/state';
+import { Wager, WagerStatus } from 'types/resources/wager';
+import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
 
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
@@ -151,6 +155,7 @@ const computeEvalFromOdds = (odds?: GameOdds) => {
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
+  const dispatch = useDispatch();
   const groundWrapperRef = useRef<HTMLDivElement>(null);
   const boardFrameRef = useRef<HTMLDivElement | null>(null);
   const outcomeResetTimers = useRef<Record<OutcomeId, number | null>>({
@@ -515,6 +520,28 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       if (prev[outcomeId] === next) return prev;
       return { ...prev, [outcomeId]: next };
     });
+  }, []);
+
+  // Wager receipts (simple, minimal panel below Notation)
+  useEffect(() => {
+    dispatch(fetchWagerHistory(undefined, 10, 0));
+  }, [dispatch]);
+
+  const receipts = useSelector((state: RootState) => state.wager?.wagerHistory ?? []);
+
+  const formatReceiptLabel = useCallback((w: Wager) => {
+    if (w.wdl) {
+      if (w.data === 'win') return 'Outcome: Win';
+      if (w.data === 'draw') return 'Outcome: Draw';
+      return 'Outcome: Loss';
+    }
+    return `Move: ${sanitizeMoveLabel(w.data)}`;
+  }, [sanitizeMoveLabel]);
+
+  const formatReceiptMeta = useCallback((w: Wager) => {
+    const amount = `$${(w.amount ?? 0).toFixed(0)}`;
+    const time = w.created_at ? new Date(w.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    return `${amount} • ${time}`;
   }, []);
 
   const scheduleOutcomeReset = useCallback((outcomeId: OutcomeId, delay: number) => {
@@ -1147,17 +1174,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     />
                   </div>
                   <aside className="notation-rail">
-                    <div className="notation-rail__header">
-                      <div>
-                        <div className="notation-rail__title">Moves</div>
-                        <div className="notation-rail__subtitle">
-                          {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
-                        </div>
-                      </div>
-                      {!isAtLatestSnapshot && (
-                        <span className="notation-rail__status-tag">Not Live</span>
-                      )}
-                    </div>
                     <div className="notation-nav">
                       <button
                         type="button"
@@ -1209,6 +1225,27 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       )}
                     </div>
                   </aside>
+                  <section className="wager-receipts" aria-label="Wager receipts">
+                    <div className="wager-receipts__list">
+                      {receipts && receipts.length ? receipts.slice(0, 10).map((w) => (
+                        <div
+                          key={w._id}
+                          className={[
+                            'wager-receipt',
+                            w.status === WagerStatus.WON ? 'wager-receipt--won' : '',
+                            w.status === WagerStatus.LOST ? 'wager-receipt--lost' : '',
+                            w.status === WagerStatus.CANCELLED ? 'wager-receipt--cancelled' : '',
+                          ].join(' ')}
+                          title={w.data}
+                        >
+                          <div className="wager-receipt__title">{formatReceiptLabel(w)}</div>
+                          <div className="wager-receipt__meta">{formatReceiptMeta(w)}</div>
+                        </div>
+                      )) : (
+                        <div className="wager-receipt wager-receipt--empty">No wager receipts yet</div>
+                      )}
+                    </div>
+                  </section>
                 </div>
               </div>
             </div>
