@@ -14,9 +14,8 @@ import { DrawShape } from 'chessground/draw';
 import { Key, MoveMetadata } from 'chessground/types';
 import { Chess, Square } from 'chess.js';
 import NavBar from 'components/NavBar';
-import GameCommunication from 'components/GameCommunication';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
-import GameInfoPanel from 'components/GameInfoPanel';
+import ChatBox from 'components/ChatBox';
 import ConnectionStatus from 'components/ConnectionStatus';
 import OnboardingGate from 'components/OnboardingGate';
 import PregameModal from 'components/PregameModal';
@@ -43,7 +42,9 @@ import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import './style.scss';
 import './dark-style.scss';
-import 'components/GameInfoPanel/style.scss';
+import './bottom-toolbar.scss';
+import BottomToolbar from './BottomToolbar';
+// Removed legacy GameInfoPanel styles
 
 interface ChessMatchProps {
   joinGame: typeof joinGame;
@@ -172,6 +173,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   });
 
   const [selectedStake, setSelectedStake] = useState<number>(25);
+  const [activeOverlay, setActiveOverlay] = useState<'chat' | 'leaderboard' | null>(null);
   const [boardSize, setBoardSize] = useState(420);
   const [maxBoardSize, setMaxBoardSize] = useState(420);
   const [positionIndex, setPositionIndex] = useState(0);
@@ -213,6 +215,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const game: Game | undefined = games[gameId];
   const gameStats = gameStatsMap[gameId];
+  const viewerCount = gameStats?.viewerCount || 0;
 
   useEffect(() => {
     fetchGameById(gameId);
@@ -345,6 +348,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
   const BOARD_STACK_GAP = 4;
+
+  // Overlay controls
+  const openChat = useCallback(() => setActiveOverlay('chat'), []);
+  const openLeaderboard = useCallback(() => setActiveOverlay('leaderboard'), []);
+  const closeOverlay = useCallback(() => setActiveOverlay(null), []);
+
+  useEffect(() => {
+    if (!activeOverlay) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeOverlay();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [activeOverlay, closeOverlay]);
   const FRAME_HORIZONTAL_PADDING = 12;
   const boardStackWidth = boardSize + evalBarWidth + BOARD_STACK_GAP;
   const boardFrameWidth = boardStackWidth + FRAME_HORIZONTAL_PADDING;
@@ -1043,7 +1060,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const blackShare = (blackShareRaw / totalShare) * 100;
   const blueShare = 100 - whiteShare - blackShare;
 
-  const livePillLabel = isAtLatestSnapshot ? 'Live' : 'Not Live';
+  // Removed live status chip from UI
 
   // Loading + unauthenticated states from legacy implementation
   if (!game) {
@@ -1289,42 +1306,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 </div>
               </div>
             </div>
-            <div className="desktop-post-board">
-              <div className="game-controls-inline">
-                <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
-                  {livePillLabel}
-                </span>
-                <div className="stake-chip-row">
-                  {STAKE_PRESETS.map((value) => (
-                    <button
-                      key={`stake-${value}`}
-                      type="button"
-                      className={`stake-chip ${selectedStake === value ? 'is-active' : ''}`}
-                      onClick={() => setSelectedStake(value)}
-                    >
-                      ${value}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="match-side-modules">
-                <div className="match-card match-card--info">
-                  <GameInfoPanel
-                    game={game}
-                    viewerCount={gameStats?.viewerCount || 0}
-                    moveWagerData={gameStats?.moveWagerData || {}}
-                    selectedStake={selectedStake}
-                    setSelectedStake={setSelectedStake}
-                  />
-                </div>
-                <div className="match-card match-card--communication">
-                  <GameCommunication className="game-communication-panel" />
-                </div>
-                <div className="match-card match-card--leaderboard">
-                  <MiniLeaderboard rankings={rankings || []} />
-                </div>
-              </div>
-            </div>
+            {/* Replaced legacy second row with a thin bottom toolbar */}
             <div className="mobile-move-market">
               <div className="mobile-move-market__header">
                 <div>
@@ -1351,6 +1333,44 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           </div>
         </div>
       </div>
+      {/* Bottom Toolbar (fixed) */}
+      <BottomToolbar
+        selectedStake={selectedStake}
+        onSelectStake={setSelectedStake}
+        stakePresets={STAKE_PRESETS}
+        viewerCount={viewerCount}
+        onOpenChat={openChat}
+        onOpenLeaderboard={openLeaderboard}
+      />
+
+      {/* Fullscreen overlays */}
+      {activeOverlay && (
+        <div
+          className="cm-overlay-backdrop"
+          onClick={closeOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeOverlay === 'chat' ? 'Chat' : 'Leaderboard'}
+        >
+          <div className="cm-overlay-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="cm-overlay-header">
+              <div className="cm-overlay-title">
+                {activeOverlay === 'chat' ? 'Chat' : 'Leaderboard'}
+              </div>
+              <button type="button" className="cm-overlay-close" onClick={closeOverlay} aria-label="Close">
+                ×
+              </button>
+            </div>
+            <div className="cm-overlay-body">
+              {activeOverlay === 'chat' ? (
+                <ChatBox />
+              ) : (
+                <MiniLeaderboard rankings={rankings || []} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

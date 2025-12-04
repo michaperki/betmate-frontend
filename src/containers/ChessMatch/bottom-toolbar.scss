@@ -1,0 +1,152 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
+.bottom-toolbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 6px 12px;
+  background: $bg-secondary;
+  border-top: 1px solid $border-secondary;
+  z-index: 20;
+
+  @media (max-width: 640px) {
+    height: 44px;
+    padding: 4px 8px;
+  }
+}
+
+.bottom-toolbar__left {
+  min-width: 0;
+}
+
+.bottom-toolbar__center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+
+  .stake-chip-row {
+    display: inline-flex;
+    gap: 6px;
+  }
+
+  .stake-chip {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 999px;
+  }
+}
+
+.bottom-toolbar__right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.bt-viewers {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid $border-secondary;
+  color: $text-primary;
+  background: rgba(255, 255, 255, 0.04);
+
+  &__icon { font-size: 14px; line-height: 1; }
+  &__count { font-weight: 600; font-size: 12px; }
+}
+
+.bt-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid $border-secondary;
+  color: $text-primary;
+  background: rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: rgba(0, 239, 178, 0.45);
+    color: $brand-primary;
+  }
+}
+
+/* Fullscreen overlay (modal) for Chat/Leaderboard */
+.cm-overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: $bg-overlay;
+  backdrop-filter: blur(2px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-overlay-panel {
+  background: $bg-secondary;
+  color: $text-primary;
+  border: 1px solid $border-secondary;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  width: min(96vw, 960px);
+  height: min(90vh, 720px);
+  max-width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 640px) {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+.cm-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid $border-secondary;
+}
+
+.cm-overlay-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.cm-overlay-close {
+  background: transparent;
+  border: 1px solid $border-secondary;
+  color: $text-primary;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-overlay-body {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+}
+
