@@ -107,6 +107,15 @@ interface NotationPair {
 }
 
 const MIN_BOARD_SIZE = 350;
+// Phase 1 (logic-only) dev toggles: keep defaults off to preserve behavior
+const ENABLE_RESIZE_SNAP = true;
+const BOARD_SNAP_INCREMENT = 20; // only used when ENABLE_RESIZE_SNAP is true
+const ENABLE_RESIZE_DEBUG = false;
+// If set (non-null), overrides computed max board size. Leave null to keep existing behavior.
+const DEV_FORCE_MAX_BOARD_SIZE: number | null = null;
+// Stage 2 prototype flags
+const ENABLE_CENTERED_MOVES = true;
+const ENABLE_DRAW_SHIFT = true;
 const STAKE_PRESETS = [10, 25, 50, 100, 250];
 const OUTCOME_LABELS: Record<OutcomeId, string> = {
   black_win: 'Black',
@@ -229,6 +238,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   useEffect(() => {
     const computeMax = () => {
+      if (DEV_FORCE_MAX_BOARD_SIZE != null) return DEV_FORCE_MAX_BOARD_SIZE;
       if (typeof window === 'undefined') return 420;
       const widthBound = window.innerWidth - 80;
       const heightBound = window.innerHeight - 220;
@@ -237,7 +247,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const handler = () => {
       const nextMax = computeMax();
       setMaxBoardSize(nextMax);
-      setBoardSize((prev) => Math.min(nextMax, Math.max(MIN_BOARD_SIZE, prev)));
+      setBoardSize((prev) => {
+        const unclamped = prev;
+        const snapped = ENABLE_RESIZE_SNAP
+          ? Math.round(unclamped / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
+          : unclamped;
+        const clamped = Math.min(nextMax, Math.max(MIN_BOARD_SIZE, snapped));
+        if (ENABLE_RESIZE_DEBUG && clamped !== prev) {
+          console.debug('[resize handler] max:', nextMax, 'prev:', prev, 'snapped:', snapped, 'clamped:', clamped);
+        }
+        return clamped;
+      });
     };
     handler();
     window.addEventListener('resize', handler);
@@ -653,7 +673,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const renderMovePanel = (
     color: HoverableColor,
-    alignmentClass: 'move-panel--top' | 'move-panel--bottom',
+    alignmentClass: 'move-panel--top' | 'move-panel--bottom' | 'move-panel--center',
     isActive: boolean,
     options: MoveOption[],
   ) => (
@@ -669,7 +689,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     >
       {isActive ? renderMoveOptions(options, color) : (
         <div className="move-panel__status">
-          {betsLocked ? 'Historical snapshot' : color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
+          {betsLocked ? 'Historical snapshot' : 'Loading'}
         </div>
       )}
     </div>
@@ -846,9 +866,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     </div>
   );
 
-  const clampSize = useCallback((value: number) => (
-    Math.max(MIN_BOARD_SIZE, Math.min(maxBoardSize, value))
-  ), [maxBoardSize]);
+  const clampSize = useCallback((value: number) => {
+    const raw = value;
+    const snapped = ENABLE_RESIZE_SNAP
+      ? Math.round(raw / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
+      : raw;
+    const clamped = Math.max(MIN_BOARD_SIZE, Math.min(maxBoardSize, snapped));
+    if (ENABLE_RESIZE_DEBUG && clamped !== raw) {
+      console.debug('[drag clamp] raw:', raw, 'snapped:', snapped, 'clamped:', clamped, 'max:', maxBoardSize);
+    }
+    return clamped;
+  }, [maxBoardSize]);
 
   const beginDrag = useCallback((event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
@@ -861,6 +889,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       startSize: boardSize,
       anchorTop: boardFrameRef.current?.getBoundingClientRect().top ?? null,
     };
+    if (ENABLE_RESIZE_DEBUG) {
+      console.debug('[drag start] size:', boardSize, 'x:', clientX, 'y:', clientY);
+    }
     setIsDragging(true);
   }, [boardSize]);
 
@@ -878,6 +909,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const deltaY = clientY - dragStateRef.current.startY;
       const dominantDelta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
       const nextSize = clampSize(dragStateRef.current.startSize + dominantDelta);
+      if (ENABLE_RESIZE_DEBUG) {
+        console.debug('[drag move] deltaX:', deltaX, 'deltaY:', deltaY, 'dominant:', dominantDelta, 'next:', nextSize);
+      }
       setBoardSize(nextSize);
     };
     const handleEnd = () => {
@@ -1051,7 +1085,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         <div className="chess-match-page">
           <div className="chess-match-page__content">
             <div className="board-demo">
-              <div className="board-layout">
+              <div className="board-layout" style={{ ['--board-width' as any]: `${boardFrameWidth}px` }}>
                 <div
                   className={[
                     'outcome-rail-column',
@@ -1059,24 +1093,50 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   ].join(' ')}
                   data-locked={betsLocked}
                 >
-                  <div className="outcome-rail-column__item">
-                    <header>
-                      <span>Black</span>
-                      {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
-                    </header>
-                    {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
-                  </div>
-                  <div className="draw-panel">
-                    {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
-                    <div className="draw-panel__hint">Hold to bet draw</div>
-                  </div>
-                  <div className="outcome-rail-column__item">
-                    <header>
-                      <span>White</span>
-                      {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
-                    </header>
-                    {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
-                  </div>
+                  {ENABLE_CENTERED_MOVES ? (
+                    <>
+                      <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
+                        <div className="outcome-rail-column__actions">
+                          {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
+                        </div>
+                        <div className="outcome-rail-column__subactions">
+                          {renderOutcomeButton('draw', 'Draw', 'draw')}
+                        </div>
+                      </div>
+                      <div className="outcome-rail-column__center">
+                        {isWhiteTurn
+                          ? renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)
+                          : renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
+                      </div>
+                      <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
+                        <div className="outcome-rail-column__actions">
+                          {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
+                        </div>
+                        <div className="outcome-rail-column__subactions">
+                          {renderOutcomeButton('draw', 'Draw', 'draw')}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="outcome-rail-column__item">
+                        <header>
+                          {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
+                        </header>
+                        {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
+                      </div>
+                      <div className="draw-panel">
+                        {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
+                        <div className="draw-panel__hint">Hold to bet draw</div>
+                      </div>
+                      <div className="outcome-rail-column__item">
+                        {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
+                        <div className="outcome-rail-column__actions">
+                          {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="board-layout__main">
                   <div
@@ -1213,10 +1273,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 </div>
               </div>
             </div>
-            <div
-              className="desktop-post-board"
-              style={{ width: boardFrameWidth, maxWidth: '100%', alignSelf: 'flex-start' }}
-            >
+            <div className="desktop-post-board">
               <div className="game-controls-inline">
                 <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
                   {livePillLabel}
