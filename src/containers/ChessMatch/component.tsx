@@ -1048,8 +1048,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       <div className="dark-game-page">
         <ConnectionStatus />
         <NavBar compact={true} />
-        <div className="test-board-page">
-          <div className="test-board-page__content">
+        <div className="chess-match-page">
+          <div className="chess-match-page__content">
             <div className="board-demo">
               <div className="board-layout">
                 <div
