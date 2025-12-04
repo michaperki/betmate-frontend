@@ -829,15 +829,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   ) => {
     const visualState = outcomeStates[outcomeId];
     const isLoading = visualState === 'loading';
-    const isDisabled = outcomeId !== 'draw' ? !canPlaceWagers : betsLocked;
-    const holdHandlers = outcomeId === 'draw' ? {
-      onMouseDown: (event: React.MouseEvent) => handleDrawBetStart(event),
-      onMouseUp: (event: React.MouseEvent) => handleDrawBetEnd(),
-      onMouseLeave: () => handleDrawBetEnd(),
-      onTouchStart: (event: React.TouchEvent) => handleDrawBetStart(event),
-      onTouchEnd: () => handleDrawBetEnd(),
-      onTouchCancel: () => handleDrawBetEnd(),
-    } : {};
+    const isDisabled = !canPlaceWagers;
 
     return (
       <button
@@ -845,20 +837,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
         data-state={visualState}
         data-locked={!canPlaceWagers}
-        onClick={outcomeId === 'draw' ? undefined : () => triggerOutcomeBet(outcomeId)}
+        onClick={() => triggerOutcomeBet(outcomeId)}
         disabled={isDisabled || isLoading}
-        {...holdHandlers}
       >
         <span className="outcome-rail__label">{label}</span>
         <span className="outcome-rail__spinner" aria-hidden />
         <span className="outcome-rail__check" aria-hidden>✓</span>
-        {outcomeId === 'draw' && isDrawHolding && (
-          <span
-            className="draw-hold-progress"
-            style={{ width: `${drawHoldProgress}%` }}
-            aria-hidden
-          />
-        )}
       </button>
     );
   };
