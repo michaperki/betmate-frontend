@@ -1,5 +1,5 @@
-import { KeyPair } from 'chessground/types';
 import { DrawShape } from 'chessground/draw';
+import { KeyPair } from 'chessground/types';
 
 import { Move } from 'types/resources/game';
 import { Actions } from 'types/state';
@@ -37,8 +37,8 @@ export const onLeaveMovePanel = (): Actions => ({
 
 export const createNewArrows = (state: string, moveOptions: string[]): Actions => {
   const newArrows = moveOptions
-    .map((move, i) => {
-      const brush = getBrush(state)(move, i);
+    .map((move, index) => {
+      const brush = getBrush(state)(move, index);
       return brush;
     })
     .filter((m): m is DrawShape => !!m);

@@ -1,40 +1,45 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useParams } from 'react-router';
-import ChessgroundWrapper from '../../components/ChessgroundWrapper';
-import { DrawShape } from 'chessground/draw';
+import ChessgroundWrapper from 'components/ChessgroundWrapper';
 import { Config } from 'chessground/config';
+import { DrawShape } from 'chessground/draw';
 import { Key, MoveMetadata } from 'chessground/types';
-import { Chess } from 'chess.js';
-import PlayerInfo from 'containers/ChessMatch/playerInfo/component';
-import CoinBalance from 'components/CoinBalance';
-import PregameModal from 'components/PregameModal';
-import PostgameModal from 'components/PostgameModal';
-import GameEndOverlay from 'components/GameEndOverlay';
-import GameCommunication from '../../components/GameCommunication';
-import MoveBubbles from 'components/MoveBubbles';
-import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
+import { Chess, Square } from 'chess.js';
 import NavBar from 'components/NavBar';
+import GameCommunication from 'components/GameCommunication';
+import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import GameInfoPanel from 'components/GameInfoPanel';
 import ConnectionStatus from 'components/ConnectionStatus';
 import OnboardingGate from 'components/OnboardingGate';
-import EvaluationBar from './EvaluationBar';
-import balanceIcon from 'assets/wager_panel/balance-icon.svg';
+import PregameModal from 'components/PregameModal';
+import PostgameModal from 'components/PostgameModal';
+import GameEndOverlay from 'components/GameEndOverlay';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
-import { fetchGameById, fetchGameStats, setPendingBet, clearPendingBet, toggleQuickBet } from 'store/actionCreators/gameActionCreators';
+import {
+  fetchGameById,
+  fetchGameStats,
+  setPendingBet,
+  clearPendingBet,
+  toggleQuickBet,
+} from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
-import { gameOver, gameInProgress, getValidMoves } from 'utils/chess';
-import { Game, GameStatus } from 'types/resources/game';
+import { gameInProgress, gameOver, getValidMoves } from 'utils/chess';
+import { Game, GameOdds, GameStatus } from 'types/resources/game';
 import { Rank } from 'types/leaderboard';
-import playerIconBlack from 'assets/player_icon_black.svg';
-import playerIconWhite from 'assets/player_icon_white.svg';
-import logoSvg from 'assets/logo.svg';
 
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import './style.scss';
 import './dark-style.scss';
-import '../../components/GameInfoPanel/style.scss';
+import 'components/GameInfoPanel/style.scss';
 
 interface ChessMatchProps {
   joinGame: typeof joinGame;
@@ -45,11 +50,10 @@ interface ChessMatchProps {
   setPendingBet: typeof setPendingBet;
   clearPendingBet: typeof clearPendingBet;
   toggleQuickBet: typeof toggleQuickBet;
-  onEnterMovePanel: any; // Using any to bypass type incompatibility
-  onLeaveMovePanel: any;
-  onMoveHover: any;
-  onMoveUnhover: any;
-  createNewArrows: any; // Using any for consistency with other action creators
+  onEnterMovePanel: () => void;
+  onLeaveMovePanel: () => void;
+  onMoveHover: (shapes: Array<{ orig: string; dest: string }>) => void;
+  onMoveUnhover: () => void;
   getGameLeaderboard: (gameId: string) => void;
   games: Record<string, Game>;
   gameStats: Record<string, any>;
@@ -67,138 +71,504 @@ interface ChessMatchProps {
     gameId: string;
     isActive: boolean;
   } | null;
-  resolvedWagers: any[]; // Add resolvedWagers prop
+  resolvedWagers: any[];
 }
+
+interface Snapshot {
+  fen: string;
+  label: string;
+  eval: number;
+  lastMove?: [Key, Key];
+  turn: 'w' | 'b';
+}
+
+type OutcomeId = 'black_win' | 'draw' | 'white_win';
+type OutcomeVisualState = 'idle' | 'loading' | 'success' | 'error';
+type MoveVisualState = 'idle' | 'loading' | 'success' | 'error';
+
+type HoverableColor = 'white' | 'black';
+
+interface MoveOption {
+  move: string;
+  percent: number;
+  payout: number;
+}
+
+interface NotationEntry {
+  index: number;
+  label: string;
+  eval: number;
+}
+
+interface NotationPair {
+  moveNumber: number;
+  white?: NotationEntry;
+  black?: NotationEntry;
+}
+
+const MIN_BOARD_SIZE = 350;
+const STAKE_PRESETS = [10, 25, 50, 100, 250];
+const OUTCOME_LABELS: Record<OutcomeId, string> = {
+  black_win: 'Black',
+  draw: 'Draw',
+  white_win: 'White',
+};
+const OUTCOME_SEQUENCE: OutcomeId[] = ['black_win', 'draw', 'white_win'];
+const DEFAULT_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const DRAW_HOLD_DURATION = 800;
+const PIECE_SYMBOLS: Record<string, { white: string; black: string }> = {
+  K: { white: '♔', black: '♚' },
+  Q: { white: '♕', black: '♛' },
+  R: { white: '♖', black: '♜' },
+  B: { white: '♗', black: '♝' },
+  N: { white: '♘', black: '♞' },
+};
+
+const formatClock = (milliseconds: number) => {
+  const seconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
+
+const computeEvalFromOdds = (odds?: GameOdds) => {
+  if (!odds) return 0;
+  const white = Math.max(0, odds.white_win ?? 0);
+  const black = Math.max(0, odds.black_win ?? 0);
+  const total = white + black;
+  if (total === 0) return 0;
+  const normalizedDiff = (white - black) / total;
+  return Math.max(-1, Math.min(1, normalizedDiff));
+};
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
-  const game: Game | undefined = props.games[gameId];
-  const gameStats = props.gameStats[gameId];
   const groundWrapperRef = useRef<HTMLDivElement>(null);
-
-  // Default stake for placing bets directly
-  const [selectedStake, setSelectedStake] = useState<number>(10);
-
-  // Draw betting state
-  const [isDrawHolding, setIsDrawHolding] = useState(false);
-  const [drawHoldProgress, setDrawHoldProgress] = useState(0);
+  const boardFrameRef = useRef<HTMLDivElement | null>(null);
+  const outcomeResetTimers = useRef<Record<OutcomeId, number | null>>({
+    black_win: null,
+    draw: null,
+    white_win: null,
+  });
+  const moveResetTimers = useRef<Record<string, number | null>>({});
+  const dragStateRef = useRef({
+    startX: 0,
+    startY: 0,
+    startSize: 420,
+    anchorTop: null as number | null,
+  });
   const drawHoldTimerRef = useRef<number | null>(null);
   const drawHoldStartRef = useRef<number>(0);
   const drawProgressTimerRef = useRef<number | null>(null);
 
-  // User-submitted moves from drag-and-drop
-  const [userSubmittedMoves, setUserSubmittedMoves] = useState<Set<string>>(new Set());
+  const [selectedStake, setSelectedStake] = useState<number>(25);
+  const [boardSize, setBoardSize] = useState(420);
+  const [maxBoardSize, setMaxBoardSize] = useState(420);
+  const [positionIndex, setPositionIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hoverArrow, setHoverArrow] = useState<[string, string] | null>(null);
+  const [outcomeStates, setOutcomeStates] = useState<Record<OutcomeId, OutcomeVisualState>>({
+    black_win: 'idle',
+    draw: 'idle',
+    white_win: 'idle',
+  });
+  const [moveStates, setMoveStates] = useState<Record<string, MoveVisualState>>({});
+  const [isDrawHolding, setIsDrawHolding] = useState(false);
+  const [drawHoldProgress, setDrawHoldProgress] = useState(0);
+  const [isFollowingLive, setIsFollowingLive] = useState(true);
+  const [isNotationHovered, setIsNotationHovered] = useState(false);
+  const notationListRef = useRef<HTMLDivElement | null>(null);
+  const notationCellRefs = useRef<Record<number, HTMLElement | null>>({});
 
-  // User-interacted moves (includes moves already in AI suggestions)
-  const [userInteractedMoves, setUserInteractedMoves] = useState<Set<string>>(new Set());
+  const {
+    fetchGameById,
+    fetchGameStats,
+    joinGame,
+    leaveGame,
+    getGameLeaderboard,
+    createWager,
+    setPendingBet,
+    clearPendingBet,
+    onEnterMovePanel,
+    onMoveHover,
+    onMoveUnhover,
+    quickBetMode,
+    autoShapes,
+    config: chessgroundConfig,
+    isAuthenticated,
+    showModal,
+    rankings,
+    resolvedWagers,
+    games,
+    gameStats: gameStatsMap,
+  } = props;
 
-  const DRAW_HOLD_DURATION = 800; // 800ms hold time
+  const game: Game | undefined = games[gameId];
+  const gameStats = gameStatsMap[gameId];
 
   useEffect(() => {
-    props.fetchGameById(gameId);
-    props.fetchGameStats(gameId);
-    props.joinGame(gameId);
-    props.getGameLeaderboard(gameId);
-    return () => { props.leaveGame(gameId); };
+    fetchGameById(gameId);
+    fetchGameStats(gameId);
+    joinGame(gameId);
+    getGameLeaderboard(gameId);
+    return () => { leaveGame(gameId); };
   }, []);
 
-  // Clear user-submitted moves when game state changes (after a real move is made)
   useEffect(() => {
-    setUserSubmittedMoves(new Set());
-    setUserInteractedMoves(new Set());
-  }, [game?.state]);
-
-  useEffect(() => {
-    // Set up polling for game updates
-    const pollInterval = setInterval(() => {
-      props.fetchGameById(gameId);
-      props.fetchGameStats(gameId);
-      props.getGameLeaderboard(gameId); // Add leaderboard to polling
+    const interval = setInterval(() => {
+      fetchGameById(gameId);
+      fetchGameStats(gameId);
+      getGameLeaderboard(gameId);
     }, 10000);
+    return () => clearInterval(interval);
+  }, [fetchGameById, fetchGameStats, getGameLeaderboard, gameId]);
 
-    return () => clearInterval(pollInterval);
-  }, [gameId, props.fetchGameById, props.fetchGameStats, props.getGameLeaderboard]);
+  const isGameInProgress = useMemo(() => (
+    game ? gameInProgress(game.game_status as GameStatus) : false
+  ), [game?.game_status]);
 
-  // Handle drag-and-drop move - now respects quick bet mode
-  // Memoized with useCallback to prevent unnecessary rerenders
-  const handleDragMove = useCallback((orig: Key, dest: Key, metadata?: MoveMetadata) => {
-    if (!game) return;
+  useEffect(() => {
+    const computeMax = () => {
+      if (typeof window === 'undefined') return 420;
+      const widthBound = window.innerWidth - 80;
+      const heightBound = window.innerHeight - 220;
+      return Math.max(MIN_BOARD_SIZE, Math.min(640, widthBound, heightBound));
+    };
+    const handler = () => {
+      const nextMax = computeMax();
+      setMaxBoardSize(nextMax);
+      setBoardSize((prev) => Math.min(nextMax, Math.max(MIN_BOARD_SIZE, prev)));
+    };
+    handler();
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
-    // Convert from/to positions to SAN notation
+  const snapshots = useMemo<Snapshot[]>(() => {
+    const chess = new Chess();
+    const initial: Snapshot[] = [{
+      fen: chess.fen(),
+      label: 'Starting Position',
+      eval: computeEvalFromOdds(game?.odds),
+      lastMove: undefined,
+      turn: chess.turn(),
+    }];
+
+    (game?.move_hist ?? []).forEach((move, index) => {
+      try {
+        const promotionMatch = move.san?.match(/=([QRBN])/i);
+        const promotion = promotionMatch ? promotionMatch[1].toLowerCase() : undefined;
+        const result = chess.move({
+          from: move.from as Square,
+          to: move.to as Square,
+          promotion: (promotion as any) ?? 'q',
+        });
+        if (result) {
+          initial.push({
+            fen: chess.fen(),
+            label: move.san || `Move ${index + 1}`,
+            eval: computeEvalFromOdds(game?.odds),
+            lastMove: [result.from as Key, result.to as Key],
+            turn: chess.turn(),
+          });
+        }
+      } catch (error) {
+        console.warn('Unable to build snapshot for move', move, error);
+      }
+    });
+
+    if (game?.state && initial.length) {
+      initial[initial.length - 1] = {
+        ...initial[initial.length - 1],
+        fen: game.state,
+      };
+    }
+
+    return initial;
+  }, [game?.move_hist, game?.state, game?.odds]);
+
+  const latestSnapshotIndex = useMemo(() => (
+    Math.max(0, snapshots.length - 1)
+  ), [snapshots.length]);
+
+  useEffect(() => {
+    setPositionIndex((prev) => {
+      const bounded = Math.min(prev, latestSnapshotIndex);
+      return isFollowingLive ? latestSnapshotIndex : bounded;
+    });
+  }, [isFollowingLive, latestSnapshotIndex]);
+
+  const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
+  const isAtLatestSnapshot = positionIndex === latestSnapshotIndex;
+  const betsLocked = !isAtLatestSnapshot;
+  const canPlaceWagers = !betsLocked && isAuthenticated && !!selectedStake && isGameInProgress;
+
+  const arrowShapes = useMemo(() => {
+    const baseShapes = autoShapes || [];
+    if (!hoverArrow) return baseShapes;
+    return [
+      ...baseShapes,
+      {
+        orig: hoverArrow[0] as Key,
+        dest: hoverArrow[1] as Key,
+        brush: 'green',
+      },
+    ];
+  }, [autoShapes, hoverArrow]);
+
+  const evalScore = activeSnapshot?.eval ?? 0;
+  const evalPercent = Math.max(0, Math.min(100, ((evalScore + 1) / 2) * 100));
+
+  const whiteClock = formatClock(game?.time_white ?? 0);
+  const blackClock = formatClock(game?.time_black ?? 0);
+  const isWhiteTurn = activeSnapshot?.turn === 'w';
+  const isBlackTurn = !isWhiteTurn;
+  const squareSize = boardSize / 8;
+  const evalBarWidth = Math.max(14, squareSize / 2);
+  const BOARD_STACK_GAP = 4;
+  const FRAME_HORIZONTAL_PADDING = 12;
+  const boardStackWidth = boardSize + evalBarWidth + BOARD_STACK_GAP;
+  const boardFrameWidth = boardStackWidth + FRAME_HORIZONTAL_PADDING;
+
+  const deriveMoveOptions = useMemo<MoveOption[]>(() => {
+    const options = game?.pool_wagers?.move?.options ?? [];
+    const wagers = game?.pool_wagers?.move?.wagers ?? [];
+    if (!options.length) return [];
+    const totals: Record<string, number> = {};
+    wagers.forEach((entry) => {
+      if (!entry?.data) return;
+      totals[entry.data] = (totals[entry.data] ?? 0) + (entry.amount ?? 0);
+    });
+    const poolTotal = Object.values(totals).reduce((sum, value) => sum + value, 0);
+    const fallbackPercent = options.length ? 100 / options.length : 0;
+    return options.map((move) => {
+      const wagerTotal = totals[move] ?? 0;
+      const percent = poolTotal ? (wagerTotal / poolTotal) * 100 : fallbackPercent;
+      const payout = wagerTotal ? Math.max(1, poolTotal / wagerTotal) : options.length;
+      return { move, percent, payout };
+    });
+  }, [game?.pool_wagers?.move]);
+
+  const whiteMovePool = isWhiteTurn ? deriveMoveOptions : [];
+  const blackMovePool = isBlackTurn ? deriveMoveOptions : [];
+  const mobileMovePool = deriveMoveOptions;
+  const mobileMoveOwner = isWhiteTurn ? game?.player_white : game?.player_black;
+
+  const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
+    if (!game || betsLocked) return;
     const chess = new Chess(game.state);
     try {
       const move = chess.move({
-        from: orig.toString() as any, // Cast to any to bypass type incompatibility
-        to: dest.toString() as any,   // between Key and Square types
-        promotion: 'q' // Default to queen for simplicity
+        from: orig.toString() as any,
+        to: dest.toString() as any,
+        promotion: 'q',
       });
+      if (!move) return;
 
-      if (move) {
-        // Track all user interactions (both new moves and existing AI moves)
-        setUserInteractedMoves(prev => new Set(prev).add(move.san));
+      onEnterMovePanel();
+      onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
 
-        // Add the user's move to the candidate moves list (for new moves only)
-        setUserSubmittedMoves(prev => new Set(prev).add(move.san));
-
-        // Make sure the move panel is active to show arrows
-        props.onEnterMovePanel();
-
-        // Show arrow for the move
-        console.log('Drag-drop: Adding arrow for move:', { orig: orig.toString(), dest: dest.toString(), san: move.san });
-        props.onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
-
-        if (props.quickBetMode) {
-          // Place bet immediately if in quick bet mode
-          props.createWager(
-            gameId,
-            move.san,
-            selectedStake,
-            false, // not WDL
-            1, // Default odds - will be calculated server-side based on pool
-            game.move_hist.length + 1,
-          );
-
-          // Clear the arrow after placing the bet in quick mode
-          setTimeout(() => {
-            if (props.onMoveUnhover) {
-              props.onMoveUnhover();
-            }
-          }, 1000); // Leave arrow visible briefly for feedback
-        } else {
-          // Clear any existing pending bet first
-          props.clearPendingBet();
-
-          // Show the move arrow - the MoveBubbles component will now include this move
-          // Keep arrow visible for visual feedback
-          setTimeout(() => {
-            if (props.onMoveUnhover) {
-              props.onMoveUnhover();
-            }
-          }, 2000); // Keep arrow visible for 2 seconds for feedback
-        }
-
-        // Reset board to original position but keep the arrow showing
-        chess.undo();
-
-        // Don't call onMoveUnhover here as we want the arrow to stay visible
+      if (quickBetMode && canPlaceWagers) {
+        createWager(
+          gameId,
+          move.san,
+          selectedStake,
+          false,
+          1,
+          game.move_hist.length + 1,
+        );
+        window.setTimeout(() => {
+          if (onMoveUnhover) onMoveUnhover();
+        }, 1000);
+      } else {
+        clearPendingBet();
+        setPendingBet({
+          moveString: move.san,
+          stake: selectedStake,
+          gameId,
+          isActive: true,
+        });
+        window.setTimeout(() => {
+          if (onMoveUnhover) onMoveUnhover();
+        }, 2000);
       }
-    } catch (e) {
-      console.error('Invalid move', e);
-    }
-  }, [
-    game,
-    gameId,
-    selectedStake,
-    props.onEnterMovePanel,
-    props.onMoveHover,
-    props.onMoveUnhover,
-    props.quickBetMode,
-    props.createWager,
-    props.clearPendingBet
-  ]);
 
-  // Draw betting functionality - memoized with useCallback
-  const clearDrawHoldTimers = useCallback(() => {
+      chess.undo();
+    } catch (error) {
+      console.error('Invalid move', error);
+    }
+  }, [betsLocked, canPlaceWagers, clearPendingBet, createWager, game, gameId, onEnterMovePanel, onMoveHover, onMoveUnhover, quickBetMode, selectedStake, setPendingBet]);
+
+  const boardConfig = useMemo<Config>(() => {
+    const fen = activeSnapshot?.fen || game?.state || DEFAULT_FEN;
+    const viewOnly = !isAtLatestSnapshot;
+    const composedConfig: Config = {
+      ...chessgroundConfig,
+      fen,
+      coordinates: true,
+      viewOnly,
+      orientation: 'white',
+      lastMove: activeSnapshot?.lastMove,
+      drawable: {
+        enabled: true,
+        visible: true,
+        autoShapes: arrowShapes,
+        defaultSnapToValidMove: true,
+        eraseOnClick: false,
+      },
+      animation: { enabled: true, duration: 350 },
+    };
+
+    if (!viewOnly && game?.state) {
+      composedConfig.movable = {
+        free: false,
+        color: 'both',
+        dests: getValidMoves(game.state),
+        rookCastle: true,
+        events: {
+          after: handleDragMove,
+        },
+      };
+    }
+
+    return composedConfig;
+  }, [activeSnapshot?.fen, activeSnapshot?.lastMove, arrowShapes, chessgroundConfig, game?.state, handleDragMove, isAtLatestSnapshot]);
+
+  const normalizeMoveNotation = useCallback((move: string) => (
+    move
+      .replace(/^[0-9]+\.{1,3}\s*/, '')
+      .replace(/^\.{3}\s*/, '')
+      .trim()
+  ), []);
+
+  const sanitizeMoveLabel = useCallback((move: string) => (
+    normalizeMoveNotation(move).replace(/[?!]+$/g, '')
+  ), [normalizeMoveNotation]);
+
+  const computeArrowForMove = useCallback((move: string): [string, string] | null => {
+    try {
+      const chess = new Chess(activeSnapshot?.fen || game?.state || DEFAULT_FEN);
+      const candidate = chess.move(normalizeMoveNotation(move), { sloppy: true });
+      if (candidate) {
+        return [candidate.from, candidate.to];
+      }
+    } catch (error) {
+      console.warn('Unable to draw arrow for move', move, error);
+    }
+    return null;
+  }, [activeSnapshot?.fen, game?.state, normalizeMoveNotation]);
+
+  const handleMoveHoverStart = useCallback((move: string) => {
+    const arrow = computeArrowForMove(move);
+    setHoverArrow(arrow);
+    if (arrow) {
+      onMoveHover([{ orig: arrow[0] as string, dest: arrow[1] as string }]);
+    }
+  }, [computeArrowForMove, onMoveHover]);
+
+  const handleMoveHoverEnd = useCallback(() => {
+    setHoverArrow(null);
+    onMoveUnhover();
+  }, [onMoveUnhover]);
+
+  useEffect(() => {
+    setHoverArrow(null);
+  }, [activeSnapshot?.fen]);
+
+  const updateOutcomeState = useCallback((outcomeId: OutcomeId, next: OutcomeVisualState) => {
+    setOutcomeStates((prev) => {
+      if (prev[outcomeId] === next) return prev;
+      return { ...prev, [outcomeId]: next };
+    });
+  }, []);
+
+  const scheduleOutcomeReset = useCallback((outcomeId: OutcomeId, delay: number) => {
+    const timer = outcomeResetTimers.current[outcomeId];
+    if (timer) window.clearTimeout(timer);
+    const timerId = window.setTimeout(() => {
+      updateOutcomeState(outcomeId, 'idle');
+      outcomeResetTimers.current[outcomeId] = null;
+    }, delay);
+    outcomeResetTimers.current[outcomeId] = timerId;
+  }, [updateOutcomeState]);
+
+  const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
+    setMoveStates((prev) => {
+      if (prev[moveKey] === next) return prev;
+      return { ...prev, [moveKey]: next };
+    });
+  }, []);
+
+  const scheduleMoveReset = useCallback((moveKey: string, delay: number) => {
+    const timer = moveResetTimers.current[moveKey];
+    if (timer) window.clearTimeout(timer);
+    const timerId = window.setTimeout(() => {
+      updateMoveState(moveKey, 'idle');
+      moveResetTimers.current[moveKey] = null;
+    }, delay);
+    moveResetTimers.current[moveKey] = timerId;
+  }, [updateMoveState]);
+
+  const triggerOutcomeBet = useCallback(async (outcomeId: OutcomeId) => {
+    if (!canPlaceWagers || !game) return;
+    let started = false;
+    setOutcomeStates((prev) => {
+      if (prev[outcomeId] === 'loading') return prev;
+      started = true;
+      return { ...prev, [outcomeId]: 'loading' };
+    });
+    if (!started) return;
+
+    try {
+      const wagerPromise = createWager(
+        gameId,
+        outcomeId,
+        selectedStake,
+        true,
+        game.odds?.[outcomeId] ? 1 / game.odds[outcomeId] : 1,
+        game.move_hist.length + 1,
+      );
+      await Promise.resolve(wagerPromise);
+      updateOutcomeState(outcomeId, 'success');
+      scheduleOutcomeReset(outcomeId, 600);
+    } catch (error) {
+      console.error('Outcome bet failed', error);
+      updateOutcomeState(outcomeId, 'error');
+      scheduleOutcomeReset(outcomeId, 800);
+    }
+  }, [canPlaceWagers, createWager, game, gameId, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
+
+  const handleMoveBet = useCallback(async (move: string) => {
+    if (!canPlaceWagers || !game) return;
+    const moveKey = `${positionIndex}-${move}`;
+    if (moveStates[moveKey] === 'loading') return;
+    updateMoveState(moveKey, 'loading');
+    try {
+      const wagerPromise = createWager(
+        gameId,
+        move,
+        selectedStake,
+        false,
+        1,
+        game.move_hist.length + 1,
+      );
+      await Promise.resolve(wagerPromise);
+      updateMoveState(moveKey, 'success');
+      scheduleMoveReset(moveKey, 500);
+    } catch (error) {
+      console.error('Move bet failed', error);
+      updateMoveState(moveKey, 'error');
+      scheduleMoveReset(moveKey, 700);
+    }
+  }, [canPlaceWagers, createWager, game, gameId, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState]);
+
+  const preventContextMenu = useCallback((event: Event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  }, []);
+
+  const handleDrawBetEnd = useCallback(() => {
     if (drawHoldTimerRef.current) {
       window.clearTimeout(drawHoldTimerRef.current);
       drawHoldTimerRef.current = null;
@@ -207,28 +577,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       window.clearInterval(drawProgressTimerRef.current);
       drawProgressTimerRef.current = null;
     }
-  }, []);
-
-  // Prevent context menu during touch interactions - memoized with useCallback
-  const preventContextMenu = useCallback((e: Event) => {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-  }, []);
-
-  // Handle end of draw bet - memoized with useCallback
-  const handleDrawBetEnd = useCallback(() => {
-    clearDrawHoldTimers();
     setIsDrawHolding(false);
     setDrawHoldProgress(0);
-  }, [clearDrawHoldTimers]);
+  }, []);
 
-  // Handle start of draw bet - memoized with useCallback
-  const handleDrawBetStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDrawBetStart = useCallback((event: React.MouseEvent | React.TouchEvent) => {
+    if (!canPlaceWagers || betsLocked) return;
+    event.preventDefault();
+    event.stopPropagation();
 
-    // Prevent context menu on mobile
     if ('ontouchstart' in window) {
       document.addEventListener('contextmenu', preventContextMenu, { once: true });
     }
@@ -237,91 +594,398 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     setDrawHoldProgress(0);
     drawHoldStartRef.current = Date.now();
 
-    // Progress animation
     drawProgressTimerRef.current = window.setInterval(() => {
       const elapsed = Date.now() - drawHoldStartRef.current;
       const progress = Math.min((elapsed / DRAW_HOLD_DURATION) * 100, 100);
       setDrawHoldProgress(progress);
-    }, 16); // ~60fps
+    }, 16);
 
-    // Complete bet on hold duration
     drawHoldTimerRef.current = window.setTimeout(() => {
-      if (game) {
-        props.createWager(
-          gameId,
-          'draw',
-          selectedStake,
-          true, // is WDL
-          1 / (game?.odds?.['draw'] || 1),
-          game.move_hist.length + 1,
-        );
-      }
+      triggerOutcomeBet('draw');
       handleDrawBetEnd();
     }, DRAW_HOLD_DURATION);
-  }, [
-    preventContextMenu,
-    setIsDrawHolding,
-    setDrawHoldProgress,
-    DRAW_HOLD_DURATION,
-    props.createWager,
-    gameId,
-    selectedStake,
-    game,
-    handleDrawBetEnd
-  ]);
+  }, [betsLocked, canPlaceWagers, handleDrawBetEnd, preventContextMenu, triggerOutcomeBet]);
 
-  // Define game progress state before it's used in the effect - memoized with useMemo
-  const isGameInProgress = useMemo(() =>
-    game ? gameInProgress(game.game_status as GameStatus) : false,
-    [game?.game_status]
-  );
+  useEffect(() => () => {
+    (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
+      const timer = outcomeResetTimers.current[outcomeId];
+      if (timer) window.clearTimeout(timer);
+    });
+    Object.values(moveResetTimers.current).forEach((timer) => {
+      if (timer) window.clearTimeout(timer);
+    });
+    handleDrawBetEnd();
+  }, [handleDrawBetEnd]);
 
-  // Add touch event listeners with passive: false option
-  useEffect(() => {
-    // Ensure we're not running this effect before game data is loaded
-    if (!game) return;
-    const drawBetButton = document.querySelector('.draw-bet-button');
-
-    // Touch event handlers with non-passive option
-    const touchStartHandler = (e: TouchEvent) => {
-      if (props.isAuthenticated && selectedStake && isGameInProgress) {
-        handleDrawBetStart(e as unknown as React.TouchEvent);
-      }
-    };
-
-    const touchEndHandler = (e: TouchEvent) => {
-      if (props.isAuthenticated && selectedStake && isGameInProgress) {
-        handleDrawBetEnd();
-      }
-    };
-
-    const touchCancelHandler = (e: TouchEvent) => {
-      if (props.isAuthenticated && selectedStake && isGameInProgress) {
-        handleDrawBetEnd();
-      }
-    };
-
-    // Add event listeners with passive: false
-    if (drawBetButton) {
-      drawBetButton.addEventListener('touchstart', touchStartHandler, { passive: false });
-      drawBetButton.addEventListener('touchend', touchEndHandler, { passive: false });
-      drawBetButton.addEventListener('touchcancel', touchCancelHandler, { passive: false });
+  const renderMoveOptions = (options: MoveOption[], color: HoverableColor) => {
+    if (!options.length) {
+      return (
+        <div className="move-panel__empty">
+          {color === 'white' ? 'Waiting on White' : 'Waiting on Black'}
+        </div>
+      );
     }
 
-    // Cleanup on unmount
-    return () => {
-      clearDrawHoldTimers();
-      if (drawBetButton) {
-        drawBetButton.removeEventListener('touchstart', touchStartHandler);
-        drawBetButton.removeEventListener('touchend', touchEndHandler);
-        drawBetButton.removeEventListener('touchcancel', touchCancelHandler);
-      }
+    return options.map((option) => {
+      const moveKey = `${positionIndex}-${option.move}`;
+      const visualState = moveStates[moveKey] ?? 'idle';
+      return (
+        <button
+          key={`${color}-${option.move}`}
+          type="button"
+          className={`move-option state-${visualState}`}
+          onClick={() => handleMoveBet(option.move)}
+          onMouseEnter={() => handleMoveHoverStart(option.move)}
+          onMouseLeave={handleMoveHoverEnd}
+          onFocus={() => handleMoveHoverStart(option.move)}
+          onBlur={handleMoveHoverEnd}
+          onTouchStart={() => handleMoveHoverStart(option.move)}
+          onTouchEnd={handleMoveHoverEnd}
+          data-state={visualState}
+          disabled={!canPlaceWagers}
+        >
+          <span>{sanitizeMoveLabel(option.move)}</span>
+          <span>{`${option.percent.toFixed(0)}% • ${option.payout.toFixed(1)}x`}</span>
+        </button>
+      );
+    });
+  };
+
+  const renderMovePanel = (
+    color: HoverableColor,
+    alignmentClass: 'move-panel--top' | 'move-panel--bottom',
+    isActive: boolean,
+    options: MoveOption[],
+  ) => (
+    <div
+      className={[
+        'move-panel',
+        alignmentClass,
+        isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
+        !canPlaceWagers ? 'move-panel--locked' : '',
+      ].join(' ')}
+      data-locked={!canPlaceWagers}
+      aria-live={isActive ? 'polite' : 'off'}
+    >
+      {isActive ? renderMoveOptions(options, color) : (
+        <div className="move-panel__status">
+          {betsLocked ? 'Historical snapshot' : color === 'white' ? 'Awaiting Black move' : 'Awaiting White move'}
+        </div>
+      )}
+    </div>
+  );
+
+  const extractMoveMeta = useCallback((label: string) => {
+    const isMate = label.includes('#');
+    const isCheck = !isMate && label.includes('+');
+    const isCapture = label.includes('x');
+    const promotionMatch = label.match(/=([QRBN])/i);
+    const promotionPiece = promotionMatch ? promotionMatch[1].toUpperCase() : null;
+    const isCastle = /O-O/.test(label);
+    return {
+      isMate,
+      isCheck,
+      isCapture,
+      isCastle,
+      promotionPiece,
     };
-  }, [props.isAuthenticated, selectedStake, isGameInProgress]);
+  }, []);
 
-  // Moving this variable declaration before its usage in the useEffect
+  const renderNotationMove = (
+    entry: NotationEntry | undefined,
+    color: HoverableColor,
+    index?: number,
+  ) => {
+    if (!entry || index == null) {
+      return (
+        <span
+          className={[
+            'notation-row__cell',
+            'notation-row__cell--placeholder',
+            `notation-row__cell--${color}`,
+          ].join(' ')}
+        >
+          —
+        </span>
+      );
+    }
 
-  // Handle loading state or no game data
+    const isActive = positionIndex === index;
+    const isLatest = index === latestSnapshotIndex;
+    const meta = extractMoveMeta(entry.label);
+    const rawLabel = sanitizeMoveLabel(entry.label);
+    let displayText = rawLabel;
+    if (!meta.isCastle) {
+      const pieceChar = rawLabel.charAt(0);
+      const symbols = PIECE_SYMBOLS[pieceChar];
+      if (symbols) {
+        displayText = `${symbols[color]}${rawLabel.slice(1)}`;
+      }
+    }
+
+    return (
+      <button
+        type="button"
+        className={[
+          'notation-row__cell',
+          `notation-row__cell--${color}`,
+          meta.isCastle ? 'notation-row__cell--castle' : '',
+          isActive ? 'is-active' : '',
+          isLatest ? 'is-latest' : '',
+        ].join(' ')}
+        onClick={() => handleSelectSnapshot(index)}
+        title={entry.label}
+        ref={(node) => {
+          if (index == null) return;
+          if (node) {
+            notationCellRefs.current[index] = node;
+          } else {
+            delete notationCellRefs.current[index];
+          }
+        }}
+      >
+        <span className="notation-row__text">{displayText}</span>
+      </button>
+    );
+  };
+
+  const renderNotationRow = (pair: NotationPair) => {
+    const whiteIndex = pair.white?.index;
+    const blackIndex = pair.black?.index;
+    const rowActive = (whiteIndex != null && whiteIndex === positionIndex)
+      || (blackIndex != null && blackIndex === positionIndex);
+    const rowLatest = (whiteIndex != null && whiteIndex === latestSnapshotIndex)
+      || (blackIndex != null && blackIndex === latestSnapshotIndex);
+
+    return (
+      <div
+        key={`notation-row-${pair.moveNumber}`}
+        className={[
+          'notation-row',
+          rowActive ? 'notation-row--active' : '',
+          rowLatest ? 'notation-row--latest' : '',
+        ].join(' ')}
+      >
+        <span className="notation-row__number">{pair.moveNumber}.</span>
+        {renderNotationMove(pair.white, 'white', whiteIndex)}
+        {renderNotationMove(pair.black, 'black', blackIndex)}
+      </div>
+    );
+  };
+
+  const renderOutcomeButton = (
+    outcomeId: OutcomeId,
+    label: string,
+    variant: 'white' | 'black' | 'draw',
+  ) => {
+    const visualState = outcomeStates[outcomeId];
+    const isLoading = visualState === 'loading';
+    const isDisabled = outcomeId !== 'draw' ? !canPlaceWagers : betsLocked;
+    const holdHandlers = outcomeId === 'draw' ? {
+      onMouseDown: (event: React.MouseEvent) => handleDrawBetStart(event),
+      onMouseUp: (event: React.MouseEvent) => handleDrawBetEnd(),
+      onMouseLeave: () => handleDrawBetEnd(),
+      onTouchStart: (event: React.TouchEvent) => handleDrawBetStart(event),
+      onTouchEnd: () => handleDrawBetEnd(),
+      onTouchCancel: () => handleDrawBetEnd(),
+    } : {};
+
+    return (
+      <button
+        type="button"
+        className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
+        data-state={visualState}
+        data-locked={!canPlaceWagers}
+        onClick={outcomeId === 'draw' ? undefined : () => triggerOutcomeBet(outcomeId)}
+        disabled={isDisabled || isLoading}
+        {...holdHandlers}
+      >
+        <span className="outcome-rail__label">{label}</span>
+        <span className="outcome-rail__spinner" aria-hidden />
+        <span className="outcome-rail__check" aria-hidden>✓</span>
+        {outcomeId === 'draw' && isDrawHolding && (
+          <span
+            className="draw-hold-progress"
+            style={{ width: `${drawHoldProgress}%` }}
+            aria-hidden
+          />
+        )}
+      </button>
+    );
+  };
+
+  const mobileMoveOptions = mobileMovePool.length ? (
+    mobileMovePool.map((option) => {
+      const moveKey = `${positionIndex}-${option.move}`;
+      const visualState = moveStates[moveKey] ?? 'idle';
+      return (
+        <button
+          key={`mobile-${option.move}`}
+          type="button"
+          className={`mobile-move-chip state-${visualState}`}
+          onClick={() => handleMoveBet(option.move)}
+          onMouseEnter={() => handleMoveHoverStart(option.move)}
+          onMouseLeave={handleMoveHoverEnd}
+          onFocus={() => handleMoveHoverStart(option.move)}
+          onBlur={handleMoveHoverEnd}
+          onTouchStart={() => handleMoveHoverStart(option.move)}
+          onTouchEnd={handleMoveHoverEnd}
+          data-state={visualState}
+          disabled={!canPlaceWagers}
+        >
+          <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
+          <span className="mobile-move-chip__meta">
+            {option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x
+          </span>
+        </button>
+      );
+    })
+  ) : (
+    <div className="mobile-move-chip mobile-move-chip--empty">
+      Waiting on {isWhiteTurn ? 'Black' : 'White'} to move
+    </div>
+  );
+
+  const clampSize = useCallback((value: number) => (
+    Math.max(MIN_BOARD_SIZE, Math.min(maxBoardSize, value))
+  ), [maxBoardSize]);
+
+  const beginDrag = useCallback((event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    dragStateRef.current = {
+      startX: clientX,
+      startY: clientY,
+      startSize: boardSize,
+      anchorTop: boardFrameRef.current?.getBoundingClientRect().top ?? null,
+    };
+    setIsDragging(true);
+  }, [boardSize]);
+
+  useEffect(() => {
+    if (!isDragging) return undefined;
+    const handleMove = (event: MouseEvent | TouchEvent) => {
+      event.preventDefault();
+      const clientX = (event instanceof TouchEvent)
+        ? event.touches[0]?.clientX ?? dragStateRef.current.startX
+        : event.clientX;
+      const clientY = (event instanceof TouchEvent)
+        ? event.touches[0]?.clientY ?? dragStateRef.current.startY
+        : event.clientY;
+      const deltaX = clientX - dragStateRef.current.startX;
+      const deltaY = clientY - dragStateRef.current.startY;
+      const dominantDelta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+      const nextSize = clampSize(dragStateRef.current.startSize + dominantDelta);
+      setBoardSize(nextSize);
+    };
+    const handleEnd = () => {
+      setIsDragging(false);
+      dragStateRef.current.anchorTop = null;
+    };
+    window.addEventListener('mousemove', handleMove, { passive: false });
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleMove, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+    window.addEventListener('touchcancel', handleEnd);
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleEnd);
+      window.removeEventListener('touchcancel', handleEnd);
+    };
+  }, [clampSize, isDragging]);
+
+  useLayoutEffect(() => {
+    if (!isDragging) return;
+    const anchorTop = dragStateRef.current.anchorTop;
+    if (anchorTop == null) return;
+    const frameTop = boardFrameRef.current?.getBoundingClientRect().top ?? null;
+    if (frameTop == null) return;
+    const delta = frameTop - anchorTop;
+    if (delta !== 0) {
+      window.scrollBy({ top: delta });
+      dragStateRef.current.anchorTop = boardFrameRef.current?.getBoundingClientRect().top ?? anchorTop;
+    }
+  }, [boardSize, isDragging]);
+
+  const notationPairs = useMemo<NotationPair[]>(() => {
+    const pairs: NotationPair[] = [];
+    let moveNumber = 1;
+    for (let index = 1; index < snapshots.length; index += 2, moveNumber += 1) {
+      const whiteSnapshot = snapshots[index];
+      const blackSnapshot = snapshots[index + 1];
+      pairs.push({
+        moveNumber,
+        white: whiteSnapshot ? {
+          index,
+          label: whiteSnapshot.label,
+          eval: whiteSnapshot.eval,
+        } : undefined,
+        black: blackSnapshot ? {
+          index: index + 1,
+          label: blackSnapshot.label,
+          eval: blackSnapshot.eval,
+        } : undefined,
+      });
+    }
+    return pairs;
+  }, [snapshots]);
+
+
+  const handleStep = useCallback((direction: 1 | -1) => {
+    setPositionIndex((prev) => {
+      const next = Math.min(latestSnapshotIndex, Math.max(0, prev + direction));
+      setIsFollowingLive(next === latestSnapshotIndex);
+      return next;
+    });
+  }, [latestSnapshotIndex]);
+
+  const handleSelectSnapshot = useCallback((index: number) => {
+    const nextIndex = Math.min(latestSnapshotIndex, Math.max(0, index));
+    setIsFollowingLive(nextIndex === latestSnapshotIndex);
+    setPositionIndex(nextIndex);
+  }, [latestSnapshotIndex]);
+
+  const handleJumpToLive = useCallback(() => {
+    setIsFollowingLive(true);
+    setPositionIndex(latestSnapshotIndex);
+  }, [latestSnapshotIndex]);
+
+  const handleJumpToStart = useCallback(() => {
+    setIsFollowingLive(false);
+    setPositionIndex(0);
+  }, []);
+
+  useEffect(() => {
+    if (isNotationHovered) return;
+    const target = notationCellRefs.current[positionIndex];
+    const container = notationListRef.current;
+    if (target && container) {
+      const targetOffset = target.offsetTop;
+      const targetHeight = target.offsetHeight;
+      const containerHeight = container.clientHeight;
+      const scrollTop = targetOffset - (containerHeight / 2) + (targetHeight / 2);
+      container.scrollTo({
+        top: Math.max(0, scrollTop),
+        behavior: 'smooth',
+      });
+    }
+  }, [isNotationHovered, positionIndex]);
+
+  const whiteShareRaw = Math.max(8, evalPercent);
+  const blackShareRaw = Math.max(8, 100 - evalPercent);
+  const blueShareRaw = Math.max(8, 100 - whiteShareRaw - blackShareRaw);
+  const totalShare = whiteShareRaw + blackShareRaw + blueShareRaw;
+  const whiteShare = (whiteShareRaw / totalShare) * 100;
+  const blackShare = (blackShareRaw / totalShare) * 100;
+  const blueShare = 100 - whiteShare - blackShare;
+
+  const livePillLabel = isAtLatestSnapshot ? 'Live' : 'Not Live';
+
+  // Loading + unauthenticated states from legacy implementation
   if (!game) {
     return (
       <div className="loading-container">
@@ -330,8 +994,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     );
   }
 
-  // Handle unauthenticated users with a welcome screen rather than a black screen
-  if (!props.isAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <div className="dark-game-page">
         <NavBar compact={true} />
@@ -341,36 +1004,28 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <p>Sign in to place bets on this chess match!</p>
             <div className="preview-board">
               <ChessgroundWrapper
-                config={useMemo(() => {
-                  // Create a valid config for unauthenticated users
-                  return {
-                    fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-                    viewOnly: true,
-                    coordinates: true,
-                    turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
-                    lastMove: game?.move_hist?.length > 0
-                      ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                      : undefined,
-                    movable: {
-                      free: false,
-                      color: 'both',
-                      rookCastle: true
-                    },
-                    highlight: {
-                      lastMove: true,
-                      check: true
-                    },
-                    animation: {
-                      duration: 200
-                    },
-                    drawable: {
-                      enabled: false,
-                      visible: false,
-                      defaultSnapToValidMove: true,
-                      eraseOnClick: false,
-                    }
-                  };
-                }, [game?.state, game?.move_hist])}
+                config={useMemo(() => ({
+                  fen: game?.state || DEFAULT_FEN,
+                  viewOnly: true,
+                  coordinates: true,
+                  turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
+                  lastMove: game?.move_hist?.length > 0
+                    ? [game.move_hist[game.move_hist.length - 1].from as Key, game.move_hist[game.move_hist.length - 1].to as Key]
+                    : undefined,
+                  movable: {
+                    free: false,
+                    color: 'both',
+                    rookCastle: true,
+                  },
+                  highlight: { lastMove: true, check: true },
+                  animation: { duration: 200 },
+                  drawable: {
+                    enabled: false,
+                    visible: false,
+                    defaultSnapToValidMove: true,
+                    eraseOnClick: false,
+                  },
+                }), [game?.state, game?.move_hist])}
               />
             </div>
             <div className="auth-buttons">
@@ -385,247 +1040,240 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   return (
     <>
-      {game.game_status === GameStatus.NOT_STARTED && props.showModal[gameId] && <PregameModal/>}
-      {gameOver(game.game_status as GameStatus) && (
-        <>
-          {/* Display both the overlay and the modal */}
-          <PostgameModal />
-        </>
-      )}
+      {game.game_status === GameStatus.NOT_STARTED && showModal[gameId] && <PregameModal />}
+      {gameOver(game.game_status as GameStatus) && <PostgameModal />}
 
-      <OnboardingGate isAuthenticated={props.isAuthenticated} />
+      <OnboardingGate isAuthenticated={isAuthenticated} />
 
-      {/* Using a structure similar to index.html for consistent page layout */}
       <div className="dark-game-page">
-        {/* Connection status indicator */}
         <ConnectionStatus />
-        {/* Top navigation bar - Using the compact variant of NavBar */}
         <NavBar compact={true} />
-
-        {/* Main content area */}
-        <div className="game-content">
-          {/* Left column - Leaderboard on larger screens */}
-          <div className="left-sidebar-container">
-              {/* Leaderboard section */}
-              <div className="leaderboard-section">
-                <MiniLeaderboard rankings={props.rankings || []} />
-              </div>
-            </div>
-
-            {/* Middle column - Chessboard */}
-            <div className="board-container">
-
-              <PlayerInfo
-                icon={playerIconBlack}
-                fen={game?.state ?? ''}
-                name={game?.player_black?.name}
-                elo={game?.player_black?.elo}
-                time={game?.time_black}
-                isBlack={true}
-                gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-                updatedAt={game?.updated_at}
-                onOutcomeBet={(outcome, stake) => {
-                  props.createWager(
-                    gameId,
-                    outcome,
-                    stake,
-                    true, // is WDL
-                    1 / (game?.odds?.[outcome] || 1),
-                    game.move_hist.length + 1,
-                  );
-                }}
-                gameOdds={game?.odds}
-                selectedStake={selectedStake}
-                isAuthenticated={props.isAuthenticated}
-                gameId={gameId}
-                wagerTotal={gameStats?.wdlWagerTotals?.['black_win']?.totalAmount || 0}
-              />
-
-              <div className="game-layout">
-                <div className="board-with-eval">
-
-                  <div className="chessboard-wrapper brown" ref={groundWrapperRef}>
-                    <ChessgroundWrapper
-                      config={useMemo(() => {
-                        // Create a base configuration that's always valid
-                        const baseConfig = {
-                          ...props.config,
-                          coordinates: true,
-                          viewOnly: false,
-                          turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
-                          fen: game?.state || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', // Default starting position as fallback
-                          lastMove: game?.move_hist?.length > 0
-                            ? [game.move_hist[game.move_hist.length - 1].from as any, game.move_hist[game.move_hist.length - 1].to as any]
-                            : undefined,
-                          drawable: {
-                            enabled: true,
-                            visible: true,
-                            defaultSnapToValidMove: true,
-                            autoShapes: props.autoShapes || [],
-                            eraseOnClick: false,
-                          }
-                        };
-
-                        // Only add movable property if game state is valid
-                        if (game?.state) {
-                          return {
-                            ...baseConfig,
-                            movable: {
-                              free: false,
-                              color: 'both',
-                              dests: getValidMoves(game.state),
-                              rookCastle: true,
-                              events: {
-                                after: handleDragMove
-                              }
-                            }
-                          };
-                        }
-
-                        // Return a simpler config without movable property when game state is loading
-                        return baseConfig;
-                      }, [
-                        props.config,
-                        game?.state,
-                        game?.move_hist,
-                        props.autoShapes,
-                        handleDragMove
-                      ])}
-                    />
-                    {/* Game end overlay - only shown when game is over */}
-                    {gameOver(game.game_status as GameStatus) && (
-                      <GameEndOverlay
-                        gameStatus={game.game_status as GameStatus}
-                        resolvedWagers={props.resolvedWagers}
-                        gameId={gameId}
-                      />
-                    )}
-                  </div>
-
-                  {/* Vertical evaluation bar placed to the right of the board */}
-                  <div className="eval-bar-container">
-                    <EvaluationBar odds={game?.odds} />
-                  </div>
-                </div>
-              </div>
-
-              <PlayerInfo
-                icon={playerIconWhite}
-                fen={game?.state ?? ''}
-                name={game?.player_white?.name}
-                elo={game?.player_white?.elo}
-                time={game?.time_white}
-                isBlack={false}
-                gameStatus={(game?.game_status ?? GameStatus.IN_PROGRESS) as GameStatus}
-                updatedAt={game?.updated_at}
-                onOutcomeBet={(outcome, stake) => {
-                  props.createWager(
-                    gameId,
-                    outcome,
-                    stake,
-                    true, // is WDL
-                    1 / (game?.odds?.[outcome] || 1),
-                    game.move_hist.length + 1,
-                  );
-                }}
-                gameOdds={game?.odds}
-                selectedStake={selectedStake}
-                isAuthenticated={props.isAuthenticated}
-                gameId={gameId}
-                wagerTotal={gameStats?.wdlWagerTotals?.['white_win']?.totalAmount || 0}
-              />
-
-              {/* Move Bubbles - positioned directly below white player */}
-              <MoveBubbles
-                gameId={gameId}
-                gameState={game?.state ?? ''}
-                moveOptions={game?.pool_wagers?.move?.options}
-                moveWagers={game?.pool_wagers?.move}
-                selectedStake={selectedStake}
-                isAuthenticated={props.isAuthenticated}
-                onMoveBet={(move, stake) => {
-                  props.createWager(
-                    gameId,
-                    move,
-                    stake,
-                    false, // not WDL
-                    1,
-                    game.move_hist.length + 1,
-                  );
-                }}
-                onMoveHover={props.onMoveHover}
-                onMoveUnhover={props.onMoveUnhover}
-                // hoveredMove={hoveredMove}  // TODO: Add if we track hovered move in parent
-                pendingBet={props.pendingBet}
-                userSubmittedMoves={userSubmittedMoves}
-                userInteractedMoves={userInteractedMoves}
-              />
-
-              {/* Draw Bet Button - positioned below move bubbles */}
-              <div className="draw-bet-button-container">
+        <div className="test-board-page">
+          <div className="test-board-page__content">
+            <div className="board-demo">
+              <div className="board-layout">
                 <div
-                  className={`draw-bet-button ${props.isAuthenticated && selectedStake && isGameInProgress ? 'interactive' : 'disabled'} ${isDrawHolding ? 'holding' : ''}`}
-                  onMouseDown={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetStart : undefined}
-                  onMouseUp={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
-                  onMouseLeave={props.isAuthenticated && selectedStake && isGameInProgress ? handleDrawBetEnd : undefined}
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                  }}
+                  className={[
+                    'outcome-rail-column',
+                    betsLocked ? 'is-locked' : '',
+                  ].join(' ')}
+                  data-locked={betsLocked}
                 >
-                  <div className="draw-left-section">
-                    <div className="draw-icon">🤝</div>
-                    <div className="draw-label">DRAW</div>
+                  <div className="outcome-rail-column__item">
+                    <header>
+                      <span>Black</span>
+                      {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
+                    </header>
+                    {renderMovePanel('black', 'move-panel--top', isBlackTurn, blackMovePool)}
                   </div>
-
-                  <div className="draw-center-section">
-                    <div className="draw-details">
-                      <span className="stake">{selectedStake}</span>
-                      <span className="multiplier">{game?.odds?.['draw'] ? (1 / game.odds['draw']).toFixed(1) : '0.0'}x</span>
-                      <span className="payout">→{game?.odds?.['draw'] && selectedStake ? (selectedStake / game.odds['draw']).toFixed(0) : '0'}</span>
-                    </div>
+                  <div className="draw-panel">
+                    {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
+                    <div className="draw-panel__hint">Hold to bet draw</div>
                   </div>
-
-                  <div className="draw-right-section">
-                    <div className="total-wagered">
-                      <img src={balanceIcon} alt="Total wagered" />
-                      <span>{gameStats?.wdlWagerTotals?.['draw']?.totalAmount || 0}</span>
-                    </div>
+                  <div className="outcome-rail-column__item">
+                    <header>
+                      <span>White</span>
+                      {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
+                    </header>
+                    {renderMovePanel('white', 'move-panel--bottom', isWhiteTurn, whiteMovePool)}
                   </div>
-
-                  {/* Hold progress bar */}
-                  {isDrawHolding && (
-                    <div className="hold-progress">
-                      <div
-                        className="progress-bar"
-                        style={{ width: `${drawHoldProgress}%` }}
-                      />
+                </div>
+                <div className="board-layout__main">
+                  <div
+                    ref={boardFrameRef}
+                    className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
+                    style={{ width: boardFrameWidth }}
+                  >
+                    <div className="player-header">
+                      <div className="player-meta">
+                        <span className="player-name">{game.player_black?.name}</span>
+                        <span className="player-rating">{game.player_black?.elo}</span>
+                      </div>
+                      <div className="player-clock-group">
+                        <span className="player-clock">{blackClock}</span>
+                      </div>
                     </div>
-                  )}
+                    <div className="board-eval-stack" style={{ width: boardStackWidth, gap: BOARD_STACK_GAP }}>
+                      <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
+                        <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }} ref={groundWrapperRef}>
+                          <ChessgroundWrapper config={boardConfig} />
+                          {gameOver(game.game_status as GameStatus) && (
+                            <GameEndOverlay
+                              gameStatus={game.game_status as GameStatus}
+                              resolvedWagers={resolvedWagers}
+                              gameId={gameId}
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="eval-bar-demo" style={{ height: boardSize, width: evalBarWidth }}>
+                        <div
+                          className="eval-bar-segment eval-bar-segment--black"
+                          style={{ height: `${blackShare}%`, top: 0 }}
+                        />
+                        <div
+                          className="eval-bar-segment eval-bar-segment--blue"
+                          style={{ height: `${blueShare}%`, top: `${blackShare}%` }}
+                        />
+                        <div
+                          className="eval-bar-segment eval-bar-segment--white"
+                          style={{ height: `${whiteShare}%`, bottom: 0 }}
+                        />
+                        {evalScore >= 0 ? (
+                          <div className="eval-bar-demo__value eval-bar-demo__value--white">
+                            +{evalScore.toFixed(1)}
+                          </div>
+                        ) : (
+                          <div className="eval-bar-demo__value eval-bar-demo__value--black">
+                            {evalScore.toFixed(1)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="player-header">
+                      <div className="player-meta">
+                        <span className="player-name">{game.player_white?.name}</span>
+                        <span className="player-rating">{game.player_white?.elo}</span>
+                      </div>
+                      <div className="player-clock-group">
+                        <span className="player-clock">{whiteClock}</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
+                      onMouseDown={beginDrag}
+                      onTouchStart={beginDrag}
+                      aria-label="Resize board"
+                    />
+                  </div>
+                  <aside className="notation-rail">
+                    <div className="notation-rail__header">
+                      <div>
+                        <div className="notation-rail__title">Moves</div>
+                        <div className="notation-rail__subtitle">
+                          {isAtLatestSnapshot ? 'Live position' : 'Historical view'}
+                        </div>
+                      </div>
+                      {!isAtLatestSnapshot && (
+                        <span className="notation-rail__status-tag">Not Live</span>
+                      )}
+                    </div>
+                    <div className="notation-nav">
+                      <button
+                        type="button"
+                        onClick={handleJumpToStart}
+                        disabled={positionIndex === 0}
+                        aria-label="Jump to start"
+                      >
+                        |◀
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStep(-1)}
+                        disabled={positionIndex === 0}
+                        aria-label="Previous move"
+                      >
+                        ◀
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleStep(1)}
+                        disabled={positionIndex === latestSnapshotIndex}
+                        aria-label="Next move"
+                      >
+                        ▶
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleJumpToLive}
+                        disabled={isAtLatestSnapshot}
+                        aria-label="Jump to latest move"
+                      >
+                        ▶|
+                      </button>
+                    </div>
+                    <div
+                      className="notation-rail__list"
+                      ref={notationListRef}
+                      onMouseEnter={() => setIsNotationHovered(true)}
+                      onMouseLeave={() => setIsNotationHovered(false)}
+                    >
+                      {notationPairs.length ? notationPairs.map((pair) => renderNotationRow(pair)) : (
+                        <div className="notation-row notation-row--empty">
+                          <span className="notation-row__number">—</span>
+                          <span className="notation-row__cell notation-row__cell--placeholder">
+                            Moves will appear here
+                          </span>
+                          <span className="notation-row__cell notation-row__cell--placeholder" />
+                        </div>
+                      )}
+                    </div>
+                  </aside>
                 </div>
               </div>
             </div>
-
-
-          {/* Game Information Panel - Moved below main game area */}
-          <div className="game-info-panel-container">
-            <GameInfoPanel
-              game={game}
-              viewerCount={gameStats?.viewerCount || 0}
-              moveWagerData={gameStats?.moveWagerData || {}}
-              selectedStake={selectedStake}
-              setSelectedStake={setSelectedStake}
-            />
-
-            {/* Chat and Wager Receipts - Positioned beneath Bet Amount */}
-            <GameCommunication className="game-communication-panel" />
-          </div>
-
-          {/* Mobile Leaderboard - Only visible on smaller screens, now at the bottom */}
-          <div className="mobile-leaderboard-container">
-            <div className="mobile-leaderboard-section">
-              <MiniLeaderboard rankings={props.rankings || []} />
+            <div
+              className="desktop-post-board"
+              style={{ width: boardFrameWidth, maxWidth: '100%', alignSelf: 'flex-start' }}
+            >
+              <div className="game-controls-inline">
+                <span className={`live-pill ${isAtLatestSnapshot ? 'is-live' : 'is-paused'}`}>
+                  {livePillLabel}
+                </span>
+                <div className="stake-chip-row">
+                  {STAKE_PRESETS.map((value) => (
+                    <button
+                      key={`stake-${value}`}
+                      type="button"
+                      className={`stake-chip ${selectedStake === value ? 'is-active' : ''}`}
+                      onClick={() => setSelectedStake(value)}
+                    >
+                      ${value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="match-side-modules">
+                <div className="match-card match-card--info">
+                  <GameInfoPanel
+                    game={game}
+                    viewerCount={gameStats?.viewerCount || 0}
+                    moveWagerData={gameStats?.moveWagerData || {}}
+                    selectedStake={selectedStake}
+                    setSelectedStake={setSelectedStake}
+                  />
+                </div>
+                <div className="match-card match-card--communication">
+                  <GameCommunication className="game-communication-panel" />
+                </div>
+                <div className="match-card match-card--leaderboard">
+                  <MiniLeaderboard rankings={rankings || []} />
+                </div>
+              </div>
+            </div>
+            <div className="mobile-move-market">
+              <div className="mobile-move-market__header">
+                <div>
+                  <span className="mobile-move-market__label">
+                    {isWhiteTurn ? 'White to move' : 'Black to move'}
+                  </span>
+                  <span className="mobile-move-market__sub">
+                    {mobileMoveOwner?.name} • {mobileMoveOwner?.elo}
+                  </span>
+                </div>
+                <span className="mobile-move-market__hint">
+                  {mobileMovePool.length ? `${mobileMovePool.length} candidate moves` : 'Waiting on opponent'}
+                </span>
+              </div>
+              <div className="mobile-move-bubbles">
+                {mobileMoveOptions}
+              </div>
+              <div className="mobile-outcome-row">
+                {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
+                {renderOutcomeButton('draw', 'Hold for Draw', 'draw')}
+                {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
+              </div>
             </div>
           </div>
         </div>
@@ -634,5 +1282,4 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   );
 };
 
-// Wrap with React.memo to prevent unnecessary re-renders
 export default React.memo(ChessMatch);

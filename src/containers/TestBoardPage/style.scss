@@ -196,20 +196,13 @@
   background: rgba(7, 13, 23, 0.9);
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
   overflow: visible;
+}
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(36, 231, 206, 0.14), transparent 65%);
-    pointer-events: none;
-    transition: background 0.2s ease, border-color 0.2s ease;
-  }
-
-  &--rewound::after {
-    background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
-  }
+.board-frame--rewound {
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow:
+    0 20px 35px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 999px rgba(239, 68, 68, 0.08);
 }
 
 .board-eval-stack {
@@ -270,10 +263,10 @@
 }
 
 .notation-rail {
-  flex: 0 0 220px;
+  flex: 0 0 260px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   padding: 16px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -310,41 +303,54 @@
   }
 
   &__list {
+    position: relative;
     flex: 1;
     overflow-y: auto;
+    max-height: 260px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding-right: 2px;
-  }
+    gap: 2px;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    -webkit-overflow-scrolling: touch;
 
-  &__playback {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    &::before,
+    &::after {
+      content: '';
+      position: sticky;
+      left: 0;
+      right: 0;
+      height: 8px;
+      pointer-events: none;
+      z-index: 1;
+    }
 
-    button {
-      flex: 1 1 calc(50% - 4px);
+    &::before {
+      top: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, 0.9), transparent);
+    }
+
+    &::after {
+      bottom: 0;
+      background: linear-gradient(0deg, rgba(5, 5, 5, 0.9), transparent);
+    }
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.35);
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      background: rgba(255, 255, 255, 0.04);
-      color: #fff;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 6px 8px;
-      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
 
-      &:hover:not(:disabled),
-      &:focus-visible:not(:disabled) {
-        border-color: rgba(0, 239, 178, 0.5);
-        color: #00efb2;
-      }
-
-      &:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.55);
     }
   }
 
@@ -355,84 +361,107 @@
   }
 }
 
-.notation-row {
-  display: grid;
-  grid-template-columns: 32px 1fr 1fr;
-  gap: 8px;
-  align-items: stretch;
 
-  &__number {
-    text-align: right;
-    font-weight: 600;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.65);
-    padding-top: 10px;
-  }
+.notation-nav {
+  display: flex;
+  gap: 6px;
 
-  &--empty {
-    grid-template-columns: 1fr;
+  button {
+    flex: 1;
+    border: none;
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    font-size: 12px;
+    padding: 6px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 
-    .notation-row__move {
-      border-radius: 12px;
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-      padding: 10px;
-      text-align: center;
-      color: rgba(255, 255, 255, 0.5);
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+      background: rgba(0, 239, 178, 0.15);
+      color: #00efb2;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
   }
 }
 
-.notation-row__move-button {
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  padding: 8px 10px;
-  display: flex;
-  justify-content: space-between;
+.notation-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 2px 4px;
+  border-radius: 8px;
+  background: transparent;
+  transition: background 0.2s ease;
+
+  &--active {
+    background: rgba(0, 239, 178, 0.08);
+  }
+
+  &--latest:not(.notation-row--active) {
+    background: rgba(255, 255, 255, 0.04);
+  }
 
   &--empty {
-    border-style: dashed;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.35);
-    cursor: default;
-    pointer-events: none;
-  }
-
-  &:hover,
-  &:focus-visible {
-    border-color: rgba(0, 239, 178, 0.4);
-    transform: translateY(-1px);
-  }
-
-  &.is-active {
-    border-color: rgba(0, 239, 178, 0.6);
-    background: rgba(0, 239, 178, 0.08);
-    box-shadow: inset 0 0 12px rgba(0, 239, 178, 0.2);
-  }
-
-  &.is-latest .notation-row__meta {
-    color: rgba(255, 255, 255, 0.85);
+    justify-items: start;
   }
 }
 
-.notation-row__move {
+.notation-row__number {
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: right;
+  padding-right: 6px;
+}
+
+.notation-row__cell {
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 13px;
+  padding: 4px 6px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  min-height: 28px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.is-active {
+    color: #00efb2;
+  }
+
+  &.is-latest {
+    font-weight: 600;
+  }
+
+  &--placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
+.notation-row__text {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.notation-row__meta {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
-}
 
 .desktop-post-board {
   display: flex;

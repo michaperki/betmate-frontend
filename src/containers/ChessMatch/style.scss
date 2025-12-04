@@ -1,39 +1,75 @@
-.chess-match-container {
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
-    min-height: calc(100vh - 80px);
-    background: #050505;
-    align-items: center;
-}
+@import '../TestBoardPage/style.scss';
 
-.chessboard {
-    border: 4px solid #fff;
-    padding: 5px;
-    border-radius: 5px;
-}
-
-p.loading-text {
-    color: #fff;
-    text-align: center;
-}
-
-.chessboard-wrapper {
+.match-side-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
   width: 100%;
-  height: 100%;
-  max-width: 600px;
-  max-height: 600px;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
+}
 
-  // Ensure the game end overlay is positioned correctly
-  .game-end-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
+.match-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 13, 23, 0.6);
+  padding: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+
+  &--info {
+    grid-column: span 2;
   }
+
+  @media (max-width: 900px) {
+    &--info {
+      grid-column: span 1;
+    }
+  }
+}
+
+.match-card--communication {
+  min-height: 220px;
+}
+
+.match-card--leaderboard {
+  min-height: 180px;
+}
+
+.draw-hold-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(0, 239, 178, 0.9);
+  pointer-events: none;
+  border-radius: 999px;
+  transition: width 0.1s linear;
+}
+
+.match-card .game-info-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.match-card .game-communication-panel {
+  max-height: 320px;
+}
+
+.dark-game-page .test-board-page {
+  padding-top: 70px;
+}
+
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+}
+
+.loading-pulse {
+  color: #fff;
+  font-size: 18px;
+  letter-spacing: 0.08em;
 }
