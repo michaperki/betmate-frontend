@@ -25,42 +25,35 @@
 }
 
 .vertical-evaluation-bar .black-section { background: $bg-secondary; }
-.vertical-evaluation-bar .draw-section { background: $info; }
+.vertical-evaluation-bar .draw-section  { background: $info; }
 .vertical-evaluation-bar .white-section { background: #ffffff; }
 
 .vertical-evaluation-bar .black-section,
 .vertical-evaluation-bar .draw-section,
 .vertical-evaluation-bar .white-section {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-
-/* Numeric odds tooltip shown on hover */
-.odds-tooltip {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: inline-flex;
-  flex-direction: column;
-  gap: $space-1;
-  background: rgba(0, 0, 0, 0.75);
-  color: $text-primary;
-  padding: $space-1 $space-2;
-  border-radius: $radius-md;
+.vertical-evaluation-bar .black-section .section-percent,
+.vertical-evaluation-bar .draw-section  .section-percent {
+  color: #ffffff;
   font-size: $text-xs;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  box-shadow: $shadow-sm;
-  pointer-events: none;
+  font-weight: $font-semibold;
+  line-height: 1;
 }
 
-.odds-row { line-height: 1; white-space: nowrap; }
-.odds-row--black { color: $text-secondary; }
-.odds-row--draw { color: $info; }
-.odds-row--white { color: $warning; }
+.vertical-evaluation-bar .white-section .section-percent {
+  color: #0b0b0b;
+  font-size: $text-xs;
+  font-weight: $font-semibold;
+  line-height: 1;
+}
 
-/* Removed fixed percentage labels; tooltip shows values on hover */
+
+/* Inline section percentages now shown; tooltip and external labels removed */
 
 @media (max-width: 900px) {
   .vertical-evaluation-bar-container {

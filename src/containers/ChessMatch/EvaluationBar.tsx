@@ -11,7 +11,7 @@ interface EvaluationBarProps {
  * Vertical evaluation bar showing the game win/draw probabilities
  */
 const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width, className = '' }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // retained for potential future use
 
   // Default to even probabilities if odds are not available
   const whiteWinProb = odds?.white_win ?? 0.33;
@@ -33,33 +33,16 @@ const EvaluationBar: React.FC<EvaluationBarProps> = ({ odds, width, className = 
       <div
         className="vertical-evaluation-bar"
         style={width ? { width: `${width}px` } : {}}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
-        <div
-          className="black-section"
-          style={{ height: `${blackWinProb * 100}%` }}
-          title={`Black Win: ${blackPercent}%`}
-        />
-        <div
-          className="draw-section"
-          style={{ height: `${drawProb * 100}%` }}
-          title={`Draw: ${drawPercent}%`}
-        />
-        <div
-          className="white-section"
-          style={{ height: `${whiteWinProb * 100}%` }}
-          title={`White Win: ${whitePercent}%`}
-        />
-
-        {/* Overlay the current odds tooltip when hovered */}
-        {isHovered && (
-          <div className="odds-tooltip" role="tooltip" aria-label="Current odds">
-            <div className="odds-row odds-row--black">Black {blackPercent}%</div>
-            <div className="odds-row odds-row--draw">Draw {drawPercent}%</div>
-            <div className="odds-row odds-row--white">White {whitePercent}%</div>
-          </div>
-        )}
+        <div className="black-section" style={{ height: `${blackWinProb * 100}%` }}>
+          <span className="section-percent">{blackPercent}%</span>
+        </div>
+        <div className="draw-section" style={{ height: `${drawProb * 100}%` }}>
+          <span className="section-percent">{drawPercent}%</span>
+        </div>
+        <div className="white-section" style={{ height: `${whiteWinProb * 100}%` }}>
+          <span className="section-percent">{whitePercent}%</span>
+        </div>
       </div>
     </div>
   );
