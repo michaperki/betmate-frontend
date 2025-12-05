@@ -1081,7 +1081,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           </span>
           <span className="move-option__dest">{dest}</span>
         </span>
-        <span className="move-option__meta">{option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x</span>
+        {/* Hide percent/payout meta on mobile to reduce clutter */}
       </button>
     );
   });
@@ -1396,12 +1396,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     )}
                   </div>
                   {/* On mobile, show move market right below the board */}
-                  <div className={`mobile-move-market ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
+                  <div
+                    className={`mobile-move-market ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}
+                    style={isMobile ? { width: boardFrameWidth, margin: '0 auto' } : undefined}
+                  >
                     <div className="mobile-move-bubbles">
                       {mobileMoveOptions}
                     </div>
                   </div>
-                  <div className="notation-column">
+                  <div
+                    className="notation-column"
+                    style={isMobile ? { width: boardFrameWidth, margin: '0 auto' } : undefined}
+                  >
                   <aside className="notation-rail">
                     <div className="notation-nav">
                       <button

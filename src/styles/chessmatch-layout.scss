@@ -1264,14 +1264,10 @@
 
 .mobile-move-bubbles {
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  overflow: visible;
   padding-bottom: 6px;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .mobile-move-chip {
