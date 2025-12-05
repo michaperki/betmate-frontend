@@ -6,7 +6,7 @@
   background: $bg-secondary;
   padding: $space-6;
   margin-bottom: $space-6;
-  border: 3px solid $brand-primary;
+  border: 1px solid $border-primary;
   position: relative;
   overflow: hidden;
 
@@ -16,25 +16,8 @@
     border-width: 2px; // Thinner border on mobile
   }
 
-  // Glow effect
-  &::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, $brand-primary, $accent-blue, $brand-primary);
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0.3;
-    animation: glow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes glow {
-    from { opacity: 0.3; }
-    to { opacity: 0.6; }
-  }
+  // Remove gradient/glow effect to reduce visual chrome
+  &::before { content: none; }
 
   .featured-header {
     display: flex;
@@ -74,13 +57,13 @@
 
     .featured-badge {
       @include card-base;
-      background: linear-gradient(135deg, $brand-primary, $accent-blue);
+      background: $brand-primary;
       padding: $space-1 $space-3;
       border-radius: $radius-pill;
 
       .badge-text {
         @include text-caption;
-        color: $text-primary;
+        color: $text-inverse;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -102,7 +85,7 @@
       background: $bg-tertiary;
       border-radius: $radius-lg;
       padding: $space-4;
-      border: 2px solid $brand-primary;
+      border: 1px solid $border-primary;
     }
 
     .players-with-pawns {
@@ -175,7 +158,7 @@
       background: $bg-tertiary;
       border-radius: $radius-lg;
       padding: $space-6;
-      border: 2px solid $brand-primary;
+      border: 1px solid $border-primary;
 
       .players-with-pawns {
         display: flex;
@@ -270,12 +253,13 @@
     }
 
     .featured-bet-btn {
-      background: linear-gradient(135deg, $brand-primary, $accent-blue);
+      background: $brand-primary;
       border: none;
+      color: $text-inverse;
 
       &:hover {
-        transform: translateY(-2px);
-        @include shadow-glow-green;
+        transform: translateY(-1px);
+        background: $brand-primary-hover;
       }
     }
   }
