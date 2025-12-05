@@ -1305,6 +1305,8 @@
 
   &.state-loading::after { opacity: 1; animation: moveChipSpin 1s linear infinite; }
 
+  &.is-updating { animation: chipSwapFade 240ms ease-out; }
+
   &.state-success { border-color: rgba($brand-primary, 0.7); box-shadow: 0 0 14px rgba($brand-primary, 0.3); }
 
   &.state-error { border-color: rgba($error, 0.8); box-shadow: 0 0 12px rgba($error, 0.25); animation: wagerShake 0.4s ease; }
@@ -1465,4 +1467,9 @@
 @keyframes moveChipSpin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes chipSwapFade {
+  0% { background-color: $bg-quaternary; }
+  100% { background-color: $bg-tertiary; }
 }

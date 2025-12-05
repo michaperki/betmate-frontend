@@ -1029,6 +1029,19 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const VISIBLE_MOBILE_SLOTS = 4;
   const mobileSlots = Array.from({ length: VISIBLE_MOBILE_SLOTS }, (_, i) => mobileMovePool[i] || null);
 
+  const [mobileSlotMoves, setMobileSlotMoves] = useState<string[]>(Array(VISIBLE_MOBILE_SLOTS).fill(''));
+  const [mobileSlotUpdating, setMobileSlotUpdating] = useState<boolean[]>(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+
+  useEffect(() => {
+    const nextMoves = mobileSlots.map((opt) => (opt ? opt.move : ''));
+    setMobileSlotUpdating((prev) => prev.map((flag, i) => (mobileSlotMoves[i] && mobileSlotMoves[i] !== nextMoves[i])));
+    setMobileSlotMoves(nextMoves);
+    const t = window.setTimeout(() => {
+      setMobileSlotUpdating(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [positionIndex, mobileMovePool.length]);
+
   const mobileMoveOptions = mobileSlots.map((option, idx) => {
     if (!option) {
       return (
@@ -1044,7 +1057,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       <button
         key={`mobile-slot-${idx}`}
         type="button"
-        className={`mobile-move-chip state-${visualState}`}
+        className={`mobile-move-chip ${mobileSlotUpdating[idx] ? 'is-updating' : ''} state-${visualState}`}
         onClick={() => handleMoveBet(option.move)}
         onMouseEnter={() => handleMoveHoverStart(option.move)}
         onMouseLeave={handleMoveHoverEnd}
