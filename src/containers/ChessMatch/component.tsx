@@ -835,24 +835,73 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     alignmentClass: 'move-panel--top' | 'move-panel--bottom' | 'move-panel--center',
     isActive: boolean,
     options: MoveOption[],
-  ) => (
-    <div
-      className={[
-        'move-panel',
-        alignmentClass,
-        isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
-        !canPlaceWagers ? 'move-panel--locked' : '',
-      ].join(' ')}
-      data-locked={!canPlaceWagers}
-      aria-live={isActive ? 'polite' : 'off'}
-    >
-      {isActive ? renderMoveOptions(options, color) : (
-        <div className="move-panel__status">
-          {betsLocked ? 'Historical snapshot' : 'Loading'}
-        </div>
-      )}
-    </div>
-  );
+  ) => {
+    const VISIBLE_DESKTOP_SLOTS = 4;
+    const slots = Array.from({ length: VISIBLE_DESKTOP_SLOTS }, (_, i) => options[i] || null);
+
+    return (
+      <div
+        className={[
+          'move-panel',
+          alignmentClass,
+          isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
+          !canPlaceWagers ? 'move-panel--locked' : '',
+        ].join(' ')}
+        data-locked={!canPlaceWagers}
+        aria-live={isActive ? 'polite' : 'off'}
+      >
+        {isActive ? (
+          slots.map((option, idx) => {
+            if (!option) {
+              return (
+                <div key={`slot-${color}-${idx}`} className="move-option move-option--placeholder" aria-hidden>
+                  <span className="move-option__left">
+                    <span className="move-option__icon" aria-hidden data-color={color} />
+                    <span className="move-option__dest">—</span>
+                  </span>
+                  <span className="move-option__meta">&nbsp;</span>
+                </div>
+              );
+            }
+            const moveKey = `${positionIndex}-${option.move}`;
+            const visualState = moveStates[moveKey] ?? 'idle';
+            const piece = getPieceTypeFromSAN(option.move);
+            const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
+            const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
+            const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
+            return (
+              <button
+                key={`slot-${color}-${idx}`}
+                type="button"
+                className={`move-option state-${visualState}`}
+                onClick={() => handleMoveBet(option.move)}
+                onMouseEnter={() => handleMoveHoverStart(option.move)}
+                onMouseLeave={handleMoveHoverEnd}
+                onFocus={() => handleMoveHoverStart(option.move)}
+                onBlur={handleMoveHoverEnd}
+                onTouchStart={() => handleMoveHoverStart(option.move)}
+                onTouchEnd={handleMoveHoverEnd}
+                data-state={visualState}
+                disabled={!canPlaceWagers}
+              >
+                <span className="move-option__left">
+                  <span className="move-option__icon" aria-hidden data-color={color}>
+                    <img src={pieceSrc} alt="" />
+                  </span>
+                  <span className="move-option__dest">{dest}</span>
+                </span>
+                <span className="move-option__meta">{wageredText}</span>
+              </button>
+            );
+          })
+        ) : (
+          <div className="move-panel__status">
+            {betsLocked ? 'Historical snapshot' : 'Loading'}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const extractMoveMeta = useCallback((label: string) => {
     const isMate = label.includes('#');

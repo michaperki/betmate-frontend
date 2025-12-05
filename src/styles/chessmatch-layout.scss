@@ -1050,6 +1050,12 @@
     position: relative;
     overflow: hidden;
 
+    &.move-option--placeholder {
+      opacity: 0.45;
+      border-style: dashed;
+      pointer-events: none;
+    }
+
     .move-option__left {
       display: inline-flex;
       align-items: center;
