@@ -5,7 +5,7 @@ import { errorSelector, loadingSelector } from 'store/actionCreators/requestActi
 import { ActionTypes, RootState } from 'types/state';
 
 import SignUpPanel from 'containers/authentication/signUpPanel/component';
-import '../style.scss';
+import '../dark-style.scss';
 
 const loadActions: ActionTypes[] = ['CREATE_USER'];
 
