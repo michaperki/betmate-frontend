@@ -1,18 +1,20 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
 @import '../../styles/chessmatch-layout.scss';
 
 .match-side-modules {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  gap: $space-3;
   width: 100%;
 }
 
 .match-card {
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(7, 13, 23, 0.6);
-  padding: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-radius: $radius-xl;
+  border: 1px solid $border-primary;
+  background: $bg-tertiary;
+  padding: $space-3;
+  box-shadow: $shadow-base;
   overflow: hidden;
 
   &--info {
@@ -39,7 +41,7 @@
   left: 0;
   bottom: 0;
   height: 3px;
-  background: rgba(0, 239, 178, 0.9);
+  background: rgba($brand-primary, 0.9);
   pointer-events: none;
   border-radius: 999px;
   transition: width 0.1s linear;
@@ -61,11 +63,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #050505;
+  background: $bg-primary;
 }
 
 .loading-pulse {
-  color: #fff;
-  font-size: 18px;
+  color: $text-primary;
+  font-size: $text-lg;
   letter-spacing: 0.08em;
 }

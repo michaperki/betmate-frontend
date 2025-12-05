@@ -1,7 +1,10 @@
+@import './tokens.scss';
+@import './mixins.scss';
+
 .chess-match-page {
   min-height: 100vh;
-  background-color: #050505;
-  color: #f5f5f5;
+  background-color: $bg-primary;
+  color: $text-primary;
   display: flex;
   flex-direction: column;
 
@@ -18,10 +21,10 @@
   max-width: none;
   margin: 0;
   /* Increase bottom padding to clear the fixed bottom toolbar */
-  padding: 8px clamp(16px, 4vw, 64px) 64px;
+  padding: $space-2 clamp(16px, 4vw, 64px) $space-16;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: $space-3;
 }
 
 .test-board-controls {
@@ -35,15 +38,15 @@
   right: 24px;
   z-index: 10;
   background: rgba(0, 0, 0, 0.6);
-  color: #00efb2;
-  border: 1px solid rgba(0, 239, 178, 0.4);
+  color: $brand-primary;
+  border: 1px solid rgba($brand-primary, 0.4);
   border-radius: 999px;
   padding: 8px 16px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  box-shadow: $shadow-lg;
 
   &.is-open {
     background: rgba(0, 0, 0, 0.85);
@@ -145,7 +148,7 @@
   letter-spacing: 0.08em;
 
   strong {
-    color: #00efb2;
+    color: $brand-primary;
     text-transform: lowercase;
     font-weight: 700;
   }
@@ -230,14 +233,14 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: $space-2;
   align-items: stretch;
   padding: 0 0 0 4px;
-  border-radius: 20px;
+  border-radius: $radius-xl;
   /* Neutralize border to remove green tint */
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(7, 13, 23, 0.9);
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
+  border: 1px solid $border-primary;
+  background: $bg-secondary;
+  box-shadow: $shadow-lg;
   overflow: visible;
 
   &::before {
@@ -268,11 +271,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  gap: 12px;
+  padding: $space-1 $space-2;
+  border-radius: $radius-md;
+  background: $bg-tertiary;
+  border: 1px solid $border-secondary;
+  gap: $space-3;
   box-sizing: border-box;
 
   .player-meta {
@@ -281,13 +284,13 @@
   }
 
   .player-name {
-    font-size: 14px;
+    font-size: $text-sm;
     font-weight: 600;
   }
 
   .player-rating {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.55);
+    font-size: $text-xs;
+    color: $text-secondary;
   }
 
   .player-clock-group {
@@ -298,7 +301,7 @@
     flex: 0 0 auto;
 
     .player-clock {
-      font-size: 16px;
+      font-size: $text-base;
       font-weight: 600;
     }
   }
@@ -306,8 +309,8 @@
 
 .board-shell {
   position: relative;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-base;
   overflow: hidden;
   flex: none;
 }
@@ -319,11 +322,11 @@
   width: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  gap: $space-2;
+  padding: $space-4;
+  border-radius: $radius-xl;
+  border: 1px solid $border-primary;
+  background: $bg-tertiary;
   min-height: 360px;
 
   &__header {
@@ -417,11 +420,11 @@
 .wager-receipts {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  gap: $space-2;
+  padding: $space-3;
+  border-radius: $radius-xl;
+  border: 1px solid $border-primary;
+  background: $bg-tertiary;
   width: 100%;
 }
 
@@ -458,24 +461,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid $border-primary;
+  background: $bg-quaternary;
+  border-radius: $radius-md;
+  padding: $space-2 $space-3;
 }
 
 .wager-receipt__title {
-  font-size: 12px;
+  font-size: $text-xs;
   font-weight: 600;
 }
 
 .wager-receipt__meta {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: $text-xs;
+  color: $text-secondary;
 }
 
 .wager-receipt--won {
-  border-color: rgba(0, 239, 178, 0.45);
+  border-color: rgba($brand-primary, 0.45);
 }
 
 .wager-receipt--lost {
