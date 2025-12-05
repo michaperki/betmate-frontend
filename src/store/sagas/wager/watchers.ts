@@ -44,6 +44,13 @@ export function* watchCreateWager() {
         status: 'REQUEST',
         payload: { id: action.payload.gameId }
       });
+
+      // Refresh wager history so UI panels update without manual reload
+      yield put<Actions>({
+        type: 'FETCH_WAGER_HISTORY',
+        status: 'REQUEST',
+        payload: { status: undefined, limit: 10, skip: 0 }
+      });
     } catch (error) {
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
     }

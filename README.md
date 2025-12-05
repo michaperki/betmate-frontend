@@ -18,6 +18,8 @@ Front-end:
 - Chess.js
 - Tailwind CSS (new in dark theme update)
 
+See `frontend/docs/README.md` for the unified frontend docs index, the unification plan, and component audit.
+
 ## New Dark Game Layout Migration
 
 This branch implements a redesigned game page with a modern dark theme, neumorphic elements, and improved betting UI.

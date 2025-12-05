@@ -17,7 +17,8 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 8px clamp(16px, 4vw, 64px) 40px;
+  /* Increase bottom padding to clear the fixed bottom toolbar */
+  padding: 8px clamp(16px, 4vw, 64px) 64px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -157,31 +158,72 @@
 }
 
 .board-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) var(--board-width, auto) minmax(280px, 320px);
   gap: 16px;
-  align-items: flex-start;
+  align-items: stretch; // stretch grid items to equal row height
   justify-content: flex-start;
-  flex-wrap: nowrap;
   width: 100%;
 }
 
 .board-layout__main {
+  display: contents; // let its children participate directly in the grid
+}
+
+// Place children into explicit grid columns for clarity
+.board-layout .board-frame {
+  grid-column: 2;
+}
+
+.board-layout .notation-rail {
+  grid-column: 3;
+}
+
+.board-layout .wager-receipts {
+  grid-column: 3;
+}
+
+// Wrapper to stack notation + receipts in the same grid cell with a 60/40 split
+.board-layout .notation-column {
+  grid-column: 3;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+}
+
+.notation-column .notation-rail {
+  flex: 0 0 60%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.notation-rail__list {
   flex: 1 1 auto;
-  min-width: 0;
+  max-height: none;
+  min-height: 0;
+}
+
+.notation-column .wager-receipts {
+  flex: 1 1 40%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wager-receipts__list {
+  flex: 1 1 auto;
+  max-height: none;
 }
 
 @media (max-width: 1024px) {
   .board-layout {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 
-  .board-layout__main {
-    flex-wrap: wrap;
-  }
+  // Grid stacks naturally; no special handling required
 }
 
 .board-frame {
@@ -192,20 +234,15 @@
   align-items: stretch;
   padding: 0 0 0 4px;
   border-radius: 20px;
-  border: 1px solid rgba(47, 209, 190, 0.4);
+  /* Neutralize border to remove green tint */
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(7, 13, 23, 0.9);
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
   overflow: visible;
 
   &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg, rgba(36, 231, 206, 0.14), transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    /* Remove green glow overlay behind the board */
+    content: none;
   }
 
   & > * {
@@ -214,14 +251,9 @@
   }
 }
 
-.board-frame--rewound {
-  border-color: rgba(239, 68, 68, 0.35);
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.55);
-}
-
-.board-frame--rewound::before {
-  background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
-}
+/* Remove red tint when rewound; keep same neutral border and shadow */
+.board-frame--rewound { }
+.board-frame--rewound::before { content: none; }
 
 .board-eval-stack {
   display: flex;
@@ -281,7 +313,10 @@
 }
 
 .notation-rail {
-  flex: 0 0 260px;
+  // Width is governed by grid track; keep explicit constraints for safety
+  min-width: 280px;
+  max-width: 320px;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -377,6 +412,78 @@
     order: 2;
     min-height: auto;
   }
+}
+
+.wager-receipts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  width: 100%;
+}
+
+.wager-receipts__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.55);
+  }
+}
+
+.wager-receipt {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.wager-receipt__title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wager-receipt__meta {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.wager-receipt--won {
+  border-color: rgba(0, 239, 178, 0.45);
+}
+
+.wager-receipt--lost {
+  border-color: rgba(255, 100, 100, 0.45);
+}
+
+.wager-receipt--cancelled {
+  border-style: dashed;
 }
 
 .notation-nav {
@@ -663,11 +770,11 @@
 
 
 .outcome-rail-column {
-  min-width: 240px;
-  max-width: 280px;
-  flex: 0 0 260px;
+  min-width: 280px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: stretch;
   gap: 12px;
   height: 100%;
@@ -703,8 +810,68 @@
       }
     }
 
+    .outcome-rail-column__actions {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-top: auto; // pin actions row to bottom of card
+      padding-top: 6px;
+    }
+
     @media (max-width: 640px) {
       flex: 1 1 calc(33% - 8px);
+    }
+  }
+
+  &__item--actions-only {
+    flex: 0 0 auto;
+  }
+
+  // Keep White button location stable: reserve space for its move list
+  &__item:last-child {
+    .move-panel {
+      min-height: 120px;
+    }
+  }
+
+  &__center {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px;
+    min-height: 140px;
+    flex: 1 1 auto; // grow to fill vertical space so actions sit top/bottom
+    // Animate move bubble background subtly between turns
+    --move-bubble-bg: #ffffff;
+    --move-bubble-border: rgba(0, 0, 0, 0.12);
+    --move-bubble-fg: #0b0b0b;
+    --move-bubble-meta: rgba(0, 0, 0, 0.55);
+  }
+
+  &__center.is-black-turn {
+    --move-bubble-bg: #ffffff;
+    --move-bubble-border: rgba(0, 0, 0, 0.12);
+    --move-bubble-fg: #0b0b0b;
+  }
+
+  &__center.is-white-turn {
+    --move-bubble-bg: #0f172a;
+    --move-bubble-border: rgba(255, 255, 255, 0.18);
+    --move-bubble-fg: #ffffff;
+    --move-bubble-meta: rgba(255, 255, 255, 0.78);
+  }
+
+  .draw-panel {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    margin: 0; // override base margin so stacked panels don't create dead space
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .draw-panel {
+      transition: none;
     }
   }
 
@@ -839,6 +1006,15 @@
   }
 }
 
+.draw-panel--subtle {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.015);
+
+  .draw-panel__hint {
+    color: rgba(255, 255, 255, 0.35);
+  }
+}
+
 .move-panel {
   display: flex;
   flex-direction: column;
@@ -849,32 +1025,73 @@
   max-height: 360px;
   padding-top: 2px;
 
+  &.move-panel--center {
+    justify-content: center; // vertically center content within center region
+  }
+
+  &.move-panel--center .move-panel__status {
+    text-align: center;
+  }
+
   .move-option {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    color: #fff;
+    border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
+    border-radius: 12px;
+    background: var(--move-bubble-bg, #ffffff); // unified bubble with animated bg
+    color: var(--move-bubble-fg, #0b0b0b);
     font-weight: 600;
     padding: 8px 10px;
     font-size: 13px;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.2s ease, background-color 0.3s ease;
     position: relative;
     overflow: hidden;
 
-    span:last-child {
-      font-weight: 400;
+    .move-option__left {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px; // bring target square closer to the piece
+      min-width: 0;
+    }
+
+    .move-option__icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .move-option__icon img {
+      width: 30px;
+      height: 30px;
+      display: block;
+    }
+
+    // No backplates: rely on bubble bg contrast per turn
+
+    .move-option__dest {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .move-option__meta {
+      font-weight: 500;
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.65);
+      color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55));
+      margin-left: 10px;
+      white-space: nowrap;
     }
 
     &:hover,
     &:focus-visible {
-      border-color: rgba(0, 239, 178, 0.4);
+      border-color: rgba(0, 0, 0, 0.3);
       transform: translateY(-1px);
-      box-shadow: inset 0 0 12px rgba(0, 239, 178, 0.15);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
     }
 
     &::after {
@@ -894,30 +1111,30 @@
     }
 
     &.state-loading {
-      border-color: rgba(0, 239, 178, 0.3);
-      color: rgba(255, 255, 255, 0.8);
+      border-color: rgba(0, 0, 0, 0.28);
+      color: rgba(0, 0, 0, 0.8);
     }
 
     &:disabled {
-      opacity: 0.35;
+      opacity: 0.45;
       cursor: not-allowed;
       box-shadow: none;
-      border-color: rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.5);
+      border-color: rgba(0, 0, 0, 0.12);
+      color: rgba(0, 0, 0, 0.45);
 
-      span:last-child {
-        color: rgba(255, 255, 255, 0.35);
+      .move-option__meta {
+        color: rgba(0, 0, 0, 0.35);
       }
     }
 
     &.state-success {
       border-color: rgba(0, 239, 178, 0.7);
-      box-shadow: 0 0 15px rgba(0, 239, 178, 0.25);
+      box-shadow: 0 0 12px rgba(0, 239, 178, 0.22);
     }
 
     &.state-error {
       border-color: rgba(255, 100, 100, 0.7);
-      box-shadow: 0 0 12px rgba(255, 100, 100, 0.2);
+      box-shadow: 0 0 10px rgba(255, 100, 100, 0.18);
       animation: wagerShake 0.4s ease;
     }
   }
@@ -956,6 +1173,11 @@
     max-height: 38px;
     opacity: 0.65;
     pointer-events: none;
+  }
+
+  // In center layout, hide the inactive panel to avoid double stacking
+  &.move-panel--center.move-panel--collapsed {
+    display: none;
   }
 
   &--locked {
@@ -1155,15 +1377,16 @@
     color: #e0f2ff;
   }
 
-  &__label {
+  /* Align selectors to actual markup classes (not nested BEM) */
+  .outcome-rail__label {
     transition: opacity 0.14s ease;
     color: inherit;
     position: relative;
     z-index: 2;
   }
 
-  &__spinner,
-  &__check {
+  .outcome-rail__spinner,
+  .outcome-rail__check {
     position: absolute;
     inset: 0;
     display: flex;
@@ -1173,9 +1396,10 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.12s ease;
+    z-index: 3;
   }
 
-  &__spinner::before {
+  .outcome-rail__spinner::before {
     content: '';
     width: 20px;
     height: 20px;
@@ -1185,7 +1409,7 @@
     animation: wagerSpin 0.75s linear infinite;
   }
 
-  &__check {
+  .outcome-rail__check {
     font-size: 16px;
     font-weight: 700;
     color: inherit;
@@ -1194,33 +1418,16 @@
   &.state-loading {
     transform: scale(0.97);
 
-    .outcome-rail__label {
-      opacity: 0.55;
-    }
-
-    .outcome-rail__spinner {
-      opacity: 1;
-      visibility: visible;
-    }
+    .outcome-rail__label { opacity: 0.55; }
+    .outcome-rail__spinner { opacity: 1; visibility: visible; }
   }
 
   &.state-success {
     box-shadow: 0 10px 26px rgba(0, 239, 178, 0.25);
 
-    .outcome-rail__label {
-      opacity: 1;
-    }
-
-    .outcome-rail__spinner {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__check {
-      opacity: 1;
-      visibility: visible;
-      animation: checkFlash 0.32s ease;
-    }
+    .outcome-rail__label { opacity: 0; } /* Replace label with check briefly */
+    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .outcome-rail__check { opacity: 1; visibility: visible; animation: checkFlash 0.32s ease; }
   }
 
   &.state-error {
@@ -1228,19 +1435,9 @@
     box-shadow: 0 8px 20px rgba(248, 113, 113, 0.25);
     animation: wagerShake 0.45s ease;
       
-    .outcome-rail__spinner {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__check {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .outcome-rail__label {
-      opacity: 1;
-    }
+    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .outcome-rail__check { opacity: 0; visibility: hidden; }
+    .outcome-rail__label { opacity: 1; }
   }
 
   &:disabled {
@@ -1249,6 +1446,8 @@
     transform: none;
   }
 }
+
+/* Removed subactions row under left/right rail; draw now lives in toolbar and mobile row */
 
 @keyframes wagerSpin {
   from { transform: rotate(0deg); }
