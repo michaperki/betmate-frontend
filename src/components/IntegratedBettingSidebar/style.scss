@@ -1,10 +1,13 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .integrated-betting-sidebar {
   display: flex;
   flex-direction: column;
-  background-color: #1e1e2e;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  color: #fff;
+  background-color: $bg-secondary;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-base;
+  color: $text-primary;
   width: 100%;
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -12,27 +15,27 @@
   
   .tab-navigation {
     display: flex;
-    border-bottom: 1px solid #2a2a3a;
+    border-bottom: 1px solid $border-primary;
     align-items: center;
 
     .tab-button {
       flex: 1;
       background: none;
       border: none;
-      padding: 12px 16px;
-      color: #9999a8;
+      padding: $space-3 $space-4;
+      color: $text-secondary;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
 
       &.active {
-        color: #fff;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-bottom: 2px solid #3a88fe;
+        color: $text-primary;
+        background-color: $bg-tertiary;
+        border-bottom: 2px solid $info;
       }
 
       &:hover:not(.active) {
-        background-color: rgba(255, 255, 255, 0.02);
+        background-color: rgba($text-primary, 0.04);
       }
     }
 
@@ -43,18 +46,18 @@
   }
   
   .tab-content {
-    padding: 12px 16px; /* Reduced top/bottom padding from 16px to 12px */
+    padding: $space-3 $space-4; /* Reduced top/bottom padding from 16px to 12px */
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Reduced from 16px */
+    gap: $space-3; /* Reduced from 16px */
     flex: 1;
     min-height: 0; /* Allow flex child to shrink */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     .bet-explanation {
-      font-size: 13px; /* Reduced from 14px */
-      color: #9999a8;
-      margin-bottom: 8px; /* Reduced from 12px */
+      font-size: $text-sm; /* Reduced from 14px */
+      color: $text-secondary;
+      margin-bottom: $space-2; /* Reduced from 12px */
       flex-shrink: 0; /* Don't shrink */
       min-height: 20px; /* Consistent height */
     }
@@ -80,12 +83,12 @@
     }
     
     .drag-instruction {
-      background-color: rgba(58, 136, 254, 0.1);
-      border-left: 3px solid #3a88fe;
-      padding: 6px 10px; /* Reduced from 8px 12px */
-      font-size: 12px; /* Reduced from 13px */
-      border-radius: 4px;
-      margin-bottom: 8px; /* Reduced from 12px */
+      background-color: rgba($info, 0.1);
+      border-left: 3px solid $info;
+      padding: $space-1 $space-2; /* Reduced from 8px 12px */
+      font-size: $text-xs; /* Reduced from 13px */
+      border-radius: $radius-sm;
+      margin-bottom: $space-2; /* Reduced from 12px */
     }
     
     /* Fixed-height container for move analysis to prevent UI jumping */
@@ -96,25 +99,25 @@
     }
     
     .move-analysis {
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 6px;
-      padding: 12px;
+      background-color: $bg-tertiary;
+      border-radius: $radius-md;
+      padding: $space-3;
       height: calc(100% - 24px); /* Account for padding */
       overflow-y: auto; /* Add scrolling just in case */
       
       .move-preview {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: $space-2;
         
         .move-label {
-          font-size: 13px;
-          color: #9999a8;
-          margin-right: 8px;
+          font-size: $text-sm;
+          color: $text-secondary;
+          margin-right: $space-2;
         }
         
         .move-value {
-          font-size: 16px;
+          font-size: $text-base;
           font-weight: 600;
         }
       }
