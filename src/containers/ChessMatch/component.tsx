@@ -20,7 +20,6 @@ import ChatBox from 'components/ChatBox';
 import ConnectionStatus from 'components/ConnectionStatus';
 import OnboardingGate from 'components/OnboardingGate';
 import PregameModal from 'components/PregameModal';
-import PostgameModal from 'components/PostgameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
@@ -289,6 +288,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         const snapped = ENABLE_RESIZE_SNAP
           ? Math.round(unclamped / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
           : unclamped;
+        // On initial load or when expanding window, prefer the maximum size.
+        if (prev < nextMax) return nextMax;
         const clamped = Math.min(nextMax, Math.max(MIN_BOARD_SIZE, snapped));
         if (ENABLE_RESIZE_DEBUG && clamped !== prev) {
           console.debug('[resize handler] max:', nextMax, 'prev:', prev, 'snapped:', snapped, 'clamped:', clamped);
@@ -835,24 +836,73 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     alignmentClass: 'move-panel--top' | 'move-panel--bottom' | 'move-panel--center',
     isActive: boolean,
     options: MoveOption[],
-  ) => (
-    <div
-      className={[
-        'move-panel',
-        alignmentClass,
-        isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
-        !canPlaceWagers ? 'move-panel--locked' : '',
-      ].join(' ')}
-      data-locked={!canPlaceWagers}
-      aria-live={isActive ? 'polite' : 'off'}
-    >
-      {isActive ? renderMoveOptions(options, color) : (
-        <div className="move-panel__status">
-          {betsLocked ? 'Historical snapshot' : 'Loading'}
-        </div>
-      )}
-    </div>
-  );
+  ) => {
+    const VISIBLE_DESKTOP_SLOTS = 4;
+    const slots = Array.from({ length: VISIBLE_DESKTOP_SLOTS }, (_, i) => options[i] || null);
+
+    return (
+      <div
+        className={[
+          'move-panel',
+          alignmentClass,
+          isActive ? 'move-panel--expanded' : 'move-panel--collapsed',
+          !canPlaceWagers ? 'move-panel--locked' : '',
+        ].join(' ')}
+        data-locked={!canPlaceWagers}
+        aria-live={isActive ? 'polite' : 'off'}
+      >
+        {isActive ? (
+          slots.map((option, idx) => {
+            if (!option) {
+              return (
+                <div key={`slot-${color}-${idx}`} className="move-option move-option--placeholder" aria-hidden>
+                  <span className="move-option__left">
+                    <span className="move-option__icon" aria-hidden data-color={color} />
+                    <span className="move-option__dest">—</span>
+                  </span>
+                  <span className="move-option__meta">&nbsp;</span>
+                </div>
+              );
+            }
+            const moveKey = `${positionIndex}-${option.move}`;
+            const visualState = moveStates[moveKey] ?? 'idle';
+            const piece = getPieceTypeFromSAN(option.move);
+            const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
+            const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
+            const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
+            return (
+              <button
+                key={`slot-${color}-${idx}`}
+                type="button"
+                className={`move-option state-${visualState}`}
+                onClick={() => handleMoveBet(option.move)}
+                onMouseEnter={() => handleMoveHoverStart(option.move)}
+                onMouseLeave={handleMoveHoverEnd}
+                onFocus={() => handleMoveHoverStart(option.move)}
+                onBlur={handleMoveHoverEnd}
+                onTouchStart={() => handleMoveHoverStart(option.move)}
+                onTouchEnd={handleMoveHoverEnd}
+                data-state={visualState}
+                disabled={!canPlaceWagers}
+              >
+                <span className="move-option__left">
+                  <span className="move-option__icon" aria-hidden data-color={color}>
+                    <img src={pieceSrc} alt="" />
+                  </span>
+                  <span className="move-option__dest">{dest}</span>
+                </span>
+                <span className="move-option__meta">{wageredText}</span>
+              </button>
+            );
+          })
+        ) : (
+          <div className="move-panel__status">
+            {betsLocked ? 'Historical snapshot' : 'Loading'}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const extractMoveMeta = useCallback((label: string) => {
     const isMate = label.includes('#');
@@ -977,37 +1027,65 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     );
   };
 
-  const mobileMoveOptions = mobileMovePool.length ? (
-    mobileMovePool.map((option) => {
-      const moveKey = `${positionIndex}-${option.move}`;
-      const visualState = moveStates[moveKey] ?? 'idle';
+  const VISIBLE_MOBILE_SLOTS = 4;
+  const mobileSlots = Array.from({ length: VISIBLE_MOBILE_SLOTS }, (_, i) => mobileMovePool[i] || null);
+
+  const [mobileSlotMoves, setMobileSlotMoves] = useState<string[]>(Array(VISIBLE_MOBILE_SLOTS).fill(''));
+  const [mobileSlotUpdating, setMobileSlotUpdating] = useState<boolean[]>(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+
+  useEffect(() => {
+    const nextMoves = mobileSlots.map((opt) => (opt ? opt.move : ''));
+    // Flag a brief update animation when the move text changes for a given slot
+    setMobileSlotUpdating((prev) => prev.map((_, i) => (mobileSlotMoves[i] !== '' && mobileSlotMoves[i] !== nextMoves[i])));
+    setMobileSlotMoves(nextMoves);
+    const t = window.setTimeout(() => {
+      setMobileSlotUpdating(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [positionIndex, mobileMovePool.length]);
+
+  const mobileMoveOptions = mobileSlots.map((option, idx) => {
+    if (!option) {
       return (
-        <button
-          key={`mobile-${option.move}`}
-          type="button"
-          className={`mobile-move-chip state-${visualState}`}
-          onClick={() => handleMoveBet(option.move)}
-          onMouseEnter={() => handleMoveHoverStart(option.move)}
-          onMouseLeave={handleMoveHoverEnd}
-          onFocus={() => handleMoveHoverStart(option.move)}
-          onBlur={handleMoveHoverEnd}
-          onTouchStart={() => handleMoveHoverStart(option.move)}
-          onTouchEnd={handleMoveHoverEnd}
-          data-state={visualState}
-          disabled={!canPlaceWagers}
-        >
-          <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
-          <span className="mobile-move-chip__meta">
-            {option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x
+        <div key={`mobile-slot-${idx}`} className="mobile-move-chip mobile-move-chip--placeholder" aria-hidden>
+          <span className="move-option__left">
+            <span className="move-option__icon" aria-hidden />
+            <span className="move-option__dest">—</span>
           </span>
-        </button>
+          <span className="move-option__meta">&nbsp;</span>
+        </div>
       );
-    })
-  ) : (
-    <div className="mobile-move-chip mobile-move-chip--empty">
-      Waiting on {isWhiteTurn ? 'Black' : 'White'} to move
-    </div>
-  );
+    }
+    const moveKey = `${positionIndex}-${option.move}`;
+    const visualState = moveStates[moveKey] ?? 'idle';
+    const piece = getPieceTypeFromSAN(option.move);
+    const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
+    const pieceSrc = isWhiteTurn ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
+    return (
+      <button
+        key={`mobile-slot-${idx}`}
+        type="button"
+        className={`mobile-move-chip ${mobileSlotUpdating[idx] ? 'is-updating' : ''} state-${visualState}`}
+        onClick={() => handleMoveBet(option.move)}
+        onMouseEnter={() => handleMoveHoverStart(option.move)}
+        onMouseLeave={handleMoveHoverEnd}
+        onFocus={() => handleMoveHoverStart(option.move)}
+        onBlur={handleMoveHoverEnd}
+        onTouchStart={() => handleMoveHoverStart(option.move)}
+        onTouchEnd={handleMoveHoverEnd}
+        data-state={visualState}
+        disabled={!canPlaceWagers}
+      >
+        <span className="move-option__left">
+          <span className="move-option__icon" aria-hidden>
+            <img src={pieceSrc} alt="" />
+          </span>
+          <span className="move-option__dest">{dest}</span>
+        </span>
+        {/* Hide percent/payout meta on mobile to reduce clutter */}
+      </button>
+    );
+  });
 
   const clampSize = useCallback((value: number) => {
     const raw = value;
@@ -1210,7 +1288,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   return (
     <>
       {game.game_status === GameStatus.NOT_STARTED && showModal[gameId] && <PregameModal />}
-      {gameOver(game.game_status as GameStatus) && <PostgameModal />}
+      {/* Deprecated postgame drawer removed per requirements */}
 
       <OnboardingGate isAuthenticated={isAuthenticated} />
 
@@ -1319,12 +1397,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     )}
                   </div>
                   {/* On mobile, show move market right below the board */}
-                  <div className="mobile-move-market">
+                  <div
+                    className={`mobile-move-market ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}
+                    style={isMobile ? { width: boardFrameWidth, margin: '0 auto' } : undefined}
+                  >
                     <div className="mobile-move-bubbles">
                       {mobileMoveOptions}
                     </div>
                   </div>
-                  <div className="notation-column">
+                  <div
+                    className="notation-column"
+                    style={isMobile ? { width: boardFrameWidth, margin: '0 auto' } : undefined}
+                  >
                   <aside className="notation-rail">
                     <div className="notation-nav">
                       <button
