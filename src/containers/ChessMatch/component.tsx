@@ -1047,13 +1047,19 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!option) {
       return (
         <div key={`mobile-slot-${idx}`} className="mobile-move-chip mobile-move-chip--placeholder" aria-hidden>
-          <span className="mobile-move-chip__label">—</span>
-          <span className="mobile-move-chip__meta">&nbsp;</span>
+          <span className="move-option__left">
+            <span className="move-option__icon" aria-hidden />
+            <span className="move-option__dest">—</span>
+          </span>
+          <span className="move-option__meta">&nbsp;</span>
         </div>
       );
     }
     const moveKey = `${positionIndex}-${option.move}`;
     const visualState = moveStates[moveKey] ?? 'idle';
+    const piece = getPieceTypeFromSAN(option.move);
+    const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
+    const pieceSrc = isWhiteTurn ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
     return (
       <button
         key={`mobile-slot-${idx}`}
@@ -1069,10 +1075,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         data-state={visualState}
         disabled={!canPlaceWagers}
       >
-        <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
-        <span className="mobile-move-chip__meta">
-          {option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x
+        <span className="move-option__left">
+          <span className="move-option__icon" aria-hidden>
+            <img src={pieceSrc} alt="" />
+          </span>
+          <span className="move-option__dest">{dest}</span>
         </span>
+        <span className="move-option__meta">{option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x</span>
       </button>
     );
   });
@@ -1387,7 +1396,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     )}
                   </div>
                   {/* On mobile, show move market right below the board */}
-                  <div className="mobile-move-market">
+                  <div className={`mobile-move-market ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
                     <div className="mobile-move-bubbles">
                       {mobileMoveOptions}
                     </div>
