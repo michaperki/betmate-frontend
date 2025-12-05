@@ -1265,26 +1265,24 @@
 }
 
 .mobile-move-bubbles {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
   padding-bottom: 6px;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar { display: none; }
 }
 
 .mobile-move-chip {
-  flex: 0 0 auto;
+  width: 100%;
   border-radius: $radius-pill;
   border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
   background: var(--move-bubble-bg, #ffffff);
-  padding: 12px 8px 0; // shift content ~6px downward without increasing overall height
+  padding: 12px 8px 0; // shift content downward
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
   min-width: auto;
   color: var(--move-bubble-fg, #0b0b0b);
   text-align: center;
@@ -1302,8 +1300,8 @@
   }
 
   .move-option__icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
     background: transparent;
     display: inline-flex;
@@ -1313,16 +1311,16 @@
   }
 
   .move-option__icon img {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     display: block;
   }
 
   .move-option__dest {
     font-weight: 700;
     letter-spacing: 0;
-    font-size: 15px;
-    margin-left: -6px; // tuck text even closer to the icon
+    font-size: 16px;
+    margin-left: -2px; // tuck text close to the icon
   }
 
   &__label {
