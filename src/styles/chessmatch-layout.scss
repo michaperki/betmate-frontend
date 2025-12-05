@@ -1285,7 +1285,7 @@
   gap: 4px;
   min-width: auto;
   color: var(--move-bubble-fg, #0b0b0b);
-  text-align: left;
+  text-align: center;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -1294,7 +1294,8 @@
   .move-option__left {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 2px;
     min-width: 0;
   }
 
@@ -1317,8 +1318,9 @@
 
   .move-option__dest {
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     font-size: 14px;
+    margin-left: -2px; // tuck text slightly closer to the icon
   }
 
   &__label {
