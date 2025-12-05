@@ -953,7 +953,8 @@
 .white-section {
   width: 100%;
   background-color: #FFFFFF;
-  transition: height 1s ease;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -963,7 +964,8 @@
 .draw-section {
   width: 100%;
   background-color: $info;
-  transition: height 1s ease;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -973,7 +975,8 @@
 .black-section {
   width: 100%;
   background-color: $bg-secondary;
-  transition: height 1s ease;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -24,9 +24,9 @@
   position: relative;
 }
 
-.vertical-evaluation-bar .black-section { background: $bg-secondary; }
-.vertical-evaluation-bar .draw-section  { background: $info; }
-.vertical-evaluation-bar .white-section { background: #ffffff; }
+.vertical-evaluation-bar .black-section { background: $bg-secondary; transition: height 0.35s ease-in-out; will-change: height; }
+.vertical-evaluation-bar .draw-section  { background: $info;         transition: height 0.35s ease-in-out; will-change: height; }
+.vertical-evaluation-bar .white-section { background: #ffffff;       transition: height 0.35s ease-in-out; will-change: height; }
 
 .vertical-evaluation-bar .black-section,
 .vertical-evaluation-bar .draw-section,
@@ -66,6 +66,12 @@
   .vertical-evaluation-bar {
     height: 220px;
     width: 28px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vertical-evaluation-bar .black-section,
+    .vertical-evaluation-bar .draw-section,
+    .vertical-evaluation-bar .white-section { transition: none; }
   }
 
   .evaluation-labels {
