@@ -1255,17 +1255,17 @@
 
 .mobile-move-chip {
   flex: 0 0 auto;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-radius: $radius-pill;
+  border: 1px solid $border-primary;
+  background: $bg-tertiary;
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 120px;
-  color: var(--outcome-label-color, #fff);
+  color: var(--outcome-label-color, $text-primary);
   text-align: left;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   position: relative;
   overflow: hidden;
 
@@ -1274,10 +1274,7 @@
     font-size: 14px;
   }
 
-  &__meta {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.7);
-  }
+  &__meta { font-size: 12px; color: $text-secondary; }
 
   &--empty {
     border-style: dashed;
@@ -1287,11 +1284,7 @@
   }
 
   &:hover,
-  &:focus-visible {
-    border-color: rgba(0, 239, 178, 0.5);
-    transform: translateY(-1px);
-    box-shadow: inset 0 0 12px rgba(0, 239, 178, 0.18);
-  }
+  &:focus-visible { border-color: rgba($brand-primary, 0.5); transform: translateY(-1px); box-shadow: inset 0 0 12px rgba($brand-primary, 0.18); }
 
   &::after {
     content: '';
@@ -1304,28 +1297,15 @@
     pointer-events: none;
   }
 
-  &.state-loading::after {
-    opacity: 1;
-    animation: moveChipSpin 1s linear infinite;
-  }
+  &.state-loading::after { opacity: 1; animation: moveChipSpin 1s linear infinite; }
 
-  &.state-success {
-    border-color: rgba(0, 239, 178, 0.7);
-    box-shadow: 0 0 14px rgba(0, 239, 178, 0.3);
-  }
+  &.state-success { border-color: rgba($brand-primary, 0.7); box-shadow: 0 0 14px rgba($brand-primary, 0.3); }
 
-  &.state-error {
-    border-color: rgba(255, 100, 100, 0.8);
-    box-shadow: 0 0 12px rgba(255, 100, 100, 0.25);
-    animation: wagerShake 0.4s ease;
-  }
+  &.state-error { border-color: rgba($error, 0.8); box-shadow: 0 0 12px rgba($error, 0.25); animation: wagerShake 0.4s ease; }
 
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-    border-color: rgba(255, 255, 255, 0.12);
-  }
+  &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; border-color: $border-primary; }
+
+  &.mobile-move-chip--placeholder { opacity: 0.4; border-style: dashed; }
 }
 
 .mobile-outcome-row {

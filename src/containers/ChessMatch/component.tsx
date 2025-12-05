@@ -977,37 +977,42 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     );
   };
 
-  const mobileMoveOptions = mobileMovePool.length ? (
-    mobileMovePool.map((option) => {
-      const moveKey = `${positionIndex}-${option.move}`;
-      const visualState = moveStates[moveKey] ?? 'idle';
+  const VISIBLE_MOBILE_SLOTS = 4;
+  const mobileSlots = Array.from({ length: VISIBLE_MOBILE_SLOTS }, (_, i) => mobileMovePool[i] || null);
+
+  const mobileMoveOptions = mobileSlots.map((option, idx) => {
+    if (!option) {
       return (
-        <button
-          key={`mobile-${option.move}`}
-          type="button"
-          className={`mobile-move-chip state-${visualState}`}
-          onClick={() => handleMoveBet(option.move)}
-          onMouseEnter={() => handleMoveHoverStart(option.move)}
-          onMouseLeave={handleMoveHoverEnd}
-          onFocus={() => handleMoveHoverStart(option.move)}
-          onBlur={handleMoveHoverEnd}
-          onTouchStart={() => handleMoveHoverStart(option.move)}
-          onTouchEnd={handleMoveHoverEnd}
-          data-state={visualState}
-          disabled={!canPlaceWagers}
-        >
-          <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
-          <span className="mobile-move-chip__meta">
-            {option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x
-          </span>
-        </button>
+        <div key={`mobile-slot-${idx}`} className="mobile-move-chip mobile-move-chip--placeholder" aria-hidden>
+          <span className="mobile-move-chip__label">—</span>
+          <span className="mobile-move-chip__meta">&nbsp;</span>
+        </div>
       );
-    })
-  ) : (
-    <div className="mobile-move-chip mobile-move-chip--empty">
-      Waiting on {isWhiteTurn ? 'Black' : 'White'} to move
-    </div>
-  );
+    }
+    const moveKey = `${positionIndex}-${option.move}`;
+    const visualState = moveStates[moveKey] ?? 'idle';
+    return (
+      <button
+        key={`mobile-slot-${idx}`}
+        type="button"
+        className={`mobile-move-chip state-${visualState}`}
+        onClick={() => handleMoveBet(option.move)}
+        onMouseEnter={() => handleMoveHoverStart(option.move)}
+        onMouseLeave={handleMoveHoverEnd}
+        onFocus={() => handleMoveHoverStart(option.move)}
+        onBlur={handleMoveHoverEnd}
+        onTouchStart={() => handleMoveHoverStart(option.move)}
+        onTouchEnd={handleMoveHoverEnd}
+        data-state={visualState}
+        disabled={!canPlaceWagers}
+      >
+        <span className="mobile-move-chip__label">{sanitizeMoveLabel(option.move)}</span>
+        <span className="mobile-move-chip__meta">
+          {option.percent.toFixed(0)}% · {option.payout.toFixed(1)}x
+        </span>
+      </button>
+    );
+  });
 
   const clampSize = useCallback((value: number) => {
     const raw = value;
