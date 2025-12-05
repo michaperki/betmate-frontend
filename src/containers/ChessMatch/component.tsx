@@ -289,6 +289,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         const snapped = ENABLE_RESIZE_SNAP
           ? Math.round(unclamped / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
           : unclamped;
+        // On initial load or when expanding window, prefer the maximum size.
+        if (prev < nextMax) return nextMax;
         const clamped = Math.min(nextMax, Math.max(MIN_BOARD_SIZE, snapped));
         if (ENABLE_RESIZE_DEBUG && clamped !== prev) {
           console.debug('[resize handler] max:', nextMax, 'prev:', prev, 'snapped:', snapped, 'clamped:', clamped);
