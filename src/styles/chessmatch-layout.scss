@@ -1279,16 +1279,46 @@
   border-radius: $radius-pill;
   border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
   background: var(--move-bubble-bg, #ffffff);
-  padding: 10px 14px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 120px;
+  min-width: 96px;
   color: var(--move-bubble-fg, #0b0b0b);
   text-align: left;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   position: relative;
   overflow: hidden;
+
+  .move-option__left {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .move-option__icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .move-option__icon img {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  .move-option__dest {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-size: 13px;
+  }
 
   &__label {
     font-weight: 600;
