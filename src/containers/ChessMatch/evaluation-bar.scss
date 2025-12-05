@@ -1,37 +1,32 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .vertical-evaluation-bar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: $space-2;
   width: 100%;
   max-width: 80px;
-  color: #e0e0e0;
+  color: $text-secondary;
 }
 
 .vertical-evaluation-bar {
   width: 36px;
   height: 100%;
   min-height: 320px;
-  border-radius: 18px;
+  border-radius: $radius-xl;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.45);
+  border: 1px solid $border-primary;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.35);
   position: relative;
 }
 
-.vertical-evaluation-bar .black-section {
-  background: linear-gradient(180deg, #1f2933 0%, #0f172a 100%);
-}
-
-.vertical-evaluation-bar .draw-section {
-  background: linear-gradient(180deg, #4338ca 0%, #2563eb 100%);
-}
-
-.vertical-evaluation-bar .white-section {
-  background: linear-gradient(180deg, #fef9c3 0%, #fde68a 100%);
-}
+.vertical-evaluation-bar .black-section { background: $bg-secondary; }
+.vertical-evaluation-bar .draw-section { background: $info; }
+.vertical-evaluation-bar .white-section { background: #ffffff; }
 
 .vertical-evaluation-bar .black-section,
 .vertical-evaluation-bar .draw-section,
@@ -48,22 +43,22 @@
   transform: translate(-50%, -50%);
   display: inline-flex;
   flex-direction: column;
-  gap: 4px;
+  gap: $space-1;
   background: rgba(0, 0, 0, 0.75);
-  color: #F2F2F2;
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 12px;
+  color: $text-primary;
+  padding: $space-1 $space-2;
+  border-radius: $radius-md;
+  font-size: $text-xs;
   font-weight: 600;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: $shadow-sm;
   pointer-events: none;
 }
 
 .odds-row { line-height: 1; white-space: nowrap; }
-.odds-row--black { color: #93c5fd; }
-.odds-row--draw { color: #c4d3ff; }
-.odds-row--white { color: #fde68a; }
+.odds-row--black { color: $text-secondary; }
+.odds-row--draw { color: $info; }
+.odds-row--white { color: $warning; }
 
 /* Removed fixed percentage labels; tooltip shows values on hover */
 
