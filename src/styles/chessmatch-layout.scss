@@ -237,8 +237,8 @@
   align-items: stretch;
   padding: 0 0 0 4px;
   border-radius: $radius-xl;
-  /* Neutralize border to remove green tint */
-  border: 1px solid $border-primary;
+  /* Removed border for cleaner, flatter frame */
+  border: none;
   background: $bg-secondary;
   box-shadow: $shadow-lg;
   overflow: visible;
