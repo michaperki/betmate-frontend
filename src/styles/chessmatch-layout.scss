@@ -237,9 +237,9 @@
   .notation-column,
   .notation-rail,
   .wager-receipts {
-    min-width: 0;
-    width: 100%;
-    max-width: 100%;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
     box-sizing: border-box;
   }
 }
