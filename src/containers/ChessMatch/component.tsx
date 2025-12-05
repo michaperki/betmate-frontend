@@ -1316,6 +1316,12 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       />
                     )}
                   </div>
+                  {/* On mobile, show move market right below the board */}
+                  <div className="mobile-move-market">
+                    <div className="mobile-move-bubbles">
+                      {mobileMoveOptions}
+                    </div>
+                  </div>
                   <div className="notation-column">
                   <aside className="notation-rail">
                     <div className="notation-nav">
@@ -1395,11 +1401,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               </div>
             </div>
             {/* Replaced legacy second row with a thin bottom toolbar */}
-            <div className="mobile-move-market">
-              <div className="mobile-move-bubbles">
-                {mobileMoveOptions}
-              </div>
-            </div>
           </div>
         </div>
       </div>

@@ -1226,6 +1226,15 @@
   }
 }
 
+// Ensure mobile move market within the board grid spans full width on small screens
+@media (max-width: 1024px) {
+  .board-layout .mobile-move-market {
+    grid-column: 1 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 .mobile-move-bubbles {
   display: flex;
   gap: 10px;
