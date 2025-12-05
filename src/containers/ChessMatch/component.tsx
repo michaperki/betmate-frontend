@@ -1034,7 +1034,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   useEffect(() => {
     const nextMoves = mobileSlots.map((opt) => (opt ? opt.move : ''));
-    setMobileSlotUpdating((prev) => prev.map((flag, i) => (mobileSlotMoves[i] && mobileSlotMoves[i] !== nextMoves[i])));
+    // Flag a brief update animation when the move text changes for a given slot
+    setMobileSlotUpdating((prev) => prev.map((_, i) => (mobileSlotMoves[i] !== '' && mobileSlotMoves[i] !== nextMoves[i])));
     setMobileSlotMoves(nextMoves);
     const t = window.setTimeout(() => {
       setMobileSlotUpdating(Array(VISIBLE_MOBILE_SLOTS).fill(false));
