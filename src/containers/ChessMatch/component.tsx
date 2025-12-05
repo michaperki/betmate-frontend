@@ -20,7 +20,6 @@ import ChatBox from 'components/ChatBox';
 import ConnectionStatus from 'components/ConnectionStatus';
 import OnboardingGate from 'components/OnboardingGate';
 import PregameModal from 'components/PregameModal';
-import PostgameModal from 'components/PostgameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
@@ -1289,7 +1288,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   return (
     <>
       {game.game_status === GameStatus.NOT_STARTED && showModal[gameId] && <PregameModal />}
-      {gameOver(game.game_status as GameStatus) && <PostgameModal />}
+      {/* Deprecated postgame drawer removed per requirements */}
 
       <OnboardingGate isAuthenticated={isAuthenticated} />
 
