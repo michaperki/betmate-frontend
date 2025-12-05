@@ -1,17 +1,23 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .wager-panel-container {
     width: 250px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    background: #050505;
+    background: $bg-secondary;
+    border: 1px solid $border-primary;
+    border-radius: $radius-lg;
     height: auto;
-    padding: 15px 0;
-    gap: 15px;
+    padding: $space-4 0;
+    gap: $space-4;
+    box-shadow: $shadow-base;
+
     p {
-        font-family: 'Roboto';
-        color: #F2F2F2;
-        font-size: 13px;
+        color: $text-primary;
+        font-size: $text-sm;
     }
     input {
         cursor: pointer;
@@ -22,18 +28,19 @@
     display: flex;
     align-items: center;
     width: 100%;
+
     p {
-        font-weight: bold;
-        font-size: 18px !important;
-        color: #F2F2F2;
+        font-weight: $font-semibold;
+        font-size: $text-lg !important;
+        color: $text-primary;
         text-align: right;
         width: 100%;
-        margin: 5px auto;
+        margin: $space-1 auto;
     }
     img {
         width: 16px;
         height: 16px;
-        margin: auto 12px auto 8px;
+        margin: auto $space-3 auto $space-2;
     }
 }
 
@@ -52,7 +59,11 @@
 .wdl-bar-container {
     width: 100%;
     display: flex;
-    box-shadow: 0px 0px 20px 8px #00EFB2;
+    border: 1px solid $border-secondary;
+    border-radius: $radius-base;
+    box-shadow: $shadow-base;
+    overflow: hidden;
+
     div {
         height: 100%;
         transition: width 1s ease-in-out;
