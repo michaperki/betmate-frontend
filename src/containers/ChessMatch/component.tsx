@@ -14,6 +14,7 @@ import { DrawShape } from 'chessground/draw';
 import { Key, MoveMetadata } from 'chessground/types';
 import { Chess, Square } from 'chess.js';
 import NavBar from 'components/NavBar';
+import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
 import ChatBox from 'components/ChatBox';
 import ConnectionStatus from 'components/ConnectionStatus';
@@ -180,6 +181,7 @@ const computeEvalFromOdds = (odds?: GameOdds) => {
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
+  const { isMobile, isDesktop } = useResponsiveLayout();
   const dispatch = useDispatch();
   const groundWrapperRef = useRef<HTMLDivElement>(null);
   const boardFrameRef = useRef<HTMLDivElement | null>(null);
@@ -1249,13 +1251,23 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     className={`board-frame ${!isAtLatestSnapshot ? 'board-frame--rewound' : ''}`}
                     style={{ width: boardFrameWidth }}
                   >
-                    <div className="player-header">
+                    <div
+                      className="player-header"
+                      role={isMobile ? 'button' as const : undefined}
+                      tabIndex={isMobile ? 0 : undefined}
+                      onClick={isMobile ? () => triggerOutcomeBet('black_win') : undefined}
+                      onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('black_win'); } : undefined}
+                      aria-label={isMobile ? 'Tap to bet Black' : undefined}
+                    >
                       <div className="player-meta">
                         <span className="player-name">{game.player_black?.name}</span>
                         <span className="player-rating">{game.player_black?.elo}</span>
                       </div>
                       <div className="player-clock-group">
                         <span className="player-clock">{blackClock}</span>
+                        {isMobile && (
+                          <span className="player-bet-hint">Tap to bet</span>
+                        )}
                       </div>
                     </div>
                     <div className="board-eval-stack" style={{ width: boardStackWidth, gap: BOARD_STACK_GAP }}>
@@ -1275,22 +1287,34 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         <EvaluationBar odds={game?.odds} width={evalBarWidth} />
                       </div>
                     </div>
-                    <div className="player-header">
+                    <div
+                      className="player-header"
+                      role={isMobile ? 'button' as const : undefined}
+                      tabIndex={isMobile ? 0 : undefined}
+                      onClick={isMobile ? () => triggerOutcomeBet('white_win') : undefined}
+                      onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('white_win'); } : undefined}
+                      aria-label={isMobile ? 'Tap to bet White' : undefined}
+                    >
                       <div className="player-meta">
                         <span className="player-name">{game.player_white?.name}</span>
                         <span className="player-rating">{game.player_white?.elo}</span>
                       </div>
                       <div className="player-clock-group">
                         <span className="player-clock">{whiteClock}</span>
+                        {isMobile && (
+                          <span className="player-bet-hint">Tap to bet</span>
+                        )}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
-                      onMouseDown={beginDrag}
-                      onTouchStart={beginDrag}
-                      aria-label="Resize board"
-                    />
+                    {isDesktop && (
+                      <button
+                        type="button"
+                        className={`board-resize-handle ${isDragging ? 'dragging' : ''}`}
+                        onMouseDown={beginDrag}
+                        onTouchStart={beginDrag}
+                        aria-label="Resize board"
+                      />
+                    )}
                   </div>
                   <div className="notation-column">
                   <aside className="notation-rail">
@@ -1372,26 +1396,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             </div>
             {/* Replaced legacy second row with a thin bottom toolbar */}
             <div className="mobile-move-market">
-              <div className="mobile-move-market__header">
-                <div>
-                  <span className="mobile-move-market__label">
-                    {isWhiteTurn ? 'White to move' : 'Black to move'}
-                  </span>
-                  <span className="mobile-move-market__sub">
-                    {mobileMoveOwner?.name} • {mobileMoveOwner?.elo}
-                  </span>
-                </div>
-                <span className="mobile-move-market__hint">
-                  {mobileMovePool.length ? `${mobileMovePool.length} candidate moves` : 'Waiting on opponent'}
-                </span>
-              </div>
               <div className="mobile-move-bubbles">
                 {mobileMoveOptions}
-              </div>
-              <div className="mobile-outcome-row">
-                {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
-                {renderOutcomeButton('draw', 'Draw', 'draw')}
-                {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
               </div>
             </div>
           </div>

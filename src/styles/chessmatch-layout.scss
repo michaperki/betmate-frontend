@@ -227,6 +227,20 @@
   }
 
   // Grid stacks naturally; no special handling required
+  .board-layout .board-frame,
+  .board-layout .notation-column,
+  .board-layout .notation-rail,
+  .board-layout .wager-receipts {
+    grid-column: 1 !important;
+  }
+
+  .notation-column,
+  .notation-rail,
+  .wager-receipts {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .board-frame {
@@ -303,6 +317,17 @@
     .player-clock {
       font-size: $text-base;
       font-weight: 600;
+    }
+
+    // Subtle mobile hint for tappable headers
+    .player-bet-hint {
+      display: none;
+      font-size: $text-xs;
+      color: $text-secondary;
+
+      @media (max-width: 768px) {
+        display: inline-block;
+      }
     }
   }
 }
@@ -980,41 +1005,11 @@
 
   .board-frame {
     width: 100% !important;
+    cursor: default;
   }
 }
 
-.draw-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
-  margin: auto 0;
-  width: 100%;
-
-  &__hint {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.45);
-  }
-
-  @media (max-width: 640px) {
-    margin: 0;
-  }
-}
-
-.draw-panel--subtle {
-  border-color: rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.015);
-
-  .draw-panel__hint {
-    color: rgba(255, 255, 255, 0.35);
-  }
-}
+// draw-panel deprecated
 
 .move-panel {
   display: flex;
