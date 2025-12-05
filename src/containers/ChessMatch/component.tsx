@@ -1258,6 +1258,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       onClick={isMobile ? () => triggerOutcomeBet('black_win') : undefined}
                       onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('black_win'); } : undefined}
                       aria-label={isMobile ? 'Tap to bet Black' : undefined}
+                      style={isMobile ? { width: boardStackWidth } : undefined}
                     >
                       <div className="player-meta">
                         <span className="player-name">{game.player_black?.name}</span>
@@ -1266,7 +1267,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       <div className="player-clock-group">
                         <span className="player-clock">{blackClock}</span>
                         {isMobile && (
-                          <span className="player-bet-hint">Tap to bet</span>
+                          <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
                     </div>
@@ -1294,6 +1295,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       onClick={isMobile ? () => triggerOutcomeBet('white_win') : undefined}
                       onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('white_win'); } : undefined}
                       aria-label={isMobile ? 'Tap to bet White' : undefined}
+                      style={isMobile ? { width: boardStackWidth } : undefined}
                     >
                       <div className="player-meta">
                         <span className="player-name">{game.player_white?.name}</span>
@@ -1302,7 +1304,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       <div className="player-clock-group">
                         <span className="player-clock">{whiteClock}</span>
                         {isMobile && (
-                          <span className="player-bet-hint">Tap to bet</span>
+                          <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
                     </div>

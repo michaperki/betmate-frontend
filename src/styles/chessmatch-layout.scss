@@ -324,9 +324,15 @@
       display: none;
       font-size: $text-xs;
       color: $text-secondary;
+      white-space: nowrap;
 
       @media (max-width: 768px) {
         display: inline-block;
+        margin-left: 6px;
+      }
+
+      @media (max-width: 360px) {
+        display: none;
       }
     }
   }
