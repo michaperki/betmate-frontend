@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.svg';
 import CoinBalance from '../CoinBalance';
 import SignOutPanel from 'containers/authentication/signOutPanel';
-import './mobile-navbar.scss';
+import './unified-navbar.scss';
 
 export interface NavBarProps {
   isAuthenticated: boolean;

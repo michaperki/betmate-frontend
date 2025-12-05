@@ -1,10 +1,13 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .integrated-betting-sidebar {
   display: flex;
   flex-direction: column;
-  background-color: #1e1e2e;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  color: #fff;
+  background-color: $bg-secondary;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-base;
+  color: $text-primary;
   width: 100%;
   overflow: hidden;
   transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -12,27 +15,27 @@
   
   .tab-navigation {
     display: flex;
-    border-bottom: 1px solid #2a2a3a;
+    border-bottom: 1px solid $border-primary;
     align-items: center;
 
     .tab-button {
       flex: 1;
       background: none;
       border: none;
-      padding: 12px 16px;
-      color: #9999a8;
+      padding: $space-3 $space-4;
+      color: $text-secondary;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
 
       &.active {
-        color: #fff;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-bottom: 2px solid #3a88fe;
+        color: $text-primary;
+        background-color: $bg-tertiary;
+        border-bottom: 2px solid $info;
       }
 
       &:hover:not(.active) {
-        background-color: rgba(255, 255, 255, 0.02);
+        background-color: rgba($text-primary, 0.04);
       }
     }
 
@@ -43,18 +46,18 @@
   }
   
   .tab-content {
-    padding: 12px 16px; /* Reduced top/bottom padding from 16px to 12px */
+    padding: $space-3 $space-4; /* Reduced top/bottom padding from 16px to 12px */
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Reduced from 16px */
+    gap: $space-3; /* Reduced from 16px */
     flex: 1;
     min-height: 0; /* Allow flex child to shrink */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     .bet-explanation {
-      font-size: 13px; /* Reduced from 14px */
-      color: #9999a8;
-      margin-bottom: 8px; /* Reduced from 12px */
+      font-size: $text-sm; /* Reduced from 14px */
+      color: $text-secondary;
+      margin-bottom: $space-2; /* Reduced from 12px */
       flex-shrink: 0; /* Don't shrink */
       min-height: 20px; /* Consistent height */
     }
@@ -80,12 +83,12 @@
     }
     
     .drag-instruction {
-      background-color: rgba(58, 136, 254, 0.1);
-      border-left: 3px solid #3a88fe;
-      padding: 6px 10px; /* Reduced from 8px 12px */
-      font-size: 12px; /* Reduced from 13px */
-      border-radius: 4px;
-      margin-bottom: 8px; /* Reduced from 12px */
+      background-color: rgba($info, 0.1);
+      border-left: 3px solid $info;
+      padding: $space-1 $space-2; /* Reduced from 8px 12px */
+      font-size: $text-xs; /* Reduced from 13px */
+      border-radius: $radius-sm;
+      margin-bottom: $space-2; /* Reduced from 12px */
     }
     
     /* Fixed-height container for move analysis to prevent UI jumping */
@@ -96,32 +99,32 @@
     }
     
     .move-analysis {
-      background-color: rgba(0, 0, 0, 0.2);
-      border-radius: 6px;
-      padding: 12px;
+      background-color: $bg-tertiary;
+      border-radius: $radius-md;
+      padding: $space-3;
       height: calc(100% - 24px); /* Account for padding */
       overflow-y: auto; /* Add scrolling just in case */
       
       .move-preview {
         display: flex;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: $space-2;
         
         .move-label {
-          font-size: 13px;
-          color: #9999a8;
-          margin-right: 8px;
+          font-size: $text-sm;
+          color: $text-secondary;
+          margin-right: $space-2;
         }
         
         .move-value {
-          font-size: 16px;
+          font-size: $text-base;
           font-weight: 600;
         }
       }
       
       .loading-metrics, .placeholder-metrics {
-        font-size: 13px;
-        color: #9999a8;
+        font-size: $text-sm;
+        color: $text-secondary;
         font-style: italic;
         text-align: center;
         padding: 8px 0;
@@ -138,14 +141,14 @@
             margin-bottom: 3px;
             
             .metric-label {
-              font-size: 12px;
-              color: #9999a8;
+              font-size: $text-xs;
+              color: $text-secondary;
             }
             
             .metric-badge {
-              background-color: #4CAF50;
-              color: white;
-              font-size: 11px;
+              background-color: $success;
+              color: $text-inverse;
+              font-size: $text-xs;
               padding: 2px 6px;
               border-radius: 4px;
             }
@@ -153,7 +156,7 @@
           
           .metric-value {
             height: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba($text-primary, 0.1);
             border-radius: 3px;
             overflow: hidden;
             margin-bottom: 3px;
@@ -162,23 +165,17 @@
               height: 100%;
               border-radius: 4px;
               
-              &.high {
-                background-color: #4CAF50;
-              }
+              &.high { background-color: $success; }
               
-              &.medium {
-                background-color: #FFC107;
-              }
+              &.medium { background-color: $warning; }
               
-              &.low {
-                background-color: #F44336;
-              }
+              &.low { background-color: $error; }
             }
           }
           
           .metric-description {
-            font-size: 11px;
-            color: #9999a8;
+            font-size: $text-xs;
+            color: $text-secondary;
             margin-top: 1px;
           }
         }
@@ -268,7 +265,7 @@
           margin-left: 12px; /* Add space between move and payout */
           font-weight: 600;
           font-size: 14px;
-          color: #3a88fe;
+          color: $info;
           z-index: 1;
         }
       }
@@ -283,36 +280,23 @@
           justify-content: space-between;
           align-items: center;
           padding: 12px;
-          background-color: rgba(255, 255, 255, 0.03);
+          background-color: rgba($text-primary, 0.03);
           border-radius: 6px;
           margin-bottom: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
           
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-          }
+          &:hover { background-color: rgba($text-primary, 0.08); }
           
-          &.outcome-white {
-            border-left: 4px solid #fff;
-          }
-          
-          &.outcome-black {
-            border-left: 4px solid #000;
-          }
-          
-          &.outcome-draw {
-            border-left: 4px solid #FFA000;
-          }
+          &.outcome-white { border-left: 4px solid #ffffff; }
+          &.outcome-black { border-left: 4px solid $bg-secondary; }
+          &.outcome-draw { border-left: 4px solid $warning; }
           
           .option-name {
             font-weight: 600;
           }
           
-          .option-payout {
-            color: #3a88fe;
-            font-weight: 500;
-          }
+          .option-payout { color: $info; font-weight: 500; }
         }
       }
     }
@@ -326,7 +310,7 @@
       gap: 6px; /* Further reduced gap */
       margin-top: 6px; /* Further reduced margin */
       padding: 6px; /* Further reduced padding */
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: $bg-tertiary;
       border-radius: 6px;
       flex-shrink: 0; /* Prevent shrinking */
       min-height: 36px; /* Reduced height */
@@ -341,9 +325,9 @@
 
         .stake-button {
           flex: 0 0 auto; /* Don't grow/shrink */
-          background-color: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: #fff;
+          background-color: rgba($text-primary, 0.1);
+          border: 1px solid rgba($text-primary, 0.2);
+          color: $text-primary;
           padding: 4px 8px; /* Further reduced padding */
           border-radius: 16px; /* Smaller pill shape */
           font-weight: 600;
@@ -354,15 +338,15 @@
           white-space: nowrap; /* Prevent text wrapping */
 
           &:hover {
-            background-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba($text-primary, 0.15);
             transform: translateY(-1px);
           }
 
           &.active {
-            background-color: #00EFB2; /* Using the teal accent color */
-            border-color: #00EFB2;
-            color: #111111;
-            box-shadow: 0 0 8px rgba(0, 239, 178, 0.3);
+            background-color: $brand-primary; /* Using the teal accent color */
+            border-color: $brand-primary;
+            color: $text-inverse;
+            box-shadow: 0 0 8px rgba($brand-primary, 0.3);
           }
         }
       }
@@ -376,11 +360,11 @@
         padding: 0;
         margin: 0;
 
-        .toggle-label {
+          .toggle-label {
           margin-right: 6px; /* Reduced margin */
           font-size: 11px; /* Smaller font size */
           font-weight: 500;
-          color: #F2F2F2;
+            color: $text-primary;
           white-space: nowrap;
         }
 
@@ -395,9 +379,7 @@
             width: 0;
             height: 0;
 
-            &:checked + .toggle-slider {
-              background-color: #00EFB2;  /* Match accent color */
-            }
+            &:checked + .toggle-slider { background-color: $brand-primary; }
 
             &:checked + .toggle-slider:before {
               transform: translateX(20px);
@@ -411,7 +393,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #444;
+            background-color: $border-secondary;
             transition: .4s;
             border-radius: 34px;
 

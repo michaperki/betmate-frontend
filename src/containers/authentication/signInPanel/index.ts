@@ -5,7 +5,7 @@ import { signInUser } from 'store/actionCreators/authActionCreators';
 import { ActionTypes, RootState } from 'types/state';
 
 import SignInPanel from 'containers/authentication/signInPanel/component';
-import '../style.scss';
+import '../dark-style.scss';
 
 const loadActions: ActionTypes[] = ['SIGN_IN_USER'];
 

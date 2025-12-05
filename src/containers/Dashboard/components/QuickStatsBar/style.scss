@@ -28,7 +28,7 @@
       background: $bg-secondary;
       padding: $space-4 $space-3;
       text-align: center;
-      border: 2px solid transparent;
+      border: 1px solid $border-primary;
       transition: all 0.2s ease;
 
       @include mobile {
@@ -36,8 +36,8 @@
       }
 
       &:hover {
-        transform: translateY(-2px);
-        @include shadow-glow;
+        transform: translateY(-1px);
+        box-shadow: $shadow-lg;
       }
 
       .stat-value {
