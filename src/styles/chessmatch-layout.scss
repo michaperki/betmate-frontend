@@ -1277,7 +1277,7 @@
   border-radius: $radius-pill;
   border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
   background: var(--move-bubble-bg, #ffffff);
-  padding: 12px 8px 0; // shift content downward
+  padding: 7px 8px 0; // adjust upward by ~5px per request
   display: flex;
   flex-direction: row;
   align-items: center;
