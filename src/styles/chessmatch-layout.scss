@@ -1264,10 +1264,14 @@
 
 .mobile-move-bubbles {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 10px;
-  overflow: visible;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 6px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
 }
 
 .mobile-move-chip {
@@ -1275,16 +1279,17 @@
   border-radius: $radius-pill;
   border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
   background: var(--move-bubble-bg, #ffffff);
-  padding: 8px 10px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 96px;
+  min-width: auto;
   color: var(--move-bubble-fg, #0b0b0b);
   text-align: left;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
 
   .move-option__left {
     display: inline-flex;
@@ -1294,8 +1299,8 @@
   }
 
   .move-option__icon {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 6px;
     background: transparent;
     display: inline-flex;
@@ -1305,15 +1310,15 @@
   }
 
   .move-option__icon img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: block;
   }
 
   .move-option__dest {
     font-weight: 700;
     letter-spacing: 0.04em;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   &__label {
