@@ -695,8 +695,10 @@
 
 .game-controls-card__summary {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
   font-size: 13px;
   letter-spacing: 0.04em;
 
@@ -1295,7 +1297,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 0;
     min-width: 0;
   }
 
@@ -1318,9 +1320,9 @@
 
   .move-option__dest {
     font-weight: 700;
-    letter-spacing: 0.02em;
-    font-size: 14px;
-    margin-left: -2px; // tuck text slightly closer to the icon
+    letter-spacing: 0;
+    font-size: 15px;
+    margin-left: -4px; // tuck text slightly closer to the icon
   }
 
   &__label {
