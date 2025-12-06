@@ -70,7 +70,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           {/* Raffles removed */}
 
           {isAuthenticated ? (
-            <SignOutPanel />
+            !isGameRoute ? <SignOutPanel /> : null
           ) : (
             <>
               <NavLink
