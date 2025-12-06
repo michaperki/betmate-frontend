@@ -303,20 +303,21 @@
   margin: 0; // Remove auto margin to eliminate spacing
   position: relative;
 
+  /* Let parent control size via inline styles; avoid hard caps so
+     the board can scale with the computed boardSize across breakpoints */
   @media (min-width: 1201px) {
-    width: 450px; // Fixed desktop size
-    height: 450px; // Fixed square height
+    width: 100%;
+    height: 100%;
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
-    width: 500px; // Fixed tablet size
-    height: 500px; // Fixed square height
+    width: 100%;
+    height: 100%;
   }
 
   @media (max-width: 768px) {
-    max-width: min(90vw, 350px) !important; // Use more of viewport width
-    width: min(90vw, 350px) !important; // Allow larger board size
-    height: min(90vw, 350px) !important; // Maintain square aspect ratio
+    width: 100% !important;
+    height: 100% !important;
     margin: 0 auto !important; // Center horizontally
     overflow: hidden !important; // Clip anything that exceeds the container
   }
@@ -327,22 +328,8 @@
   .cg-board {
     margin: 0 !important;
     padding: 0 !important;
-
-    @media (min-width: 1201px) {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    @media (max-width: 768px) {
-      max-width: min(90vw, 350px) !important;
-      width: min(90vw, 350px) !important;
-      height: min(90vw, 350px) !important;
-    }
+    width: 100% !important;
+    height: 100% !important;
   }
 
   // Target the large wrapper div that's creating spacing

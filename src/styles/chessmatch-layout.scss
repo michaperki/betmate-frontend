@@ -242,6 +242,12 @@
     max-width: none !important;
     box-sizing: border-box;
   }
+
+  /* Hide the left outcome rail on tablet so move bubbles
+     never appear above the board when stacked */
+  .board-layout .outcome-rail-column {
+    display: none !important;
+  }
 }
 
 .board-frame {
