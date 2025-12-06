@@ -10,9 +10,10 @@ export interface NavBarProps {
   firstName: string;
   balance?: number;
   compact?: boolean; // Whether to use the compact variant (for game screens)
+  breadcrumb?: string; // Optional context label displayed as breadcrumb
 }
 
-const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false }) => {
+const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false, breadcrumb }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -33,12 +34,12 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           <span>BetMate</span>
         </NavLink>
 
-        {/* Optional breadcrumb context for game pages */}
-        {isGameRoute && (
+        {/* Optional breadcrumb/context */}
+        {(breadcrumb || isGameRoute) && (
           <div className="navbar__breadcrumb" aria-label="Breadcrumb">
             <NavLink to="/" className="navbar__crumb" onClick={() => setMenuOpen(false)}>Home</NavLink>
             <span className="navbar__crumb-sep">/</span>
-            <span className="navbar__crumb-current">Live Game</span>
+            <span className="navbar__crumb-current">{breadcrumb || 'Live Game'}</span>
           </div>
         )}
 

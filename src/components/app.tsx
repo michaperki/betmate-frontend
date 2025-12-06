@@ -56,13 +56,13 @@ const App: React.FC<AppProps> = (props) => {
           {/* Raffles route removed */}
           <Route exact path="/active-bets" render={() => (
               <div className="dashboard-page">
-                <NavBar />
+                <NavBar breadcrumb="Active Bets" />
                 <ActiveBetsPage />
               </div>
           )} />
           <Route exact path="/betting-history" render={() => (
               <div className="dashboard-page">
-                <NavBar />
+                <NavBar breadcrumb="Betting History" />
                 <BettingHistoryPage />
               </div>
           )} />
