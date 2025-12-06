@@ -649,6 +649,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   // Lightweight local cache so receipts persist across refresh before network returns
   const [cachedReceipts, setCachedReceipts] = useState<Wager[]>([]);
+  // Optimistic local pending receipts to show instant feedback
+  const [pendingReceipts, setPendingReceipts] = useState<Wager[]>([]);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -676,7 +678,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     } catch {}
   }, [authUserId, gameId, receipts]);
 
-  const displayReceipts = receipts.length ? receipts : cachedReceipts;
+  // Remove any optimistic entries that now have a real counterpart
+  useEffect(() => {
+    if (!pendingReceipts.length || !receipts.length) return;
+    const realKeys = new Set(receipts.map((w) => `${w.wdl ? 'wdl' : 'move'}:${String(w.data)}`));
+    setPendingReceipts((prev) => prev.filter((w) => !realKeys.has(`${w.wdl ? 'wdl' : 'move'}:${String(w.data)}`)));
+  }, [receipts, pendingReceipts.length]);
+
+  const displayReceipts = pendingReceipts.concat(receipts.length ? receipts : cachedReceipts);
 
   // Draw backstop moved below scheduleOutcomeReset definition
 
@@ -816,8 +825,28 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         game.odds?.[outcomeId] ? 1 / game.odds[outcomeId] : 1,
         game.move_hist.length + 1,
       );
+      // Add optimistic pending receipt for immediate feedback
+      setPendingReceipts((prev) => [{
+        _id: `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        game_id: gameId,
+        better_id: authUserId || 'me',
+        wdl: true,
+        amount: selectedStake,
+        odds: game.odds?.[outcomeId] ? 1 / (game.odds[outcomeId] || 1) : 1,
+        data: outcomeId,
+        move_number: game.move_hist.length + 1,
+        resolved: false,
+        status: 'pending' as any,
+        winning_pool_share: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, ...prev]);
+
+      // Mark button success immediately (snappy), then let receipts reconcile
+      updateOutcomeState(outcomeId, 'success');
+      scheduleOutcomeReset(outcomeId, 600);
+
       await Promise.resolve(wagerPromise);
-      // Defer success visual to receipts observation to ensure backend accepted
       if (outcomeLoadingSafety.current[outcomeId]) {
         window.clearTimeout(outcomeLoadingSafety.current[outcomeId]!);
         outcomeLoadingSafety.current[outcomeId] = null;
@@ -856,8 +885,29 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         1,
         game.move_hist.length + 1,
       );
+      // Add optimistic pending receipt for immediate feedback
+      setPendingReceipts((prev) => [{
+        _id: `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        game_id: gameId,
+        better_id: authUserId || 'me',
+        wdl: false,
+        amount: selectedStake,
+        odds: 1,
+        data: move,
+        move_number: game.move_hist.length + 1,
+        resolved: false,
+        status: 'pending' as any,
+        winning_pool_share: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, ...prev]);
+
+      // Immediate success state for tactile feedback
+      const moveKey = `${positionIndex}-${move}`;
+      updateMoveState(moveKey, 'success');
+      scheduleMoveReset(moveKey, 500);
+
       await Promise.resolve(wagerPromise);
-      // Defer success visual to receipts observation to ensure backend accepted
       // Refresh receipts so new wagers appear promptly
       dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
