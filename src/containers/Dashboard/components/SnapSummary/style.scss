@@ -1,0 +1,93 @@
+@import '../../../../styles/tokens.scss';
+@import '../../../../styles/mixins.scss';
+
+.snap-summary {
+  @include card-base;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3fr;
+  gap: $space-4;
+  align-items: center;
+  background: $bg-secondary;
+  border: 1px solid $border-primary;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $space-3;
+  }
+
+  .summary-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .user-id {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-3;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba($brand-primary, 0.2), rgba($brand-primary, 0.05));
+    border: 1px solid rgba($brand-primary, 0.4);
+    box-shadow: $shadow-sm;
+  }
+
+  .user-meta {
+    .label {
+      font-size: $text-xs;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .name {
+      font-size: $text-lg;
+      font-weight: $font-semibold;
+      color: $text-primary;
+      line-height: 1.2;
+    }
+  }
+
+  .summary-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $space-3;
+
+    @include mobile {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .metric {
+      background: $bg-tertiary;
+      border: 1px solid $border-primary;
+      border-radius: $radius-md;
+      padding: $space-3;
+      display: grid;
+      grid-template-rows: auto auto auto;
+      align-content: center;
+
+      .metric-label {
+        font-size: $text-xs;
+        color: $text-secondary;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+      }
+
+      .metric-value {
+        font-size: $text-2xl;
+        font-weight: $font-semibold;
+        color: $text-primary;
+        line-height: 1.1;
+      }
+
+      .metric-suffix {
+        font-size: $text-xs;
+        color: $text-muted;
+      }
+    }
+  }
+}
+
