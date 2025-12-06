@@ -54,16 +54,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
             Home
           </NavLink>
 
-          {isAuthenticated && (
-            <NavLink
-              to="/raffles"
-              activeClassName="active"
-              className="navbar__item"
-              onClick={() => setMenuOpen(false)}
-            >
-              Raffles
-            </NavLink>
-          )}
+          {/* Raffles removed */}
 
           {isAuthenticated ? (
             <div className="navbar__item navbar__item--button" onClick={() => setMenuOpen(false)}>

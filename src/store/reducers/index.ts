@@ -5,7 +5,6 @@ import chessgroundReducer from 'store/reducers/chessgroundReducer';
 import gameReducer from 'store/reducers/gameReducer';
 import leaderboardReducer from 'store/reducers/leaderboardReducer';
 import requestReducer from 'store/reducers/requestReducer';
-import raffleReducer from 'store/reducers/raffleReducer';
 import wagerReducer from 'store/reducers/wagerReducer';
 import socketReducer from 'store/reducers/socketReducer';
 
@@ -15,7 +14,7 @@ const rootReducer = combineReducers({
   game: gameReducer,
   leaderboard: leaderboardReducer,
   requests: requestReducer,
-  raffle: raffleReducer,
+  // raffle removed
   wager: wagerReducer,
   socket: socketReducer,
 });

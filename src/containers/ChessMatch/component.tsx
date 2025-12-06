@@ -1526,7 +1526,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               {activeOverlay === 'chat' ? (
                 <ChatBox />
               ) : (
-                <MiniLeaderboard rankings={rankings || []} />
+                <MiniLeaderboard rankings={rankings || []} showTitle={false} />
               )}
             </div>
           </div>
