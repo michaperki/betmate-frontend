@@ -546,6 +546,29 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }
   }, [betsLocked, canPlaceWagers, clearPendingBet, createWager, game, gameId, onEnterMovePanel, onMoveHover, onMoveUnhover, quickBetMode, selectedStake, setPendingBet]);
 
+  // Store odds history keyed by snapshot index so eval bar follows notation
+  const [oddsByIndex, setOddsByIndex] = useState<Record<number, GameOdds>>({});
+
+  // Whenever odds update, capture them for the latest snapshot index.
+  useEffect(() => {
+    if (!game?.odds) return;
+    const idx = latestSnapshotIndex;
+    setOddsByIndex((prev) => {
+      const existing = prev[idx];
+      const next = game.odds as GameOdds;
+      if (!existing || existing.white_win !== next.white_win || existing.black_win !== next.black_win || existing.draw !== next.draw) {
+        return { ...prev, [idx]: next };
+      }
+      return prev;
+    });
+  }, [game?.odds, latestSnapshotIndex]);
+
+  // Ensure new indices get an initial odds entry
+  useEffect(() => {
+    if (!game?.odds) return;
+    setOddsByIndex((prev) => (prev[latestSnapshotIndex] ? prev : { ...prev, [latestSnapshotIndex]: game.odds as GameOdds }));
+  }, [latestSnapshotIndex]);
+
   const boardConfig = useMemo<Config>(() => {
     const fen = activeSnapshot?.fen || game?.state || DEFAULT_FEN;
     const viewOnly = !isAtLatestSnapshot;
@@ -1652,7 +1675,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       </div>
                       <div className="eval-bar-container" style={{ height: boardSize, width: evalBarWidth }}>
                         <EvaluationBar
-                          odds={isAtLatestSnapshot ? game?.odds : approximateOddsFromFen(activeSnapshot?.fen)}
+                          odds={oddsByIndex[positionIndex] || (isAtLatestSnapshot ? game?.odds : approximateOddsFromFen(activeSnapshot?.fen))}
                           width={evalBarWidth}
                         />
                       </div>
