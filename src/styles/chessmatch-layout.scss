@@ -1344,6 +1344,8 @@
   position: relative;
   overflow: hidden;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 
   .move-option__left {
     display: inline-flex;
@@ -1416,6 +1418,24 @@
   &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; border-color: $border-primary; }
 
   &.mobile-move-chip--placeholder { opacity: 0.4; border-style: dashed; }
+
+  /* Hold-to-bet progress bar */
+  .chip-hold-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: rgba($brand-primary, 0.9);
+    transform: scaleX(0);
+    transform-origin: left center;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  &.is-holding .chip-hold-bar {
+    animation: holdBar var(--hold-ms, 260ms) linear forwards;
+  }
 }
 
 .mobile-outcome-row {
@@ -1574,4 +1594,9 @@
 @keyframes chipSwapFade {
   0% { background-color: $bg-quaternary; }
   100% { background-color: $bg-tertiary; }
+}
+
+@keyframes holdBar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }

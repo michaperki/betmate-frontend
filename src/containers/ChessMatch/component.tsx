@@ -1038,6 +1038,31 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const [mobileSlotMoves, setMobileSlotMoves] = useState<string[]>(Array(VISIBLE_MOBILE_SLOTS).fill(''));
   const [mobileSlotUpdating, setMobileSlotUpdating] = useState<boolean[]>(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+  // Mobile move interactions: tap to preview, press-and-hold to bet
+  const [selectedMobileMove, setSelectedMobileMove] = useState<string | null>(null);
+  const [mobileHolding, setMobileHolding] = useState<boolean[]>(Array(VISIBLE_MOBILE_SLOTS).fill(false));
+  const holdTimersRef = useRef<Array<number | null>>(Array(VISIBLE_MOBILE_SLOTS).fill(null));
+  const holdStartRef = useRef<Array<{ x: number; y: number } | null>>(Array(VISIBLE_MOBILE_SLOTS).fill(null));
+  const suppressNextClickRef = useRef(false);
+
+  const HOLD_MS = 260; // snappy hold-to-bet threshold
+  const MOVE_TOLERANCE = 10; // px tolerance before cancelling hold
+
+  const selectMobileMove = useCallback((move: string) => {
+    if (selectedMobileMove !== move) {
+      handleMoveHoverEnd();
+    }
+    setSelectedMobileMove(move);
+    handleMoveHoverStart(move);
+  }, [handleMoveHoverEnd, handleMoveHoverStart, selectedMobileMove]);
+
+  // Clear selection when the position index changes (new board snapshot)
+  useEffect(() => {
+    if (selectedMobileMove) {
+      setSelectedMobileMove(null);
+      handleMoveHoverEnd();
+    }
+  }, [positionIndex]);
 
   useEffect(() => {
     const nextMoves = mobileSlots.map((opt) => (opt ? opt.move : ''));
@@ -1067,18 +1092,92 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const piece = getPieceTypeFromSAN(option.move);
     const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
     const pieceSrc = isWhiteTurn ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
+    const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+      // Start hold-to-bet; also preview the move immediately
+      try {
+        (e.currentTarget as any).setPointerCapture?.(e.pointerId);
+      } catch {}
+      selectMobileMove(option.move);
+      setMobileHolding((prev) => {
+        const next = prev.slice();
+        next[idx] = true;
+        return next;
+      });
+      holdStartRef.current[idx] = { x: e.clientX, y: e.clientY };
+      if (holdTimersRef.current[idx]) window.clearTimeout(holdTimersRef.current[idx]!);
+      holdTimersRef.current[idx] = window.setTimeout(() => {
+        suppressNextClickRef.current = true; // prevent click after long-press
+        // Trigger bet
+        handleMoveBet(option.move);
+        // Stop holding visual; success/error feedback handled by existing state
+        setMobileHolding((prev) => {
+          const next = prev.slice();
+          next[idx] = false;
+          return next;
+        });
+        holdTimersRef.current[idx] = null;
+      }, HOLD_MS);
+    };
+    const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+      const start = holdStartRef.current[idx];
+      if (!start) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      if (Math.hypot(dx, dy) > MOVE_TOLERANCE) {
+        // Cancel hold if the finger moves too far (avoid accidental long-press)
+        if (holdTimersRef.current[idx]) {
+          window.clearTimeout(holdTimersRef.current[idx]!);
+          holdTimersRef.current[idx] = null;
+        }
+        setMobileHolding((prev) => {
+          if (!prev[idx]) return prev;
+          const next = prev.slice();
+          next[idx] = false;
+          return next;
+        });
+      }
+    };
+    const cancelHold = () => {
+      if (holdTimersRef.current[idx]) {
+        window.clearTimeout(holdTimersRef.current[idx]!);
+        holdTimersRef.current[idx] = null;
+      }
+      holdStartRef.current[idx] = null;
+      setMobileHolding((prev) => {
+        if (!prev[idx]) return prev;
+        const next = prev.slice();
+        next[idx] = false;
+        return next;
+      });
+    };
+    const onPointerUp = () => {
+      cancelHold();
+    };
+    const onPointerCancel = () => {
+      cancelHold();
+    };
+    const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (suppressNextClickRef.current) {
+        // Swallow the click that follows a long-press
+        suppressNextClickRef.current = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      // Simple tap -> select to preview (no wager)
+      selectMobileMove(option.move);
+    };
     return (
       <button
         key={`mobile-slot-${idx}`}
         type="button"
-        className={`mobile-move-chip ${mobileSlotUpdating[idx] ? 'is-updating' : ''} state-${visualState}`}
-        onClick={() => handleMoveBet(option.move)}
-        onMouseEnter={() => handleMoveHoverStart(option.move)}
-        onMouseLeave={handleMoveHoverEnd}
-        onFocus={() => handleMoveHoverStart(option.move)}
-        onBlur={handleMoveHoverEnd}
-        onTouchStart={() => handleMoveHoverStart(option.move)}
-        onTouchEnd={handleMoveHoverEnd}
+        className={`mobile-move-chip ${mobileSlotUpdating[idx] ? 'is-updating' : ''} ${mobileHolding[idx] ? 'is-holding' : ''} state-${visualState}`}
+        style={{ ['--hold-ms' as any]: `${HOLD_MS}ms` }}
+        onClick={onClick}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
         data-state={visualState}
         disabled={!canPlaceWagers}
       >
@@ -1088,6 +1187,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           </span>
           <span className="move-option__dest">{dest}</span>
         </span>
+        <span className="chip-hold-bar" aria-hidden />
         {/* Hide percent/payout meta on mobile to reduce clutter */}
       </button>
     );
