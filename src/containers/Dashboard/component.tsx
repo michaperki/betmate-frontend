@@ -5,8 +5,10 @@ import { User } from 'types/resources/auth';
 import Leaderboard from 'components/Leaderboard';
 
 // New mobile-first dashboard components
-import HeroSection from './components/HeroSection';
-import QuickStatsBar from './components/QuickStatsBar';
+// Option A components
+import SnapSummary from './components/SnapSummary/component';
+import QuickActionBar from './components/QuickActionBar/component';
+import StatsTiles from './components/StatsTiles/component';
 import FeaturedMatch from './components/FeaturedMatch';
 import LiveMatchesGrid from './components/LiveMatchesGrid';
 import FilterBar from './components/FilterBar';
@@ -123,30 +125,27 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   return (
     <div className="dashboard">
       <div className="dashboard-container">
-        {/* Hero Section with greeting and balance */}
-        <HeroSection
-          userName={props.user?.first_name || "Player"}
-          stats={stats}
-        />
-
-        {/* Quick Stats Bar */}
-        <QuickStatsBar stats={stats} />
+        {/* Option A: Snap Summary + Quick Actions (mobile re-ordered below) */}
+        <SnapSummary userName={props.user?.first_name || 'Player'} stats={stats} />
+        {!isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
         {/* Main Content Area */}
         <div className="dashboard-main">
           
-          {/* Featured Game and Leaderboard Section */}
-          <div className="dashboard-featured-section">
-            {featuredGame && (
-              <div className="featured-match-container">
-                <FeaturedMatch game={featuredGame} />
-              </div>
-            )}
-            
-            {/* Leaderboard - responsive positioning */}
-            <div className="leaderboard-container">
-              <Leaderboard />
+          {/* Featured Match (full width) */}
+          {featuredGame && (
+            <div className="featured-match-container">
+              <FeaturedMatch game={featuredGame} />
             </div>
+          )}
+          {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
+
+          {/* Stats Tiles */}
+          <StatsTiles />
+
+          {/* Leaderboard (condensed) */}
+          <div className="leaderboard-container">
+            <Leaderboard />
           </div>
 
           {/* Live Matches Section */}

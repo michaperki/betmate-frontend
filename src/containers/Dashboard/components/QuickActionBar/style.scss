@@ -1,0 +1,34 @@
+@import '../../../../styles/tokens.scss';
+@import '../../../../styles/mixins.scss';
+
+.quick-action-bar {
+  display: flex;
+  gap: $space-2;
+  margin: $space-3 0;
+  align-items: center;
+
+  .qa-btn {
+    text-align: center;
+    border-radius: $radius-lg;
+    white-space: nowrap;
+  }
+
+  .qa-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  // Grow buttons evenly on larger screens
+  @include tablet-up {
+    .qa-btn { flex: 1; }
+  }
+
+  // On mobile keep in a single horizontal row with scroll, to avoid pushing content
+  @include mobile {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
