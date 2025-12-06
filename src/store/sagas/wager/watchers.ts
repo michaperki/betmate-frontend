@@ -4,6 +4,7 @@ import { call, take, put } from 'redux-saga/effects';
 
 import * as wagerRequests from 'store/requests/wagerRequests';
 import { getErrorPayload } from 'utils/error';
+import { getBearerToken } from 'store/actionCreators';
 
 import { Actions, RequestReturnType } from 'types/state';
 
@@ -26,6 +27,11 @@ export function* watchCreateWager() {
     try {
       const action: CreateWagerActions = yield take((a: Actions) => (a.type === 'CREATE_WAGER' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
+
+      // Optimistically adjust balance immediately
+      if (action.payload.amount) {
+        yield put<Actions>({ type: 'ADJUST_BALANCE', status: 'SUCCESS', payload: { delta: -Math.abs(action.payload.amount) } });
+      }
 
       const response: RequestReturnType<FetchWagerData> = yield call(
         wagerRequests.createWager,
@@ -51,8 +57,20 @@ export function* watchCreateWager() {
         status: 'REQUEST',
         payload: { status: undefined, limit: 10, skip: 0 }
       });
+
+      // Reconcile balance with server (lightweight refresh via JWT flow)
+      yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
     } catch (error) {
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
+      // Roll back optimistic balance if the wager failed to create
+      try {
+        const failed: any = error;
+        // We only know the amount from the last REQUEST captured in this loop; use it
+        // Note: If multiple concurrent requests, this still rolls back the last seen amount.
+        // For extra safety, backend failure should not have charged tokens.
+        // Here we issue a refresh to ensure accuracy.
+        yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
+      } catch {}
     }
   }
 }

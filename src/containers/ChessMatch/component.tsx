@@ -628,6 +628,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Combine fast-updating local wagers (dictionary) with fetched history,
   // then filter to current game and sort by created time (desc)
   const allWagersMap = useSelector((state: RootState) => state.wager?.wagers ?? {});
+  const authUserId = useSelector((state: RootState) => state.auth?.user?._id as string | undefined);
   const fetchedHistory = useSelector((state: RootState) => state.wager?.wagerHistory ?? []);
   const receipts = useMemo<Wager[]>(() => {
     const local = Object.values(allWagersMap) as Wager[];
@@ -645,6 +646,37 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     });
     return filtered.slice(0, 10);
   }, [allWagersMap, fetchedHistory, gameId]);
+
+  // Lightweight local cache so receipts persist across refresh before network returns
+  const [cachedReceipts, setCachedReceipts] = useState<Wager[]>([]);
+
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    try {
+      const key = `betmate:receipts:${authUserId || 'anon'}:${gameId}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setCachedReceipts(parsed as Wager[]);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Write-through when fresh receipts arrive
+  useEffect(() => {
+    if (!receipts?.length) return;
+    try {
+      const key = `betmate:receipts:${authUserId || 'anon'}:${gameId}`;
+      const dedup: Record<string, Wager> = {};
+      receipts.forEach((w) => { dedup[w._id] = w; });
+      const next = Object.values(dedup).slice(0, 20);
+      setCachedReceipts(next);
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch {}
+  }, [authUserId, gameId, receipts]);
+
+  const displayReceipts = receipts.length ? receipts : cachedReceipts;
 
   // Draw backstop moved below scheduleOutcomeReset definition
 
@@ -1628,7 +1660,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   </aside>
                   <section className="wager-receipts" aria-label="Wager receipts">
                     <div className="wager-receipts__list">
-                      {receipts && receipts.length ? receipts.slice(0, 10).map((w) => (
+                      {displayReceipts && displayReceipts.length ? displayReceipts.slice(0, 10).map((w) => (
                         <div
                           key={w._id}
                           className={[
