@@ -301,4 +301,35 @@
       margin: $space-3 auto;
     }
   }
+
+  // Minimal avatar (initial-based)
+  &__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: $radius-full;
+    background-color: $bg-tertiary;
+    border: 1px solid $border-primary;
+    color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: $font-semibold;
+    margin-left: $space-3;
+    user-select: none;
+    line-height: 1;
+
+    .navbar__menu.open & {
+      margin: $space-2 0 0 0;
+    }
+
+    .navbar--compact & {
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      border-color: $brand-primary;
+      box-shadow: 0 0 0 3px rgba($brand-primary, 0.08);
+    }
+  }
 }

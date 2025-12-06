@@ -97,6 +97,13 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
               <CoinBalance balance={balance} compact={compact} />
             </div>
           )}
+
+          {/* Minimal avatar (initial) */}
+          {isAuthenticated && firstName && (
+            <div className="navbar__avatar" title={firstName} aria-label="Account">
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
       </div>
     </nav>
