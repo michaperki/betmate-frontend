@@ -57,15 +57,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
 
         {/* Navigation menu */}
         <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
-          <NavLink
-            to="/"
-            exact
-            activeClassName="active"
-            className="navbar__item"
-            onClick={() => setMenuOpen(false)}
-          >
-            Home
-          </NavLink>
+          {!isGameRoute && (
+            <NavLink
+              to="/"
+              exact
+              activeClassName="active"
+              className="navbar__item"
+              onClick={() => setMenuOpen(false)}
+            >
+              Home
+            </NavLink>
+          )}
 
           {/* Raffles removed */}
 
