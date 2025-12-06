@@ -1,4 +1,4 @@
-import { AuthState, GET_BALANCE_HISTORY } from 'types/resources/auth';
+import { AuthState, GET_BALANCE_HISTORY, ADJUST_BALANCE, SET_BALANCE } from 'types/resources/auth';
 import { Actions } from 'types/state';
 
 const initialState: AuthState = {
@@ -40,7 +40,7 @@ const reducer = (state = initialState, action: Actions): AuthState => {
   if (action.status !== 'SUCCESS') return state;
   
   switch (action.type) {
-    case 'ADJUST_BALANCE': {
+    case ADJUST_BALANCE: {
       // Adjust the user's account balance optimistically
       if (!state.user) return state;
       const delta = Number(action.payload?.delta || 0);
@@ -54,7 +54,7 @@ const reducer = (state = initialState, action: Actions): AuthState => {
       };
     }
 
-    case 'SET_BALANCE': {
+    case SET_BALANCE: {
       if (!state.user) return state;
       const value = Number(action.payload?.balance);
       if (!Number.isFinite(value)) return state;

@@ -30,7 +30,7 @@ export function* watchCreateWager() {
 
       // Optimistically adjust balance immediately
       if (action.payload.amount) {
-        yield put<Actions>({ type: 'ADJUST_BALANCE', status: 'SUCCESS', payload: { delta: -Math.abs(action.payload.amount) } });
+        yield put({ type: 'ADJUST_BALANCE', status: 'SUCCESS', payload: { delta: -Math.abs(action.payload.amount) } });
       }
 
       const response: RequestReturnType<FetchWagerData> = yield call(
@@ -59,17 +59,12 @@ export function* watchCreateWager() {
       });
 
       // Reconcile balance with server (lightweight refresh via JWT flow)
-      yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
+      yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
     } catch (error) {
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
       // Roll back optimistic balance if the wager failed to create
       try {
-        const failed: any = error;
-        // We only know the amount from the last REQUEST captured in this loop; use it
-        // Note: If multiple concurrent requests, this still rolls back the last seen amount.
-        // For extra safety, backend failure should not have charged tokens.
-        // Here we issue a refresh to ensure accuracy.
-        yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
+        yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
       } catch {}
     }
   }

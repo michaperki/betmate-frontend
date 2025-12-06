@@ -49,6 +49,8 @@ export const DEAUTH_USER = 'DEAUTH_USER';
 export const CREATE_USER = 'CREATE_USER';
 export const JWT_SIGN_IN = 'JWT_SIGN_IN';
 export const GET_BALANCE_HISTORY = 'GET_BALANCE_HISTORY';
+export const ADJUST_BALANCE = 'ADJUST_BALANCE';
+export const SET_BALANCE = 'SET_BALANCE';
 
 export type CreateUserRequestData = { email: string, password: string, firstName: string, lastName: string };
 export type SignInRequestData = { email: string, password: string };
@@ -65,17 +67,23 @@ export type SignInUserActions = AsyncAction<typeof SIGN_IN_USER, AuthUserRespons
 export type JwtSignInActions = AsyncAction<typeof JWT_SIGN_IN, JwtSignInResponseData, JwtSignInRequestData>;
 export type DeAuthUserActions = Action<typeof DEAUTH_USER, DeAuthUserData>;
 export type GetBalanceHistoryActions = AsyncAction<typeof GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryRequestData>;
+export type AdjustBalanceActions = Action<typeof ADJUST_BALANCE, { delta: number }>;
+export type SetBalanceActions = Action<typeof SET_BALANCE, { balance: number }>;
 
 export type AuthActions =
   | CreateUserActions
   | SignInUserActions
   | DeAuthUserActions
   | JwtSignInActions
-  | GetBalanceHistoryActions;
+  | GetBalanceHistoryActions
+  | AdjustBalanceActions
+  | SetBalanceActions;
 
 export type AuthActionTypes =
   | typeof CREATE_USER
   | typeof SIGN_IN_USER
   | typeof DEAUTH_USER
   | typeof JWT_SIGN_IN
-  | typeof GET_BALANCE_HISTORY;
+  | typeof GET_BALANCE_HISTORY
+  | typeof ADJUST_BALANCE
+  | typeof SET_BALANCE;
