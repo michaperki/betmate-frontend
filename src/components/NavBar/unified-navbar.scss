@@ -302,36 +302,7 @@
     }
   }
 
-  // Minimal avatar (initial-based)
-  &__avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: $radius-full;
-    background-color: $bg-tertiary;
-    border: 1px solid $border-primary;
-    color: $text-primary;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: $font-semibold;
-    margin-left: $space-3;
-    user-select: none;
-    line-height: 1;
-
-    .navbar__menu.open & {
-      margin: $space-2 0 0 0;
-    }
-
-    .navbar--compact & {
-      width: 24px;
-      height: 24px;
-    }
-
-    &:hover {
-      border-color: $brand-primary;
-      box-shadow: 0 0 0 3px rgba($brand-primary, 0.08);
-    }
-  }
+  // (Deprecated) standalone avatar bubble removed in favor of unified account pill
 
   // Unified account cluster: avatar + token balance
   &__account {
@@ -350,18 +321,15 @@
   }
 
   &__account-avatar {
-    width: 22px;
-    height: 22px;
-    border-radius: $radius-full;
-    background-color: $bg-secondary;
-    border: 1px solid $border-primary;
-    color: $text-primary;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: $font-semibold;
+    color: $text-primary;
+    font-size: $text-sm;
     line-height: 1;
     user-select: none;
+    // No own background/border — avoid bubble in bubble
   }
 
   &__account-balance {
