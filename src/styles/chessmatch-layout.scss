@@ -292,6 +292,9 @@
   border: 1px solid $border-secondary;
   gap: $space-3;
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, opacity 0.2s ease;
 
   .player-meta {
     display: flex;
@@ -337,6 +340,56 @@
       }
     }
   }
+}
+
+/* Tactile feedback for mobile player tap-to-bet headers */
+.player-header .ph-spinner,
+.player-header .ph-check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+  z-index: 2;
+}
+
+.player-header .ph-spinner::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: $brand-primary;
+  animation: wagerSpin 0.75s linear infinite;
+}
+
+.player-header .ph-check {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.player-header:active { transform: translateY(0.5px); }
+
+.player-header.state-loading {
+  transform: scale(0.985);
+  .ph-spinner { opacity: 1; visibility: visible; }
+  .player-bet-hint { opacity: 0.6; }
+}
+
+.player-header.state-success {
+  box-shadow: 0 8px 18px rgba(0, 239, 178, 0.22);
+  .ph-check { opacity: 1; visibility: visible; animation: checkFlash 0.32s ease; }
+}
+
+.player-header.state-error {
+  border-color: rgba(248, 113, 113, 0.6);
+  box-shadow: 0 8px 18px rgba(248, 113, 113, 0.2);
+  animation: wagerShake 0.45s ease;
 }
 
 .board-shell {

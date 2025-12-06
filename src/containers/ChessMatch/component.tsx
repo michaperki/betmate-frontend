@@ -1336,12 +1336,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     style={{ width: boardFrameWidth }}
                   >
                     <div
-                      className="player-header"
+                      className={`player-header state-${outcomeStates['black_win']}`}
                       role={isMobile ? 'button' as const : undefined}
                       tabIndex={isMobile ? 0 : undefined}
                       onClick={isMobile ? () => triggerOutcomeBet('black_win') : undefined}
                       onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('black_win'); } : undefined}
                       aria-label={isMobile ? 'Tap to bet Black' : undefined}
+                      aria-busy={outcomeStates['black_win'] === 'loading'}
                       style={isMobile ? { width: boardStackWidth } : undefined}
                     >
                       <div className="player-meta">
@@ -1354,6 +1355,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
+                      <span className="ph-spinner" aria-hidden />
+                      <span className="ph-check" aria-hidden>✓</span>
                     </div>
                     <div className="board-eval-stack" style={{ width: boardStackWidth, gap: BOARD_STACK_GAP }}>
                       <div className="board-shell" style={{ width: boardSize, height: boardSize }}>
@@ -1373,12 +1376,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       </div>
                     </div>
                     <div
-                      className="player-header"
+                      className={`player-header state-${outcomeStates['white_win']}`}
                       role={isMobile ? 'button' as const : undefined}
                       tabIndex={isMobile ? 0 : undefined}
                       onClick={isMobile ? () => triggerOutcomeBet('white_win') : undefined}
                       onKeyDown={isMobile ? (e) => { if (e.key === 'Enter' || e.key === ' ') triggerOutcomeBet('white_win'); } : undefined}
                       aria-label={isMobile ? 'Tap to bet White' : undefined}
+                      aria-busy={outcomeStates['white_win'] === 'loading'}
                       style={isMobile ? { width: boardStackWidth } : undefined}
                     >
                       <div className="player-meta">
@@ -1391,6 +1395,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
+                      <span className="ph-spinner" aria-hidden />
+                      <span className="ph-check" aria-hidden>✓</span>
                     </div>
                     {isDesktop && (
                       <button
