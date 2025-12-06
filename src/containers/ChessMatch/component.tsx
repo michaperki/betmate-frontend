@@ -179,6 +179,40 @@ const computeEvalFromOdds = (odds?: GameOdds) => {
   return Math.max(-1, Math.min(1, normalizedDiff));
 };
 
+// Very lightweight fallback evaluator from a FEN using material count only.
+// This is not an engine, but provides a sensible signal when rewound.
+const approximateOddsFromFen = (fen?: string): GameOdds | undefined => {
+  if (!fen) return undefined;
+  const [board] = fen.split(' ');
+  if (!board) return undefined;
+  // Piece values
+  const val: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+  let white = 0;
+  let black = 0;
+  for (const ch of board) {
+    if (ch === '/') continue;
+    if (/[1-8]/.test(ch)) continue;
+    const lower = ch.toLowerCase();
+    const v = val[lower] ?? 0;
+    if (ch === lower) black += v; else white += v;
+  }
+  const diff = white - black; // positive means white has material edge
+  // Squash to [-1, 1]
+  const norm = Math.tanh(diff / 8);
+  // Allocate a small constant draw bucket to keep bar informative
+  const draw = 0.12;
+  const whiteNoDraw = (norm + 1) / 2; // 0..1
+  const white_win = Math.max(0, Math.min(1, whiteNoDraw * (1 - draw)));
+  const black_win = Math.max(0, Math.min(1, (1 - whiteNoDraw) * (1 - draw)));
+  // Normalize in case of rounding
+  const sum = white_win + black_win + draw;
+  return {
+    white_win: white_win / sum,
+    draw: draw / sum,
+    black_win: black_win / sum,
+  } as GameOdds;
+};
+
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const { isMobile, isDesktop } = useResponsiveLayout();
@@ -1617,7 +1651,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         </div>
                       </div>
                       <div className="eval-bar-container" style={{ height: boardSize, width: evalBarWidth }}>
-                        <EvaluationBar odds={game?.odds} width={evalBarWidth} />
+                        <EvaluationBar
+                          odds={isAtLatestSnapshot ? game?.odds : approximateOddsFromFen(activeSnapshot?.fen)}
+                          width={evalBarWidth}
+                        />
                       </div>
                     </div>
                     <div
