@@ -675,11 +675,22 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     } catch {}
   }, [authUserId, gameId, receipts]);
 
-  // Remove any optimistic entries that now have a real counterpart
+  // Remove any optimistic entries only when a matching real counterpart exists.
+  // Match on wdl/data/amount/move_number and time proximity to avoid false positives
   useEffect(() => {
     if (!pendingReceipts.length || !receipts.length) return;
-    const realKeys = new Set(receipts.map((w) => `${w.wdl ? 'wdl' : 'move'}:${String(w.data)}`));
-    setPendingReceipts((prev) => prev.filter((w) => !realKeys.has(`${w.wdl ? 'wdl' : 'move'}:${String(w.data)}`)));
+    setPendingReceipts((prev) => prev.filter((p) => {
+      const pTime = Date.parse(p.created_at || '');
+      const lowerBound = Number.isFinite(pTime) ? pTime - 60000 : 0; // 60s grace window
+      const matched = receipts.some((r) => (
+        r.wdl === p.wdl &&
+        String(r.data) === String(p.data) &&
+        (r.amount ?? 0) === (p.amount ?? 0) &&
+        (r.move_number ?? -1) === (p.move_number ?? -1) &&
+        Date.parse(r.created_at || '') >= lowerBound
+      ));
+      return !matched;
+    }));
   }, [receipts, pendingReceipts.length]);
 
   const displayReceipts = pendingReceipts.concat(receipts.length ? receipts : cachedReceipts);
@@ -900,7 +911,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       }, ...prev]);
 
       // Immediate success state for tactile feedback
-      const moveKey = `${positionIndex}-${move}`;
       updateMoveState(moveKey, 'success');
       scheduleMoveReset(moveKey, 500);
 
