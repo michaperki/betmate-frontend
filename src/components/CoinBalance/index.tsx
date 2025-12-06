@@ -13,7 +13,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({ balance, className, compact =
   if (balance === undefined) return null;
 
   return (
-    <div className={`coin-balance ${compact ? 'compact' : ''} ${className || ''}`}>
+    <div className={`coin-balance ${compact ? 'compact' : ''} ${className || ''}`} title="Your balance">
       <img src={BalanceIcon} alt="Balance" className="balance-icon" />
       <span className="balance-text">
         {Math.round(balance)} <span className={`tokens-text ${compact ? 'hidden' : ''}`}>tokens</span>

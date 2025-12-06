@@ -10,20 +10,20 @@
   z-index: $z-fixed;
   padding: $space-1 0;
   
-  // Default is mobile size
-  height: 60px;
+  // Default is mobile size (slightly trimmed)
+  height: 56px;
   
   @include tablet-up {
-    height: 70px;
+    height: 64px;
   }
   
   @include desktop-up {
-    height: 80px;
+    height: 72px;
   }
   
   // Compact variant for game screens
   &--compact {
-    height: 50px;
+    height: 48px;
     padding: $space-1 0;
     background-color: rgba($bg-secondary, 0.95);
     box-shadow: $shadow-base;
@@ -67,27 +67,27 @@
     }
     
     img {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       
       @include tablet-up {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
       }
       
       @include desktop-up {
-        width: 50px;
-        height: 50px;
+        width: 44px;
+        height: 44px;
       }
       
       .navbar--compact & {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
       }
     }
     
     span {
-      font-size: $text-xl;
+      font-size: $text-lg;
       font-weight: $font-semibold;
       margin-left: $space-3;
       color: $brand-primary;
@@ -97,13 +97,56 @@
       }
       
       .navbar--compact & {
-        font-size: $text-lg;
+        font-size: $text-base;
         margin-left: $space-2;
         
         @include tablet-up {
           display: block;
         }
       }
+    }
+  }
+
+  // Breadcrumb (for game context)
+  &__breadcrumb {
+    display: none;
+    align-items: center;
+    gap: $space-2;
+    color: $text-secondary;
+    font-size: $text-sm;
+    margin-left: $space-4;
+    flex: 1 1 auto;
+    min-width: 0;
+
+    @include tablet-up {
+      display: flex;
+    }
+
+    .navbar--compact & {
+      display: flex;
+    }
+
+    .navbar__crumb {
+      color: $text-secondary;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &:hover {
+        color: $text-primary;
+      }
+    }
+
+    .navbar__crumb-sep {
+      opacity: 0.5;
+    }
+
+    .navbar__crumb-current {
+      color: $text-primary;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
   
@@ -241,6 +284,8 @@
   // Balance display
   &__balance {
     margin-left: $space-3;
+    display: flex;
+    align-items: center;
     
     @include mobile {
       margin-top: $space-3;

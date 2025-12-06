@@ -23,6 +23,8 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
     setMenuOpen(!menuOpen);
   };
 
+  const isGameRoute = location.pathname.startsWith('/chess');
+
   return (
     <nav className={`navbar ${compact ? 'navbar--compact' : ''}`}>
       <div className="navbar__container">
@@ -30,6 +32,15 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           <img src={logo} alt="BetMate Logo" />
           <span>BetMate</span>
         </NavLink>
+
+        {/* Optional breadcrumb context for game pages */}
+        {isGameRoute && (
+          <div className="navbar__breadcrumb" aria-label="Breadcrumb">
+            <NavLink to="/" className="navbar__crumb" onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <span className="navbar__crumb-sep">/</span>
+            <span className="navbar__crumb-current">Live Game</span>
+          </div>
+        )}
 
         {/* Mobile menu toggle */}
         <button 
@@ -57,9 +68,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           {/* Raffles removed */}
 
           {isAuthenticated ? (
-            <div className="navbar__item navbar__item--button" onClick={() => setMenuOpen(false)}>
-              <SignOutPanel />
-            </div>
+            <SignOutPanel />
           ) : (
             <>
               <NavLink
@@ -73,7 +82,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
               <NavLink
                 to="/signup"
                 activeClassName="active"
-                className="navbar__item navbar__item--button"
+                className="navbar__item"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign Up

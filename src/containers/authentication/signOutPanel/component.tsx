@@ -9,7 +9,9 @@ export interface SignOutPanelProps {
 const SignOutPanel: React.FC<SignOutPanelProps> = ({ signOutUser }) => {
   return (
     <div>
-      <NavLink to="/" onClick={() => signOutUser()}>sign out</NavLink>
+      <NavLink to="/" className="navbar__item" onClick={() => signOutUser()}>
+        Sign Out
+      </NavLink>
     </div>
   );
 };

@@ -1,84 +1,90 @@
+@import '../../styles/tokens.scss';
+
 .active-bets-page {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  color: #333;
+  max-width: $container-xl;
+  margin: $space-8 auto;
+  padding: 0 $space-4;
+  font-family: $font-primary;
+  color: $text-primary;
 
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: $space-6;
 
     h1 {
-      font-size: 2rem;
-      font-weight: 600;
+      font-size: $text-2xl;
+      font-weight: $font-semibold;
       margin: 0;
-      color: #333;
+      color: $text-primary;
     }
 
     .filter-controls {
       display: flex;
-      gap: 1rem;
+      gap: $space-3;
 
       .refresh-button {
-        background-color: #5b6be8;
-        color: white;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
+        background: transparent;
+        color: $text-primary;
+        padding: $space-2 $space-3;
+        border: 1px solid $border-primary;
+        border-radius: $radius-base;
         cursor: pointer;
+        transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out;
 
         &:hover {
-          background-color: #4957d9;
+          border-color: $brand-primary;
+          color: $brand-primary;
+          background-color: rgba($brand-primary, 0.06);
         }
       }
     }
   }
 
   .bets-container {
-    background-color: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: $bg-secondary;
+    border-radius: $radius-lg;
+    padding: $space-6;
+    border: 1px solid $border-primary;
   }
 
   .empty-state {
     text-align: center;
-    padding: 3rem 0;
+    padding: $space-8 0;
 
     h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #333;
+      font-size: $text-xl;
+      margin-bottom: $space-3;
+      color: $text-primary;
     }
 
     p {
-      color: #666;
-      margin-bottom: 1.5rem;
+      color: $text-secondary;
+      margin-bottom: $space-4;
     }
 
     .cta-button {
-      padding: 0.75rem 1.5rem;
-      background-color: #5b6be8;
-      color: white;
-      border-radius: 4px;
-      font-weight: 500;
+      padding: $space-3 $space-6;
+      background-color: $brand-primary;
+      color: $text-inverse;
+      border-radius: $radius-base;
+      font-weight: $font-medium;
       text-decoration: none;
       display: inline-block;
-      transition: background-color 0.2s;
+      transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out;
 
       &:hover {
-        background-color: #4957d9;
+        background-color: $brand-primary-hover;
+        box-shadow: $shadow-glow-green;
       }
     }
   }
 
   .bet-card {
     display: flex;
-    border-bottom: 1px solid #eaeaea;
-    padding: 1rem 0;
+    border-bottom: 1px solid $border-primary;
+    padding: $space-4 0;
 
     &:last-child {
       border-bottom: none;
@@ -87,48 +93,24 @@
     .game-info {
       flex: 1;
 
-      .players {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #333;
-      }
-
-      .date {
-        font-size: 0.9rem;
-        color: #666;
-      }
+      .players { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
+      .date { font-size: $text-sm; color: $text-secondary; }
     }
 
     .bet-details {
       flex: 2;
-      padding: 0 1rem;
+      padding: 0 $space-4;
 
-      .bet-type {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #333;
-      }
-
-      .odds {
-        font-size: 0.9rem;
-        color: #666;
-      }
+      .bet-type { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
+      .odds { font-size: $text-sm; color: $text-secondary; }
     }
 
     .bet-amount {
       flex: 1;
       text-align: right;
 
-      .amount {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #333;
-      }
-
-      .potential-win {
-        font-size: 0.9rem;
-        color: #4caf50;
-      }
+      .amount { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
+      .potential-win { font-size: $text-sm; color: $success; }
     }
   }
 
@@ -140,9 +122,9 @@
     min-height: 200px;
 
     .loading-spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
+      border: 4px solid rgba(255, 255, 255, 0.08);
       border-radius: 50%;
-      border-top: 4px solid #5b6be8;
+      border-top: 4px solid $brand-primary;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
@@ -159,22 +141,17 @@
     text-align: center;
     padding: 2rem 0;
 
-    p {
-      color: #e74c3c;
-      margin-bottom: 1rem;
-    }
+    p { color: $error; margin-bottom: $space-4; }
 
     button {
-      background-color: #5b6be8;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
+      background: transparent;
+      color: $text-primary;
+      border: 1px solid $border-primary;
+      padding: $space-2 $space-3;
+      border-radius: $radius-base;
       cursor: pointer;
-
-      &:hover {
-        background-color: #4957d9;
-      }
+      transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out;
+      &:hover { border-color: $brand-primary; color: $brand-primary; background-color: rgba($brand-primary, 0.06); }
     }
   }
 
@@ -183,12 +160,12 @@
     .header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 1rem;
+      gap: $space-3;
     }
 
     .bet-card {
       flex-direction: column;
-      gap: 1rem;
+      gap: $space-3;
 
       .bet-details, .bet-amount {
         padding: 0;
