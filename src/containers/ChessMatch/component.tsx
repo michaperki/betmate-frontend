@@ -1403,11 +1403,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   if (!isAuthenticated) {
     return (
       <div className="dark-game-page">
-        <NavBar compact={true} breadcrumb={(() => {
-          const w = game?.player_white?.name?.split(' ')[0] || 'White';
-          const b = game?.player_black?.name?.split(' ')[0] || 'Black';
-          return `${w} vs ${b}`;
-        })()} />
+        <NavBar compact={true} />
         <div className="unauthenticated-container">
           <div className="unauthenticated-content">
             <h2>Welcome to Betmate</h2>
@@ -1457,11 +1453,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
       <div className="dark-game-page">
         <ConnectionStatus />
-        <NavBar compact={true} breadcrumb={(() => {
-          const w = game?.player_white?.name?.split(' ')[0] || 'White';
-          const b = game?.player_black?.name?.split(' ')[0] || 'Black';
-          return `${w} vs ${b}`;
-        })()} />
+        <NavBar compact={true} />
         <div className="chess-match-page">
           <div className="chess-match-page__content">
             <div className="board-demo">

@@ -10,7 +10,7 @@ export interface NavBarProps {
   firstName: string;
   balance?: number;
   compact?: boolean; // Whether to use the compact variant (for game screens)
-  breadcrumb?: string; // Optional context label displayed as breadcrumb
+  breadcrumb?: string; // Optional context label (currently used for non-game routes only)
 }
 
 const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false, breadcrumb }) => {
@@ -18,7 +18,8 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
   const location = useLocation();
 
   // Don't show balance on dashboard since it's displayed in HeroSection
-  const showBalance = location.pathname !== '/';
+  const isDashboard = location.pathname === '/';
+  const showBalance = !isDashboard;
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -34,12 +35,12 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           <span>BetMate</span>
         </NavLink>
 
-        {/* Optional breadcrumb/context */}
-        {(breadcrumb || isGameRoute) && (
+        {/* Breadcrumb: keep original 'Live Game' label for game route */}
+        {isGameRoute && (
           <div className="navbar__breadcrumb" aria-label="Breadcrumb">
             <NavLink to="/" className="navbar__crumb" onClick={() => setMenuOpen(false)}>Home</NavLink>
             <span className="navbar__crumb-sep">/</span>
-            <span className="navbar__crumb-current">{breadcrumb || 'Live Game'}</span>
+            <span className="navbar__crumb-current">Live Game</span>
           </div>
         )}
 
@@ -91,17 +92,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
             </>
           )}
 
-          {/* Show balance if authenticated and not on dashboard */}
+          {/* Unified account cluster: avatar (non-dashboard) + token balance */}
           {isAuthenticated && showBalance && (
-            <div className="navbar__balance">
-              <CoinBalance balance={balance} compact={compact} />
-            </div>
-          )}
-
-          {/* Minimal avatar (initial) */}
-          {isAuthenticated && firstName && (
-            <div className="navbar__avatar" title={firstName} aria-label="Account">
-              {firstName.charAt(0).toUpperCase()}
+            <div className="navbar__account">
+              {!isDashboard && firstName && (
+                <div className="navbar__account-avatar" title={firstName} aria-label="Account">
+                  {firstName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="navbar__account-balance">
+                <CoinBalance balance={balance} compact={compact} />
+              </div>
             </div>
           )}
         </div>
