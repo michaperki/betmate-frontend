@@ -90,18 +90,24 @@
       border-bottom: none;
     }
 
-    .game-info {
-      flex: 1;
-
-      .players { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
-      .date { font-size: $text-sm; color: $text-secondary; }
+    .game-info { flex: 1; }
+    .match-title {
+      font-weight: $font-semibold;
+      color: $text-primary;
+      margin-bottom: $space-1;
+      .player { white-space: nowrap; }
+      .vs { margin: 0 $space-2; color: $text-secondary; }
     }
+    .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
+    .meta .dot { opacity: 0.5; }
+    .view-link { color: $text-secondary; text-decoration: none; }
+    .view-link:hover { color: $text-primary; }
 
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
 
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
+      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
       .odds { font-size: $text-sm; color: $text-secondary; }
     }
 
@@ -109,7 +115,7 @@
       flex: 1;
       text-align: right;
 
-      .amount { font-weight: $font-medium; margin-bottom: $space-2; color: $text-primary; }
+      .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
       .potential-win { font-size: $text-sm; color: $success; }
     }
   }
