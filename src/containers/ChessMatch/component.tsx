@@ -684,8 +684,26 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     outcomeResetTimers.current[outcomeId] = timerId;
   }, [updateOutcomeState]);
 
-  // As a backstop, when we observe a draw wager for this game appear in receipts,
-  // and generally for any outcome/move, ensure we exit loading to success.
+  
+
+  const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
+    setMoveStates((prev) => {
+      if (prev[moveKey] === next) return prev;
+      return { ...prev, [moveKey]: next };
+    });
+  }, []);
+
+  const scheduleMoveReset = useCallback((moveKey: string, delay: number) => {
+    const timer = moveResetTimers.current[moveKey];
+    if (timer) window.clearTimeout(timer);
+    const timerId = window.setTimeout(() => {
+      updateMoveState(moveKey, 'idle');
+      moveResetTimers.current[moveKey] = null;
+    }, delay);
+    moveResetTimers.current[moveKey] = timerId;
+  }, [updateMoveState]);
+
+  // Confirm success via receipts rather than optimistic UI
   useEffect(() => {
     // Outcomes
     (['black_win','white_win','draw'] as OutcomeId[]).forEach((outcomeId) => {
@@ -734,23 +752,6 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       }
     });
   }, [createWagerRequest, outcomeStates, moveStates, scheduleMoveReset, scheduleOutcomeReset, updateMoveState, updateOutcomeState]);
-
-  const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
-    setMoveStates((prev) => {
-      if (prev[moveKey] === next) return prev;
-      return { ...prev, [moveKey]: next };
-    });
-  }, []);
-
-  const scheduleMoveReset = useCallback((moveKey: string, delay: number) => {
-    const timer = moveResetTimers.current[moveKey];
-    if (timer) window.clearTimeout(timer);
-    const timerId = window.setTimeout(() => {
-      updateMoveState(moveKey, 'idle');
-      moveResetTimers.current[moveKey] = null;
-    }, delay);
-    moveResetTimers.current[moveKey] = timerId;
-  }, [updateMoveState]);
 
   const triggerOutcomeBet = useCallback(async (outcomeId: OutcomeId) => {
     if (!game) return;
