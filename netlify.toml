@@ -3,4 +3,14 @@
   to = "/index.html"
   status = 200
   force = false
+
+[[headers]]
+  for = "/pieces/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/pieces_w/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
   

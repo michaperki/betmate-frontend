@@ -16,6 +16,7 @@ import { Chess, Square } from 'chess.js';
 import NavBar from 'components/NavBar';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import MiniLeaderboard from 'components/BettingSidebar/MiniLeaderboard';
+import { preloadPieces } from 'utils/imagePreload';
 import ChatBox from 'components/ChatBox';
 import ConnectionStatus from 'components/ConnectionStatus';
 import OnboardingGate from 'components/OnboardingGate';
@@ -267,6 +268,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }, 10000);
     return () => clearInterval(interval);
   }, [fetchGameById, fetchGameStats, getGameLeaderboard, gameId]);
+
+  // Preload and pre-decode piece icons once on mount to avoid flicker
+  useEffect(() => {
+    preloadPieces();
+  }, []);
 
   const isGameInProgress = useMemo(() => (
     game ? gameInProgress(game.game_status as GameStatus) : false
@@ -821,7 +827,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         >
           <span className="move-option__left">
             <span className="move-option__icon" aria-hidden data-color={color}>
-              <img src={pieceSrc} alt="" />
+              <img src={pieceSrc} alt="" decoding="async" />
             </span>
             <span className="move-option__dest">{dest}</span>
           </span>
@@ -887,7 +893,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               >
                 <span className="move-option__left">
                   <span className="move-option__icon" aria-hidden data-color={color}>
-                    <img src={pieceSrc} alt="" />
+                    <img src={pieceSrc} alt="" decoding="async" />
                   </span>
                   <span className="move-option__dest">{dest}</span>
                 </span>
@@ -1078,7 +1084,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       >
         <span className="move-option__left">
           <span className="move-option__icon" aria-hidden>
-            <img src={pieceSrc} alt="" />
+            <img src={pieceSrc} alt="" decoding="async" />
           </span>
           <span className="move-option__dest">{dest}</span>
         </span>
