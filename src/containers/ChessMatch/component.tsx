@@ -685,16 +685,55 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   }, [updateOutcomeState]);
 
   // As a backstop, when we observe a draw wager for this game appear in receipts,
-  // ensure the Draw button exits loading state to success and then resets.
+  // and generally for any outcome/move, ensure we exit loading to success.
   useEffect(() => {
-    const anyDraw = receipts.some(
-      (w) => w.wdl && w.game_id === gameId && String(w.data).toLowerCase().includes('draw')
-    );
-    if (anyDraw && outcomeStates['draw'] === 'loading') {
-      updateOutcomeState('draw', 'success');
-      scheduleOutcomeReset('draw', 600);
+    // Outcomes
+    (['black_win','white_win','draw'] as OutcomeId[]).forEach((outcomeId) => {
+      if (outcomeStates[outcomeId] !== 'loading') return;
+      const needle = outcomeId.includes('white') ? 'white' : outcomeId.includes('black') ? 'black' : 'draw';
+      const found = receipts.some((w) => w.wdl && w.game_id === gameId && String(w.data).toLowerCase().includes(needle));
+      if (found) {
+        updateOutcomeState(outcomeId, 'success');
+        scheduleOutcomeReset(outcomeId, 600);
+      }
+    });
+
+    // Moves: if any move currently loading matches a receipt.data, mark success
+    const loadingMoveKeys = Object.keys(moveStates).filter((k) => moveStates[k] === 'loading');
+    if (loadingMoveKeys.length) {
+      const moveSet = new Set(receipts.filter((w) => !w.wdl && w.game_id === gameId).map((w) => String(w.data)));
+      loadingMoveKeys.forEach((key) => {
+        const parts = key.split('-');
+        const moveStr = parts.slice(1).join('-'); // original move may contain '-'
+        if (moveSet.has(moveStr)) {
+          updateMoveState(key, 'success');
+          scheduleMoveReset(key, 500);
+        }
+      });
     }
-  }, [receipts, gameId, outcomeStates, scheduleOutcomeReset, updateOutcomeState]);
+  }, [receipts, gameId, outcomeStates, moveStates, scheduleOutcomeReset, scheduleMoveReset, updateOutcomeState, updateMoveState]);
+
+  // If the wager request fails, show inline error on anything in loading state
+  const createWagerRequest = useSelector((state: RootState) => state.requests?.['CREATE_WAGER']);
+  useEffect(() => {
+    if (!createWagerRequest) return;
+    if (createWagerRequest.isLoading) return;
+    if (!createWagerRequest.message) return; // no error -> ignore
+    // Outcomes in loading -> error
+    (['black_win','white_win','draw'] as OutcomeId[]).forEach((outcomeId) => {
+      if (outcomeStates[outcomeId] === 'loading') {
+        updateOutcomeState(outcomeId, 'error');
+        scheduleOutcomeReset(outcomeId, 900);
+      }
+    });
+    // Moves in loading -> error
+    Object.keys(moveStates).forEach((key) => {
+      if (moveStates[key] === 'loading') {
+        updateMoveState(key, 'error');
+        scheduleMoveReset(key, 900);
+      }
+    });
+  }, [createWagerRequest, outcomeStates, moveStates, scheduleMoveReset, scheduleOutcomeReset, updateMoveState, updateOutcomeState]);
 
   const updateMoveState = useCallback((moveKey: string, next: MoveVisualState) => {
     setMoveStates((prev) => {
@@ -745,8 +784,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         game.move_hist.length + 1,
       );
       await Promise.resolve(wagerPromise);
-      updateOutcomeState(outcomeId, 'success');
-      scheduleOutcomeReset(outcomeId, 600);
+      // Defer success visual to receipts observation to ensure backend accepted
       if (outcomeLoadingSafety.current[outcomeId]) {
         window.clearTimeout(outcomeLoadingSafety.current[outcomeId]!);
         outcomeLoadingSafety.current[outcomeId] = null;
@@ -786,8 +824,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         game.move_hist.length + 1,
       );
       await Promise.resolve(wagerPromise);
-      updateMoveState(moveKey, 'success');
-      scheduleMoveReset(moveKey, 500);
+      // Defer success visual to receipts observation to ensure backend accepted
       // Refresh receipts so new wagers appear promptly
       dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
