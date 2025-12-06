@@ -30,14 +30,17 @@ const SnapSummary: React.FC<SnapSummaryProps> = ({ userName = 'Player', stats })
         <div className="metric">
           <div className="metric-label">Win rate</div>
           <div className="metric-value">{formatPercent(stats.winRate)}</div>
+          <div className="metric-suffix placeholder" />
         </div>
         <div className="metric">
           <div className="metric-label">Total wagers</div>
           <div className="metric-value">{stats.totalWagers}</div>
+          <div className="metric-suffix placeholder" />
         </div>
         <div className="metric">
           <div className="metric-label">Active matches</div>
           <div className="metric-value">{stats.activeMatches}</div>
+          <div className="metric-suffix placeholder" />
         </div>
       </div>
     </section>

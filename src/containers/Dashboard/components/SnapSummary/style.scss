@@ -67,6 +67,7 @@
       display: grid;
       grid-template-rows: auto auto auto;
       align-content: center;
+      min-height: 110px; // keep equal heights regardless of content
 
       .metric-label {
         font-size: $text-xs;
@@ -87,6 +88,8 @@
         font-size: $text-xs;
         color: $text-muted;
       }
+
+      .metric-suffix.placeholder { visibility: hidden; }
     }
   }
 }

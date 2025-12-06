@@ -125,9 +125,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   return (
     <div className="dashboard">
       <div className="dashboard-container">
-        {/* Option A: Snap Summary + Quick Actions */}
+        {/* Option A: Snap Summary + Quick Actions (mobile re-ordered below) */}
         <SnapSummary userName={props.user?.first_name || 'Player'} stats={stats} />
-        <QuickActionBar featuredGameId={featuredGame?._id} />
+        {!isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
         {/* Main Content Area */}
         <div className="dashboard-main">
@@ -138,6 +138,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
               <FeaturedMatch game={featuredGame} />
             </div>
           )}
+          {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
           {/* Stats Tiles */}
           <StatsTiles />

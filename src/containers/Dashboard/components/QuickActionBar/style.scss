@@ -2,15 +2,15 @@
 @import '../../../../styles/mixins.scss';
 
 .quick-action-bar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: $space-3;
-  margin: $space-4 0;
+  display: flex;
+  gap: $space-2;
+  margin: $space-3 0;
+  align-items: center;
 
   .qa-btn {
     text-align: center;
     border-radius: $radius-lg;
-    padding: $space-2 $space-3;
+    white-space: nowrap;
   }
 
   .qa-btn.disabled {
@@ -18,8 +18,17 @@
     pointer-events: none;
   }
 
+  // Grow buttons evenly on larger screens
+  @include tablet-up {
+    .qa-btn { flex: 1; }
+  }
+
+  // On mobile keep in a single horizontal row with scroll, to avoid pushing content
   @include mobile {
-    grid-template-columns: 1fr;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar { display: none; }
   }
 }
 
