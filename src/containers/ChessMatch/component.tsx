@@ -208,6 +208,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const [activeOverlay, setActiveOverlay] = useState<'chat' | 'leaderboard' | null>(null);
   const [boardSize, setBoardSize] = useState(420);
   const [maxBoardSize, setMaxBoardSize] = useState(420);
+  // Keep a proportional relationship between the user's chosen size and the
+  // available maximum so window resizes feel equivalent to dragging the handle.
+  const [sizeRatio, setSizeRatio] = useState(1); // 0..1 (1 = use max)
   const [positionIndex, setPositionIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hoverArrow, setHoverArrow] = useState<[string, string] | null>(null);
@@ -289,24 +292,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const handler = () => {
       const nextMax = computeMax();
       setMaxBoardSize(nextMax);
-      setBoardSize((prev) => {
-        const unclamped = prev;
-        const snapped = ENABLE_RESIZE_SNAP
-          ? Math.round(unclamped / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
-          : unclamped;
-        // On initial load or when expanding window, prefer the maximum size.
-        if (prev < nextMax) return nextMax;
-        const clamped = Math.min(nextMax, Math.max(MIN_BOARD_SIZE, snapped));
-        if (ENABLE_RESIZE_DEBUG && clamped !== prev) {
-          console.debug('[resize handler] max:', nextMax, 'prev:', prev, 'snapped:', snapped, 'clamped:', clamped);
-        }
-        return clamped;
-      });
+      // Recompute board size from the user's chosen ratio so shrinking/expanding
+      // the window behaves like dragging the handle proportionally.
+      const desired = Math.max(MIN_BOARD_SIZE, Math.min(nextMax, Math.round(nextMax * sizeRatio)));
+      const snapped = ENABLE_RESIZE_SNAP
+        ? Math.round(desired / BOARD_SNAP_INCREMENT) * BOARD_SNAP_INCREMENT
+        : desired;
+      setBoardSize(snapped);
     };
     handler();
     window.addEventListener('resize', handler);
     return () => window.removeEventListener('resize', handler);
-  }, []);
+  }, [sizeRatio]);
 
   const snapshots = useMemo<Snapshot[]>(() => {
     const chess = new Chess();
@@ -1375,6 +1372,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         console.debug('[drag move] deltaX:', deltaX, 'deltaY:', deltaY, 'dominant:', dominantDelta, 'next:', nextSize);
       }
       setBoardSize(nextSize);
+      // Update ratio so subsequent window resize keeps the same relative size.
+      const ratio = Math.max(0, Math.min(1, nextSize / (maxBoardSize || nextSize)));
+      setSizeRatio(ratio);
     };
     const handleEnd = () => {
       setIsDragging(false);
