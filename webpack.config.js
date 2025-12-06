@@ -4,7 +4,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const { DefinePlugin } = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const isProd = env === 'production';
@@ -151,15 +150,22 @@ module.exports = {
       filename: '200.html',
     }),
     // Ensure static assets in ./public (e.g., /pieces, /pieces_w) are available in the production build
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, 'public'),
-          to: '.',
-          noErrorOnMissing: true,
-        },
-      ],
-    }),
+    // Load plugin only in production to avoid dev-time dependency errors
+    ...(
+      isProd
+        ? [
+            new (require('copy-webpack-plugin'))({
+              patterns: [
+                {
+                  from: path.resolve(__dirname, 'public'),
+                  to: '.',
+                  noErrorOnMissing: true,
+                },
+              ],
+            })
+          ]
+        : []
+    ),
     new Dotenv({ systemvars: true }),
     new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
