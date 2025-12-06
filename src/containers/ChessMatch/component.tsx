@@ -365,7 +365,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
   const isAtLatestSnapshot = positionIndex === latestSnapshotIndex;
   const betsLocked = !isAtLatestSnapshot;
-  const canPlaceWagers = !betsLocked && isAuthenticated && !!selectedStake && isGameInProgress;
+  const hasSufficientBalance = (props.balance ?? 0) >= (selectedStake || 0);
+  const canPlaceWagers = !betsLocked && isAuthenticated && !!selectedStake && isGameInProgress && hasSufficientBalance;
 
   const arrowShapes = useMemo(() => {
     const baseShapes = autoShapes || [];
@@ -713,7 +714,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   }, [updateMoveState]);
 
   const triggerOutcomeBet = useCallback(async (outcomeId: OutcomeId) => {
-    if (!canPlaceWagers || !game) return;
+    if (!game) return;
+    // Immediate guard for insufficient balance
+    if (!hasSufficientBalance) {
+      updateOutcomeState(outcomeId, 'error');
+      scheduleOutcomeReset(outcomeId, 900);
+      return;
+    }
+    if (!canPlaceWagers) return;
     // Prevent double submission using current render state snapshot
     if (outcomeStates[outcomeId] === 'loading') return;
     setOutcomeStates((prev) => ({ ...prev, [outcomeId]: 'loading' }));
@@ -754,12 +762,19 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         outcomeLoadingSafety.current[outcomeId] = null;
       }
     }
-  }, [canPlaceWagers, createWager, game, gameId, outcomeStates, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
+  }, [canPlaceWagers, createWager, game, gameId, hasSufficientBalance, outcomeStates, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
 
   const handleMoveBet = useCallback(async (move: string) => {
-    if (!canPlaceWagers || !game) return;
+    if (!game) return;
     const moveKey = `${positionIndex}-${move}`;
     if (moveStates[moveKey] === 'loading') return;
+    // Immediate guard for insufficient balance
+    if (!hasSufficientBalance) {
+      updateMoveState(moveKey, 'error');
+      scheduleMoveReset(moveKey, 900);
+      return;
+    }
+    if (!canPlaceWagers) return;
     updateMoveState(moveKey, 'loading');
     try {
       const wagerPromise = createWager(
@@ -780,7 +795,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       updateMoveState(moveKey, 'error');
       scheduleMoveReset(moveKey, 700);
     }
-  }, [canPlaceWagers, createWager, game, gameId, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState]);
+  }, [canPlaceWagers, createWager, game, gameId, hasSufficientBalance, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState]);
 
   useEffect(() => () => {
     (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
