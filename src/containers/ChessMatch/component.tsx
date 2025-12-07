@@ -1117,9 +1117,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
       const sanKey = toSanForCurrent(option.move);
       const analysis = moveAnalysisBySan[sanKey];
-      const isBest = analysis?.is_best_move;
-      const percentile = analysis ? Math.round(analysis.percentile) : null;
-      const qualityClass = isBest ? 'quality-best' : (percentile != null && percentile >= 70) ? 'quality-strong' : (percentile != null && percentile >= 40) ? 'quality-decent' : (percentile != null ? 'quality-poor' : 'quality-unknown');
+      const isBest = !!analysis?.is_best_move;
+      const rawPct = analysis?.percentile;
+      const percentile = (typeof rawPct === 'number' && Number.isFinite(rawPct)) ? Math.round(rawPct) : null;
+      const qualityClass = isBest
+        ? 'quality-best'
+        : (percentile == null)
+          ? 'quality-unknown'
+          : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
       const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
       return (
         <button
@@ -1143,7 +1148,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <span className="move-option__dest">{dest}</span>
             {analysis ? (
               <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                {isBest ? 'BEST' : `${percentile}`}
+                {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
               </span>
             ) : null}
           </span>
@@ -1193,9 +1198,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
             const sanKey = toSanForCurrent(option.move);
             const analysis = moveAnalysisBySan[sanKey];
-            const isBest = analysis?.is_best_move;
-            const percentile = analysis ? Math.round(analysis.percentile) : null;
-            const qualityClass = isBest ? 'quality-best' : (percentile != null && percentile >= 70) ? 'quality-strong' : (percentile != null && percentile >= 40) ? 'quality-decent' : (percentile != null ? 'quality-poor' : 'quality-unknown');
+            const isBest = !!analysis?.is_best_move;
+            const rawPct = analysis?.percentile;
+            const percentile = (typeof rawPct === 'number' && Number.isFinite(rawPct)) ? Math.round(rawPct) : null;
+            const qualityClass = isBest
+              ? 'quality-best'
+              : (percentile == null)
+                ? 'quality-unknown'
+                : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
             const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
             return (
               <button
@@ -1219,7 +1229,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   <span className="move-option__dest">{dest}</span>
                   {analysis ? (
                     <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                      {isBest ? 'BEST' : `${percentile}`}
+                      {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
                     </span>
                   ) : null}
                 </span>
@@ -1516,12 +1526,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             const sanKey = toSanForCurrent(option.move);
             const analysis = moveAnalysisBySan[sanKey];
             if (!analysis) return null;
-            const isBest = analysis.is_best_move;
-            const percentile = Math.round(analysis.percentile);
-            const qualityClass = isBest ? 'quality-best' : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
+            const isBest = !!analysis.is_best_move;
+            const rawPct = analysis.percentile;
+            const percentile = (typeof rawPct === 'number' && Number.isFinite(rawPct)) ? Math.round(rawPct) : null;
+            const qualityClass = isBest
+              ? 'quality-best'
+              : (percentile == null)
+                ? 'quality-unknown'
+                : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
             return (
               <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                {isBest ? 'BEST' : `${percentile}`}
+                {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
               </span>
             );
           })()}

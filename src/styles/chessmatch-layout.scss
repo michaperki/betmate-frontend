@@ -1213,6 +1213,7 @@
   .quality-strong { color: var(--move-quality-strong, #34d399); }
   .quality-decent { color: var(--move-quality-decent, #fbbf24); }
   .quality-poor { color: var(--move-quality-poor, #f87171); }
+  .quality-unknown { color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55)); }
 
     &:hover,
     &:focus-visible {
