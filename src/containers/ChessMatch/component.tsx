@@ -395,7 +395,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const activeSnapshot = snapshots[positionIndex] ?? snapshots[0];
   const isAtLatestSnapshot = positionIndex === latestSnapshotIndex;
-  const betsLocked = !isAtLatestSnapshot;
+  // Consider the UI effectively live while we are following live, to avoid
+  // brief flicker when a new snapshot arrives and positionIndex updates.
+  const isEffectivelyLive = isFollowingLive || isAtLatestSnapshot;
+  const betsLocked = !isEffectivelyLive;
   const hasSufficientBalance = (props.balance ?? 0) >= (selectedStake || 0);
   const canPlaceWagers = !betsLocked && isAuthenticated && !!selectedStake && isGameInProgress && hasSufficientBalance;
 
@@ -1815,7 +1818,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         viewerCount={viewerCount}
         onOpenChat={openChat}
         onOpenLeaderboard={openLeaderboard}
-        isLive={isAtLatestSnapshot}
+        isLive={isEffectivelyLive && isGameInProgress}
         onDraw={() => triggerOutcomeBet('draw')}
         drawState={outcomeStates['draw']}
         canDraw={canPlaceWagers}
