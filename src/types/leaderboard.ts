@@ -39,7 +39,8 @@ export const LEAVE_USER_POSITION = 'LEAVE_USER_POSITION';
 export const FETCH_GAME_LEADERBOARD = 'FETCH_GAME_LEADERBOARD';
 
 export type FetchLeaderboardData = LeaderboardSection;
-export type FetchUserRankData = Rank;
+export type UserRankResponse = Rank | { has_rank: false };
+export type FetchUserRankData = UserRankResponse;
 export type FetchGameLeaderboardData = { rankings: Rank[] };
 
 export type FetchLeaderboardRequest = { start: number, end: number, _id?: string };

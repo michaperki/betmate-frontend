@@ -54,11 +54,14 @@ const leaderboardReducer = (state = initialState, action: Actions): LeaderboardS
         hasMore: action.payload.rankings_size > getLastRank(action.payload.rankings),
         lowestRank: getLastRank(action.payload.rankings),
       };
-    case 'FETCH_USER_RANK':
+    case 'FETCH_USER_RANK': {
+      const rank = (action as any).payload as any;
+      const userRank = rank && typeof rank === 'object' && 'rank' in rank ? rank.rank : undefined;
       return {
         ...state,
-        userRank: action.payload.rank,
+        userRank,
       };
+    }
     case 'DEAUTH_USER':
       return {
         ...state,
