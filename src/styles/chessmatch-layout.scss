@@ -28,11 +28,19 @@
 }
 
 // Reduce side padding on narrow mobile to prevent subtle horizontal overflow
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .chess-match-page__content {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 4px;  // nudge entire game area ~4px left
+    padding-right: 8px; // keep a touch more room on the right
     overflow-x: hidden;
+  }
+}
+
+// Subtle left-shift of the stacked game grid on small phones so
+// board + move menu + receipts + notation sit fully on-screen.
+@media (max-width: 480px) {
+  .board-layout {
+    transform: translateX(-1px); // total left nudge ~= 5px with padding change
   }
 }
 
