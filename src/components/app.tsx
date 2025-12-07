@@ -18,12 +18,14 @@ import ActiveBetsPage from 'containers/ActiveBetsPage';
 import BettingHistoryPage from 'containers/BettingHistoryPage';
 import NavBar from './NavBar';
 import RequireAuthHOC from 'hocs/requireAuth';
+import VersionFooter from './VersionFooter';
 
 const Welcome = () => {
   return (
     <div className="dashboard-page">
       <NavBar />
       <Dashboard/>
+      <VersionFooter />
     </div>
   );
 };
@@ -58,12 +60,14 @@ const App: React.FC<AppProps> = (props) => {
               <div className="dashboard-page">
                 <NavBar />
                 <ActiveBetsPage />
+                <VersionFooter />
               </div>
           )} />
           <Route exact path="/betting-history" render={() => (
               <div className="dashboard-page">
                 <NavBar />
                 <BettingHistoryPage />
+                <VersionFooter />
               </div>
           )} />
           <Route exact path="/signin" component={SignInPanel} />

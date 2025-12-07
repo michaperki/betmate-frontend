@@ -169,6 +169,11 @@ module.exports = {
     new Dotenv({ systemvars: true }),
     new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
+      // Build-time metadata for versioning and diagnostics
+      'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString()),
+      'process.env.BUILD_CONTEXT': JSON.stringify(process.env.CONTEXT || ''),
+      'process.env.BUILD_URL': JSON.stringify(process.env.DEPLOY_URL || process.env.URL || ''),
+      'process.env.BUILD_BRANCH': JSON.stringify(process.env.BRANCH || ''),
     }),
   ],
   devServer: {

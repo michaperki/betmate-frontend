@@ -25,6 +25,15 @@
   min-width: 0;
 }
 
+// Subtle version tag on desktop/tablet only
+.bt-version {
+  margin-left: 12px;
+  align-self: center;
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
 .bottom-toolbar__center {
   display: flex;
   justify-content: center;

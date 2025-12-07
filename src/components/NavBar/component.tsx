@@ -4,6 +4,7 @@ import logo from '../../assets/logo.svg';
 import CoinBalance from '../CoinBalance';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import './unified-navbar.scss';
+import VersionTag from '../VersionTag';
 
 export interface NavBarProps {
   isAuthenticated: boolean;
@@ -105,6 +106,13 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
               <div className="navbar__account-balance">
                 <CoinBalance balance={balance} compact={compact} />
               </div>
+            </div>
+          )}
+
+          {/* Mobile menu-only version label (appears at bottom of flyout) */}
+          {menuOpen && (
+            <div className="navbar__version">
+              <VersionTag ariaLabelPrefix="Frontend build" />
             </div>
           )}
         </div>

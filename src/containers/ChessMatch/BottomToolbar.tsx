@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import VersionTag from 'components/VersionTag';
 
 interface BottomToolbarProps {
   selectedStake: number;
@@ -33,6 +34,10 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       <div className="bottom-toolbar__left">
         <span className={`live-pill ${isLive ? 'is-live' : 'is-paused'}`}>
           {isLive ? 'Live' : 'Not Live'}
+        </span>
+        {/* Desktop-only version tag (hidden on small screens) */}
+        <span className="bt-version">
+          <VersionTag ariaLabelPrefix="Frontend build" />
         </span>
       </div>
       <div className="bottom-toolbar__center">

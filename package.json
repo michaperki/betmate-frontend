@@ -17,7 +17,7 @@
     "dev:webpack": "webpack serve",
     "test": "eslint src",
     "build-dev": "NODE_ENV=production TARGET_ENV=dev webpack",
-    "build-prod": "NODE_ENV=production TARGET_ENV=prod webpack",
+    "build-prod": "NODE_ENV=production TARGET_ENV=prod webpack && node ./scripts/notify-discord.js",
     "clean": "rimraf dist"
   },
   "devDependencies": {

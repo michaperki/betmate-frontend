@@ -170,17 +170,27 @@
       box-shadow: $shadow-lg;
       padding: $space-4 $space-3;
       z-index: $z-dropdown;
-      
+
       .navbar__item {
         width: 100%;
         margin: $space-1 0;
         padding: $space-3;
         text-align: center;
         border-radius: $radius-base;
-        
+
         &.active {
           background-color: rgba($brand-primary, 0.1);
         }
+      }
+
+      // Subtle version tag at the bottom of the mobile menu
+      .navbar__version {
+        display: block;
+        margin-top: $space-3;
+        color: $text-muted;
+        font-size: $text-xs;
+        text-align: center;
+        opacity: 0.8;
       }
     }
   }
@@ -346,4 +356,17 @@
       .balance-icon { margin-right: $space-2; }
     }
   }
+}
+
+// Generic version-tag styling used across UI
+.version-tag {
+  color: $text-muted;
+  font-size: $text-xs;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+// Hide navbar version placeholder by default (only show in mobile flyout)
+.navbar__version {
+  display: none;
 }
