@@ -1403,7 +1403,7 @@
   border-radius: $radius-pill;
   border: 1px solid var(--move-bubble-border, rgba(0, 0, 0, 0.12));
   background: var(--move-bubble-bg, #ffffff);
-  padding: 7px 8px 5px; // add bottom padding to center content vertically
+  padding: 7px 6px 5px; // slightly reduce horizontal padding to make room for quality
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1448,7 +1448,7 @@
     font-weight: 700;
     letter-spacing: 0;
     font-size: 16px;
-    margin-left: -2px; // tuck text close to the icon
+    margin-left: -4px; // nudge closer to icon to free space for quality
   }
 
   &__label {

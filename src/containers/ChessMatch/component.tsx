@@ -1148,7 +1148,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <span className="move-option__dest">{dest}</span>
             {analysis ? (
               <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
+                {isBest ? '💪' : (percentile == null ? '—' : `${percentile}`)}
               </span>
             ) : null}
           </span>
@@ -1229,7 +1229,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   <span className="move-option__dest">{dest}</span>
                   {analysis ? (
                     <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                      {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
+                      {isBest ? '💪' : (percentile == null ? '—' : `${percentile}`)}
                     </span>
                   ) : null}
                 </span>
@@ -1536,7 +1536,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
             return (
               <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                {isBest ? 'BEST' : (percentile == null ? '—' : `${percentile}`)}
+                {percentile == null ? '—' : `${percentile}`}
               </span>
             );
           })()}
