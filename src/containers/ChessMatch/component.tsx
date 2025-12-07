@@ -23,6 +23,8 @@ import OnboardingGate from 'components/OnboardingGate';
 import PregameModal from 'components/PregameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
+import { ROOT_URL } from 'utils';
+import { getMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
   fetchGameById,
@@ -248,6 +250,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const [positionIndex, setPositionIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hoverArrow, setHoverArrow] = useState<[string, string] | null>(null);
+  // Per-candidate move quality (from microservice)
+  const [moveAnalysisBySan, setMoveAnalysisBySan] = useState<Record<string, MoveAnalysis>>({});
+  const [isMoveAnalysisLoading, setIsMoveAnalysisLoading] = useState(false);
   const [outcomeStates, setOutcomeStates] = useState<Record<OutcomeId, OutcomeVisualState>>({
     black_win: 'idle',
     draw: 'idle',
@@ -500,6 +505,105 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const blackMovePool = isBlackTurn ? deriveMoveOptions : [];
   const mobileMovePool = deriveMoveOptions;
   const mobileMoveOwner = isWhiteTurn ? game?.player_white : game?.player_black;
+
+  // Canonicalize a SAN string for stable lookup (strip trailing +/#)
+  const canonicalSan = useCallback((s: string | null | undefined) => (
+    (s || '').replace(/[+#]$/g, '')
+  ), []);
+
+  // Convert an option move string to SAN for the current position, if possible
+  const toSanForCurrent = useCallback((moveStr: string): string => {
+    const fen = activeSnapshot?.fen || game?.state || DEFAULT_FEN;
+    try {
+      const chess = new Chess(fen);
+      // Try sloppy parse to handle various notations (SAN/UCI/orig-dest)
+      const mv = chess.move(String(moveStr), { sloppy: true } as any);
+      if (mv && mv.san) {
+        const san = String(mv.san);
+        // Undo just to be safe for any subsequent ops (not strictly required here)
+        chess.undo();
+        return canonicalSan(san);
+      }
+    } catch {}
+    return canonicalSan(moveStr);
+  }, [activeSnapshot?.fen, game?.state, canonicalSan]);
+
+  // Fetch top move analysis from microservice for the current position
+  const fetchTopMovesAnalysis = useCallback(async () => {
+    const fen = activeSnapshot?.fen || game?.state;
+    if (!fen) return;
+    setIsMoveAnalysisLoading(true);
+    try {
+      const resp = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(fen)}&n=6`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const json = await resp.json();
+      const payload = json?.body ? (() => { try { return JSON.parse(json.body); } catch { return json; } })() : json;
+      const arr = Array.isArray(payload?.data) ? payload.data : [];
+      const map: Record<string, MoveAnalysis> = {};
+      for (const item of arr) {
+        if (item && typeof item === 'object' && item.move) {
+          const key = canonicalSan(String(item.move));
+          map[key] = {
+            move: String(item.move),
+            score: Number(item.score || 0),
+            percentile: Number(item.percentile || 0),
+            is_best_move: Boolean(item.is_best_move),
+          } as MoveAnalysis;
+        }
+      }
+      setMoveAnalysisBySan(map);
+    } catch (e) {
+      // Leave previous analysis in place on error
+    } finally {
+      setIsMoveAnalysisLoading(false);
+    }
+  }, [ROOT_URL, activeSnapshot?.fen, game?.state, canonicalSan]);
+
+  // Ensure we have analysis for the currently displayed candidate options (desktop + mobile)
+  const ensureAnalysisForDisplayed = useCallback(async () => {
+    const fen = activeSnapshot?.fen || game?.state;
+    if (!fen) return;
+    const displayed: string[] = [];
+    // Desktop shows up to 4 per color; mobile shows up to 4 overall
+    const desktopWhite = (isWhiteTurn ? deriveMoveOptions : []).slice(0, 4);
+    const desktopBlack = (isBlackTurn ? deriveMoveOptions : []).slice(0, 4);
+    const mobile = deriveMoveOptions.slice(0, 4);
+    for (const opt of [...desktopWhite, ...desktopBlack, ...mobile]) {
+      if (!opt) continue;
+      const sanKey = toSanForCurrent(opt.move);
+      if (sanKey) displayed.push(sanKey);
+    }
+    const missing = displayed.filter((key) => !moveAnalysisBySan[key]);
+    if (!missing.length) return;
+    // Fetch per-move analysis for the missing SANs (limit to a handful)
+    const uniq = Array.from(new Set(missing)).slice(0, 6);
+    try {
+      const results = await Promise.allSettled(uniq.map(async (san) => getMoveAnalysis(fen, san)));
+      const additions: Record<string, MoveAnalysis> = {};
+      results.forEach((res, idx) => {
+        if (res.status === 'fulfilled') {
+          const out = res.value;
+          const san = uniq[idx];
+          if (out && (out as any).status === 200 && (out as any).data) {
+            additions[san] = (out as any).data as MoveAnalysis;
+          }
+        }
+      });
+      if (Object.keys(additions).length) {
+        setMoveAnalysisBySan((prev) => ({ ...prev, ...additions }));
+      }
+    } catch {}
+  }, [activeSnapshot?.fen, game?.state, isBlackTurn, isWhiteTurn, deriveMoveOptions, moveAnalysisBySan, toSanForCurrent]);
+
+  // When the position changes, fetch top moves and then ensure displayed candidates have analysis
+  useEffect(() => {
+    fetchTopMovesAnalysis();
+    // After top moves are in, attempt to fill any missing displayed candidates
+    const t = window.setTimeout(() => { ensureAnalysisForDisplayed(); }, 150);
+    return () => window.clearTimeout(t);
+  }, [fetchTopMovesAnalysis, ensureAnalysisForDisplayed]);
 
   const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
     if (!game || betsLocked) return;
@@ -1011,6 +1115,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const piece = getPieceTypeFromSAN(option.move);
       const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
       const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
+      const sanKey = toSanForCurrent(option.move);
+      const analysis = moveAnalysisBySan[sanKey];
+      const isBest = analysis?.is_best_move;
+      const percentile = analysis ? Math.round(analysis.percentile) : null;
+      const qualityClass = isBest ? 'quality-best' : (percentile != null && percentile >= 70) ? 'quality-strong' : (percentile != null && percentile >= 40) ? 'quality-decent' : (percentile != null ? 'quality-poor' : 'quality-unknown');
       const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
       return (
         <button
@@ -1033,7 +1142,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             </span>
             <span className="move-option__dest">{dest}</span>
           </span>
-          <span className="move-option__meta">{wageredText}</span>
+          <span className="move-option__meta">
+            {analysis ? (
+              <>
+                <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                  {isBest ? 'BEST' : `${percentile}`}
+                </span>
+                <span className="meta-sep"> • </span>
+              </>
+            ) : null}
+            {wageredText}
+          </span>
         </button>
       );
     });
@@ -1077,6 +1196,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             const piece = getPieceTypeFromSAN(option.move);
             const dest = getTargetSquareFromSAN(option.move) || sanitizeMoveLabel(option.move);
             const wageredText = `${Math.max(0, Math.floor(option.wagered || 0))} wagered`;
+            const sanKey = toSanForCurrent(option.move);
+            const analysis = moveAnalysisBySan[sanKey];
+            const isBest = analysis?.is_best_move;
+            const percentile = analysis ? Math.round(analysis.percentile) : null;
+            const qualityClass = isBest ? 'quality-best' : (percentile != null && percentile >= 70) ? 'quality-strong' : (percentile != null && percentile >= 40) ? 'quality-decent' : (percentile != null ? 'quality-poor' : 'quality-unknown');
             const pieceSrc = color === 'white' ? `/pieces_w/${piece}.png` : `/pieces/${piece}.png`;
             return (
               <button
@@ -1099,7 +1223,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   </span>
                   <span className="move-option__dest">{dest}</span>
                 </span>
-                <span className="move-option__meta">{wageredText}</span>
+                <span className="move-option__meta">
+                  {analysis ? (
+                    <>
+                      <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                        {isBest ? 'BEST' : `${percentile}`}
+                      </span>
+                      <span className="meta-sep"> • </span>
+                    </>
+                  ) : null}
+                  {wageredText}
+                </span>
               </button>
             );
           })
@@ -1388,6 +1522,19 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <img src={pieceSrc} alt="" decoding="async" />
           </span>
           <span className="move-option__dest">{dest}</span>
+          {(() => {
+            const sanKey = toSanForCurrent(option.move);
+            const analysis = moveAnalysisBySan[sanKey];
+            if (!analysis) return null;
+            const isBest = analysis.is_best_move;
+            const percentile = Math.round(analysis.percentile);
+            const qualityClass = isBest ? 'quality-best' : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
+            return (
+              <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                {isBest ? 'BEST' : `${percentile}`}
+              </span>
+            );
+          })()}
         </span>
         <span className="chip-hold-bar" aria-hidden />
         {/* Hide percent/payout meta on mobile to reduce clutter */}

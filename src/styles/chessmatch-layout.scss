@@ -1166,13 +1166,25 @@
       letter-spacing: 0.04em;
     }
 
-    .move-option__meta {
-      font-weight: 500;
-      font-size: 12px;
-      color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55));
-      margin-left: 10px;
-      white-space: nowrap;
-    }
+  .move-option__meta {
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55));
+    margin-left: 10px;
+    white-space: nowrap;
+  }
+
+  // Inline quality badge (percentile or BEST) for per-candidate move quality
+  .move-option__quality {
+    font-weight: 700;
+    font-size: 12px;
+    margin-left: 8px;
+    letter-spacing: 0.04em;
+  }
+  .quality-best { color: #00efb2; }
+  .quality-strong { color: #34d399; }
+  .quality-decent { color: #fbbf24; }
+  .quality-poor { color: #f87171; }
 
     &:hover,
     &:focus-visible {
