@@ -27,6 +27,15 @@
   gap: $space-3;
 }
 
+// Reduce side padding on narrow mobile to prevent subtle horizontal overflow
+@media (max-width: 420px) {
+  .chess-match-page__content {
+    padding-left: 8px;
+    padding-right: 8px;
+    overflow-x: hidden;
+  }
+}
+
 .test-board-controls {
   position: relative;
   min-height: 32px;
@@ -1327,7 +1336,7 @@
 .mobile-move-bubbles {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   overflow: visible;
   padding-bottom: 6px;
 }
@@ -1362,8 +1371,8 @@
   }
 
   .move-option__icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 6px;
     background: transparent;
     display: inline-flex;
@@ -1373,8 +1382,8 @@
   }
 
   .move-option__icon img {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     display: block;
   }
 

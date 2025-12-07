@@ -470,7 +470,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [activeOverlay, closeOverlay]);
-  const FRAME_HORIZONTAL_PADDING = 12;
+  const FRAME_HORIZONTAL_PADDING = 8;
   const boardStackWidth = boardSize + evalBarWidth + BOARD_STACK_GAP;
   const boardFrameWidth = boardStackWidth + FRAME_HORIZONTAL_PADDING;
 
