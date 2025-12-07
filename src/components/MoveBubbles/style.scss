@@ -6,7 +6,7 @@
   padding: 0 16px 8px 16px;
   
   @media (max-width: 768px) {
-    padding: 0 12px 8px 12px;
+    padding: 0 8px 8px 8px;
   }
 }
 
@@ -31,7 +31,7 @@
     overflow-x: auto;
 
     @media (max-width: 768px) {
-      gap: 6px;
+      gap: 4px;
     }
   }
 }
@@ -75,6 +75,25 @@
     width: 80px;
     height: 80px;
     padding: 12px;
+  }
+
+  // Slightly compact bubbles on smaller screens to avoid horizontal scroll
+  @media (max-width: 768px) {
+    &.small {
+      width: 56px;
+      height: 56px;
+      padding: 6px;
+    }
+    &.medium {
+      width: 66px;
+      height: 66px;
+      padding: 8px;
+    }
+    &.large {
+      width: 76px;
+      height: 76px;
+      padding: 10px;
+    }
   }
   
   // Quality-based emphasis (flat, minimal chrome)
