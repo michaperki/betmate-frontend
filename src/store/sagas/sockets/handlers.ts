@@ -265,6 +265,10 @@ export function* betUpdateHandler(socket: Socket) {
         status: 'REQUEST',
         payload: { id: action.payload.gameId }
       });
+      // If backend includes an updated balance, set it immediately (skip extra fetch)
+      if (action.payload && typeof action.payload.balance === 'number') {
+        yield put({ type: 'SET_BALANCE', status: 'SUCCESS', payload: { balance: action.payload.balance } });
+      }
     } catch (error) {
       console.error('Bet update handler error:', error);
     }

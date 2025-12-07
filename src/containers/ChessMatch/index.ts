@@ -14,7 +14,6 @@ import {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
-  createNewArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
 import { getGameLeaderboard } from 'store/actionCreators/leaderboardActionCreators';
 import { RootState } from 'types/state';
@@ -53,7 +52,6 @@ const mapDispatchToProps = {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
-  createNewArrows,
   getGameLeaderboard,
 };
 

@@ -4,9 +4,10 @@ import './style.scss';
 
 interface MiniLeaderboardProps {
   rankings: Rank[];
+  showTitle?: boolean; // optionally render a header
 }
 
-const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings = [] }) => {
+const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings = [], showTitle = true }) => {
   // Add defensive check for rankings
   const validRankings = Array.isArray(rankings) ? rankings : [];
 
@@ -32,7 +33,7 @@ const MiniLeaderboard: React.FC<MiniLeaderboardProps> = ({ rankings = [] }) => {
 
   return (
     <div className="mini-leaderboard">
-      <h3 className="mini-leaderboard-title">Leaderboard</h3>
+      {showTitle && <h3 className="mini-leaderboard-title">Leaderboard</h3>}
       {hasRankings ? (
         <ul className="leaderboard-list">
           {safeRankings.map((rank, index) => (

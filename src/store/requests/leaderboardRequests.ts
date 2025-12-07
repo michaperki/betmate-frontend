@@ -1,6 +1,6 @@
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { createBackendAxiosRequest } from 'store/requests';
-import { LeaderboardSection, Rank } from 'types/leaderboard';
+import { LeaderboardSection, Rank, UserRankResponse } from 'types/leaderboard';
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { LeaderboardSchema, RankSchema, sanitizeLeaderboardData } from 'validation/leaderboard';
@@ -33,29 +33,25 @@ export const getLeaderboardSection = async (start: number, end: number, id?: str
   }
 };
 
-export const getLeaderboardRank = async (): Promise<RequestReturnType<Rank>> => {
-  const result = await createBackendAxiosRequest<Rank>({
+export const getLeaderboardRank = async (): Promise<RequestReturnType<UserRankResponse>> => {
+  const result = await createBackendAxiosRequest<UserRankResponse>({
     method: 'GET',
     url: '/leaderboard/userrank',
     headers: getBearerTokenHeader(),
   });
 
+  // If the backend indicates the user has no rank, pass that through without validation
+  if ((result.data as any)?.has_rank === false) {
+    return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
+  }
+
   try {
-    // We don't need to add a default user_name anymore
-    // Let the component handle the display logic
-    return validateSchema(RankSchema, result, (d) => d.data);
+    // Validate normal Rank payloads
+    return validateSchema(RankSchema, result as RequestReturnType<Rank>, (d) => d.data);
   } catch (error) {
     console.error('Error validating rank data:', error);
-    // Return placeholder data if validation fails
-    return {
-      ...result,
-      data: {
-        user_id: result.data?.user_id || 'unknown',
-        user_name: result.data?.user_name || `Player ${result.data?.rank || 0}`,
-        rank: result.data?.rank || 0,
-        winnings: result.data?.winnings || 0
-      }
-    };
+    // Return explicit no-rank if validation fails unexpectedly
+    return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
   }
 };
 

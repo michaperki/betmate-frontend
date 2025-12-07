@@ -1,12 +1,15 @@
+@import '../../../styles/tokens.scss';
+@import '../../../styles/mixins.scss';
+
 .player-info-dark {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-radius: 8px;
-  background-color: #111111;
+  border-radius: $radius-md;
+  background-color: $bg-secondary;
   margin-bottom: 8px;
   transition: all 0.2s ease;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid $border-primary;
   position: relative;
   overflow: hidden;
   user-select: none;
@@ -15,26 +18,26 @@
   touch-action: manipulation;
 
   &.player-turn {
-    background-color: #1E1E1E;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border-left: 3px solid #00EFB2;
+    background-color: $bg-tertiary;
+    box-shadow: $shadow-base;
+    border-left: 3px solid $brand-primary;
   }
 
   &.can-bet {
     cursor: pointer;
 
     &:hover {
-      background-color: #1A1A1A;
-      border-color: rgba(0, 239, 178, 0.3);
+      background-color: $bg-quaternary;
+      border-color: rgba($brand-primary, 0.3);
       transform: translateY(-1px);
     }
   }
 
   &.betting-active {
-    background-color: #1A1A1A;
-    border-color: rgba(0, 239, 178, 0.8);
+    background-color: $bg-quaternary;
+    border-color: rgba($brand-primary, 0.8);
     transform: scale(1.01);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: $shadow-lg;
   }
 
   @media (max-width: 768px) {
@@ -55,12 +58,12 @@
     position: absolute;
     bottom: -2px;
     right: -2px;
-    background-color: #00EFB2;
-    color: #111111;
+    background-color: $brand-primary;
+    color: $text-inverse;
     font-weight: 600;
-    font-size: 12px;
+    font-size: $text-xs;
     padding: 1px 4px;
-    border-radius: 4px;
+    border-radius: $radius-sm;
     min-width: 16px;
     text-align: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -94,11 +97,11 @@
 
 .player-name {
   font-weight: 500;
-  color: #F2F2F2;
+  color: $text-primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 15px;
+  font-size: $text-sm;
 
   @media (max-width: 768px) {
     font-size: 14px;
@@ -114,8 +117,8 @@
 }
 
 .player-elo {
-  font-size: 13px;
-  color: #BDBDBD;
+  font-size: $text-sm;
+  color: $text-secondary;
 
   @media (max-width: 768px) {
     font-size: 12px;
@@ -126,8 +129,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  color: #00EFB2;
+  font-size: $text-sm;
+  color: $brand-primary;
 
   @media (max-width: 768px) {
     font-size: 12px;
@@ -154,20 +157,20 @@
   padding: 6px 12px;
   min-width: 68px;
   text-align: center;
-  border-radius: 6px;
-  background-color: #1E1E1E;
-  color: #F2F2F2;
+  border-radius: $radius-sm;
+  background-color: $bg-tertiary;
+  color: $text-primary;
   transition: all 0.3s ease;
   font-weight: 600;
-  font-size: 16px;
+  font-size: $text-base;
   font-family: 'Roboto Mono', monospace;
   letter-spacing: 0.5px;
   margin-left: auto;
 
   &.active {
-    background-color: #00EFB2;
-    color: #111111;
-    box-shadow: 0 0 10px rgba(0, 239, 178, 0.3);
+    background-color: $brand-primary;
+    color: $text-inverse;
+    box-shadow: 0 0 10px rgba($brand-primary, 0.3);
   }
 
   @media (max-width: 768px) {

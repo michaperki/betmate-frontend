@@ -43,6 +43,8 @@ const createSocket = (address: string) => io(address, {
   reconnectionDelayMax: MAX_RECONNECT_DELAY,
   timeout: 20000,
   autoConnect: true,
+  // Prefer WebSocket to avoid long-poll cycles that trigger rate limits
+  transports: ['websocket']
 });
 
 /**

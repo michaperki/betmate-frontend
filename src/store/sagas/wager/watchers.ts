@@ -4,6 +4,7 @@ import { call, take, put } from 'redux-saga/effects';
 
 import * as wagerRequests from 'store/requests/wagerRequests';
 import { getErrorPayload } from 'utils/error';
+import { getBearerToken } from 'store/actionCreators';
 
 import { Actions, RequestReturnType } from 'types/state';
 
@@ -27,6 +28,11 @@ export function* watchCreateWager() {
       const action: CreateWagerActions = yield take((a: Actions) => (a.type === 'CREATE_WAGER' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
+      // Optimistically adjust balance immediately
+      if (action.payload.amount) {
+        yield put({ type: 'ADJUST_BALANCE', status: 'SUCCESS', payload: { delta: -Math.abs(action.payload.amount) } });
+      }
+
       const response: RequestReturnType<FetchWagerData> = yield call(
         wagerRequests.createWager,
         action.payload.gameId,
@@ -44,8 +50,22 @@ export function* watchCreateWager() {
         status: 'REQUEST',
         payload: { id: action.payload.gameId }
       });
+
+      // Refresh wager history so UI panels update without manual reload
+      yield put<Actions>({
+        type: 'FETCH_WAGER_HISTORY',
+        status: 'REQUEST',
+        payload: { status: undefined, limit: 10, skip: 0 }
+      });
+
+      // Reconcile balance with server (lightweight refresh via JWT flow)
+      yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
     } catch (error) {
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
+      // Roll back optimistic balance if the wager failed to create
+      try {
+        yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
+      } catch {}
     }
   }
 }

@@ -12,19 +12,20 @@ import SignInPanel from 'containers/authentication/signInPanel';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
 import UserPage from 'containers/UserPage';
-import RafflePage from 'containers/RafflePage';
 import Dashboard from '../containers/Dashboard';
 import ChessMatch from '../containers/ChessMatch';
 import ActiveBetsPage from 'containers/ActiveBetsPage';
 import BettingHistoryPage from 'containers/BettingHistoryPage';
 import NavBar from './NavBar';
 import RequireAuthHOC from 'hocs/requireAuth';
+import VersionFooter from './VersionFooter';
 
 const Welcome = () => {
   return (
     <div className="dashboard-page">
       <NavBar />
       <Dashboard/>
+      <VersionFooter />
     </div>
   );
 };
@@ -54,17 +55,19 @@ const App: React.FC<AppProps> = (props) => {
         <Switch>
           <Route exact path="/" component={Welcome} />
           <Route exact path="/chess/:id" component={ChessMatch} />
-          <Route exact path="/raffles" component={RafflePage} />
+          {/* Raffles route removed */}
           <Route exact path="/active-bets" render={() => (
               <div className="dashboard-page">
                 <NavBar />
                 <ActiveBetsPage />
+                <VersionFooter />
               </div>
           )} />
           <Route exact path="/betting-history" render={() => (
               <div className="dashboard-page">
                 <NavBar />
                 <BettingHistoryPage />
+                <VersionFooter />
               </div>
           )} />
           <Route exact path="/signin" component={SignInPanel} />

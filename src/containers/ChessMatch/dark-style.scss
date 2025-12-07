@@ -1,10 +1,13 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 // Dark theme styles for the chess match page
 .dark-game-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #050505;
-  color: #F2F2F2;
+  background-color: $bg-primary;
+  color: $text-primary;
   font-family: 'Roboto', sans-serif;
 
   @media (max-width: 768px) {
@@ -47,8 +50,8 @@
   justify-content: space-between;
   padding: 16px;
   height: 80px;
-  background-color: #111111;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: $bg-secondary;
+  box-shadow: $shadow-base;
 }
 
 .logo-container {
@@ -65,7 +68,7 @@
 .logo-text {
   font-size: 24px;
   font-weight: 500;
-  color: #00EFB2;
+  color: $brand-primary;
   display: none;
 
   @media (min-width: 640px) {
@@ -80,12 +83,12 @@
 
   .nav-button {
     background: transparent;
-    border: 1px solid #00EFB2;
+    border: 1px solid $brand-primary;
     border-radius: 8px;
     margin: auto 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: #F2F2F2;
+    color: $text-primary;
     font-family: "Roboto", sans-serif;
     font-size: 14px;
     font-weight: 500;
@@ -93,13 +96,12 @@
     text-decoration: none;
 
     &:hover {
-      background: rgba(0, 239, 178, 0.1);
-      box-shadow: 0 0 8px rgba(0, 239, 178, 0.3);
+      background: rgba($brand-primary, 0.1);
     }
 
     &.active {
-      background: #00EFB2;
-      color: #111111;
+      background: $brand-primary;
+      color: $text-inverse;
     }
   }
 }
@@ -112,8 +114,8 @@
   grid-template-areas:
     "left-sidebar board-area right-sidebar"
     "mobile-chat mobile-chat mobile-chat";
-  gap: 16px; /* Standard gap between elements */
-  padding: 16px; /* Standard padding */
+  gap: $space-4; /* Standard gap between elements */
+  padding: $space-4; /* Standard padding */
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
@@ -193,12 +195,12 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: $space-4;
   height: auto;
-  background: rgba(17, 17, 17, 0.5);
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid rgba(0, 239, 178, 0.1);
+  background: $bg-tertiary;
+  border-radius: $radius-lg;
+  padding: $space-4;
+  border: 1px solid $border-primary;
 
   @media (min-width: 1201px) {
     position: sticky;
@@ -248,9 +250,9 @@
   height: fit-content;
   margin: 0 auto; /* Center within grid area */
   position: relative;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  box-shadow: $shadow-base;
+  background-color: $bg-tertiary;
+  border-radius: $radius-md;
   align-self: center; /* Center vertically in grid area */
   padding: 8px;
   overflow: visible; /* Allow content to be fully visible */
@@ -301,20 +303,21 @@
   margin: 0; // Remove auto margin to eliminate spacing
   position: relative;
 
+  /* Let parent control size via inline styles; avoid hard caps so
+     the board can scale with the computed boardSize across breakpoints */
   @media (min-width: 1201px) {
-    width: 450px; // Fixed desktop size
-    height: 450px; // Fixed square height
+    width: 100%;
+    height: 100%;
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
-    width: 500px; // Fixed tablet size
-    height: 500px; // Fixed square height
+    width: 100%;
+    height: 100%;
   }
 
   @media (max-width: 768px) {
-    max-width: min(90vw, 350px) !important; // Use more of viewport width
-    width: min(90vw, 350px) !important; // Allow larger board size
-    height: min(90vw, 350px) !important; // Maintain square aspect ratio
+    width: 100% !important;
+    height: 100% !important;
     margin: 0 auto !important; // Center horizontally
     overflow: hidden !important; // Clip anything that exceeds the container
   }
@@ -325,22 +328,8 @@
   .cg-board {
     margin: 0 !important;
     padding: 0 !important;
-
-    @media (min-width: 1201px) {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    @media (min-width: 769px) and (max-width: 1200px) {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    @media (max-width: 768px) {
-      max-width: min(90vw, 350px) !important;
-      width: min(90vw, 350px) !important;
-      height: min(90vw, 350px) !important;
-    }
+    width: 100% !important;
+    height: 100% !important;
   }
 
   // Target the large wrapper div that's creating spacing
@@ -428,10 +417,10 @@
     margin-bottom: 8px; /* Reduced bottom margin */
 
     .mini-leaderboard {
-      background-color: #1e1e2e;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      padding: 12px; /* Reduced padding */
+      background-color: $bg-secondary;
+      border-radius: $radius-md;
+      box-shadow: $shadow-base;
+      padding: $space-3; /* Reduced padding */
       max-height: 250px; /* Reduced max height */
       overflow-y: auto;
       overflow-x: hidden; /* Explicitly prevent horizontal scrolling */
@@ -473,9 +462,9 @@
     grid-area: betting-area;
     padding: 12px;
     max-height: none; // Remove height restriction to eliminate scrolling
-    background: rgba(17, 17, 17, 0.95);
-    border-radius: 12px;
-    border: 1px solid rgba(0, 239, 178, 0.2);
+    background: $bg-secondary;
+    border-radius: $radius-lg;
+    border: 1px solid $border-primary;
     margin: 0;
 
     // Remove individual scrolling - let page scroll handle it
@@ -517,9 +506,9 @@
   margin: 0 auto;
   margin-top: 8px;
   padding: 12px;
-  background: rgba(17, 17, 17, 0.95);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 239, 178, 0.2);
+  background: $bg-secondary;
+  border-radius: $radius-lg;
+  border: 1px solid $border-primary;
 
   @media (min-width: 1201px) {
     display: none; /* Hidden on desktop - content is in left sidebar */
@@ -557,9 +546,9 @@
   max-width: 700px;
   margin: 0 auto;
   padding: 12px;
-  background: rgba(17, 17, 17, 0.95);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 239, 178, 0.2);
+  background: $bg-secondary;
+  border-radius: $radius-lg;
+  border: 1px solid $border-primary;
 
   @media (min-width: 1200px) {
     display: none; /* Hidden on desktop - content is in left sidebar */
@@ -624,11 +613,11 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #050505;
+  background-color: $bg-primary;
 }
 
 .loading-pulse {
-  color: #F2F2F2;
+  color: $text-primary;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -641,8 +630,8 @@
   height: calc(100vh - 60px); /* Adjust for navbar */
   width: 100%;
   padding: 20px;
-  background-color: #1e1e2e;
-  color: #ffffff;
+  background-color: $bg-secondary;
+  color: $text-primary;
 }
 
 .unauthenticated-content {
@@ -912,11 +901,11 @@
   width: 24px;
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid rgba(58, 136, 254, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid $border-primary;
+  box-shadow: $shadow-sm;
   margin-top: auto;
   margin-bottom: auto;
-  background-color: #1E1E2E;
+  background-color: $bg-tertiary;
   position: relative;
 
   @media (max-width: 768px) {
@@ -936,7 +925,7 @@
     top: 50%;
     transform: translate(-50%, -50%) rotate(-90deg);
     background-color: rgba(0, 0, 0, 0.7);
-    color: #F2F2F2;
+    color: $text-primary;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
@@ -944,120 +933,44 @@
     white-space: nowrap;
     pointer-events: none;
     z-index: 10;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: $shadow-sm;
   }
 }
 
 .white-section {
   width: 100%;
   background-color: #FFFFFF;
-  transition: height 1s ease;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .section-percent { color: #0b0b0b; font-size: 11px; font-weight: 600; line-height: 1; }
 }
 
 .draw-section {
   width: 100%;
-  background-color: #3A88FE;
-  transition: height 1s ease;
+  background-color: $info;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .section-percent { color: #ffffff; font-size: 11px; font-weight: 600; line-height: 1; }
 }
 
 .black-section {
   width: 100%;
-  background-color: #1E1E25;
-  transition: height 1s ease;
-}
-
-.evaluation-labels {
+  background-color: $bg-secondary;
+  transition: height 0.35s ease-in-out;
+  will-change: height;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #FFFFFF;
-  height: 100%;
-  margin-left: 8px;
-  position: relative; /* Needed for absolute positioning of draw label */
-
-  @media (max-width: 768px) {
-    margin-left: 4px;
-    font-size: 10px;
-  }
-
-  @media (max-width: 640px) {
-    display: none; /* Hide labels on very small screens */
-  }
-
-  .label-container {
-    position: relative; /* For tooltip positioning */
-  }
-
-  .label {
-    display: block;
-    text-align: left;
-    width: 34px;
-    font-weight: 500;
-    cursor: help; /* Show help cursor on hover */
-
-    @media (max-width: 768px) {
-      width: 28px;
-    }
-
-    &.white {
-      color: #fff;
-      margin-top: auto;
-    }
-
-    &.draw {
-      color: #3a88fe;
-      /* No margin needed as it's positioned absolutely */
-    }
-
-    &.black {
-      color: #9999a8;
-      margin-bottom: auto;
-    }
-  }
-
-  /* Tooltips for each label */
-  .label-tooltip {
-    position: absolute;
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #F2F2F2;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 10;
-    margin-left: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-
-    &:after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: 100%;
-      transform: translateY(-50%);
-      border-width: 4px;
-      border-style: solid;
-      border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent;
-    }
-
-    &.black-tooltip {
-      border-left: 2px solid #9999a8;
-    }
-
-    &.draw-tooltip {
-      border-left: 2px solid #3a88fe;
-    }
-
-    &.white-tooltip {
-      border-left: 2px solid #fff;
-    }
-  }
+  align-items: center;
+  justify-content: center;
+  .section-percent { color: #ffffff; font-size: 11px; font-weight: 600; line-height: 1; }
 }
+
+/* External evaluation labels and tooltips removed; percentages are now inline within sections */
 
 // Evaluation bar styles
 .evaluation-bar-container {

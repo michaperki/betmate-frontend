@@ -3,25 +3,30 @@ import { NavLink, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.svg';
 import CoinBalance from '../CoinBalance';
 import SignOutPanel from 'containers/authentication/signOutPanel';
-import './mobile-navbar.scss';
+import './unified-navbar.scss';
+import VersionTag from '../VersionTag';
 
 export interface NavBarProps {
   isAuthenticated: boolean;
   firstName: string;
   balance?: number;
   compact?: boolean; // Whether to use the compact variant (for game screens)
+  breadcrumb?: string; // Optional context label (currently used for non-game routes only)
 }
 
-const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false }) => {
+const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, compact = false, breadcrumb }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
   // Don't show balance on dashboard since it's displayed in HeroSection
-  const showBalance = location.pathname !== '/';
+  const isDashboard = location.pathname === '/';
+  const showBalance = !isDashboard;
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+
+  const isGameRoute = location.pathname.startsWith('/chess');
 
   return (
     <nav className={`navbar ${compact ? 'navbar--compact' : ''}`}>
@@ -30,6 +35,15 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
           <img src={logo} alt="BetMate Logo" />
           <span>BetMate</span>
         </NavLink>
+
+        {/* Breadcrumb: keep original 'Live Game' label for game route */}
+        {isGameRoute && (
+          <div className="navbar__breadcrumb" aria-label="Breadcrumb">
+            <NavLink to="/" className="navbar__crumb" onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <span className="navbar__crumb-sep">/</span>
+            <span className="navbar__crumb-current">Live Game</span>
+          </div>
+        )}
 
         {/* Mobile menu toggle */}
         <button 
@@ -44,31 +58,22 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
 
         {/* Navigation menu */}
         <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
-          <NavLink
-            to="/"
-            exact
-            activeClassName="active"
-            className="navbar__item"
-            onClick={() => setMenuOpen(false)}
-          >
-            Home
-          </NavLink>
-
-          {isAuthenticated && (
+          {!isGameRoute && !isDashboard && (
             <NavLink
-              to="/raffles"
+              to="/"
+              exact
               activeClassName="active"
               className="navbar__item"
               onClick={() => setMenuOpen(false)}
             >
-              Raffles
+              Home
             </NavLink>
           )}
 
+          {/* Raffles removed */}
+
           {isAuthenticated ? (
-            <div className="navbar__item navbar__item--button" onClick={() => setMenuOpen(false)}>
-              <SignOutPanel />
-            </div>
+            !isGameRoute ? <SignOutPanel /> : null
           ) : (
             <>
               <NavLink
@@ -82,7 +87,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
               <NavLink
                 to="/signup"
                 activeClassName="active"
-                className="navbar__item navbar__item--button"
+                className="navbar__item"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign Up
@@ -90,10 +95,24 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, balance, co
             </>
           )}
 
-          {/* Show balance if authenticated and not on dashboard */}
+          {/* Unified account cluster: avatar (non-dashboard) + token balance */}
           {isAuthenticated && showBalance && (
-            <div className="navbar__balance">
-              <CoinBalance balance={balance} compact={compact} />
+            <div className="navbar__account">
+              {!isDashboard && firstName && (
+                <div className="navbar__account-avatar" title={firstName} aria-label="Account">
+                  {firstName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="navbar__account-balance">
+                <CoinBalance balance={balance} compact={compact} />
+              </div>
+            </div>
+          )}
+
+          {/* Mobile menu-only version label (appears at bottom of flyout) */}
+          {menuOpen && (
+            <div className="navbar__version">
+              <VersionTag ariaLabelPrefix="Frontend build" />
             </div>
           )}
         </div>

@@ -12,6 +12,9 @@ const finalCSSLoader = isProd ? MiniCssExtractPlugin.loader : 'style-loader';
 module.exports = {
   mode: env,
   entry: './src/index.tsx',
+  infrastructureLogging: {
+    level: isProd ? 'info' : 'warn',
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
@@ -146,9 +149,31 @@ module.exports = {
       template: './src/index.html',
       filename: '200.html',
     }),
+    // Ensure static assets in ./public (e.g., /pieces, /pieces_w) are available in the production build
+    // Load plugin only in production to avoid dev-time dependency errors
+    ...(
+      isProd
+        ? [
+            new (require('copy-webpack-plugin'))({
+              patterns: [
+                {
+                  from: path.resolve(__dirname, 'public'),
+                  to: '.',
+                  noErrorOnMissing: true,
+                },
+              ],
+            })
+          ]
+        : []
+    ),
     new Dotenv({ systemvars: true }),
     new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
+      // Build-time metadata for versioning and diagnostics
+      'process.env.BUILD_TIME': JSON.stringify(new Date().toISOString()),
+      'process.env.BUILD_CONTEXT': JSON.stringify(process.env.CONTEXT || ''),
+      'process.env.BUILD_URL': JSON.stringify(process.env.DEPLOY_URL || process.env.URL || ''),
+      'process.env.BUILD_BRANCH': JSON.stringify(process.env.BRANCH || ''),
     }),
   ],
   devServer: {
@@ -163,7 +188,7 @@ module.exports = {
         errors: true,
         warnings: false,
       },
-      logging: 'warn',
+      logging: 'none',
     },
     devMiddleware: {
       writeToDisk: false,
@@ -174,7 +199,7 @@ module.exports = {
         target: 'http://localhost:8082',
         pathRewrite: { '^/dev/top-moves': '/predict' },
         changeOrigin: true,
-        logLevel: 'debug'
+        logLevel: 'warn'
       }
     },
   },

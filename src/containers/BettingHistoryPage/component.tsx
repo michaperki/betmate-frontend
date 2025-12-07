@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { fetchWagerHistory, fetchUserBettingStats } from 'store/actionCreators/wagerActionCreators';
 import { RootState } from 'types/state';
 import { Wager, WagerStatus } from 'types/resources/wager';
+import { Game } from 'types/resources/game';
 import './style.scss';
 
 const ITEMS_PER_PAGE = 10;
@@ -11,6 +12,7 @@ const ITEMS_PER_PAGE = 10;
 const BettingHistoryPage: React.FC = () => {
   const dispatch = useDispatch();
   const { wagerHistory, stats, loading, error } = useSelector((state: RootState) => state.wager);
+  const games = useSelector((state: RootState) => state.game.games);
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<WagerStatus | 'all'>('all');
   
@@ -58,15 +60,17 @@ const BettingHistoryPage: React.FC = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Format bet data for display
+  // Format bet data for display (WDL vs Move)
   const formatBetData = (wager: Wager): string => {
     if (wager.wdl) {
-      // This is a win/draw/loss bet
-      return wager.data === 'win' ? 'Win' : wager.data === 'draw' ? 'Draw' : 'Loss';
-    } else {
-      // This is a move bet
-      return `Move: ${wager.data}`;
+      const map: Record<string, string> = {
+        white_win: 'White to win',
+        black_win: 'Black to win',
+        draw: 'Draw'
+      };
+      return map[wager.data] || wager.data;
     }
+    return `Move: ${wager.data}`;
   };
 
   // Get class name for status badge
@@ -136,26 +140,45 @@ const BettingHistoryPage: React.FC = () => {
           </div>
         ) : (
           <>
-            {wagerHistory.map((wager) => (
-              <div key={wager._id} className="bet-history-item">
-                <div className="game-info">
-                  <div className="players">Game ID: {wager.game_id}</div>
-                  <div className="date">Placed: {formatDate(wager.created_at)}</div>
-                </div>
-                <div className="bet-details">
-                  <div className="bet-type">{formatBetData(wager)}</div>
-                  <div className="odds">Odds: {wager.odds.toFixed(2)}x</div>
-                </div>
-                <div className="bet-result">
-                  <div className="amount">{wager.amount} tokens</div>
-                  <div className={`status ${getStatusClass(wager.status)}`}>
-                    {typeof wager.status === 'string'
-                      ? wager.status.charAt(0).toUpperCase() + wager.status.slice(1)
-                      : wager.status}
+            {wagerHistory.map((wager) => {
+              const game: Game | undefined = games[wager.game_id];
+              const white = game?.player_white?.name || 'White';
+              const black = game?.player_black?.name || 'Black';
+              const statusText = typeof wager.status === 'string' ? wager.status : String(wager.status);
+              const statusClass = getStatusClass(wager.status);
+              const payout = (wager.status === WagerStatus.WON)
+                ? (wager.amount * wager.odds).toFixed(2)
+                : (wager.status === WagerStatus.CANCELLED ? wager.amount.toFixed(2) : undefined);
+              return (
+                <div key={wager._id} className="bet-history-item">
+                  <div className="game-info">
+                    <div className="match-title">
+                      <span className="player player--white">{white}</span>
+                      <span className="vs">vs</span>
+                      <span className="player player--black">{black}</span>
+                    </div>
+                    <div className="meta">
+                      <span className="placed">Placed {formatDate(wager.created_at)}</span>
+                      <span className="dot">•</span>
+                      <Link to={`/chess/${wager.game_id}`} className="view-link">View match</Link>
+                    </div>
+                  </div>
+                  <div className="bet-details">
+                    <div className="bet-type">{formatBetData(wager)}</div>
+                    <div className="odds">{wager.odds.toFixed(2)}x</div>
+                  </div>
+                  <div className="bet-result">
+                    <div className="amount">{wager.amount} tokens</div>
+                    {payout && (
+                      <div className={`payout ${wager.status === WagerStatus.CANCELLED ? 'refund' : ''}`}>
+                        {wager.status === WagerStatus.CANCELLED ? 'Refund ' : 'Payout '} {payout}
+                      </div>
+                    )}
+                    <div className={`status ${statusClass}`}>{statusText}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div className="pagination">
               <button 

@@ -11,6 +11,11 @@
   border: 1px solid rgba(0, 239, 178, 0.3);
   transition: all 0.2s ease;
 
+  &.is-updating {
+    filter: saturate(110%);
+    .balance-text { color: $brand-primary; }
+  }
+
   /* Compact version for game screen */
   &.compact {
     padding: 3px 8px;

@@ -6,7 +6,6 @@ import chessgroundSaga from 'store/sagas/chessground';
 import gameSaga from 'store/sagas/game';
 import wagerSaga from 'store/sagas/wager';
 import leaderboardSaga from 'store/sagas/leaderboard';
-import raffleSaga from 'store/sagas/raffle';
 
 import watchSockets from 'store/sagas/sockets';
 
@@ -15,7 +14,7 @@ function* rootSaga() {
   yield spawn(chessgroundSaga);
   yield spawn(gameSaga);
   yield spawn(leaderboardSaga);
-  yield spawn(raffleSaga);
+  // raffle saga removed
   yield spawn(wagerSaga);
   yield spawn(watchSockets);
 }

@@ -16,7 +16,11 @@ const ChessgroundWrapper = forwardRef<HTMLDivElement, ChessgroundWrapperProps>(
       movable: config.movable ? {
         ...config.movable,
         rookCastle: config.movable.rookCastle ?? true,
-      } : undefined,
+      } : {
+        free: false,
+        color: 'both',
+        rookCastle: true,
+      },
     };
 
     return (
