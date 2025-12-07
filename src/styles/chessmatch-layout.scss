@@ -973,12 +973,22 @@
     --move-bubble-border: rgba(0, 0, 0, 0.12);
     --move-bubble-fg: #0b0b0b;
     --move-bubble-meta: rgba(0, 0, 0, 0.55);
+    // Default quality colors tuned for light bubble backgrounds (black's turn)
+    --move-quality-best: #047857;   // deep green for contrast on white
+    --move-quality-strong: #059669; // emerald
+    --move-quality-decent: #b45309; // amber-darker
+    --move-quality-poor: #dc2626;   // red
   }
 
   &__center.is-black-turn {
     --move-bubble-bg: #ffffff;
     --move-bubble-border: rgba(0, 0, 0, 0.12);
     --move-bubble-fg: #0b0b0b;
+    --move-bubble-meta: rgba(0, 0, 0, 0.55);
+    --move-quality-best: #047857;
+    --move-quality-strong: #059669;
+    --move-quality-decent: #b45309;
+    --move-quality-poor: #dc2626;
   }
 
   &__center.is-white-turn {
@@ -986,6 +996,11 @@
     --move-bubble-border: rgba(255, 255, 255, 0.18);
     --move-bubble-fg: #ffffff;
     --move-bubble-meta: rgba(255, 255, 255, 0.78);
+    // Quality colors tuned for dark bubble backgrounds (white's turn)
+    --move-quality-best: #00efb2;
+    --move-quality-strong: #34d399;
+    --move-quality-decent: #fbbf24;
+    --move-quality-poor: #f87171;
   }
 
   .draw-panel {
@@ -1194,10 +1209,10 @@
     margin-left: 8px;
     letter-spacing: 0.04em;
   }
-  .quality-best { color: #00efb2; }
-  .quality-strong { color: #34d399; }
-  .quality-decent { color: #fbbf24; }
-  .quality-poor { color: #f87171; }
+  .quality-best { color: var(--move-quality-best, #00efb2); }
+  .quality-strong { color: var(--move-quality-strong, #34d399); }
+  .quality-decent { color: var(--move-quality-decent, #fbbf24); }
+  .quality-poor { color: var(--move-quality-poor, #f87171); }
 
     &:hover,
     &:focus-visible {
@@ -1348,6 +1363,10 @@
   --move-bubble-border: rgba(0, 0, 0, 0.12);
   --move-bubble-fg: #0b0b0b;
   --move-bubble-meta: rgba(0, 0, 0, 0.55);
+  --move-quality-best: #047857;
+  --move-quality-strong: #059669;
+  --move-quality-decent: #b45309;
+  --move-quality-poor: #dc2626;
 }
 
 .mobile-move-market.is-white-turn {
@@ -1355,6 +1374,10 @@
   --move-bubble-border: rgba(255, 255, 255, 0.18);
   --move-bubble-fg: #ffffff;
   --move-bubble-meta: rgba(255, 255, 255, 0.78);
+  --move-quality-best: #00efb2;
+  --move-quality-strong: #34d399;
+  --move-quality-decent: #fbbf24;
+  --move-quality-poor: #f87171;
 }
 
 // Ensure mobile move market within the board grid spans full width on small screens

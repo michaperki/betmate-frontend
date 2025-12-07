@@ -1141,18 +1141,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <img src={pieceSrc} alt="" decoding="async" />
             </span>
             <span className="move-option__dest">{dest}</span>
-          </span>
-          <span className="move-option__meta">
             {analysis ? (
-              <>
-                <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                  {isBest ? 'BEST' : `${percentile}`}
-                </span>
-                <span className="meta-sep"> • </span>
-              </>
+              <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                {isBest ? 'BEST' : `${percentile}`}
+              </span>
             ) : null}
-            {wageredText}
           </span>
+          <span className="move-option__meta">{wageredText}</span>
         </button>
       );
     });
@@ -1222,18 +1217,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     <img src={pieceSrc} alt="" decoding="async" />
                   </span>
                   <span className="move-option__dest">{dest}</span>
-                </span>
-                <span className="move-option__meta">
                   {analysis ? (
-                    <>
-                      <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                        {isBest ? 'BEST' : `${percentile}`}
-                      </span>
-                      <span className="meta-sep"> • </span>
-                    </>
+                    <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                      {isBest ? 'BEST' : `${percentile}`}
+                    </span>
                   ) : null}
-                  {wageredText}
                 </span>
+                <span className="move-option__meta">{wageredText}</span>
               </button>
             );
           })
