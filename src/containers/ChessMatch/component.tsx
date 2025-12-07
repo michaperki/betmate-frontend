@@ -528,82 +528,82 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return canonicalSan(moveStr);
   }, [activeSnapshot?.fen, game?.state, canonicalSan]);
 
-  // Fetch top move analysis from microservice for the current position
-  const fetchTopMovesAnalysis = useCallback(async () => {
-    const fen = activeSnapshot?.fen || game?.state;
-    if (!fen) return;
-    setIsMoveAnalysisLoading(true);
-    try {
-      const resp = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(fen)}&n=6`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const json = await resp.json();
-      const payload = json?.body ? (() => { try { return JSON.parse(json.body); } catch { return json; } })() : json;
-      const arr = Array.isArray(payload?.data) ? payload.data : [];
-      const map: Record<string, MoveAnalysis> = {};
-      for (const item of arr) {
-        if (item && typeof item === 'object' && item.move) {
-          const key = canonicalSan(String(item.move));
-          map[key] = {
-            move: String(item.move),
-            score: Number(item.score || 0),
-            percentile: Number(item.percentile || 0),
-            is_best_move: Boolean(item.is_best_move),
-          } as MoveAnalysis;
-        }
-      }
-      setMoveAnalysisBySan(map);
-    } catch (e) {
-      // Leave previous analysis in place on error
-    } finally {
-      setIsMoveAnalysisLoading(false);
-    }
-  }, [ROOT_URL, activeSnapshot?.fen, game?.state, canonicalSan]);
+  // Stable key for current position
+  const fenKey = (activeSnapshot?.fen || game?.state || '').toString();
 
-  // Ensure we have analysis for the currently displayed candidate options (desktop + mobile)
-  const ensureAnalysisForDisplayed = useCallback(async () => {
-    const fen = activeSnapshot?.fen || game?.state;
-    if (!fen) return;
-    const displayed: string[] = [];
-    // Desktop shows up to 4 per color; mobile shows up to 4 overall
+  // Fetch top move analysis on FEN change only
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (!fenKey) return;
+      setIsMoveAnalysisLoading(true);
+      try {
+        const resp = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(fenKey)}&n=6`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const json = await resp.json();
+        const payload = json?.body ? (() => { try { return JSON.parse(json.body); } catch { return json; } })() : json;
+        const arr = Array.isArray(payload?.data) ? payload.data : [];
+        const map: Record<string, MoveAnalysis> = {};
+        for (const item of arr) {
+          if (item && typeof item === 'object' && item.move) {
+            const key = canonicalSan(String(item.move));
+            map[key] = {
+              move: String(item.move),
+              score: Number(item.score || 0),
+              percentile: Number(item.percentile || 0),
+              is_best_move: Boolean(item.is_best_move),
+            } as MoveAnalysis;
+          }
+        }
+        if (!cancelled) setMoveAnalysisBySan(map);
+      } catch {
+        // ignore network errors
+      } finally {
+        if (!cancelled) setIsMoveAnalysisLoading(false);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [fenKey, canonicalSan]);
+
+  // Compute displayed candidate SANs (desktop + mobile) and ensure missing ones are fetched
+  const displayedCandidateKeys = useMemo(() => {
+    const list: string[] = [];
     const desktopWhite = (isWhiteTurn ? deriveMoveOptions : []).slice(0, 4);
     const desktopBlack = (isBlackTurn ? deriveMoveOptions : []).slice(0, 4);
     const mobile = deriveMoveOptions.slice(0, 4);
     for (const opt of [...desktopWhite, ...desktopBlack, ...mobile]) {
       if (!opt) continue;
       const sanKey = toSanForCurrent(opt.move);
-      if (sanKey) displayed.push(sanKey);
+      if (sanKey) list.push(sanKey);
     }
-    const missing = displayed.filter((key) => !moveAnalysisBySan[key]);
-    if (!missing.length) return;
-    // Fetch per-move analysis for the missing SANs (limit to a handful)
-    const uniq = Array.from(new Set(missing)).slice(0, 6);
-    try {
-      const results = await Promise.allSettled(uniq.map(async (san) => getMoveAnalysis(fen, san)));
-      const additions: Record<string, MoveAnalysis> = {};
-      results.forEach((res, idx) => {
-        if (res.status === 'fulfilled') {
-          const out = res.value;
-          const san = uniq[idx];
-          if (out && (out as any).status === 200 && (out as any).data) {
-            additions[san] = (out as any).data as MoveAnalysis;
-          }
-        }
-      });
-      if (Object.keys(additions).length) {
-        setMoveAnalysisBySan((prev) => ({ ...prev, ...additions }));
-      }
-    } catch {}
-  }, [activeSnapshot?.fen, game?.state, isBlackTurn, isWhiteTurn, deriveMoveOptions, moveAnalysisBySan, toSanForCurrent]);
+    return Array.from(new Set(list));
+  }, [deriveMoveOptions, isBlackTurn, isWhiteTurn, toSanForCurrent]);
 
-  // When the position changes, fetch top moves and then ensure displayed candidates have analysis
   useEffect(() => {
-    fetchTopMovesAnalysis();
-    // After top moves are in, attempt to fill any missing displayed candidates
-    const t = window.setTimeout(() => { ensureAnalysisForDisplayed(); }, 150);
-    return () => window.clearTimeout(t);
-  }, [fetchTopMovesAnalysis, ensureAnalysisForDisplayed]);
+    const fen = fenKey;
+    if (!fen || !displayedCandidateKeys.length) return;
+    const missing = displayedCandidateKeys.filter((k) => !moveAnalysisBySan[k]);
+    if (!missing.length) return;
+    const run = async () => {
+      try {
+        const uniq = Array.from(new Set(missing)).slice(0, 6);
+        const results = await Promise.allSettled(uniq.map(async (san) => getMoveAnalysis(fen, san)));
+        const additions: Record<string, MoveAnalysis> = {};
+        results.forEach((res, idx) => {
+          if (res.status === 'fulfilled') {
+            const out = res.value as any;
+            const san = uniq[idx];
+            if (out && out.status === 200 && out.data) additions[san] = out.data as MoveAnalysis;
+          }
+        });
+        if (Object.keys(additions).length) setMoveAnalysisBySan((prev) => ({ ...prev, ...additions }));
+      } catch {}
+    };
+    run();
+  }, [fenKey, displayedCandidateKeys, moveAnalysisBySan]);
 
   const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
     if (!game || betsLocked) return;
