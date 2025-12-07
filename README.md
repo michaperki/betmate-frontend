@@ -79,6 +79,10 @@ The current development flow has all pull requests merging into the 'dev' branch
 
 The continuous deployment process is managed by a service called Netlify. To access the team's Netlify account, please refer to the handoff doc for login credential information. The handoff doc will be in the shared Google Drive for this project.
 
+## Releasing
+
+For the automated release workflow (version bumping, tagging, and updating submodule pointers), see the root repo guide: ../RELEASING.md
+
 ## Authors
   Faustino Cortina '21
   Jack Keane '22
