@@ -501,6 +501,19 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const mobileMovePool = deriveMoveOptions;
   const mobileMoveOwner = isWhiteTurn ? game?.player_white : game?.player_black;
 
+  // Compute win probability delta (percentage points) for a given move snapshot
+  // Compare current snapshot odds vs previous snapshot odds for the side that moved.
+  const getWinProbDelta = useCallback((snapIndex: number, mover: HoverableColor): number | null => {
+    if (snapIndex == null || snapIndex <= 0) return null;
+    const prev = oddsByIndex[snapIndex - 1] || approximateOddsFromFen(snapshots[snapIndex - 1]?.fen);
+    const curr = oddsByIndex[snapIndex] || approximateOddsFromFen(snapshots[snapIndex]?.fen);
+    if (!prev || !curr) return null;
+    const prevProb = mover === 'white' ? prev.white_win : prev.black_win;
+    const currProb = mover === 'white' ? curr.white_win : curr.black_win;
+    if (typeof prevProb !== 'number' || typeof currProb !== 'number') return null;
+    return Math.round((currProb - prevProb) * 100);
+  }, [oddsByIndex, snapshots]);
+
   const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
     if (!game || betsLocked) return;
     const chess = new Chess(game.state);
@@ -1160,6 +1173,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       }
     }
 
+    const delta = index != null ? getWinProbDelta(index, color) : null;
+    const deltaClass = delta == null ? '' : delta > 0 ? 'delta-pos' : delta < 0 ? 'delta-neg' : 'delta-zero';
+
     return (
       <button
         type="button"
@@ -1181,7 +1197,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           }
         }}
       >
-        <span className="notation-row__text">{displayText}</span>
+        <span className="notation-row__text">
+          {displayText}
+          {delta != null && (
+            <span className={["notation-row__delta", deltaClass].join(' ')} title="Win probability change">
+              {delta > 0 ? `+${delta}` : `${delta}`}
+            </span>
+          )}
+        </span>
       </button>
     );
   };

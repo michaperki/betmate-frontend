@@ -694,6 +694,19 @@
   white-space: nowrap;
 }
 
+// Subtle delta badge appended to notation move text
+.notation-row__delta {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.9;
+  vertical-align: baseline;
+  &.delta-pos { color: #00efb2; }
+  &.delta-neg { color: #ff7b7b; }
+  &.delta-zero { color: rgba(255, 255, 255, 0.55); }
+}
+
 .desktop-post-board {
   display: flex;
   gap: 12px;
