@@ -1157,6 +1157,11 @@
     position: relative;
     overflow: hidden;
 
+    // Force consistent visual style: black buttons + white text/icons (deprecate turn-based color shift)
+    background: #0b0b0b;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
     &.move-option--placeholder {
       opacity: 0.45;
       border-style: dashed;
@@ -1194,10 +1199,10 @@
       letter-spacing: 0.04em;
     }
 
-  .move-option__meta {
-    font-weight: 500;
-    font-size: 12px;
-    color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55));
+    .move-option__meta {
+      font-weight: 500;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
     margin-left: 10px;
     white-space: nowrap;
   }
@@ -1222,16 +1227,7 @@
       box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
     }
 
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 10px;
-      background: linear-gradient(120deg, rgba(0, 239, 178, 0.08), transparent 60%);
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      pointer-events: none;
-    }
+    &::after { content: none; }
 
     &.state-loading::after {
       opacity: 1;
@@ -1243,17 +1239,7 @@
       color: rgba(0, 0, 0, 0.8);
     }
 
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      box-shadow: none;
-      border-color: rgba(0, 0, 0, 0.12);
-      color: rgba(0, 0, 0, 0.45);
-
-      .move-option__meta {
-        color: rgba(0, 0, 0, 0.35);
-      }
-    }
+    // We avoid disabled visuals to keep menus informative while rewound
 
     &.state-success {
       border-color: rgba(0, 239, 178, 0.7);
@@ -1308,9 +1294,8 @@
     display: none;
   }
 
-  &--locked {
-    opacity: 0.55;
-  }
+  // Keep full visual strength even when wagering is locked/rewound
+  &--locked { opacity: 1; }
 }
 
 .mobile-move-market {
@@ -1419,11 +1404,16 @@
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 
+  // Force consistent visual style on mobile too
+  background: #0b0b0b;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
   .move-option__left {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
+    gap: 6px; // add separation between PNG and target square
     min-width: 0;
   }
 
@@ -1448,7 +1438,7 @@
     font-weight: 700;
     letter-spacing: 0;
     font-size: 16px;
-    margin-left: -4px; // nudge closer to icon to free space for quality
+    margin-left: 2px; // gentle nudge, no crowding
   }
 
   &__label {
@@ -1456,7 +1446,14 @@
     font-size: 14px;
   }
 
-  .move-option__meta { font-size: 12px; color: var(--move-bubble-meta, rgba(0, 0, 0, 0.55)); }
+  .move-option__meta { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
+
+  // smaller colored quality on mobile, with extra spacing from the target square
+  .move-option__quality {
+    font-size: 11px;
+    margin-left: 8px;
+    font-weight: 700;
+  }
 
   &--empty {
     border-style: dashed;
@@ -1468,16 +1465,7 @@
   &:hover,
   &:focus-visible { border-color: rgba($brand-primary, 0.5); transform: translateY(-1px); box-shadow: inset 0 0 12px rgba($brand-primary, 0.18); }
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 16px;
-    background: conic-gradient(rgba(0, 239, 178, 0.6), transparent 55%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-  }
+  &::after { content: none; }
 
   &.state-loading::after { opacity: 1; animation: moveChipSpin 1s linear infinite; }
 
@@ -1487,7 +1475,7 @@
 
   &.state-error { border-color: rgba($error, 0.8); box-shadow: 0 0 12px rgba($error, 0.25); animation: wagerShake 0.4s ease; }
 
-  &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; border-color: $border-primary; }
+  // No disabled visuals; selection remains available during rewind
 
   &.mobile-move-chip--placeholder { opacity: 0.4; border-style: dashed; }
 
@@ -1509,6 +1497,33 @@
     animation: holdBar var(--hold-ms, 260ms) linear forwards;
   }
 }
+
+// Minimal selected state for both desktop + mobile move buttons
+.move-option.is-selected,
+.mobile-move-chip.is-selected {
+  border-color: rgba(0, 239, 178, 0.7);
+  box-shadow: 0 0 0 2px rgba(0, 239, 178, 0.15);
+}
+
+// Neutralize turn-based variable overrides for mobile to keep consistent style
+.mobile-move-market.is-black-turn,
+.mobile-move-market.is-white-turn {
+  --move-bubble-bg: #0b0b0b;
+  --move-bubble-border: rgba(255, 255, 255, 0.18);
+  --move-bubble-fg: #ffffff;
+  --move-bubble-meta: rgba(255, 255, 255, 0.7);
+  --move-quality-best: #00efb2;
+  --move-quality-strong: #34d399;
+  --move-quality-decent: #fbbf24;
+  --move-quality-poor: #f87171;
+}
+
+/* Ensure quality colors apply consistently on mobile and desktop */
+.move-option__quality.quality-best  { color: var(--move-quality-best, #00efb2); }
+.move-option__quality.quality-strong{ color: var(--move-quality-strong, #34d399); }
+.move-option__quality.quality-decent{ color: var(--move-quality-decent, #fbbf24); }
+.move-option__quality.quality-poor  { color: var(--move-quality-poor, #f87171); }
+.move-option__quality.quality-unknown { color: var(--move-bubble-meta, rgba(255, 255, 255, 0.65)); }
 
 .mobile-outcome-row {
   display: none;
