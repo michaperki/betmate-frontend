@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
 import { FeedWager, Wager } from 'types/resources/wager';
 import { fetchWagers } from 'store/actionCreators/wagerActionCreators';
 import { processWagers } from './utils';
@@ -71,16 +72,13 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
 
           {/* Link to future wager history page */}
           {hasMoreWagers && (
-            <button
+            <Link
+              to="/betting-history"
               className="view-more-button"
-              onClick={() => {
-                // This will be replaced with navigation to wager history page in the future
-                alert('Wager history page coming soon!');
-              }}
               aria-label="View complete wager history"
             >
               View Wager History
-            </button>
+            </Link>
           )}
         </>
       ) : (

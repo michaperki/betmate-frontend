@@ -37,6 +37,7 @@
     position: relative;
     transition: background-color 0.15s ease;
     width: 100%;
+    min-height: 48px; // keep consistent height across rows
 
     // Different hover effect on desktop vs mobile
     @include tablet-up {
@@ -98,10 +99,7 @@
           min-width: 0; // For text truncation
         }
 
-        .status-icon {
-          font-size: $text-lg;
-          flex-shrink: 0;
-        }
+        .status-icon { font-size: $text-base; flex-shrink: 0; opacity: 0.7; }
 
         .bet-description {
           font-weight: $font-semibold;
@@ -114,16 +112,7 @@
           }
         }
 
-        .wager-time {
-          font-size: $text-xs;
-          color: $text-muted;
-          margin-left: auto;
-          flex-shrink: 0;
-
-          @media (max-width: 480px) {
-            display: none; // Hide on very small screens
-          }
-        }
+        // No time displayed (keep density minimal)
       }
 
       // Bet financial details (right side)
@@ -166,82 +155,12 @@
           border: 1px solid rgba($brand-primary, 0.2);
         }
 
-        .potential-payout .value {
-          color: rgba($success, 0.7);
-        }
+        // Net result (compact)
+        .net .value { font-size: $text-sm; }
+        .net-positive .value { color: rgba($success, 0.75); }
+        .net-negative .value { color: rgba($error, 0.75); }
 
-        // Pulsing dot for pending wagers
-        .pending-dot {
-          display: flex;
-          align-items: center;
-          margin-left: $space-1;
-
-          .pulse-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: $brand-primary;
-            animation: pulse 2s infinite;
-          }
-        }
-
-        // Time indicator for when status changed
-        .status-change-time {
-          font-size: $text-xs;
-          color: $text-secondary;
-          background-color: rgba(0, 0, 0, 0.2);
-          padding: $space-1 $space-2;
-          border-radius: $radius-sm;
-
-          .value {
-            font-weight: $font-medium;
-          }
-
-          // Style based on status
-          .status-won & {
-            background-color: rgba($success, 0.1);
-            border: 1px solid rgba($success, 0.2);
-
-            .value {
-              color: rgba($success, 0.9);
-            }
-          }
-
-          .status-lost & {
-            background-color: rgba($error, 0.1); // Fixed: using $error instead of $danger
-            border: 1px solid rgba($error, 0.2); // Fixed: using $error instead of $danger
-
-            .value {
-              color: rgba($error, 0.9); // Fixed: using $error instead of $danger
-            }
-          }
-
-          .status-cancelled & {
-            background-color: rgba($warning, 0.1);
-            border: 1px solid rgba($warning, 0.2);
-
-            .value {
-              color: rgba($warning, 0.9);
-            }
-          }
-
-          @media (max-width: 480px) {
-            display: none; // Hide on very small screens
-          }
-        }
-      }
-    }
-
-    // Pulsing animation for pending wagers
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba($brand-primary, 0.7);
-      }
-      70% {
-        box-shadow: 0 0 0 4px rgba($brand-primary, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba($brand-primary, 0);
+        // No extra status/time badges (keep component unobtrusive)
       }
     }
   }

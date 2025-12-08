@@ -73,6 +73,8 @@
     display: flex;
     border-bottom: 1px solid $border-primary;
     padding: $space-4 0;
+    align-items: center;
+    min-height: 56px; // consistent row height
 
     &:last-child {
       border-bottom: none;
@@ -82,7 +84,6 @@
     .match-title { font-weight: $font-semibold; color: $text-primary; margin-bottom: $space-1; }
     .match-title .vs { margin: 0 $space-2; color: $text-secondary; }
     .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
-    .meta .dot { opacity: 0.5; }
     .view-link { color: $text-secondary; text-decoration: none; }
     .view-link:hover { color: $text-primary; }
 
@@ -98,33 +99,24 @@
       text-align: right;
 
       .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .payout { font-size: $text-sm; color: $success; }
-      .payout.refund { color: $info; }
-      .status { font-size: $text-sm; padding: 0.25rem 0.5rem; border-radius: $radius-base; display: inline-block; }
-      .status.won { background-color: rgba($success, 0.12); color: $success; }
-      .status.lost { background-color: rgba($error, 0.12); color: $error; }
-      .status.cancelled { background-color: rgba(149, 165, 166, 0.12); color: #95a5a6; }
+      .net { font-size: $text-sm; color: $text-secondary; min-height: 1em; }
+      .net-positive { color: rgba($success, 0.8); }
+      .net-negative { color: rgba($error, 0.8); }
+      .net-refund { color: $info; }
     }
   }
 
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: $space-2;
-    margin-top: $space-6;
-
-    button {
-      padding: $space-2 $space-4;
-      border: 1px solid $border-primary;
-      background-color: $bg-secondary;
-      color: $text-primary;
-      border-radius: $radius-base;
-      cursor: pointer;
-      transition: background-color $duration-base $ease-out, color $duration-base $ease-out, border-color $duration-base $ease-out;
-      &:hover { background-color: $bg-tertiary; }
-      &.active { background-color: $brand-primary; color: $text-inverse; border-color: $brand-primary; }
-      &:disabled { opacity: 0.5; cursor: not-allowed; }
-    }
+  .load-more { display: flex; justify-content: center; margin-top: $space-6; }
+  .load-more button {
+    padding: $space-2 $space-4;
+    border: 1px solid $border-primary;
+    background-color: $bg-secondary;
+    color: $text-primary;
+    border-radius: $radius-base;
+    cursor: pointer;
+    transition: background-color $duration-base $ease-out, color $duration-base $ease-out, border-color $duration-base $ease-out;
+    &:hover { background-color: $bg-tertiary; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
   }
 
   .empty-state {

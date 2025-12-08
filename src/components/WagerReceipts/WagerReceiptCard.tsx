@@ -12,28 +12,8 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
     ? wager.status[0] || WagerStatus.PENDING
     : wager.status;
 
-  // Format the timestamp
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  // Added to show when the wager was resolved (if it has been)
-  const getStatusChangeTime = () => {
-    if (wager.resolved) {
-      const date = new Date(wager.updated_at);
-      return date.toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    }
-    return null;
-  };
+  // Neutral glyphs (no emoji) to avoid visual noise
+  const neutralGlyph = '•';
 
   // Get display elements based on status
   const getStatusInfo = (status: WagerStatus) => {
@@ -41,31 +21,31 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
       case WagerStatus.PENDING:
         return {
           label: 'Pending',
-          icon: '⏳',
+          icon: neutralGlyph,
           colorClass: 'status-pending'
         };
       case WagerStatus.WON:
         return {
           label: 'Won',
-          icon: '🏆',
+          icon: neutralGlyph,
           colorClass: 'status-won'
         };
       case WagerStatus.LOST:
         return {
           label: 'Lost',
-          icon: '❌',
+          icon: neutralGlyph,
           colorClass: 'status-lost'
         };
       case WagerStatus.CANCELLED:
         return {
           label: 'Cancelled',
-          icon: '⚠️',
+          icon: neutralGlyph,
           colorClass: 'status-cancelled'
         };
       default:
         return {
           label: 'Unknown',
-          icon: '❓',
+          icon: neutralGlyph,
           colorClass: 'status-unknown'
         };
     }
@@ -89,36 +69,28 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
     }
   };
 
-  // Calculate payout if won or potential payout
-  const calculatePayout = () => {
-    // For WDL (outcome bets), show potential payout for pending bets
-    if (wager.wdl && normalizedStatus === WagerStatus.PENDING) {
-      return (wager.amount * wager.odds).toFixed(2);
+  // Calculate compact net result (minimal, non-flashy)
+  const calculateNet = () => {
+    if (normalizedStatus === WagerStatus.WON) {
+      return (wager.amount * wager.odds - wager.amount);
     }
-    // For won bets (both move and WDL), show actual payout
-    else if (normalizedStatus === WagerStatus.WON) {
-      return (wager.amount * wager.odds).toFixed(2);
+    if (normalizedStatus === WagerStatus.LOST) {
+      return -wager.amount;
     }
-    // For cancelled bets, show refund amount (original stake)
-    else if (normalizedStatus === WagerStatus.CANCELLED) {
-      return wager.amount.toFixed(2);
+    if (normalizedStatus === WagerStatus.CANCELLED) {
+      return 0;
     }
     return null;
   };
 
-  const payout = calculatePayout();
-
-  const statusChangeTime = getStatusChangeTime();
+  const net = calculateNet();
 
   return (
     <div className={`wager-receipt-card ${statusInfo.colorClass}`}>
       <div className="receipt-content">
         <div className="bet-info">
-          <span className="status-icon">{statusInfo.icon}</span>
+          <span className="status-icon" aria-hidden>{statusInfo.icon}</span>
           <span className="bet-description">{formatBetDescription()}</span>
-
-          {/* Show when the wager was placed */}
-          <span className="wager-time">{formatTime(wager.time)}</span>
         </div>
 
         <div className="bet-details">
@@ -133,39 +105,10 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
             </div>
           )}
 
-          {/* Show payout for WDL bets, won move bets, or cancelled bets (refunds) */}
-          {payout && (wager.wdl || normalizedStatus === WagerStatus.WON || normalizedStatus === WagerStatus.CANCELLED) && (
-            <div className={`potential-payout ${normalizedStatus === WagerStatus.CANCELLED ? "refund" : ""}`}>
-              <span className="value">
-                {normalizedStatus === WagerStatus.CANCELLED ? "Refund: $" : "$"}
-                {payout}
-              </span>
-            </div>
-          )}
-
-          {/* For move bets that are pending, show "Pool" indicator instead of odds */}
-          {!wager.wdl && normalizedStatus === WagerStatus.PENDING && (
-            <div className="pool-indicator">
-              <span className="value">Pool</span>
-            </div>
-          )}
-
-          {/* Show pending indicator for pending wagers */}
-          {normalizedStatus === WagerStatus.PENDING && (
-            <div className="pending-dot">
-              <div className="pulse-dot"></div>
-            </div>
-          )}
-
-          {/* For resolved wagers, show when they were resolved */}
-          {statusChangeTime && (
-            <div className="status-change-time">
-              <span className="value">
-                {normalizedStatus === WagerStatus.WON ? '✓ ' : ''}
-                {normalizedStatus === WagerStatus.LOST ? '✗ ' : ''}
-                {normalizedStatus === WagerStatus.CANCELLED ? '⚠ ' : ''}
-                {statusChangeTime}
-              </span>
+          {/* Net result: won/lost/cancelled only (no pending) */}
+          {net !== null && (
+            <div className={`net ${net >= 0 ? 'net-positive' : 'net-negative'}`}>
+              <span className="value">{net >= 0 ? '+$' : '-$'}{Math.abs(net).toFixed(2)}</span>
             </div>
           )}
         </div>

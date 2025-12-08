@@ -15,6 +15,8 @@ const BettingHistoryPage: React.FC = () => {
   const games = useSelector((state: RootState) => state.game.games);
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<WagerStatus | 'all'>('all');
+  const [items, setItems] = useState<Wager[]>([]);
+  const [hasMore, setHasMore] = useState(false);
   
   // Stats for the stats bar
   const [historyStats, setHistoryStats] = useState({
@@ -30,6 +32,14 @@ const BettingHistoryPage: React.FC = () => {
     dispatch(fetchWagerHistory(status, ITEMS_PER_PAGE, (currentPage - 1) * ITEMS_PER_PAGE));
     dispatch(fetchUserBettingStats());
   }, [dispatch, statusFilter, currentPage]);
+
+  // Append/replace local list based on paging
+  useEffect(() => {
+    if (loading || error != null) return;
+    if (currentPage === 1) setItems(wagerHistory);
+    else setItems((prev) => prev.concat(wagerHistory));
+    setHasMore(wagerHistory.length === ITEMS_PER_PAGE);
+  }, [wagerHistory, loading, error, currentPage]);
 
   // Calculate stats based on the filtered history
   useEffect(() => {
@@ -52,12 +62,7 @@ const BettingHistoryPage: React.FC = () => {
     const value = e.target.value as WagerStatus | 'all';
     setStatusFilter(value);
     setCurrentPage(1); // Reset to first page when filter changes
-  };
-
-  // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setItems([]);
   };
 
   // Format bet data for display (WDL vs Move)
@@ -73,18 +78,18 @@ const BettingHistoryPage: React.FC = () => {
     return `Move: ${wager.data}`;
   };
 
-  // Get class name for status badge
-  const getStatusClass = (status: WagerStatus): string => {
-    switch (status) {
-      case WagerStatus.WON:
-        return 'won';
-      case WagerStatus.LOST:
-        return 'lost';
-      case WagerStatus.CANCELLED:
-        return 'cancelled';
-      default:
-        return '';
+  const formatNet = (w: Wager): { text: string; cls: string } | null => {
+    if (w.status === WagerStatus.WON) {
+      const net = (w.amount * w.odds) - w.amount;
+      return { text: `Net +$${net.toFixed(2)}`, cls: 'net-positive' };
     }
+    if (w.status === WagerStatus.LOST) {
+      return { text: `Net -$${w.amount.toFixed(2)}`, cls: 'net-negative' };
+    }
+    if (w.status === WagerStatus.CANCELLED) {
+      return { text: 'Refund', cls: 'net-refund' };
+    }
+    return null;
   };
 
   return (
@@ -130,7 +135,7 @@ const BettingHistoryPage: React.FC = () => {
             <p>Failed to load betting history. Please try again.</p>
             <button onClick={() => dispatch(fetchWagerHistory())}>Retry</button>
           </div>
-        ) : wagerHistory.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="empty-state">
             <h3>No Betting History</h3>
             <p>You haven't placed any bets yet or no bets match your filter.</p>
@@ -140,15 +145,11 @@ const BettingHistoryPage: React.FC = () => {
           </div>
         ) : (
           <>
-            {wagerHistory.map((wager) => {
+            {items.map((wager) => {
               const game: Game | undefined = games[wager.game_id];
               const white = game?.player_white?.name || 'White';
               const black = game?.player_black?.name || 'Black';
-              const statusText = typeof wager.status === 'string' ? wager.status : String(wager.status);
-              const statusClass = getStatusClass(wager.status);
-              const payout = (wager.status === WagerStatus.WON)
-                ? (wager.amount * wager.odds).toFixed(2)
-                : (wager.status === WagerStatus.CANCELLED ? wager.amount.toFixed(2) : undefined);
+              const net = formatNet(wager);
               return (
                 <div key={wager._id} className="bet-history-item">
                   <div className="game-info">
@@ -157,11 +158,7 @@ const BettingHistoryPage: React.FC = () => {
                       <span className="vs">vs</span>
                       <span className="player player--black">{black}</span>
                     </div>
-                    <div className="meta">
-                      <span className="placed">Placed {formatDate(wager.created_at)}</span>
-                      <span className="dot">•</span>
-                      <Link to={`/chess/${wager.game_id}`} className="view-link">View match</Link>
-                    </div>
+                    <div className="meta"><Link to={`/chess/${wager.game_id}`} className="view-link">View match</Link></div>
                   </div>
                   <div className="bet-details">
                     <div className="bet-type">{formatBetData(wager)}</div>
@@ -169,36 +166,16 @@ const BettingHistoryPage: React.FC = () => {
                   </div>
                   <div className="bet-result">
                     <div className="amount">{wager.amount} tokens</div>
-                    {payout && (
-                      <div className={`payout ${wager.status === WagerStatus.CANCELLED ? 'refund' : ''}`}>
-                        {wager.status === WagerStatus.CANCELLED ? 'Refund ' : 'Payout '} {payout}
-                      </div>
-                    )}
-                    <div className={`status ${statusClass}`}>{statusText}</div>
+                    <div className={`net ${net ? net.cls : ''}`}>{net ? net.text : ''}</div>
                   </div>
                 </div>
               );
             })}
-
-            <div className="pagination">
-              <button 
-                disabled={currentPage === 1} 
-                onClick={() => setCurrentPage(prev => prev - 1)}
-              >
-                Previous
-              </button>
-              <button 
-                className="active"
-              >
-                {currentPage}
-              </button>
-              <button 
-                disabled={wagerHistory.length < ITEMS_PER_PAGE} 
-                onClick={() => setCurrentPage(prev => prev + 1)}
-              >
-                Next
-              </button>
-            </div>
+            {hasMore && (
+              <div className="load-more">
+                <button onClick={() => setCurrentPage((p) => p + 1)} disabled={loading}>Load more</button>
+              </div>
+            )}
           </>
         )}
       </div>
