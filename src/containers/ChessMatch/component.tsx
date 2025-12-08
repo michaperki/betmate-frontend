@@ -990,8 +990,16 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const formatReceiptMeta = useCallback((w: Wager) => {
     const amount = `$${(w.amount ?? 0).toFixed(0)}`;
-    const time = w.created_at ? new Date(w.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-    return `${amount} • ${time}`;
+    let netPart = '';
+    if (w.status === WagerStatus.WON) {
+      const net = (w.amount * (w.odds || 1)) - w.amount;
+      netPart = `Net +$${Math.abs(net).toFixed(0)}`;
+    } else if (w.status === WagerStatus.LOST) {
+      netPart = `Net -$${Math.abs(w.amount).toFixed(0)}`;
+    } else if (w.status === WagerStatus.CANCELLED) {
+      netPart = 'Refund';
+    }
+    return netPart ? `${amount} • ${netPart}` : `${amount}`;
   }, []);
 
   const scheduleOutcomeReset = useCallback((outcomeId: OutcomeId, delay: number) => {

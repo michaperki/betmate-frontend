@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store/reducers';
 import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
+import { WagerStatus } from 'types/resources/wager';
 import './style.scss';
 
 // Tiny sparkline based on balance history
@@ -69,13 +70,41 @@ const StatsTiles: React.FC = () => {
             <div className="mini-empty">No recent wagers</div>
           ) : (
             <ul className="recent-list">
-              {recent.map((w: any) => (
-                <li key={w._id}>
-                  <span className={`status ${w.status}`}>{w.status}</span>
-                  <span className="amount">{w.amount}</span>
-                  <span className="odds">@ {w.odds.toFixed(2)}x</span>
-                </li>
-              ))}
+              {recent.map((w: any) => {
+                let netText = '';
+                let netCls = '';
+                if (w.status === WagerStatus.WON || w.status === 'won') {
+                  const net = (w.amount * w.odds) - w.amount;
+                  netText = `Net +$${net.toFixed(2)}`;
+                  netCls = 'net-positive';
+                } else if (w.status === WagerStatus.LOST || w.status === 'lost') {
+                  netText = `Net -$${Number(w.amount).toFixed(2)}`;
+                  netCls = 'net-negative';
+                } else if (w.status === WagerStatus.CANCELLED || w.status === 'cancelled') {
+                  netText = 'Refund';
+                  netCls = 'net-refund';
+                }
+                let desc = '';
+                if (w.wdl || w.wdl === true) {
+                  const map: Record<string, string> = { white_win: 'White', black_win: 'Black', draw: 'Draw' };
+                  desc = map[String(w.data)] || String(w.data);
+                } else {
+                  desc = `Move ${String(w.data)}`;
+                }
+                return (
+                  <li key={w._id}>
+                    <span className="dot" aria-hidden>•</span>
+                    <span className="line">
+                      <span className="label">{desc}</span>
+                      {w.wdl ? <span className="odds">@ {w.odds.toFixed(2)}x</span> : null}
+                    </span>
+                    <span className="right">
+                      <span className="amount">${w.amount}</span>
+                      <span className={`net ${netCls}`}>{netText}</span>
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -95,4 +124,3 @@ const StatsTiles: React.FC = () => {
 };
 
 export default StatsTiles;
-

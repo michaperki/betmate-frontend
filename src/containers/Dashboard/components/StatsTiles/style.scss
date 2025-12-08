@@ -81,19 +81,18 @@
         border: 1px solid $border-primary;
         border-radius: $radius-md;
         padding: 6px 10px;
-        .status {
-          font-size: $text-xs;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          &.won { color: $success; }
-          &.lost { color: $error; }
-          &.cancelled { color: $warning; }
-          &.pending { color: $text-secondary; }
-        }
-        .amount { font-weight: $font-semibold; color: $text-primary; }
+        min-height: 40px; // consistent compact height
+        .dot { color: $text-secondary; opacity: 0.8; font-size: $text-base; }
+        .line { display: inline-flex; align-items: baseline; gap: 6px; min-width: 0; }
+        .label { color: $text-secondary; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .odds { color: $text-secondary; font-size: $text-xs; }
+        .right { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .amount { font-weight: $font-semibold; color: $text-primary; }
+        .net { font-size: $text-xs; color: $text-secondary; }
+        .net-positive { color: rgba($success, 0.85); }
+        .net-negative { color: rgba($error, 0.85); }
+        .net-refund { color: $info; }
       }
     }
   }
 }
-
