@@ -108,6 +108,16 @@ export function* watchFetchUserBettingStats() {
         (a.type === 'FETCH_USER_BETTING_STATS' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
+      // If not authenticated, return default stats to avoid 401 spam
+      if (!getBearerToken()) {
+        yield put<Actions>({
+          type: 'FETCH_USER_BETTING_STATS',
+          payload: { totalWagers: 0, winRate: 0 },
+          status: 'SUCCESS'
+        });
+        continue;
+      }
+
       const response: RequestReturnType<FetchUserBettingStatsData> = yield call(wagerRequests.fetchUserBettingStats);
       yield put<Actions>({
         type: 'FETCH_USER_BETTING_STATS',
@@ -131,6 +141,16 @@ export function* watchFetchActiveWagers() {
         (a.type === 'FETCH_ACTIVE_WAGERS' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
+      // If not authenticated, return empty list to avoid 401 spam
+      if (!getBearerToken()) {
+        yield put<Actions>({
+          type: 'FETCH_ACTIVE_WAGERS',
+          payload: [],
+          status: 'SUCCESS'
+        });
+        continue;
+      }
+
       const response: RequestReturnType<FetchActiveWagersData> = yield call(wagerRequests.fetchActiveWagers);
       yield put<Actions>({
         type: 'FETCH_ACTIVE_WAGERS',
@@ -153,6 +173,16 @@ export function* watchFetchWagerHistory() {
       const action: FetchWagerHistoryActions = yield take((a: Actions) =>
         (a.type === 'FETCH_WAGER_HISTORY' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
+
+      // If not authenticated, return empty list to avoid 401 spam
+      if (!getBearerToken()) {
+        yield put<Actions>({
+          type: 'FETCH_WAGER_HISTORY',
+          payload: [],
+          status: 'SUCCESS'
+        });
+        continue;
+      }
 
       const response: RequestReturnType<FetchWagerHistoryData> = yield call(
         wagerRequests.fetchWagerHistory,

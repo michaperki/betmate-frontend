@@ -11,7 +11,7 @@ import {
   AuthUserResponseData, SignInUserActions, CreateUserActions, JwtSignInActions, JwtSignInResponseData,
   GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions
 } from 'types/resources/auth';
-import { setBearerToken, removeBearerToken } from 'store/actionCreators';
+import { setBearerToken, removeBearerToken, getBearerToken } from 'store/actionCreators';
 
 export function* watchCreateUser() {
   while (true) {
@@ -71,6 +71,13 @@ export function* watchGetBalanceHistory() {
     try {
       const action: GetBalanceHistoryActions = yield take((a: Actions) => (a.type === GET_BALANCE_HISTORY && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
+
+      // If not authenticated, short-circuit with empty data to avoid 401 spam and stuck loading states
+      const token = getBearerToken();
+      if (!token) {
+        yield put(getBalanceHistorySuccess([]));
+        continue;
+      }
 
       const limit = action.payload.limit || 30;
       const response: RequestReturnType<BalanceHistoryResponseData> = yield call(authRequests.getBalanceHistory, limit);

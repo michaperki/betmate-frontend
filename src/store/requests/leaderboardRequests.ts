@@ -6,7 +6,21 @@ import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { LeaderboardSchema, RankSchema, sanitizeLeaderboardData } from 'validation/leaderboard';
 
+// Simple in-memory backoff to avoid hammering routes that are unavailable in current environment
+let leaderboardUnavailableUntil = 0;
+const BACKOFF_MS = 5 * 60 * 1000; // 5 minutes
+
 export const getLeaderboardSection = async (start: number, end: number, id?: string): Promise<RequestReturnType<LeaderboardSection>> => {
+  // Respect backoff window
+  if (Date.now() < leaderboardUnavailableUntil) {
+    return {
+      data: { _id: 'unavailable', rankings: [], rankings_size: 0 },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    } as unknown as RequestReturnType<LeaderboardSection>;
+  }
   try {
     const result = await createBackendAxiosRequest<LeaderboardSection>({
       method: 'GET',
@@ -38,6 +52,7 @@ export const getLeaderboardSection = async (start: number, end: number, id?: str
     const status = e?.response?.status;
     if (status === 404) {
       // Backend global leaderboard not available in this environment – return empty section
+      leaderboardUnavailableUntil = Date.now() + BACKOFF_MS;
       return {
         data: { _id: 'unavailable', rankings: [], rankings_size: 0 },
         status: 200,
@@ -51,6 +66,16 @@ export const getLeaderboardSection = async (start: number, end: number, id?: str
 };
 
 export const getLeaderboardRank = async (): Promise<RequestReturnType<UserRankResponse>> => {
+  // Respect backoff window
+  if (Date.now() < leaderboardUnavailableUntil) {
+    return {
+      data: { has_rank: false } as any,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    } as RequestReturnType<UserRankResponse>;
+  }
   try {
     const result = await createBackendAxiosRequest<UserRankResponse>({
       method: 'GET',
@@ -76,6 +101,7 @@ export const getLeaderboardRank = async (): Promise<RequestReturnType<UserRankRe
     const status = e?.response?.status;
     if (status === 404) {
       // Backend user rank not available – return no-rank shape
+      leaderboardUnavailableUntil = Date.now() + BACKOFF_MS;
       return {
         data: { has_rank: false } as any,
         status: 200,
