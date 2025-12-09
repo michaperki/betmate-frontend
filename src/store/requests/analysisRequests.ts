@@ -15,9 +15,12 @@ const cacheMove = new Map<string, RequestReturnType<MoveAnalysis>>();
 
 const inFlightTop = new Map<string, Promise<RequestReturnType<MoveAnalysis[]>>>();
 const cacheTop = new Map<string, RequestReturnType<MoveAnalysis[]>>();
+const inFlightBatch = new Map<string, Promise<RequestReturnType<MoveAnalysis[]>>>();
+
 
 const moveKey = (fen: string, san: string) => `${fen}::${san}`;
 const topKey = (fen: string, n: number) => `${fen}::top::${n}`;
+const batchKey = (fen: string, moves: string[]) => `${fen}::batch::${[...moves].sort().join('|')}`;
 
 // Normalize various backend payload shapes to MoveAnalysis[]
 function normalizeTopMovesPayload(input: any): MoveAnalysis[] {
@@ -106,5 +109,46 @@ export const getTopMoves = async (
     });
 
   inFlightTop.set(key, p);
+  return p;
+};
+
+/**
+ * Batch analyze a set of SAN moves. Also hydrates the single-move cache.
+ */
+export const getBatchMoveAnalysis = async (
+  fen: string,
+  moves: string[],
+): Promise<RequestReturnType<MoveAnalysis[]>> => {
+  const key = batchKey(fen, moves);
+  const inflight = inFlightBatch.get(key);
+  if (inflight) return inflight;
+
+  const p = createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/analysis/moves',
+    data: { fen, moves },
+  })
+    .then((raw) => {
+      const arr: MoveAnalysis[] = Array.isArray(raw?.data?.data) ? raw.data.data : (Array.isArray(raw?.data) ? raw.data : []);
+      // hydrate single-move cache
+      for (const item of arr) {
+        if (!item || typeof item !== 'object') continue;
+        const k = moveKey(fen, String((item as any).move || ''));
+        if (k) {
+          // create a synthetic AxiosResponse-like object for cache coherency
+          const resp = { ...raw, data: item } as RequestReturnType<MoveAnalysis>;
+          cacheMove.set(k, resp);
+        }
+      }
+      const resp = { ...raw, data: arr } as RequestReturnType<MoveAnalysis[]>;
+      inFlightBatch.delete(key);
+      return resp;
+    })
+    .catch((err) => {
+      inFlightBatch.delete(key);
+      throw err;
+    });
+
+  inFlightBatch.set(key, p);
   return p;
 };
