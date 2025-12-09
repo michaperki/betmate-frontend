@@ -20,6 +20,7 @@ import NavBar from './NavBar';
 import RequireAuthHOC from 'hocs/requireAuth';
 import VersionFooter from './VersionFooter';
 import { ModeProvider } from 'context/ModeContext';
+import Wallet from './Wallet/component';
 
 const Welcome = () => {
   return (
@@ -76,6 +77,11 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/signup" component={SignUpPanel} />
             <Route exact path="/signout" component={SignOutPanel} />
             <Route exact path="/user" component={UserPage} />
+            <Route exact path="/wallet" render={() => (
+                <div className="dashboard-page">
+                  <Wallet />
+                </div>
+            )} />
             <Route component={FallBack} />
           </Switch>
         </div>
