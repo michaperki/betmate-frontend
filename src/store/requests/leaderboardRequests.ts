@@ -1,57 +1,90 @@
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { createBackendAxiosRequest } from 'store/requests';
+import type { AxiosError } from 'axios';
 import { LeaderboardSection, Rank, UserRankResponse } from 'types/leaderboard';
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { LeaderboardSchema, RankSchema, sanitizeLeaderboardData } from 'validation/leaderboard';
 
 export const getLeaderboardSection = async (start: number, end: number, id?: string): Promise<RequestReturnType<LeaderboardSection>> => {
-  const result = await createBackendAxiosRequest<LeaderboardSection>({
-    method: 'GET',
-    url: '/leaderboard',
-    params: { start, end, id },
-  });
-
-  // First sanitize the data, then validate it
   try {
-    const sanitizedData = sanitizeLeaderboardData(result.data);
+    const result = await createBackendAxiosRequest<LeaderboardSection>({
+      method: 'GET',
+      url: '/leaderboard',
+      params: { start, end, id },
+    });
 
-    // Replace the data with the sanitized version
-    const updatedResult = {
-      ...result,
-      data: sanitizedData
-    };
+    // First sanitize the data, then validate it
+    try {
+      const sanitizedData = sanitizeLeaderboardData(result.data);
 
-    return validateSchema(LeaderboardSchema, updatedResult, (d) => d.data);
-  } catch (error) {
-    console.error('Error sanitizing leaderboard data:', error);
-    // Return the original result with empty rankings if validation fails
-    return {
-      ...result,
-      data: { _id: result.data?._id || 'unknown', rankings: [], rankings_size: 0 }
-    };
+      // Replace the data with the sanitized version
+      const updatedResult = {
+        ...result,
+        data: sanitizedData
+      };
+
+      return validateSchema(LeaderboardSchema, updatedResult, (d) => d.data);
+    } catch (error) {
+      console.error('Error sanitizing leaderboard data:', error);
+      // Return the original result with empty rankings if validation fails
+      return {
+        ...result,
+        data: { _id: result.data?._id || 'unknown', rankings: [], rankings_size: 0 }
+      };
+    }
+  } catch (err) {
+    const e = err as AxiosError<any>;
+    const status = e?.response?.status;
+    if (status === 404) {
+      // Backend global leaderboard not available in this environment – return empty section
+      return {
+        data: { _id: 'unavailable', rankings: [], rankings_size: 0 },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as unknown as RequestReturnType<LeaderboardSection>;
+    }
+    throw err;
   }
 };
 
 export const getLeaderboardRank = async (): Promise<RequestReturnType<UserRankResponse>> => {
-  const result = await createBackendAxiosRequest<UserRankResponse>({
-    method: 'GET',
-    url: '/leaderboard/userrank',
-    headers: getBearerTokenHeader(),
-  });
-
-  // If the backend indicates the user has no rank, pass that through without validation
-  if ((result.data as any)?.has_rank === false) {
-    return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
-  }
-
   try {
-    // Validate normal Rank payloads
-    return validateSchema(RankSchema, result as RequestReturnType<Rank>, (d) => d.data);
-  } catch (error) {
-    console.error('Error validating rank data:', error);
-    // Return explicit no-rank if validation fails unexpectedly
-    return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
+    const result = await createBackendAxiosRequest<UserRankResponse>({
+      method: 'GET',
+      url: '/leaderboard/userrank',
+      headers: getBearerTokenHeader(),
+    });
+
+    // If the backend indicates the user has no rank, pass that through without validation
+    if ((result.data as any)?.has_rank === false) {
+      return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
+    }
+
+    try {
+      // Validate normal Rank payloads
+      return validateSchema(RankSchema, result as RequestReturnType<Rank>, (d) => d.data);
+    } catch (error) {
+      console.error('Error validating rank data:', error);
+      // Return explicit no-rank if validation fails unexpectedly
+      return { ...result, data: { has_rank: false } } as RequestReturnType<UserRankResponse>;
+    }
+  } catch (err) {
+    const e = err as AxiosError<any>;
+    const status = e?.response?.status;
+    if (status === 404) {
+      // Backend user rank not available – return no-rank shape
+      return {
+        data: { has_rank: false } as any,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as RequestReturnType<UserRankResponse>;
+    }
+    throw err;
   }
 };
 

@@ -18,12 +18,20 @@ import {
 } from 'types/leaderboard';
 import { Actions, RequestReturnType, RootState } from 'types/state';
 import { getErrorPayload } from 'utils/error';
+import { DISABLE_GLOBAL_LEADERBOARD } from 'utils/config';
 
 const SECTION_SIZE = 12;
 
 export function* handleGetLeaderboardHead(action: FetchLeaderboardHeadActions) {
   try {
     if (action.status !== 'REQUEST') return;
+
+    if (DISABLE_GLOBAL_LEADERBOARD) {
+      // Return an empty leaderboard section gracefully
+      const empty: LeaderboardSection = { _id: 'disabled', rankings: [], rankings_size: 0 } as any;
+      yield put<Actions>({ type: action.type, status: 'SUCCESS', payload: empty });
+      return;
+    }
 
     const response: RequestReturnType<LeaderboardSection> = yield call(getLeaderboardSection, 0, SECTION_SIZE);
 
@@ -76,6 +84,11 @@ export function* handleExtendLeaderboardBottom(action: ExtendLeaderboardBottomAc
 export function* handleGetUserRank(action: FetchUserRankActions) {
   try {
     if (action.status !== 'REQUEST') return;
+
+    if (DISABLE_GLOBAL_LEADERBOARD) {
+      yield put<Actions>({ type: action.type, status: 'SUCCESS', payload: { has_rank: false } as any });
+      return;
+    }
 
     const response: RequestReturnType<Rank> = yield call(getLeaderboardRank);
 
