@@ -11,7 +11,7 @@ import {
   AuthUserResponseData, SignInUserActions, CreateUserActions, JwtSignInActions, JwtSignInResponseData,
   GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions
 } from 'types/resources/auth';
-import { setBearerToken } from 'store/actionCreators';
+import { setBearerToken, removeBearerToken, getBearerToken } from 'store/actionCreators';
 
 export function* watchCreateUser() {
   while (true) {
@@ -56,6 +56,11 @@ export function* watchJwtSignIn() {
       const response: RequestReturnType<JwtSignInResponseData> = yield call(authRequests.jwtSignIn);
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: { user: response.data.user }, status: 'SUCCESS' });
     } catch (error) {
+      // Clear stale token on 401 to avoid repeated failures
+      try {
+        const code = (error as any)?.response?.status || (error as any)?.code;
+        if (code === 401 || code === '401') removeBearerToken();
+      } catch {}
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: getErrorPayload(error), status: 'FAILURE' });
     }
   }
@@ -66,6 +71,13 @@ export function* watchGetBalanceHistory() {
     try {
       const action: GetBalanceHistoryActions = yield take((a: Actions) => (a.type === GET_BALANCE_HISTORY && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
+
+      // If not authenticated, short-circuit with empty data to avoid 401 spam and stuck loading states
+      const token = getBearerToken();
+      if (!token) {
+        yield put(getBalanceHistorySuccess([]));
+        continue;
+      }
 
       const limit = action.payload.limit || 30;
       const response: RequestReturnType<BalanceHistoryResponseData> = yield call(authRequests.getBalanceHistory, limit);
