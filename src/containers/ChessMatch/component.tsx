@@ -1226,6 +1226,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           key={`${color}-${option.move}`}
           type="button"
           className={`move-option state-${visualState} ${isSelected ? 'is-selected' : ''}`}
+          disabled={!canAttemptWager || !hasSufficientBalance}
+          aria-disabled={!canAttemptWager || !hasSufficientBalance}
+          data-locked={betsLocked || !isGameActive || !hasSufficientBalance}
+          title={!hasSufficientBalance ? 'Insufficient balance' : undefined}
           onClick={() => {
             if (canAttemptWager && hasSufficientBalance) {
               handleMoveBet(option.move);
@@ -1314,6 +1318,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 key={`slot-${color}-${idx}`}
                 type="button"
                 className={`move-option state-${visualState} ${isSelected ? 'is-selected' : ''}`}
+                disabled={!canAttemptWager || !hasSufficientBalance}
+                aria-disabled={!canAttemptWager || !hasSufficientBalance}
+                data-locked={betsLocked || !isGameActive || !hasSufficientBalance}
+                title={!hasSufficientBalance ? 'Insufficient balance' : undefined}
                 onClick={() => {
                   if (canAttemptWager && hasSufficientBalance) {
                     handleMoveBet(option.move);
@@ -1620,6 +1628,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         type="button"
         className={`mobile-move-chip ${mobileSlotUpdating[idx] ? 'is-updating' : ''} ${mobileHolding[idx] ? 'is-holding' : ''} ${selectedMove === option.move ? 'is-selected' : ''} state-${visualState}`}
         style={{ ['--hold-ms' as any]: `${HOLD_MS}ms` }}
+        disabled={!canAttemptWager || !hasSufficientBalance}
+        aria-disabled={!canAttemptWager || !hasSufficientBalance}
+        data-locked={betsLocked || !isGameActive || !hasSufficientBalance}
+        title={!hasSufficientBalance ? 'Insufficient balance' : undefined}
         onClick={onClick}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
