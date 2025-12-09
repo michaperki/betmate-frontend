@@ -1251,6 +1251,23 @@
       box-shadow: 0 0 10px rgba(255, 100, 100, 0.18);
       animation: wagerShake 0.4s ease;
     }
+
+    // Strong disabled visuals
+    &:disabled,
+    &[disabled] {
+      opacity: 0.5;
+      background: #1f2937; // slate-800
+      color: rgba(255, 255, 255, 0.6);
+      border-color: rgba(255, 255, 255, 0.14);
+      transform: none;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    &:disabled .move-option__meta,
+    &[disabled] .move-option__meta {
+      color: rgba(255, 255, 255, 0.45);
+    }
   }
 
   &__empty {
@@ -1493,8 +1510,21 @@
     pointer-events: none;
   }
 
+  // Disabled state for move options (insufficient funds / locked)
+  .move-option[disabled],
+  .mobile-move-chip[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   &.is-holding .chip-hold-bar {
     animation: holdBar var(--hold-ms, 260ms) linear forwards;
+  }
+
+  &:disabled,
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
