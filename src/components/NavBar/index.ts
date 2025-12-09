@@ -7,7 +7,8 @@ import NavBar from 'components/NavBar/component';
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.auth.isAuthenticated,
   firstName: state.auth.user?.first_name,
-  balance: state.auth.user?.account, // Using account field as balance
+  tokenBalance: state.auth.user?.account ?? 0,
+  cashBalance: (state.auth.user as any)?.cash_balance ?? 0,
   isDarkTheme: true, // Default to dark theme
 });
 

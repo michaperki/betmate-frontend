@@ -13,6 +13,8 @@ export const createWager = async (
   wdl: boolean,
   odds: number,
   moveNumber: number,
+  mode?: 'arcade' | 'real',
+  currency?: 'BET' | 'USDT',
 ): Promise<RequestReturnType<FetchWagerData>> => {
   const result = await createBackendAxiosRequest<FetchWagerData>({
     method: 'POST',
@@ -23,6 +25,8 @@ export const createWager = async (
       data: wager,
       odds,
       move_number: moveNumber,
+      mode,
+      currency,
     },
     headers: getBearerTokenHeader(),
     timeout: 5000, // default is 1000ms, but this endpoint has an intentional 1000ms delay + is making an API request

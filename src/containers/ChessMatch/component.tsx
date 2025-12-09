@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import ChessgroundWrapper from 'components/ChessgroundWrapper';
 import { Config } from 'chessground/config';
 import { DrawShape } from 'chessground/draw';
@@ -34,6 +35,7 @@ import {
   toggleQuickBet,
 } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
+import { useMode } from 'context/ModeContext';
 import { gameInProgress, gameOver, getValidMoves } from 'utils/chess';
 import { Game, GameOdds, GameStatus } from 'types/resources/game';
 import { Rank } from 'types/leaderboard';
@@ -73,6 +75,8 @@ interface ChessMatchProps {
   showAutoShapes: boolean;
   isAuthenticated: boolean;
   balance: number | undefined;
+  tokenBalance?: number;
+  cashBalance?: number;
   rankings: Rank[];
   quickBetMode: boolean;
   pendingBet: {
@@ -216,6 +220,8 @@ const approximateOddsFromFen = (fen?: string): GameOdds | undefined => {
 };
 
 const ChessMatch: React.FC<ChessMatchProps> = (props) => {
+  const { mode } = useMode();
+  const history = useHistory();
   const { id: gameId } = useParams<{ id: string }>();
   const { isMobile, isDesktop } = useResponsiveLayout();
   const dispatch = useDispatch();
@@ -321,6 +327,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isGameInProgress = useMemo(() => (
     game ? gameInProgress(game.game_status as GameStatus) : false
   ), [game?.game_status]);
+  // Consider betting allowed for any active game (not over), even if not yet in_progress
+  const isGameActive = useMemo(() => (
+    game ? !gameOver(game.game_status as GameStatus) : false
+  ), [game?.game_status]);
 
   useEffect(() => {
     const computeMax = () => {
@@ -406,8 +416,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // brief flicker when a new snapshot arrives and positionIndex updates.
   const isEffectivelyLive = isFollowingLive || isAtLatestSnapshot;
   const betsLocked = !isEffectivelyLive;
-  const hasSufficientBalance = (props.balance ?? 0) >= (selectedStake || 0);
-  const canPlaceWagers = !betsLocked && isAuthenticated && !!selectedStake && isGameInProgress && hasSufficientBalance;
+  // During migration, prefer the max of token_balance and legacy account to avoid 0 overshadowing a real balance
+  const arcadeBalance = Math.max(
+    Number.isFinite(props.tokenBalance as number) ? (props.tokenBalance as number) : 0,
+    Number.isFinite(props.balance as number) ? (props.balance as number) : 0,
+  );
+  const availableBalance = mode === 'real' ? (props.cashBalance ?? 0) : arcadeBalance;
+  const hasSufficientBalance = availableBalance >= (selectedStake || 0);
+  // Attempt criteria (auth handled in handlers with redirect)
+  const canAttemptWager = !betsLocked && !!selectedStake && isGameActive;
+
+  // (debug logging removed)
 
   const arrowShapes = useMemo(() => {
     const baseShapes = autoShapes || [];
@@ -710,6 +729,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
     if (!game || betsLocked) return;
+    if (!isAuthenticated) { history.push('/signin'); return; }
     const chess = new Chess(game.state);
     try {
       const move = chess.move({
@@ -722,7 +742,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       onEnterMovePanel();
       onMoveHover([{ orig: orig.toString(), dest: dest.toString() }]);
 
-      if (quickBetMode && canPlaceWagers) {
+      if (quickBetMode && canAttemptWager && hasSufficientBalance) {
         const wagerPromise = createWager(
           gameId,
           move.san,
@@ -730,6 +750,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           false,
           1,
           game.move_hist.length + 1,
+          mode,
+          mode === 'real' ? 'USDT' : 'BET',
         );
         Promise.resolve(wagerPromise).then(() => {
           try { dispatch(fetchWagerHistory(undefined, 10, 0)); } catch (_) {}
@@ -752,9 +774,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
       chess.undo();
     } catch (error) {
-      console.error('Invalid move', error);
+      // keep failure path minimal
     }
-  }, [betsLocked, canPlaceWagers, clearPendingBet, createWager, game, gameId, onEnterMovePanel, onMoveHover, onMoveUnhover, quickBetMode, selectedStake, setPendingBet]);
+  }, [betsLocked, canAttemptWager, clearPendingBet, createWager, game, gameId, history, isAuthenticated, onEnterMovePanel, onMoveHover, onMoveUnhover, quickBetMode, selectedStake, setPendingBet, hasSufficientBalance]);
 
   // Store odds history keyed by snapshot index so eval bar follows notation
   const [oddsByIndex, setOddsByIndex] = useState<Record<number, GameOdds>>({});
@@ -782,6 +804,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!game?.odds) return;
     setOddsByIndex((prev) => (prev[latestSnapshotIndex] ? prev : { ...prev, [latestSnapshotIndex]: game.odds as GameOdds }));
   }, [latestSnapshotIndex]);
+
+  // (debug logging removed)
 
   const boardConfig = useMemo<Config>(() => {
     const fen = activeSnapshot?.fen || game?.state || DEFAULT_FEN;
@@ -1083,13 +1107,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const triggerOutcomeBet = useCallback(async (outcomeId: OutcomeId) => {
     if (!game) return;
+    if (!isAuthenticated) { history.push('/signin'); return; }
     // Immediate guard for insufficient balance
     if (!hasSufficientBalance) {
       updateOutcomeState(outcomeId, 'error');
       scheduleOutcomeReset(outcomeId, 900);
       return;
     }
-    if (!canPlaceWagers) return;
+    if (!canAttemptWager || !hasSufficientBalance) return;
     // Prevent double submission using current render state snapshot
     if (outcomeStates[outcomeId] === 'loading') return;
     setOutcomeStates((prev) => ({ ...prev, [outcomeId]: 'loading' }));
@@ -1111,25 +1136,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         true,
         game.odds?.[outcomeId] ? 1 / game.odds[outcomeId] : 1,
         game.move_hist.length + 1,
+        mode,
+        mode === 'real' ? 'USDT' : 'BET',
       );
-      // Add optimistic pending receipt for immediate feedback
-      setPendingReceipts((prev) => [{
-        _id: `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        game_id: gameId,
-        better_id: authUserId || 'me',
-        wdl: true,
-        amount: selectedStake,
-        odds: game.odds?.[outcomeId] ? 1 / (game.odds[outcomeId] || 1) : 1,
-        data: outcomeId,
-        move_number: game.move_hist.length + 1,
-        resolved: false,
-        status: 'pending' as any,
-        winning_pool_share: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, ...prev]);
-
-      // Mark button success immediately (snappy), then let receipts reconcile
+      // Mark button success immediately (snappy)
       updateOutcomeState(outcomeId, 'success');
       scheduleOutcomeReset(outcomeId, 600);
 
@@ -1141,7 +1151,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       // Refresh receipts so new wagers appear promptly
       dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
-      console.error('Outcome bet failed', error);
+      // keep failure path minimal
       updateOutcomeState(outcomeId, 'error');
       scheduleOutcomeReset(outcomeId, 800);
       if (outcomeLoadingSafety.current[outcomeId]) {
@@ -1149,10 +1159,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         outcomeLoadingSafety.current[outcomeId] = null;
       }
     }
-  }, [canPlaceWagers, createWager, game, gameId, hasSufficientBalance, outcomeStates, scheduleOutcomeReset, selectedStake, updateOutcomeState]);
+  }, [canAttemptWager, createWager, game, gameId, hasSufficientBalance, outcomeStates, scheduleOutcomeReset, selectedStake, updateOutcomeState, isAuthenticated, history]);
 
   const handleMoveBet = useCallback(async (move: string) => {
     if (!game) return;
+    if (!isAuthenticated) { history.push('/signin'); return; }
     const moveKey = `${positionIndex}-${move}`;
     if (moveStates[moveKey] === 'loading') return;
     // Immediate guard for insufficient balance
@@ -1161,7 +1172,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       scheduleMoveReset(moveKey, 900);
       return;
     }
-    if (!canPlaceWagers) return;
+    if (!canAttemptWager || !hasSufficientBalance) return;
     updateMoveState(moveKey, 'loading');
     try {
       const wagerPromise = createWager(
@@ -1171,24 +1182,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         false,
         1,
         game.move_hist.length + 1,
+        mode,
+        mode === 'real' ? 'USDT' : 'BET',
       );
-      // Add optimistic pending receipt for immediate feedback
-      setPendingReceipts((prev) => [{
-        _id: `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        game_id: gameId,
-        better_id: authUserId || 'me',
-        wdl: false,
-        amount: selectedStake,
-        odds: 1,
-        data: move,
-        move_number: game.move_hist.length + 1,
-        resolved: false,
-        status: 'pending' as any,
-        winning_pool_share: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, ...prev]);
-
       // Immediate success state for tactile feedback
       updateMoveState(moveKey, 'success');
       scheduleMoveReset(moveKey, 500);
@@ -1197,11 +1193,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       // Refresh receipts so new wagers appear promptly
       dispatch(fetchWagerHistory(undefined, 10, 0));
     } catch (error) {
-      console.error('Move bet failed', error);
+      // keep failure path minimal
       updateMoveState(moveKey, 'error');
       scheduleMoveReset(moveKey, 700);
     }
-  }, [canPlaceWagers, createWager, game, gameId, hasSufficientBalance, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState]);
+  }, [canAttemptWager, createWager, game, gameId, hasSufficientBalance, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState, isAuthenticated, history]);
 
   useEffect(() => () => {
     (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
@@ -1248,7 +1244,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           type="button"
           className={`move-option state-${visualState} ${isSelected ? 'is-selected' : ''}`}
           onClick={() => {
-            if (canPlaceWagers) {
+            if (canAttemptWager && hasSufficientBalance) {
               handleMoveBet(option.move);
             } else {
               if (selectedMove !== option.move) {
@@ -1336,7 +1332,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 type="button"
                 className={`move-option state-${visualState} ${isSelected ? 'is-selected' : ''}`}
                 onClick={() => {
-                  if (canPlaceWagers) {
+                  if (canAttemptWager && hasSufficientBalance) {
                     handleMoveBet(option.move);
                   } else {
                     if (selectedMove !== option.move) {
@@ -1479,16 +1475,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   ) => {
     const visualState = outcomeStates[outcomeId];
     const isLoading = visualState === 'loading';
-    const isDisabled = !canPlaceWagers;
+    // Disable only when not live/in-progress or stake invalid or insufficient funds
+    const isDisabled = (!canAttemptWager || !hasSufficientBalance) || isLoading;
 
     return (
       <button
         type="button"
         className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
         data-state={visualState}
-        data-locked={!canPlaceWagers}
+        data-locked={betsLocked || !isGameActive}
         onClick={() => triggerOutcomeBet(outcomeId)}
-        disabled={isDisabled || isLoading}
+        disabled={isDisabled}
       >
         <span className="outcome-rail__label">{label}</span>
         <span className="outcome-rail__spinner" aria-hidden />
@@ -1561,7 +1558,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         (e.currentTarget as any).setPointerCapture?.(e.pointerId);
       } catch {}
       selectMove(option.move);
-      if (!canPlaceWagers) {
+      if (!canAttemptWager || !hasSufficientBalance) {
         // Selection-only when wagering is locked; do not initiate hold timers
         return;
       }
@@ -1575,7 +1572,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       holdTimersRef.current[idx] = window.setTimeout(() => {
         suppressNextClickRef.current = true; // prevent click after long-press
         // Trigger bet (if allowed)
-        if (canPlaceWagers) handleMoveBet(option.move);
+        if (canAttemptWager && hasSufficientBalance) handleMoveBet(option.move);
         // Stop holding visual; success/error feedback handled by existing state
         setMobileHolding((prev) => {
           const next = prev.slice();
@@ -2101,7 +2098,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         isLive={isEffectivelyLive && isGameInProgress}
         onDraw={() => triggerOutcomeBet('draw')}
         drawState={outcomeStates['draw']}
-        canDraw={canPlaceWagers}
+        canDraw={canAttemptWager && hasSufficientBalance}
       />
 
       {/* Fullscreen overlays */}
