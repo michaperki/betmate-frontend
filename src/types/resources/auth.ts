@@ -16,6 +16,8 @@ export interface User {
   last_name: string
   full_name: string
   account: number // This is the user's token balance for betting
+  token_balance?: number
+  cash_balance?: number
   onboarding_version_seen?: number
   role?: UserRole
   _id: string
@@ -27,6 +29,7 @@ export interface BalanceHistoryItem {
   user_id: string
   amount: number
   balance: number
+  currency?: 'BET' | 'USDT'
   reason: string
   reference_id?: string
   reference_type?: string

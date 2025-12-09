@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import Slider from 'react-slider';
 
 import { GameOutcomes, MoveOptions, WagerMessages } from 'components/WagerFormComponents';
 import { onEnterMovePanel, onLeaveMovePanel } from 'store/actionCreators/chessgroundActionCreators';
 import { Game } from 'types/resources/game';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
+import { useMode } from 'context/ModeContext';
 
 interface WagerSubPanelProps {
   onEnterMovePanel: typeof onEnterMovePanel
@@ -21,11 +23,14 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
   const [wagerAmount, setWagerAmount] = useState(5);
   const [panelLoading, setPanelLoading] = useState(false);
   const { id: gameId } = useParams<{ id: string }>();
+  const history = useHistory();
+  const { mode } = useMode();
 
   const wagersLoading = !props.games[gameId]?.pool_wagers?.move?.options?.length;
 
   const handleSubmit = useCallback((wdl: boolean) => (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
+    if (!props.isAuthenticated) { history.push('/signin'); return; }
     if (wagerAmount && props.isAuthenticated) {
       // Map wager string to the correct odds property name
       let oddsValue = 1;
@@ -40,6 +45,7 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
         }
       }
 
+      const currency = mode === 'real' ? 'USDT' : 'BET';
       props.createWager(
         gameId,
         wager,
@@ -47,10 +53,12 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
         wdl,
         oddsValue,
         props.games[gameId].move_hist.length + 1,
+        mode,
+        currency,
       );
       setPanelLoading(true);
     }
-  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId]]);
+  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId], mode, history]);
 
   const wagerExplanation = props.betType === 'move'
     ? 'Bet on which move will happen next. Win tokens from others in the pool.'

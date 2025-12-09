@@ -8,11 +8,13 @@ export const createWager = (
   wdl: boolean,
   odds: number,
   moveNumber: number,
+  mode?: 'arcade' | 'real',
+  currency?: 'BET' | 'USDT',
 ): Actions => ({
   type: 'CREATE_WAGER',
   status: 'REQUEST',
   payload: {
-    gameId, wager, amount, wdl, odds, moveNumber,
+    gameId, wager, amount, wdl, odds, moveNumber, mode, currency,
   },
 });
 

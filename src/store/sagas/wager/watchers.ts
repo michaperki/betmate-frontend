@@ -28,8 +28,9 @@ export function* watchCreateWager() {
       const action: CreateWagerActions = yield take((a: Actions) => (a.type === 'CREATE_WAGER' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
-      // Optimistically adjust balance immediately
-      if (action.payload.amount) {
+      // Optimistically adjust Arcade balance only if we have a token present
+      const token = getBearerToken();
+      if (action.payload.amount && action.payload.mode !== 'real' && token) {
         yield put({ type: 'ADJUST_BALANCE', status: 'SUCCESS', payload: { delta: -Math.abs(action.payload.amount) } });
       }
 
@@ -41,6 +42,8 @@ export function* watchCreateWager() {
         action.payload.wdl,
         action.payload.odds,
         action.payload.moveNumber,
+        action.payload.mode,
+        action.payload.currency,
       );
       yield put<Actions>({ type: 'CREATE_WAGER', payload: response.data, status: 'SUCCESS' });
 

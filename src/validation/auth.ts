@@ -17,11 +17,12 @@ const BalanceHistoryItemSchema = joi.object({
   user_id: joi.string().required(),
   amount: joi.number().required(),
   balance: joi.number().required(),
+  currency: joi.string().valid('BET', 'USDT').optional(),
   reason: joi.string().required(),
   reference_id: joi.string().optional(),
   reference_type: joi.string().optional(),
   created_at: joi.string().required(),
   updated_at: joi.string().required()
-});
+}).unknown(true);
 
 export const BalanceHistoryResponseSchema = joi.array().items(BalanceHistoryItemSchema);
