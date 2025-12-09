@@ -19,7 +19,7 @@ export interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalance, cashBalance, compact = false, breadcrumb }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
-  const { mode, toggleMode } = useMode();
+  const { mode, toggleMode, realEnabled } = useMode();
   const [armed, setArmed] = useState(false);
   const armTimer = useRef<number | null>(null);
 
@@ -130,7 +130,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
                 armed={armed}
                 onClick={handleToggleClick}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}
-                title={armed ? `Tap again to switch to ${mode === 'arcade' ? 'Real' : 'Arcade'}` : 'Tap twice to toggle mode'}
+                title={!realEnabled ? 'Real mode coming soon' : (armed ? `Tap again to switch to ${mode === 'arcade' ? 'Real' : 'Arcade'}` : 'Tap twice to toggle mode')}
                 ariaLabel={`Current mode ${mode}. Tap twice to toggle`}
               />
             </div>

@@ -485,6 +485,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
   const isTurnHighlightEnabled = isAtLatestSnapshot && isGameInProgress;
+  const { pricingVersion } = useMode();
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
   const BOARD_STACK_GAP = 4;
@@ -1470,6 +1471,20 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     // Disable only when not live/in-progress or stake invalid or insufficient funds
     const isDisabled = (!canAttemptWager || !hasSufficientBalance) || isLoading;
 
+    // Compute informative suffix per mode
+    let suffix = '';
+    if (mode === 'arcade' && game?.odds && typeof (game.odds as any)[outcomeId] === 'number') {
+      const p = Math.max(1e-6, Number((game.odds as any)[outcomeId]));
+      const mult = Math.max(1, (1 / p));
+      const multStr = (Math.round(mult * 100) / 100).toFixed(2);
+      suffix = ` ${multStr}x`;
+    } else if (mode === 'real') {
+      const totals = gameStats?.wdlWagerTotals || {};
+      const entry = (totals as any)[outcomeId];
+      const amount = Math.max(0, Number(entry?.totalAmount || 0));
+      if (amount > 0) suffix = ` $${Math.round(amount)}`;
+    }
+
     return (
       <button
         type="button"
@@ -1479,7 +1494,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         onClick={() => triggerOutcomeBet(outcomeId)}
         disabled={isDisabled}
       >
-        <span className="move-outcome-rail__label">{label}</span>
+        <span className="move-outcome-rail__label">{label}{suffix}</span>
         <span className="move-outcome-rail__spinner" aria-hidden />
         <span className="move-outcome-rail__check" aria-hidden>✓</span>
       </button>
@@ -2095,6 +2110,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         onDraw={() => triggerOutcomeBet('draw')}
         drawState={outcomeStates['draw']}
         canDraw={canAttemptWager && hasSufficientBalance}
+        pricingVersion={pricingVersion}
       />
 
       {/* Fullscreen overlays */}

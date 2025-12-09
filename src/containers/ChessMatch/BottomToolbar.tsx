@@ -15,6 +15,7 @@ interface BottomToolbarProps {
   onDraw: () => void;
   drawState: 'idle' | 'loading' | 'success' | 'error';
   canDraw: boolean;
+  pricingVersion?: string;
 }
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({
@@ -28,6 +29,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   onDraw,
   drawState,
   canDraw,
+  pricingVersion,
 }) => {
   return (
     <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
@@ -38,6 +40,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         {/* Desktop-only version tag (hidden on small screens) */}
         <span className="bt-version">
           <VersionTag ariaLabelPrefix="Frontend build" />
+          {pricingVersion ? (
+            <span style={{ marginLeft: 8, opacity: 0.7 }} title="Pricing model version">Pricing {pricingVersion}</span>
+          ) : null}
         </span>
       </div>
       <div className="bottom-toolbar__center">
