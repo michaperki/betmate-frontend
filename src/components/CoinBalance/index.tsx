@@ -41,8 +41,9 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
     return balance;
   };
 
-  const active = selectBalance();
-  if (active === undefined) return null;
+  const activeRaw = selectBalance();
+  if (activeRaw === undefined) return null;
+  const active = Math.max(0, activeRaw);
 
   const [display, setDisplay] = useState<number>(Math.round(active));
   const [updating, setUpdating] = useState(false);
@@ -51,7 +52,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
 
   useEffect(() => {
     const start = prevRef.current;
-    const end = Math.round(selectBalance() ?? 0);
+    const end = Math.round(Math.max(0, selectBalance() ?? 0));
     if (start === end) return;
 
     setUpdating(true);

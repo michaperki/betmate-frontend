@@ -419,10 +419,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isEffectivelyLive = isFollowingLive || isAtLatestSnapshot;
   const betsLocked = !isEffectivelyLive;
   // During migration, prefer the max of token_balance and legacy account to avoid 0 overshadowing a real balance
-  const arcadeBalance = Math.max(
-    Number.isFinite(props.tokenBalance as number) ? (props.tokenBalance as number) : 0,
-    Number.isFinite(props.balance as number) ? (props.balance as number) : 0,
-  );
+  const arcadeBalance = Math.max(0, (props.tokenBalance ?? props.balance ?? 0));
   const availableBalance = mode === 'real' ? (props.cashBalance ?? 0) : arcadeBalance;
   const hasSufficientBalance = availableBalance >= (selectedStake || 0);
   // Attempt criteria (auth handled in handlers with redirect)
