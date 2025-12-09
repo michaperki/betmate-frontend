@@ -16,6 +16,10 @@ export const UserSchema = joi.object<User>({
   last_name: joi.string().required(),
   full_name: joi.string().required(),
   account: joi.number().required(),
+  // Optional/new fields tolerated for forward compatibility
+  token_balance: joi.number().optional(),
+  cash_balance: joi.number().optional(),
+  onboarding_version_seen: joi.number().optional(),
   role: joi.string().custom(userRoleValidator),
   is_bot: joi.boolean().optional(),
-});
+}).unknown(true);

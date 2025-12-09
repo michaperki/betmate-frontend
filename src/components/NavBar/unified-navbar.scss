@@ -319,10 +319,7 @@
     display: inline-flex;
     align-items: center;
     gap: $space-2;
-    padding: 2px $space-3;
-    border: 1px solid $border-primary;
-    border-radius: $radius-full;
-    background-color: $bg-tertiary;
+    padding: 0; // avoid bubble-in-bubble; coin-balance provides the pill
 
     // When in the mobile flyout menu
     .navbar__menu.open & {
@@ -345,15 +342,21 @@
   &__account-balance {
     display: inline-flex;
     align-items: center;
+  }
 
-    // Flatten inner coin pill so the wrapper provides the chrome
-    .coin-balance {
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      padding: 0;
-
-      .balance-icon { margin-right: $space-2; }
+  // Minimal chip when balance hidden (dashboard)
+  &__mode-only {
+    margin-left: auto;
+    cursor: pointer;
+    .mode-chip {
+      padding: 2px 8px;
+      font-size: $text-xs;
+      line-height: 18px;
+      border-radius: $radius-full;
+      color: $text-secondary;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      user-select: none;
     }
   }
 }

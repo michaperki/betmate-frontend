@@ -32,6 +32,8 @@ const mapStateToProps = (state: RootState) => ({
   config: state.chessground.config,
   isAuthenticated: state.auth.isAuthenticated,
   balance: state.auth.user?.account,
+  tokenBalance: state.auth.user?.token_balance ?? state.auth.user?.account ?? 0,
+  cashBalance: state.auth.user?.cash_balance ?? 0,
   rankings: state.leaderboard.rankings,
   quickBetMode: state.game.quickBetMode,
   pendingBet: state.game.pendingBet,

@@ -12,6 +12,7 @@ import { WagerMessages } from '../WagerFormComponents';
 
 import './style.scss';
 import './dark-style.scss';
+import { useMode } from 'context/ModeContext';
 
 interface PregameModalProps {
   games: Record<string, Game>,
@@ -28,10 +29,12 @@ const PregameModal: React.FC<PregameModalProps> = (props) => {
 
   const { id: gameId } = useParams<{ id: string }>();
   const wagersLoading = props.games[gameId]?.pool_wagers?.move.options.length === 0;
+  const { mode } = useMode();
 
   const handleSubmit = useCallback((wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
     if (wagerAmount && props.isAuthenticated) {
+      const currency = mode === 'real' ? 'USDT' : 'BET';
       props.createWager(
         gameId,
         wager,
@@ -39,10 +42,12 @@ const PregameModal: React.FC<PregameModalProps> = (props) => {
         true,
         1 / props.games[gameId].odds[wager],
         props.games[gameId].move_hist.length + 1,
+        mode,
+        currency,
       );
       setPanelLoading(true);
     }
-  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId]]);
+  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId], mode]);
 
   return (
     <div className={isDarkTheme ? "dark-blur-background" : "blur-background"}>

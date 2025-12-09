@@ -68,6 +68,8 @@ export type CreateWagerRequestData = {
   wdl: boolean,
   odds: number,
   moveNumber: number,
+  mode?: 'arcade' | 'real',
+  currency?: 'BET' | 'USDT',
 };
 export type FetchWagerRequestData = { id: string };
 export type DeleteWagerRequestData = { id: string };

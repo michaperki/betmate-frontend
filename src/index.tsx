@@ -14,6 +14,27 @@ import { logger } from './utils';
 import version from './version';
 import './style.scss';
 import './styles/chessboard-global.css';
+// Dev-only console noise filter for known third-party warnings
+if (process.env.NODE_ENV === 'development') {
+  const matchesFAWarning = (args: any[]): boolean => {
+    try {
+      const combined = args.map(a => (typeof a === 'string' ? a : (a?.message || ''))).join(' ');
+      return combined.includes('FontAwesomeIcon') && combined.includes('defaultProps will be removed');
+    } catch { return false; }
+  };
+
+  const origError = console.error;
+  const origWarn = console.warn;
+
+  console.error = (...args: any[]) => {
+    if (matchesFAWarning(args)) return; // suppress noisy FA dev warning
+    return (origError as any)(...args);
+  };
+  console.warn = (...args: any[]) => {
+    if (matchesFAWarning(args)) return; // some builds emit as warn
+    return (origWarn as any)(...args);
+  };
+}
 
 const sagaMiddleware = createSagaMiddleware();
 

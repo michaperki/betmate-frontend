@@ -10,7 +10,7 @@ const defaultRank: Partial<Rank> = {
 export const RankSchema = joi.object<Rank>({
   user_id: joi.string().required(),
   user_name: joi.string().allow('').default('Player'),
-  rank: joi.number().min(1).required(),
+  rank: joi.number().min(0).required(),
   winnings: joi.number().required(),
 }).unknown(true);
 
