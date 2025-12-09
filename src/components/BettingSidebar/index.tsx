@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { Chess } from 'chess.js';
 import { Game } from 'types/resources/game';
@@ -12,6 +12,9 @@ import {
 } from 'store/actionCreators/chessgroundActionCreators';
 import { Rank } from 'types/leaderboard';
 import MiniLeaderboard from './MiniLeaderboard';
+import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
+import { computeArcadeMoveOdds } from 'utils/pricing';
+import { useMode } from 'context/ModeContext';
 
 import './style.scss';
 
@@ -49,6 +52,23 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   // Define game and moveOptions first to avoid "used before defined" errors
   const game = games[gameId];
   const moveOptions = game?.pool_wagers?.move?.options || [];
+  const fen = game?.state;
+  const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
+  const { mode } = useMode();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!fen) { setTopMoves([]); return; }
+        const resp = await getTopMoves(fen, 12);
+        if (!cancelled) setTopMoves(resp.data || []);
+      } catch {
+        if (!cancelled) setTopMoves([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fen]);
 
   // First run initializes the component without triggering panel events
   React.useEffect(() => {
@@ -78,8 +98,15 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   // Arrows will now ONLY be created when mouse enters the move panel
   // via the handleMovePanelMouseEnter function
   // Ensure moveOptions is properly typed
+  // Compute Arcade odds for offered moves; default to 1x if unavailable
+  const offeredMoves = Array.isArray(moveOptions) ? moveOptions.map(m => (typeof m === 'string' ? m : (m as any)?.move)).filter(Boolean) : [] as string[];
+  const oddsByMove = useMemo(() => computeArcadeMoveOdds(offeredMoves, (topMoves || []).map(t => ({ move: t.move, score: t.score }))), [offeredMoves.join('|'), topMoves]);
   const typedMoveOptions: Array<{ move: string; odds: number }> = Array.isArray(moveOptions)
-    ? moveOptions.map((move) => (typeof move === 'string' ? { move, odds: 1 } : move))
+    ? moveOptions.map((move) => {
+        const mv = (typeof move === 'string') ? move : (move as any)?.move;
+        const o = mode === 'arcade' ? Number(oddsByMove[mv] || 1) : 1;
+        return { move: mv, odds: o };
+      })
     : [];
   const outcomeOptions = game?.odds || {};
 
@@ -91,7 +118,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
       moveOption,
       selectedStake,
       false, // not WDL
-      1,
+      mode === 'arcade' ? Number(oddsByMove[moveOption] || 1) : 1,
       game.move_hist.length + 1,
     );
   };

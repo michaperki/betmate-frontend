@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { Chess } from 'chess.js';
 import { VerticalBar } from 'components/WagerPanel/helper_components';
 import { Game } from 'types/resources/game';
 import { moveOptionColors } from 'utils/config';
 import BotIndicator from 'components/BotIndicator';
+import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
+import { computeArcadeMoveOdds } from 'utils/pricing';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
 
 interface MoveOptionsProps {
   wagersLoading: boolean
@@ -18,26 +21,50 @@ interface MoveOptionsProps {
 
 const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
+  const fen = props.games[gameId]?.state;
+  const { mode } = useMode();
+
+  const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
+
+  // Fetch top moves for current position to price Arcade move odds
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!fen) { setTopMoves([]); return; }
+        const resp = await getTopMoves(fen, 12);
+        if (!cancelled) setTopMoves(resp.data || []);
+      } catch {
+        if (!cancelled) setTopMoves([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fen]);
+
+  // Precompute formatted move options for pricing
+  const formattedOptions: string[] = useMemo(() => {
+    const ro = props.games[gameId]?.pool_wagers?.move?.options || [];
+    return ro.map((move: string) => {
+      if (move === 'O-O' || move === 'O-O-O') return move;
+      const firstChar = move.charAt(0);
+      if (!/^[NBRQK]/.test(firstChar)) return move.toLowerCase();
+      return firstChar + move.substring(1).toLowerCase();
+    });
+  }, [props.games, gameId]);
+
+  // Compute oddsByMove from top analysis and offered moves (+Other)
+  const oddsByMove = useMemo(() => {
+    const offered = [...formattedOptions, 'Other'];
+    return computeArcadeMoveOdds(offered, (topMoves || []).map(t => ({ move: t.move, score: t.score })));
+  }, [formattedOptions.join('|'), topMoves]);
 
   const renderMoveOptions = () => {
     const { options: rawOptions, wagers } = props.games[gameId]?.pool_wagers?.move;
 
     if (!rawOptions || !wagers) return <div />;
 
-    // Format move options before processing
-    const options = rawOptions.map((move) => {
-      // Handle castling notation
-      if (move === 'O-O' || move === 'O-O-O') return move;
-
-      // Force lowercase for pawn moves (any move that doesn't start with NBRQK)
-      const firstChar = move.charAt(0);
-      if (!/^[NBRQK]/.test(firstChar)) {
-        return move.toLowerCase();
-      }
-
-      // For piece moves, keep the piece letter uppercase and rest lowercase
-      return firstChar + move.substring(1).toLowerCase();
-    });
+    // Use precomputed formatted options
+    const options = formattedOptions;
 
     const totalPool = wagers.reduce((acc, w) => acc + w.amount, 0);
 
@@ -133,6 +160,7 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
             <p>{formatMove(move)}</p>
             {botWagerMoves[move] && <BotIndicator />}
           </div>
+          {mode === 'arcade' && <div className="move-odds">{Number(oddsByMove[move] || 1).toFixed(2)}x</div>}
         </div>
       );
     }).filter(Boolean);

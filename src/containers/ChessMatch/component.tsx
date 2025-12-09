@@ -26,6 +26,7 @@ import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { ROOT_URL } from 'utils';
 import { getMoveAnalysis, getTopMoves, getBatchMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
+import { computeArcadeMoveOdds } from 'utils/pricing';
 import { isAnalysisRateLimited } from 'store/requests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
@@ -657,6 +658,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return Array.from(new Set(list));
   }, [deriveMoveOptions, isBlackTurn, isWhiteTurn, toSanForCurrent]);
 
+  // Compute Arcade fixed-odds for currently displayed candidate moves (top 4 per side + mobile)
+  const arcadeOddsByMove = useMemo(() => {
+    if (mode !== 'arcade') return {} as Record<string, number>;
+    const offered = displayedCandidateKeys || [];
+    const analyzed = analysisByIndex[positionIndex] || {};
+    const topList: Array<{ move: string; score: number }> = Object.entries(analyzed).map(([san, a]) => ({ move: san, score: Number(a?.score || 0) }));
+    return computeArcadeMoveOdds(offered, topList);
+  }, [mode, displayedCandidateKeys, analysisByIndex, positionIndex]);
+
   const lastCandidateFetchAtRef = useRef(0);
   useEffect(() => {
     const fen = fenKey;
@@ -1147,12 +1157,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!canAttemptWager || !hasSufficientBalance) return;
     updateMoveState(moveKey, 'loading');
     try {
+      const clientOdds = mode === 'arcade' ? Number(arcadeOddsByMove[canonicalSan(move)] || 1) : 1;
       const wagerPromise = createWager(
         gameId,
         move,
         selectedStake,
         false,
-        1,
+        clientOdds,
         game.move_hist.length + 1,
         mode,
         mode === 'real' ? 'USDT' : 'BET',
@@ -1169,7 +1180,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       updateMoveState(moveKey, 'error');
       scheduleMoveReset(moveKey, 700);
     }
-  }, [canAttemptWager, createWager, game, gameId, hasSufficientBalance, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState, isAuthenticated, history]);
+  }, [canAttemptWager, createWager, game, gameId, hasSufficientBalance, moveStates, positionIndex, scheduleMoveReset, selectedStake, updateMoveState, isAuthenticated, history, mode, arcadeOddsByMove, canonicalSan]);
 
   useEffect(() => () => {
     (Object.keys(outcomeResetTimers.current) as OutcomeId[]).forEach((outcomeId) => {
@@ -1331,7 +1342,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     {analysis ? (isBest ? '💪' : (percentile == null ? '—' : `${percentile}`)) : '—'}
                   </span>
                 </span>
-                <span className="move-option__meta">{wageredText}</span>
+                <span className="move-option__meta">{mode === 'arcade' ? `${Number(arcadeOddsByMove[canonicalSan(option.move)] || 1).toFixed(2)}x` : wageredText}</span>
               </button>
             );
           })
@@ -1453,15 +1464,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return (
       <button
         type="button"
-        className={`outcome-rail__button outcome-rail__button--${variant} state-${visualState}`}
+        className={`move-outcome-rail__button move-outcome-rail__button--${variant} state-${visualState}`}
         data-state={visualState}
         data-locked={betsLocked || !isGameActive}
         onClick={() => triggerOutcomeBet(outcomeId)}
         disabled={isDisabled}
       >
-        <span className="outcome-rail__label">{label}</span>
-        <span className="outcome-rail__spinner" aria-hidden />
-        <span className="outcome-rail__check" aria-hidden>✓</span>
+        <span className="move-outcome-rail__label">{label}</span>
+        <span className="move-outcome-rail__spinner" aria-hidden />
+        <span className="move-outcome-rail__check" aria-hidden>✓</span>
       </button>
     );
   };
@@ -1862,22 +1873,22 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
               <div className="board-layout" style={{ ['--board-width' as any]: `${boardFrameWidth}px` }}>
                 <div
                   className={[
-                    'outcome-rail-column',
+                    'move-outcome-rail-column',
                   ].join(' ')}
                   data-locked={false}
                 >
                   <>
-                    <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
-                      <div className="outcome-rail-column__actions">
+                    <div className="move-outcome-rail-column__item move-outcome-rail-column__item--actions-only">
+                      <div className="move-outcome-rail-column__actions">
                         {renderOutcomeButton('black_win', `Bet ${game.player_black?.name?.split(' ')[0] || 'Black'}`, 'black')}
                       </div>
                     </div>
-                    <div className={`outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
+                    <div className={`move-outcome-rail-column__center ${isWhiteTurn ? 'is-white-turn' : 'is-black-turn'}`}>
                       {renderMovePanel('white', 'move-panel--center', isWhiteTurn, whiteMovePool)}
                       {renderMovePanel('black', 'move-panel--center', isBlackTurn, blackMovePool)}
                     </div>
-                    <div className="outcome-rail-column__item outcome-rail-column__item--actions-only">
-                      <div className="outcome-rail-column__actions">
+                    <div className="move-outcome-rail-column__item move-outcome-rail-column__item--actions-only">
+                      <div className="move-outcome-rail-column__actions">
                         {renderOutcomeButton('white_win', `Bet ${game.player_white?.name?.split(' ')[0] || 'White'}`, 'white')}
                       </div>
                     </div>
