@@ -104,11 +104,13 @@ export interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ userName = 'Player', stats }) => {
   const dispatch = useDispatch();
-  const { balanceHistory, loadingBalanceHistory } = useSelector((state: RootState) => state.auth);
+  const { balanceHistory, loadingBalanceHistory, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    dispatch(getBalanceHistory(14)); // Get last 14 days of balance history
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(getBalanceHistory(14)); // Get last 14 days of balance history
+    }
+  }, [dispatch, isAuthenticated]);
 
   // Format data for the chart
   const chartData = balanceHistory

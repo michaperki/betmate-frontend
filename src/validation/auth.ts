@@ -6,7 +6,7 @@ import { UserSchema } from 'validation/user';
 export const AuthUserResponseSchema = joi.object<AuthUserResponseData>({
   user: UserSchema.required(),
   token: joi.string().required(),
-});
+}).unknown(true);
 
 export const JwtSignInResponseSchema = joi.object<JwtSignInResponseData>({
   user: UserSchema.required(),

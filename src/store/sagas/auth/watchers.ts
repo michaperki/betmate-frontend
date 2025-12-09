@@ -11,7 +11,7 @@ import {
   AuthUserResponseData, SignInUserActions, CreateUserActions, JwtSignInActions, JwtSignInResponseData,
   GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions
 } from 'types/resources/auth';
-import { setBearerToken } from 'store/actionCreators';
+import { setBearerToken, removeBearerToken } from 'store/actionCreators';
 
 export function* watchCreateUser() {
   while (true) {
@@ -56,6 +56,11 @@ export function* watchJwtSignIn() {
       const response: RequestReturnType<JwtSignInResponseData> = yield call(authRequests.jwtSignIn);
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: { user: response.data.user }, status: 'SUCCESS' });
     } catch (error) {
+      // If token is invalid/expired (401), clear it so we stop spamming failures
+      try {
+        const code = (error as any)?.response?.status || (error as any)?.code;
+        if (code === 401 || code === '401') removeBearerToken();
+      } catch {}
       yield put<Actions>({ type: 'JWT_SIGN_IN', payload: getErrorPayload(error), status: 'FAILURE' });
     }
   }
