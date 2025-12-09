@@ -25,7 +25,7 @@ import PregameModal from 'components/PregameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { ROOT_URL } from 'utils';
-import { getMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
+import { getMoveAnalysis, getTopMoves, MoveAnalysis } from 'store/requests/analysisRequests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
   fetchGameById,
@@ -520,13 +520,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!fen) return;
     analysisFetchInFlight.current.add(index);
     try {
-      const resp = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(fen)}&n=12`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const json = await resp.json();
-      const payload = json?.body ? (() => { try { return JSON.parse(json.body); } catch { return json; } })() : json;
-      const arr = Array.isArray(payload?.data) ? payload.data : [];
+      const resp = await getTopMoves(fen, 12);
+      const arr = Array.isArray(resp?.data) ? resp.data : [];
       const map: Record<string, MoveAnalysis> = {};
       for (const item of arr) {
         if (item && typeof item === 'object' && item.move) {
@@ -646,13 +641,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       if (!fenKey) return;
       setIsMoveAnalysisLoading(true);
       try {
-        const resp = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(fenKey)}&n=12`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        const json = await resp.json();
-        const payload = json?.body ? (() => { try { return JSON.parse(json.body); } catch { return json; } })() : json;
-        const arr = Array.isArray(payload?.data) ? payload.data : [];
+        const resp = await getTopMoves(fenKey, 12);
+        const arr = Array.isArray(resp?.data) ? resp.data : [];
         const map: Record<string, MoveAnalysis> = {};
         for (const item of arr) {
           if (item && typeof item === 'object' && item.move) {
@@ -690,9 +680,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return Array.from(new Set(list));
   }, [deriveMoveOptions, isBlackTurn, isWhiteTurn, toSanForCurrent]);
 
+  const lastCandidateFetchAtRef = useRef(0);
   useEffect(() => {
     const fen = fenKey;
     if (!fen || !displayedCandidateKeys.length) return;
+    // Throttle to avoid spamming for the same position during rapid re-renders
+    const now = Date.now();
+    if (now - lastCandidateFetchAtRef.current < 150) return;
+    lastCandidateFetchAtRef.current = now;
     // If candidate analyses are already cached for this index, skip fetching
     const cached = analysisByIndex[positionIndex] || {};
     const missing = displayedCandidateKeys.filter((k) => !cached[k] && !moveAnalysisBySan[analysisKey(fen, k)]);
