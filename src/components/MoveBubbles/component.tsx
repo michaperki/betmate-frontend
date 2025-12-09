@@ -236,7 +236,7 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       const cleanFen = cleanFEN(gameState);
       
       // Use centralized request helper (dedupe + cooldown aware)
-      const resp = await getTopMoves(cleanFen, 6);
+      const resp = await getTopMoves(cleanFen, 12);
       const data = Array.isArray(resp?.data) ? resp.data : [];
       // Filter out poor moves (below 40% percentile)
       const filteredMoves = data.filter((moveData: MoveData) => (
