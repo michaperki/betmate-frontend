@@ -41,11 +41,14 @@ const computeStreak = (history: any[]) => {
 const StatsTiles: React.FC = () => {
   const dispatch = useDispatch();
   const wagerHistory = useSelector((s: RootState) => s.wager.wagerHistory);
+  const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
 
   useEffect(() => {
-    dispatch(getBalanceHistory(30));
-    dispatch(fetchWagerHistory(undefined, 10, 0));
-  }, [dispatch]);
+    if (isAuthenticated) {
+      dispatch(getBalanceHistory(30));
+      dispatch(fetchWagerHistory(undefined, 10, 0));
+    }
+  }, [dispatch, isAuthenticated]);
 
   const recent = wagerHistory.slice(0, 3);
   const streak = computeStreak(wagerHistory);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Chess } from 'chess.js';
-import { ROOT_URL } from 'utils';
+import { getTopMoves, getMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
 import './style.scss';
 
 interface MoveData {
@@ -235,46 +235,17 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       // Fix potential FEN format issues
       const cleanFen = cleanFEN(gameState);
       
-      // Use the backend analysis endpoint for top moves
-      const response = await fetch(`${ROOT_URL}/analysis/top-moves?fen=${encodeURIComponent(cleanFen)}&n=6`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
-
-      // Parse Lambda response format (data.body contains the actual response)
-      let parsedData;
-      if (data.body) {
-        try {
-          parsedData = JSON.parse(data.body);
-        } catch (error) {
-          parsedData = data;
-        }
-      } else {
-        parsedData = data;
-      }
-
-      if (parsedData.message === 'SUCCESS' && Array.isArray(parsedData.data)) {
-        // Check if we got enhanced format (objects) or legacy format (strings)
-        if (parsedData.data.length > 0 && typeof parsedData.data[0] === 'object' && parsedData.data[0].move) {
-          // Enhanced format - filter out poor moves (below 40% percentile)
-          const filteredMoves = parsedData.data.filter((moveData: MoveData) =>
-            moveData.is_best_move || moveData.percentile >= 40
-          );
-          setTopMoves(filteredMoves);
-          setAnimatingOut(false);
-          setAnimationKey(prev => prev + 1); // Trigger slide-in animation
-          lastGameStateRef.current = gameState;
-        } else {
-          setTopMoves([]);
-          setAnimatingOut(false);
-        }
-      } else {
-        setTopMoves([]);
-        setAnimatingOut(false);
-      }
+      // Use centralized request helper (dedupe + cooldown aware)
+      const resp = await getTopMoves(cleanFen, 6);
+      const data = Array.isArray(resp?.data) ? resp.data : [];
+      // Filter out poor moves (below 40% percentile)
+      const filteredMoves = data.filter((moveData: MoveData) => (
+        moveData.is_best_move || moveData.percentile >= 40
+      ));
+      setTopMoves(filteredMoves);
+      setAnimatingOut(false);
+      setAnimationKey(prev => prev + 1); // Trigger slide-in animation
+      lastGameStateRef.current = gameState;
     } catch (error) {
       console.error('Failed to fetch top moves:', error);
       setTopMoves([]);
@@ -416,86 +387,9 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
         } catch (e) {
           // Error validating move
         }
-        
-        const apiUrl = `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(moveToUse)}`;
-
-        const response = await fetch(
-          apiUrl,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        // Handle non-200 responses
-        if (!response.ok) {
-          // For simple pawn moves like "b6", convert to UCI format (b7b6) and try again
-          if (/^[a-h][2-7]$/.test(moveToUse)) {
-            const rank = moveToUse.charAt(1);
-            const file = moveToUse.charAt(0);
-            const fromRank = rank === '6' ? '7' : (rank === '3' ? '2' : parseInt(rank) + (rank < '5' ? -1 : 1));
-            const uciMove = `${file}${fromRank}${moveToUse}`;
-
-            // Convert UCI to SAN
-            const chess = new Chess(cleanFen);
-            try {
-              const moveObj = chess.move({
-                from: `${file}${fromRank}` as any,
-                to: moveToUse as any,
-                promotion: 'q'
-              });
-
-              if (moveObj) {
-                const sanMove = moveObj.san;
-
-                // Try again with SAN notation
-                const retryUrl = `${ROOT_URL}/analysis/move?fen=${encodeURIComponent(cleanFen)}&move=${encodeURIComponent(sanMove)}`;
-                
-                const retryResponse = await fetch(
-                  retryUrl,
-                  {
-                    method: 'GET',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    }
-                  }
-                );
-
-                if (retryResponse.ok) {
-                  const data = await retryResponse.json();
-                  if (data && data.message === 'SUCCESS' && data.data) {
-                    setUserMoveAnalysis(prev => ({
-                      ...prev,
-                      [move]: {
-                        ...data.data,
-                        move: move // Always use original move for display
-                      }
-                    }));
-                    return; // Skip further processing
-                  }
-                }
-              }
-            } catch (e) {
-              // Failed to convert to SAN
-            }
-          }
-
-          // Fallback if backend returns error and retry fails
-          setUserMoveAnalysis(prev => ({
-            ...prev,
-            [move]: {
-              move,
-              score: 0,
-              percentile: 40, // Default to "decent" move for rejected moves
-              is_best_move: false
-            }
-          }));
-          return; // Skip further processing
-        }
-
-        const data = await response.json();
+        // Centralized analysis call (dedupe + cooldown aware)
+        const resp = await getMoveAnalysis(cleanFen, moveToUse);
+        const data = { message: 'SUCCESS', data: resp.data } as const;
 
         if (data && data.message === 'SUCCESS' && data.data) {
           // Make sure the move property exists and matches
