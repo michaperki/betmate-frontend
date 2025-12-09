@@ -260,9 +260,9 @@
     box-sizing: border-box;
   }
 
-  /* Hide the left outcome rail on tablet so move bubbles
+  /* Hide the left move/outcome rail on tablet so move bubbles
      never appear above the board when stacked */
-  .board-layout .outcome-rail-column {
+  .board-layout .move-outcome-rail-column {
     display: none !important;
   }
 }
@@ -893,7 +893,7 @@
 }
 
 
-.outcome-rail-column {
+.move-outcome-rail-column {
   min-width: 280px;
   max-width: 320px;
   display: flex;
@@ -934,7 +934,7 @@
       }
     }
 
-    .outcome-rail-column__actions {
+    .move-outcome-rail-column__actions {
       display: flex;
       justify-content: flex-start;
       align-items: center;
@@ -1112,7 +1112,7 @@
     width: 28px;
   }
 
-  .outcome-rail-column {
+  .move-outcome-rail-column {
     display: none;
   }
 
@@ -1338,7 +1338,7 @@
     display: flex;
   }
 
-  .outcome-rail__button {
+  .move-outcome-rail__button {
     width: 100%;
   }
 }
@@ -1536,7 +1536,7 @@
   }
 
 }
-.outcome-rail__button {
+  .move-outcome-rail__button {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1567,7 +1567,7 @@
     color: #0a0a0a;
     border-color: rgba(214, 130, 40, 0.45);
 
-    .outcome-rail__spinner::before {
+    .move-outcome-rail__spinner::before {
       border-color: rgba(0, 0, 0, 0.2);
       border-top-color: rgba(25, 13, 5, 0.8);
     }
@@ -1586,15 +1586,15 @@
   }
 
   /* Align selectors to actual markup classes (not nested BEM) */
-  .outcome-rail__label {
+  .move-outcome-rail__label {
     transition: opacity 0.14s ease;
     color: inherit;
     position: relative;
     z-index: 2;
   }
 
-  .outcome-rail__spinner,
-  .outcome-rail__check {
+  .move-outcome-rail__spinner,
+  .move-outcome-rail__check {
     position: absolute;
     inset: 0;
     display: flex;
@@ -1607,7 +1607,7 @@
     z-index: 3;
   }
 
-  .outcome-rail__spinner::before {
+  .move-outcome-rail__spinner::before {
     content: '';
     width: 20px;
     height: 20px;
@@ -1617,7 +1617,7 @@
     animation: wagerSpin 0.75s linear infinite;
   }
 
-  .outcome-rail__check {
+  .move-outcome-rail__check {
     font-size: 16px;
     font-weight: 700;
     color: inherit;
@@ -1626,16 +1626,16 @@
   &.state-loading {
     transform: scale(0.97);
 
-    .outcome-rail__label { opacity: 0.55; }
-    .outcome-rail__spinner { opacity: 1; visibility: visible; }
+    .move-outcome-rail__label { opacity: 0.55; }
+    .move-outcome-rail__spinner { opacity: 1; visibility: visible; }
   }
 
   &.state-success {
     box-shadow: 0 10px 26px rgba(0, 239, 178, 0.25);
 
-    .outcome-rail__label { opacity: 0; } /* Replace label with check briefly */
-    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
-    .outcome-rail__check { opacity: 1; visibility: visible; animation: checkFlash 0.32s ease; }
+    .move-outcome-rail__label { opacity: 0; } /* Replace label with check briefly */
+    .move-outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .move-outcome-rail__check { opacity: 1; visibility: visible; animation: checkFlash 0.32s ease; }
   }
 
   &.state-error {
@@ -1643,9 +1643,9 @@
     box-shadow: 0 8px 20px rgba(248, 113, 113, 0.25);
     animation: wagerShake 0.45s ease;
       
-    .outcome-rail__spinner { opacity: 0; visibility: hidden; }
-    .outcome-rail__check { opacity: 0; visibility: hidden; }
-    .outcome-rail__label { opacity: 1; }
+    .move-outcome-rail__spinner { opacity: 0; visibility: hidden; }
+    .move-outcome-rail__check { opacity: 0; visibility: hidden; }
+    .move-outcome-rail__label { opacity: 1; }
   }
 
   &:disabled {
