@@ -484,6 +484,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const blackClock = formatClock(displayBlackSecs, game?.time_format);
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
+  const isTurnHighlightEnabled = isAtLatestSnapshot && isGameInProgress;
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
   const BOARD_STACK_GAP = 4;
@@ -1913,7 +1914,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     style={{ width: boardFrameWidth }}
                   >
                     <div
-                      className={`player-header state-${outcomeStates['black_win']}`}
+                      className={`player-header state-${outcomeStates['black_win']} ${isTurnHighlightEnabled && isBlackTurn ? 'is-active-turn' : ''}`}
                       role={isMobile ? 'button' as const : undefined}
                       tabIndex={isMobile ? 0 : undefined}
                       onClick={isMobile ? () => triggerOutcomeBet('black_win') : undefined}
@@ -1956,7 +1957,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                       </div>
                     </div>
                     <div
-                      className={`player-header state-${outcomeStates['white_win']}`}
+                      className={`player-header state-${outcomeStates['white_win']} ${isTurnHighlightEnabled && isWhiteTurn ? 'is-active-turn' : ''}`}
                       role={isMobile ? 'button' as const : undefined}
                       tabIndex={isMobile ? 0 : undefined}
                       onClick={isMobile ? () => triggerOutcomeBet('white_win') : undefined}
