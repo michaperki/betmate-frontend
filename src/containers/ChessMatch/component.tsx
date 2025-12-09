@@ -25,7 +25,7 @@ import PregameModal from 'components/PregameModal';
 import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { ROOT_URL } from 'utils';
-import { getMoveAnalysis, getTopMoves, MoveAnalysis } from 'store/requests/analysisRequests';
+import { getMoveAnalysis, getTopMoves, getBatchMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
 import { isAnalysisRateLimited } from 'store/requests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
@@ -672,16 +672,15 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (!missing.length) return;
     const run = async () => {
       try {
-        const uniq = Array.from(new Set(missing)).slice(0, 6);
-        const results = await Promise.allSettled(uniq.map(async (san) => getMoveAnalysis(fen, san)));
+        const uniq = Array.from(new Set(missing)).slice(0, 4);
+        const batch = await getBatchMoveAnalysis(fen, uniq);
+        const arr = Array.isArray(batch?.data) ? batch.data : [];
         const additions: Record<string, MoveAnalysis> = {};
-        results.forEach((res, idx) => {
-          if (res.status === 'fulfilled') {
-            const out = res.value as any;
-            const san = uniq[idx];
-            if (out && out.status === 200 && out.data) additions[analysisKey(fen, san)] = out.data as MoveAnalysis;
-          }
-        });
+        for (let i = 0; i < uniq.length; i += 1) {
+          const mv = arr[i];
+          const san = uniq[i];
+          if (mv && san) additions[analysisKey(fen, san)] = mv;
+        }
         if (Object.keys(additions).length) {
           // Merge into global map and also index-scoped cache for smooth scrubbing
           setMoveAnalysisBySan((prev) => ({ ...prev, ...additions }));
