@@ -312,14 +312,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     return () => { leaveGame(gameId); };
   }, []);
 
+  const connectionState = useSelector((state: RootState) => state.socket.connectionState);
   useEffect(() => {
+    // WS-aware polling: only poll when socket is not healthy
+    if (connectionState === 'connected') return;
     const interval = setInterval(() => {
       fetchGameById(gameId);
       fetchGameStats(gameId);
       getGameLeaderboard(gameId);
-    }, 10000);
+    }, 15000);
     return () => clearInterval(interval);
-  }, [fetchGameById, fetchGameStats, getGameLeaderboard, gameId]);
+  }, [connectionState, fetchGameById, fetchGameStats, getGameLeaderboard, gameId]);
 
   // Preload and pre-decode piece icons once on mount to avoid flicker
   useEffect(() => {
@@ -705,7 +708,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         }
       } catch {}
     };
-    run();
+    const timer = window.setTimeout(run, 300); // trailing debounce
+    return () => window.clearTimeout(timer);
   }, [analysisKey, fenKey, displayedCandidateKeys, moveAnalysisBySan, analysisByIndex, positionIndex, canonicalSan]);
 
   const handleDragMove = useCallback((orig: Key, dest: Key, _metadata?: MoveMetadata) => {
