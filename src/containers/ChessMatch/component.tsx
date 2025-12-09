@@ -26,6 +26,7 @@ import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { ROOT_URL } from 'utils';
 import { getMoveAnalysis, getTopMoves, MoveAnalysis } from 'store/requests/analysisRequests';
+import { isAnalysisRateLimited } from 'store/requests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import {
   fetchGameById,
@@ -518,6 +519,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (analysisFetchInFlight.current.has(index)) return;
     const fen = snapshots[index].fen;
     if (!fen) return;
+    if (isAnalysisRateLimited()) return;
     analysisFetchInFlight.current.add(index);
     try {
       const resp = await getTopMoves(fen, 12);
@@ -532,6 +534,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             percentile: Number(item.percentile || 0),
             is_best_move: Boolean(item.is_best_move),
           } as MoveAnalysis;
+          // Also populate global map keyed by fen::san for quick lookups elsewhere
+          setMoveAnalysisBySan((prev) => ({
+            ...prev,
+            [analysisKey(fen, String(item.move))]: map[key],
+          }));
         }
       }
       if (Object.keys(map).length) {
@@ -634,37 +641,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Stable key for current position
   const fenKey = (activeSnapshot?.fen || game?.state || '').toString();
 
-  // Fetch top move analysis on FEN change only
-  useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
-      if (!fenKey) return;
-      setIsMoveAnalysisLoading(true);
-      try {
-        const resp = await getTopMoves(fenKey, 12);
-        const arr = Array.isArray(resp?.data) ? resp.data : [];
-        const map: Record<string, MoveAnalysis> = {};
-        for (const item of arr) {
-          if (item && typeof item === 'object' && item.move) {
-            const key = analysisKey(fenKey, String(item.move));
-            map[key] = {
-              move: String(item.move),
-              score: Number(item.score || 0),
-              percentile: Number(item.percentile || 0),
-              is_best_move: Boolean(item.is_best_move),
-            } as MoveAnalysis;
-          }
-        }
-        if (!cancelled) setMoveAnalysisBySan((prev) => ({ ...prev, ...map }));
-      } catch {
-        // ignore network errors
-      } finally {
-        if (!cancelled) setIsMoveAnalysisLoading(false);
-      }
-    };
-    run();
-    return () => { cancelled = true; };
-  }, [fenKey, analysisKey]);
+  // Top-moves fetched per index; FEN-based effect removed to avoid duplication.
 
   // Compute displayed candidate SANs (desktop + mobile) and ensure missing ones are fetched
   const displayedCandidateKeys = useMemo(() => {
@@ -688,6 +665,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const now = Date.now();
     if (now - lastCandidateFetchAtRef.current < 150) return;
     lastCandidateFetchAtRef.current = now;
+    if (isAnalysisRateLimited()) return;
     // If candidate analyses are already cached for this index, skip fetching
     const cached = analysisByIndex[positionIndex] || {};
     const missing = displayedCandidateKeys.filter((k) => !cached[k] && !moveAnalysisBySan[analysisKey(fen, k)]);
