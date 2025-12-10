@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
 import { RootState } from 'types/state';
-import { createDepositIntent, listDeposits } from 'store/requests/billingRequests';
+import { createDepositIntent, listDeposits, getDepositQuote } from 'store/requests/billingRequests';
 import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
 import './style.scss';
 
@@ -29,6 +29,7 @@ const Wallet: React.FC = () => {
   const [err, setErr] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [payCurrency, setPayCurrency] = useState<string>('USDTTRC20');
+  const [quote, setQuote] = useState<{ charge_usd: number; fee_usd: number; estimated_pay_amount: number } | null>(null);
 
   const tokenBalance = user?.token_balance ?? user?.account ?? 0;
   const cashBalance = (user as any)?.cash_balance ?? 0;
@@ -46,6 +47,21 @@ const Wallet: React.FC = () => {
   }, [isAuthenticated]);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Fetch quote when amount or currency changes
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const amt = Math.max(5, Math.min(10000, Number(amount || 0)));
+        const res = await getDepositQuote(amt, payCurrency);
+        if (!active) return;
+        const data = res?.data;
+        setQuote({ charge_usd: data?.charge_usd || amt, fee_usd: data?.fee_usd || 0, estimated_pay_amount: data?.estimated_pay_amount || 0 });
+      } catch { setQuote(null); }
+    })();
+    return () => { active = false; };
+  }, [amount, payCurrency]);
 
   // Read payment status from query string
   const statusParam = useMemo(() => {
@@ -111,7 +127,7 @@ const Wallet: React.FC = () => {
                 aria-label="Deposit amount"
               />
               <button className="wallet-deposit-btn" onClick={onDeposit} disabled={loading || !isAuthenticated}>
-                {loading ? 'Starting…' : 'Add USDT'}
+                {loading ? 'Starting…' : `Add $${Math.max(5, Math.min(10000, Number(amount || 0)))}`}
               </button>
             </div>
           ) : (
@@ -120,7 +136,13 @@ const Wallet: React.FC = () => {
         </header>
         {ENABLE_REAL_DEPOSITS && (
           <div className="wallet-hint">
-            Redirects: <code>{PAYMENT_SUCCESS_URL}</code> (success), <code>{PAYMENT_CANCEL_URL}</code> (cancel)
+            {quote ? (
+              <>
+                You’ll pay approximately <b>{quote.estimated_pay_amount.toFixed(6)} {payCurrency}</b> (~${quote.charge_usd.toFixed(2)} including fees of ~${quote.fee_usd.toFixed(2)}).
+              </>
+            ) : (
+              <>Redirects: <code>{PAYMENT_SUCCESS_URL}</code> (success), <code>{PAYMENT_CANCEL_URL}</code> (cancel)</>
+            )}
           </div>
         )}
         {err && <div className="wallet-error">{err}</div>}

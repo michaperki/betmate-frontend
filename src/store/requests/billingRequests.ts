@@ -18,3 +18,21 @@ export const listDeposits = async () => (
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ deposits: any[] }>
 );
+
+export const getDepositQuote = async (amount: number, payCurrency: string) => (
+  createBackendAxiosRequest<{
+    desired_usd: number;
+    charge_usd: number;
+    fee_usd: number;
+    fee_rate: number;
+    fixed_fee_usd: number;
+    pay_currency: string;
+    estimated_pay_amount: number;
+    bounds: { min_usd: number; max_usd: number };
+  }>({
+    method: 'GET',
+    url: '/billing/quote',
+    params: { amount, payCurrency },
+    headers: getBearerTokenHeader(),
+  }) as unknown as RequestReturnType<any>
+);
