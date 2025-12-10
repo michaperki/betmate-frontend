@@ -35,7 +35,7 @@ const Wallet: React.FC = () => {
   const cashBalance = (user as any)?.cash_balance ?? 0;
 
   const refresh = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) { setDeposits([]); return; }
     setErr(null);
     try {
       const res = await listDeposits();

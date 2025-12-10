@@ -5,7 +5,10 @@ export const getBearerToken = (): string | null => localStorage.getItem(authToke
 /**
  * Gets the site-stored authToken from localStorage and returns it in the form of an authorization header
  */
-export const getBearerTokenHeader = (): { Authorization: string } => ({ Authorization: `Bearer ${getBearerToken()}` });
+export const getBearerTokenHeader = (): Record<string, string> => {
+  const t = getBearerToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+};
 
 /**
  * Sets a returned token in localStorage for attachment to later network requests

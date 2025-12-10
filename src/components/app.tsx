@@ -21,6 +21,7 @@ import RequireAuthHOC from 'hocs/requireAuth';
 import VersionFooter from './VersionFooter';
 import { ModeProvider } from 'context/ModeContext';
 import Wallet from './Wallet/component';
+import ProtectedRoute from './ProtectedRoute';
 
 const Welcome = () => {
   return (
@@ -59,14 +60,14 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/" component={Welcome} />
             <Route exact path="/chess/:id" component={ChessMatch} />
             {/* Raffles route removed */}
-            <Route exact path="/active-bets" render={() => (
+            <ProtectedRoute exact path="/active-bets" render={() => (
                 <div className="dashboard-page">
                   <NavBar />
                   <ActiveBetsPage />
                   <VersionFooter />
                 </div>
             )} />
-            <Route exact path="/betting-history" render={() => (
+            <ProtectedRoute exact path="/betting-history" render={() => (
                 <div className="dashboard-page">
                   <NavBar />
                   <BettingHistoryPage />
@@ -76,8 +77,8 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/signin" component={SignInPanel} />
             <Route exact path="/signup" component={SignUpPanel} />
             <Route exact path="/signout" component={SignOutPanel} />
-            <Route exact path="/user" component={UserPage} />
-            <Route exact path="/wallet" render={() => (
+            <ProtectedRoute exact path="/user" component={UserPage} />
+            <ProtectedRoute exact path="/wallet" render={() => (
                 <div className="dashboard-page">
                   <Wallet />
                 </div>
