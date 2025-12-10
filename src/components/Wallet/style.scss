@@ -111,6 +111,17 @@
     cursor: pointer;
   }
 
+  .wallet-link-btn {
+    margin-left: 8px;
+    padding: 4px 8px;
+    font-size: $text-xs;
+    border: 1px solid transparent;
+    background: #2563eb; /* blue-600 */
+    color: #ffffff;
+    border-radius: $radius-sm;
+    cursor: pointer;
+  }
+
   &--confirmed { border-color: rgba(0, 239, 178, 0.45); }
   &--failed { border-color: rgba(248, 113, 113, 0.45); }
 }

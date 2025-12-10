@@ -138,9 +138,9 @@ const Wallet: React.FC = () => {
                   <div className="wallet-row__amount">${d.amount}</div>
                   <div className="wallet-row__status">
                     {d.status}
-                    {(d.provider === 'nowpayments' && d.status === 'pending' && d.metadata?.payment_url) && (
+                    {(d.provider === 'nowpayments' && d.status === 'pending' && d.metadata?.payment_url && d.metadata.payment_url !== '#') && (
                       <button
-                        className="wallet-copy-id"
+                        className="wallet-link-btn"
                         style={{ marginLeft: 8 }}
                         onClick={() => window.open(String(d.metadata?.payment_url), '_blank')}
                       >Open Invoice</button>
