@@ -74,8 +74,19 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
           <span className="bar"></span>
         </button>
 
-        {/* Navigation menu */}
-        <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
+          {/* Navigation menu */}
+          <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
+          {isAuthenticated && (
+            <NavLink
+              to="/wallet"
+              exact
+              activeClassName="active"
+              className="navbar__item"
+              onClick={() => setMenuOpen(false)}
+            >
+              Wallet
+            </NavLink>
+          )}
           {!isGameRoute && !isDashboard && (
             <NavLink
               to="/"

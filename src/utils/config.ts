@@ -9,3 +9,27 @@ export const DISABLE_GLOBAL_LEADERBOARD = (
   RAW_DISABLE_GL === 'true'
   || (RAW_DISABLE_GL == null && IS_PROD_TARGET)
 );
+
+// Gate Real deposits visibility in UI (default false in prod)
+const RAW_ENABLE_REAL_DEPOSITS = process.env.ENABLE_REAL_DEPOSITS;
+export const ENABLE_REAL_DEPOSITS = (
+  RAW_ENABLE_REAL_DEPOSITS === 'true' || (!IS_PROD_TARGET && RAW_ENABLE_REAL_DEPOSITS !== 'false')
+);
+
+// Build frontend-facing success/cancel URLs used by NOWPayments redirects
+const FRONTEND_BASE = (typeof window !== 'undefined' && window.location?.origin)
+  ? window.location.origin
+  : (process.env.FRONTEND_PUBLIC_URL || 'http://localhost:8080');
+
+export const PAYMENT_SUCCESS_URL = (
+  process.env.NOWPAYMENTS_SUCCESS_URL || `${FRONTEND_BASE}/wallet?status=success`
+);
+
+export const PAYMENT_CANCEL_URL = (
+  process.env.NOWPAYMENTS_CANCEL_URL || `${FRONTEND_BASE}/wallet?status=cancel`
+);
+
+// Helpful for dev: show deposit IDs in Wallet list to copy during testing
+export const SHOW_DEPOSIT_IDS = (
+  process.env.SHOW_DEPOSIT_IDS === 'true' || !IS_PROD_TARGET
+);
