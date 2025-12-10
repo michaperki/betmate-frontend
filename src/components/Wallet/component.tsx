@@ -16,6 +16,7 @@ interface DepositItem {
   provider: string;
   provider_ref?: string;
   created_at: string;
+  metadata?: { payment_url?: string; [k: string]: any };
 }
 
 const Wallet: React.FC = () => {
@@ -128,12 +129,22 @@ const Wallet: React.FC = () => {
               {deposits.map((d) => (
                 <div key={d._id} className={`wallet-row wallet-row--${d.status}`}>
                   <div className="wallet-row__main">
-                    <div className="wallet-row__title">{d.provider} • {d.currency}</div>
+                    <div className="wallet-row__title">
+                      {d.provider} • {d.currency}
+                      {d.provider_ref ? <span style={{ marginLeft: 8, color: '#6B7280', fontSize: 12 }}>#{d.provider_ref}</span> : null}
+                    </div>
                     <div className="wallet-row__meta">{new Date(d.created_at).toLocaleString()}</div>
                   </div>
                   <div className="wallet-row__amount">${d.amount}</div>
                   <div className="wallet-row__status">
                     {d.status}
+                    {(d.provider === 'nowpayments' && d.status === 'pending' && d.metadata?.payment_url) && (
+                      <button
+                        className="wallet-copy-id"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => window.open(String(d.metadata?.payment_url), '_blank')}
+                      >Open Invoice</button>
+                    )}
                     {SHOW_DEPOSIT_IDS && (
                       <button
                         className="wallet-copy-id"
