@@ -28,6 +28,7 @@ const Wallet: React.FC = () => {
   const [deposits, setDeposits] = useState<DepositItem[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
+  const [payCurrency, setPayCurrency] = useState<string>('USDTTRC20');
 
   const tokenBalance = user?.token_balance ?? user?.account ?? 0;
   const cashBalance = (user as any)?.cash_balance ?? 0;
@@ -66,7 +67,7 @@ const Wallet: React.FC = () => {
     setErr(null);
     try {
       const amt = Math.max(5, Math.min(10000, Number(amount || 0)));
-      const res = await createDepositIntent(amt, 'USDT');
+      const res = await createDepositIntent(amt, payCurrency);
       const hosted = res?.data?.hosted_url || '#';
       if (hosted && hosted !== '#') window.open(hosted, '_blank');
       await refresh();
@@ -86,6 +87,19 @@ const Wallet: React.FC = () => {
           {banner && <div className="wallet-banner wallet-banner--info">{banner}</div>}
           {ENABLE_REAL_DEPOSITS ? (
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <select
+                className="wallet-amount-input"
+                aria-label="Pay currency"
+                value={payCurrency}
+                onChange={(e) => setPayCurrency(e.target.value)}
+                style={{ width: 160 }}
+              >
+                <option value="USDTTRC20">USDT (TRC20)</option>
+                <option value="USDTBEP20">USDT (BEP20)</option>
+                <option value="USDC">USDC</option>
+                <option value="BTC">BTC</option>
+                <option value="ETH">ETH</option>
+              </select>
               <input
                 type="number"
                 min={5}

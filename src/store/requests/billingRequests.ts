@@ -2,11 +2,11 @@ import { createBackendAxiosRequest } from '.';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
 
-export const createDepositIntent = async (amount: number, currency: 'USDT' | 'USDC' = 'USDT') => (
+export const createDepositIntent = async (amount: number, payCurrency: string) => (
   createBackendAxiosRequest<{ hosted_url: string; deposit_id: string }>({
     method: 'POST',
     url: '/billing/deposit/intent',
-    data: { amount, currency },
+    data: { amount, payCurrency },
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ hosted_url: string; deposit_id: string }>
 );
