@@ -194,6 +194,22 @@
   }
 }
 
+// Subtle percentage badge for Real-mode draw preview
+.bt-draw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.12);
+  color: #bfdbfe;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+}
+
 /* Fullscreen overlay (modal) for Chat/Leaderboard */
 .cm-overlay-backdrop {
   position: fixed;

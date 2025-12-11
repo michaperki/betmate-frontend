@@ -33,3 +33,11 @@ export const PAYMENT_CANCEL_URL = (
 export const SHOW_DEPOSIT_IDS = (
   process.env.SHOW_DEPOSIT_IDS === 'true' || !IS_PROD_TARGET
 );
+
+// Dev convenience: enable faucet button when not targeting prod (or if explicitly toggled)
+export const ENABLE_DEV_FAUCET = (
+  process.env.ENABLE_DEV_FAUCET === 'true' || (!IS_PROD_TARGET && process.env.ENABLE_DEV_FAUCET !== 'false')
+);
+
+// Optional: include admin key header for staging faucet calls (avoid in prod)
+export const FAUCET_ADMIN_KEY = process.env.FAUCET_ADMIN_KEY || '';

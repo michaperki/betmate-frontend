@@ -15,6 +15,7 @@ import MiniLeaderboard from './MiniLeaderboard';
 import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
 import { computeArcadeMoveOdds } from 'utils/pricing';
 import { useMode } from 'context/ModeContext';
+import { getRealWdlMarket } from 'store/requests';
 
 import './style.scss';
 
@@ -55,6 +56,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   const fen = game?.state;
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
   const { mode } = useMode();
+  const [realPrices, setRealPrices] = useState<{ white: number; draw: number; black: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +71,23 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
     })();
     return () => { cancelled = true; };
   }, [fen]);
+
+  // Fetch Real market prices for Outcome tab in Real mode (read-only Phase 1)
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (mode !== 'real' || !gameId) { setRealPrices(null); return; }
+      try {
+        const resp = await getRealWdlMarket(gameId);
+        if (!cancelled) setRealPrices(resp?.data?.prices || null);
+      } catch {
+        if (!cancelled) setRealPrices(null);
+      }
+    };
+    load();
+    const id = window.setInterval(load, 15000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [mode, gameId]);
 
   // First run initializes the component without triggering panel events
   React.useEffect(() => {
@@ -153,6 +172,8 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
       true, // is WDL
       1 / (outcomeOptions[outcome] || 1),
       game.move_hist.length + 1,
+      mode,
+      mode === 'real' ? 'USDT' : 'BET',
     );
   };
 
@@ -250,7 +271,9 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
           /* Outcome Betting Panel */
           <>
             <div className="bet-explanation">
-              Bet on the outcome of the game. Win tokens from the house.
+              {mode === 'real'
+                ? 'Real market prices (read-only preview).'
+                : 'Bet on the outcome of the game. Win tokens from the house.'}
             </div>
 
             <div className="options-container">
@@ -260,18 +283,32 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
                 </div>
               ) : (
                 <ul className="bet-options-list">
-                  {Object.entries(outcomeOptions).map(([outcome, odds]) => (
-                    <li
-                      key={`outcome-${outcome}`}
-                      className={`bet-option outcome-${outcome}`}
-                      onClick={handleBetOutcome(outcome)}
-                    >
-                      <span className="option-name">{outcome}</span>
-                      <span className="option-payout">
-                        {formatPayout(1 / (odds as number))}
-                      </span>
-                    </li>
-                  ))}
+                  {Object.entries(outcomeOptions).map(([outcome, odds]) => {
+                    const key = String(outcome);
+                    const payout = formatPayout(1 / (odds as number));
+                    const pct = (() => {
+                      if (!realPrices) return null;
+                      if (key === 'white_win') return Math.round((realPrices.white || 0) * 100);
+                      if (key === 'black_win') return Math.round((realPrices.black || 0) * 100);
+                      if (key === 'draw') return Math.round((realPrices.draw || 0) * 100);
+                      return null;
+                    })();
+                    const label = key;
+                    return (
+                      <li
+                        key={`outcome-${key}`}
+                        className={`bet-option outcome-${key}`}
+                        onClick={handleBetOutcome(key)}
+                        aria-disabled={false}
+                        title={''}
+                      >
+                        <span className="option-name">{label}</span>
+                        <span className="option-payout">
+                          {mode === 'real' && pct != null ? `${pct}%` : payout}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

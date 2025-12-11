@@ -1,4 +1,5 @@
 import { createBackendAxiosRequest } from '.';
+import { FAUCET_ADMIN_KEY } from 'utils/config';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
 
@@ -35,4 +36,16 @@ export const getDepositQuote = async (amount: number, payCurrency: string) => (
     params: { amount, payCurrency },
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<any>
+);
+
+export const faucetCredit = async (amount: number) => (
+  createBackendAxiosRequest<{ ok: boolean; credited: number }>({
+    method: 'POST',
+    url: '/billing/faucet',
+    data: { amount },
+    headers: {
+      ...getBearerTokenHeader(),
+      ...(FAUCET_ADMIN_KEY ? { 'X-Admin-Key': FAUCET_ADMIN_KEY } : {}),
+    },
+  }) as unknown as RequestReturnType<{ ok: boolean; credited: number }>
 );

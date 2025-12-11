@@ -22,6 +22,8 @@ export interface Wager {
   resolved: boolean,
   status: WagerStatus,
   winning_pool_share: number,
+  mode?: 'arcade' | 'real',
+  currency?: 'BET' | 'USDT',
   created_at: string,
   updated_at: string,
   is_bot?: boolean,

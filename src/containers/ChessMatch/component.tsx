@@ -26,6 +26,7 @@ import GameEndOverlay from 'components/GameEndOverlay';
 import EvaluationBar from './EvaluationBar';
 import { ROOT_URL } from 'utils';
 import { getMoveAnalysis, getTopMoves, getBatchMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
+import { getRealWdlMarket, RealWdlMarketResponse } from 'store/requests';
 import { computeArcadeMoveOdds } from 'utils/pricing';
 import { isAnalysisRateLimited } from 'store/requests';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
@@ -276,6 +277,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Real-time ticking clocks (seconds)
   const [displayWhiteSecs, setDisplayWhiteSecs] = useState<number>(0);
   const [displayBlackSecs, setDisplayBlackSecs] = useState<number>(0);
+  // Real market prices (Phase 1: read-only)
+  const [realPrices, setRealPrices] = useState<{ white: number; draw: number; black: number } | null>(null);
 
   const {
     fetchGameById,
@@ -328,6 +331,24 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   useEffect(() => {
     preloadPieces();
   }, []);
+
+  // Fetch Real market prices when in real mode
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (mode !== 'real' || !gameId) { setRealPrices(null); return; }
+      try {
+        const resp = await getRealWdlMarket(gameId);
+        if (!cancelled && resp?.data?.prices) setRealPrices(resp.data.prices);
+      } catch {
+        if (!cancelled) setRealPrices(null);
+      }
+    };
+    load();
+    // Light polling to keep prices fresh when sockets are disconnected
+    const id = window.setInterval(load, 15000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [mode, gameId]);
 
   const isGameInProgress = useMemo(() => (
     game ? gameInProgress(game.game_status as GameStatus) : false
@@ -1480,10 +1501,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       const multStr = (Math.round(mult * 100) / 100).toFixed(2);
       suffix = ` ${multStr}x`;
     } else if (mode === 'real') {
-      const totals = gameStats?.wdlWagerTotals || {};
-      const entry = (totals as any)[outcomeId];
-      const amount = Math.max(0, Number(entry?.totalAmount || 0));
-      if (amount > 0) suffix = ` $${Math.round(amount)}`;
+      // Show current market-implied probability
+      const p = outcomeId === 'white_win' ? realPrices?.white
+        : outcomeId === 'black_win' ? realPrices?.black
+        : realPrices?.draw;
+      if (typeof p === 'number' && isFinite(p)) {
+        const pct = Math.max(0, Math.min(100, Math.round(p * 100)));
+        suffix = ` ${pct}%`;
+      }
     }
 
     return (
@@ -2112,6 +2137,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         drawState={outcomeStates['draw']}
         canDraw={canAttemptWager && hasSufficientBalance}
         pricingVersion={pricingVersion}
+        isRealMode={mode === 'real'}
+        drawPct={typeof realPrices?.draw === 'number' ? realPrices!.draw * 100 : undefined as any}
       />
 
       {/* Fullscreen overlays */}

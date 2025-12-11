@@ -16,6 +16,9 @@ interface BottomToolbarProps {
   drawState: 'idle' | 'loading' | 'success' | 'error';
   canDraw: boolean;
   pricingVersion?: string;
+  // Real-mode info: optional draw percentage (0-100)
+  isRealMode?: boolean;
+  drawPct?: number;
 }
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({
@@ -30,6 +33,8 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   drawState,
   canDraw,
   pricingVersion,
+  isRealMode,
+  drawPct,
 }) => {
   return (
     <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
@@ -69,9 +74,15 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
           disabled={!canDraw || drawState === 'loading'}
           aria-label="Bet on Draw"
           aria-busy={drawState === 'loading'}
-          title="Bet Draw"
+          title={isRealMode && typeof drawPct === 'number' && isFinite(drawPct)
+            ? `Real market • Draw ${Math.round(drawPct)}%`
+            : 'Bet Draw'}
         >
-          <span className="bt-draw-btn__label">Draw</span>
+          <span className="bt-draw-btn__label">
+            {isRealMode && typeof drawPct === 'number' && isFinite(drawPct)
+              ? `Draw • ${Math.round(drawPct)}%`
+              : 'Draw'}
+          </span>
           <span className="bt-draw-btn__spinner" aria-hidden />
           <span className="bt-draw-btn__check" aria-hidden>✓</span>
         </button>

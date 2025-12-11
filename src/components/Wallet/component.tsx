@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
 import { RootState } from 'types/state';
-import { createDepositIntent, listDeposits, getDepositQuote } from 'store/requests/billingRequests';
-import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
+import { createDepositIntent, listDeposits, getDepositQuote, faucetCredit } from 'store/requests/billingRequests';
+import * as authRequests from 'store/requests/authRequests';
+import { JWT_SIGN_IN } from 'types/resources/auth';
+import { ENABLE_DEV_FAUCET, ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
 import './style.scss';
 
 interface DepositItem {
@@ -21,6 +24,7 @@ interface DepositItem {
 
 const Wallet: React.FC = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(false);
@@ -94,6 +98,24 @@ const Wallet: React.FC = () => {
     }
   };
 
+  const onFaucet = async (amt: number) => {
+    if (!isAuthenticated) { setErr('Sign in to use faucet'); return; }
+    setLoading(true);
+    setErr(null);
+    try {
+      await faucetCredit(amt);
+      // Refresh user from backend so cash_balance updates in UI
+      const res = await authRequests.jwtSignIn();
+      const user = res?.data?.user;
+      if (user) dispatch({ type: JWT_SIGN_IN, payload: { user }, status: 'SUCCESS' } as any);
+      setBanner(`Faucet credited $${amt}.`);
+    } catch (e) {
+      setErr('Faucet failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="wallet-page">
       <NavBar />
@@ -129,6 +151,17 @@ const Wallet: React.FC = () => {
               <button className="wallet-deposit-btn" onClick={onDeposit} disabled={loading || !isAuthenticated}>
                 {loading ? 'Starting…' : `Add $${Math.max(5, Math.min(10000, Number(amount || 0)))}`}
               </button>
+              {ENABLE_DEV_FAUCET && (
+                <button
+                  className="wallet-deposit-btn"
+                  style={{ background: '#0f766e', borderColor: '#0f766e' }}
+                  onClick={() => onFaucet(250)}
+                  disabled={loading || !isAuthenticated}
+                  title="Dev faucet (credits your Real balance for testing)"
+                >
+                  Faucet +$250
+                </button>
+              )}
             </div>
           ) : (
             <div className="wallet-disabled">Real deposits are disabled</div>
@@ -138,7 +171,8 @@ const Wallet: React.FC = () => {
           <div className="wallet-hint">
             {quote ? (
               <>
-                You’ll pay approximately <b>{quote.estimated_pay_amount.toFixed(6)} {payCurrency}</b> (~${quote.charge_usd.toFixed(2)} including fees of ~${quote.fee_usd.toFixed(2)}).
+                You’ll pay approximately <b>{quote.estimated_pay_amount.toFixed(6)} {payCurrency}</b> (~${quote.charge_usd.toFixed(2)} incl. fees ~${quote.fee_usd.toFixed(2)}).
+                {' '}Tip: USDT (TRC20/BEP20) confirms fast with low fees; BTC/ETH may cost more and take longer.
               </>
             ) : (
               <>Redirects: <code>{PAYMENT_SUCCESS_URL}</code> (success), <code>{PAYMENT_CANCEL_URL}</code> (cancel)</>

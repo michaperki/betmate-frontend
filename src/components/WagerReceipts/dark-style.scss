@@ -161,6 +161,18 @@
         .net-negative .value { color: rgba($error, 0.75); }
 
         // No extra status/time badges (keep component unobtrusive)
+        .status-badge {
+          .value { font-size: $text-xs; }
+          padding: 2px 6px;
+          border-radius: $radius-sm;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.04);
+          color: $text-secondary;
+        }
+        .status-badge--pending { border-color: rgba($brand-primary, 0.35); color: $brand-primary; }
+        .status-badge--won     { border-color: rgba($success, 0.35); color: $success; }
+        .status-badge--lost    { border-color: rgba($error, 0.35); color: $error; }
+        .status-badge--cancelled { border-color: rgba($warning, 0.35); color: $warning; }
       }
     }
   }
