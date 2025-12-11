@@ -5,6 +5,7 @@ import { FeedWager, Wager } from 'types/resources/wager';
 import { fetchWagers } from 'store/actionCreators/wagerActionCreators';
 import { processWagers } from './utils';
 import WagerReceiptCard from './WagerReceiptCard';
+import { useMode } from 'context/ModeContext';
 
 import './dark-style.scss'; // Use the new dark mobile-first styling
 
@@ -44,9 +45,12 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
     }
   }, [gameState, moveHistory, fetchWagers]);
 
-  // Get only wagers for this game and process them to show only one entry per wager
+  const { mode } = useMode();
+  // Get only wagers for this game and current mode, processed to one entry per wager
   const sortedWagers = processWagers(
-    resolvedWagers.filter((w) => w.game_id === gameId)
+    resolvedWagers
+      .filter((w) => w.game_id === gameId)
+      .filter((w) => (mode === 'real' ? ((w as any).mode === 'real') : ((w as any).mode !== 'real')))
   );
 
   // Get the wagers to display based on current display count

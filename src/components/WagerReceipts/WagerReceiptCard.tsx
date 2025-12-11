@@ -101,19 +101,15 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
         <div className="bet-details">
           <div className="amount-staked"><span className="value">${wager.amount}</span></div>
 
-          {isReal && (
-            <div className="pool-indicator" title="Parimutuel (Real)"><span className="value">REAL</span></div>
-          )}
+          {/* No explicit REAL label; panel should filter by mode */}
 
-          {/* WDL payout label */}
+          {/* WDL payout label — skip showing raw 1x for pending */}
           {wager.wdl && (
             <div className="odds">
               {isReal ? (
-                <span className="value">
-                  {Number.isFinite(wager.winning_pool_share) && wager.winning_pool_share > 0
-                    ? `${getMultiplier(wager.winning_pool_share)}x`
-                    : 'market'}
-                </span>
+                normalizedStatus === WagerStatus.WON && Number.isFinite(wager.winning_pool_share) && (wager.winning_pool_share || 0) > 0
+                  ? <span className="value">x{getMultiplier(wager.winning_pool_share)}</span>
+                  : null
               ) : (
                 <span className="value">{getMultiplier(wager.odds)}x</span>
               )}

@@ -604,6 +604,35 @@
   color: $text-secondary;
 }
 
+// Compact pills and status for inline receipts
+.wr-pill {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: $text-xs;
+  line-height: 1;
+  border: 1px solid rgba($text-primary, 0.15);
+}
+.wr-pill--stake {
+  background: rgba($text-primary, 0.08);
+  color: $text-primary;
+}
+.wr-pill--real {
+  background: rgba($brand-primary, 0.12);
+  color: $brand-primary;
+  border-color: rgba($brand-primary, 0.35);
+}
+.wr-odds { color: $warning; font-weight: 600; }
+.wr-status { font-weight: 600; }
+.wr-status--pending { color: $info; }
+.wr-status--won { color: $success; }
+.wr-status--lost { color: $error; }
+.wr-status--cancelled { color: $warning; }
+.wr-net { font-weight: 700; }
+.wr-net--pos { color: rgba($success, 0.85); }
+.wr-net--neg { color: rgba($error, 0.85); }
+
 .wager-receipt--won {
   border-color: rgba($brand-primary, 0.45);
 }
@@ -1741,3 +1770,15 @@
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
 }
+.wr-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: $radius-full;
+  margin-right: 6px;
+  font-size: 12px;
+}
+.wr-type--outcome { background: rgba($accent-blue, 0.15); color: $accent-blue; }
+.wr-type--move    { background: rgba($accent-purple, 0.15); color: $accent-purple; }

@@ -39,7 +39,7 @@ import {
 } from 'store/actionCreators/gameActionCreators';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { useMode } from 'context/ModeContext';
-import { gameInProgress, gameOver, getValidMoves } from 'utils/chess';
+import { gameInProgress, gameOver, getValidMoves, getMultiplier } from 'utils/chess';
 import { Game, GameOdds, GameStatus } from 'types/resources/game';
 import { Rank } from 'types/leaderboard';
 import { RootState } from 'types/state';
@@ -935,7 +935,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const filtered = merged.filter((w) => {
       if (!w || seen[w._id]) return false;
       seen[w._id] = true;
-      return w.game_id === gameId;
+      if (w.game_id !== gameId) return false;
+      // Filter by current mode: REAL shows only mode==='real'; ARCADE shows everything else
+      const isRealWager = (w as any).mode === 'real';
+      return mode === 'real' ? isRealWager : !isRealWager;
     });
     filtered.sort((a, b) => {
       const ta = a.created_at ? Date.parse(a.created_at) : 0;
@@ -994,7 +997,9 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     }));
   }, [receipts, pendingReceipts.length]);
 
-  const displayReceipts = pendingReceipts.concat(receipts.length ? receipts : cachedReceipts);
+  const displayReceipts = pendingReceipts.concat(
+    (receipts.length ? receipts : cachedReceipts).filter((w) => (mode === 'real' ? (w as any).mode === 'real' : (w as any).mode !== 'real'))
+  );
 
   // Draw backstop moved below scheduleOutcomeReset definition
 
@@ -2097,21 +2102,78 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   </aside>
                   <section className="wager-receipts" aria-label="Wager receipts">
                     <div className="wager-receipts__list">
-                      {displayReceipts && displayReceipts.length ? displayReceipts.slice(0, 10).map((w) => (
-                        <div
-                          key={w._id}
-                          className={[
-                            'wager-receipt',
-                            w.status === WagerStatus.WON ? 'wager-receipt--won' : '',
-                            w.status === WagerStatus.LOST ? 'wager-receipt--lost' : '',
-                            w.status === WagerStatus.CANCELLED ? 'wager-receipt--cancelled' : '',
-                          ].join(' ')}
-                          title={w.data}
-                        >
-                          <div className="wager-receipt__title">{formatReceiptLabel(w)}</div>
-                          <div className="wager-receipt__meta">{formatReceiptMeta(w)}</div>
-                        </div>
-                      )) : (
+                      {displayReceipts && displayReceipts.length ? displayReceipts.slice(0, 10).map((w) => {
+                        const isReal = (w as any).mode === 'real';
+                        const typeIcon = w.wdl ? '🏁' : '🎯';
+                        const statusInfo = (() => {
+                          switch (w.status) {
+                            case WagerStatus.WON: return { icon: '✅', label: 'Won' };
+                            case WagerStatus.LOST: return { icon: '❌', label: 'Lost' };
+                            case WagerStatus.CANCELLED: return { icon: '↩️', label: 'Refund' };
+                            default: return { icon: '⏳', label: 'Pending' };
+                          }
+                        })();
+                        const label = (() => {
+                          if (w.wdl) {
+                            const d = (w.data || '').toLowerCase();
+                            if (d.includes('white')) return 'White Win';
+                            if (d.includes('black')) return 'Black Win';
+                            if (d.includes('draw')) return 'Draw';
+                            if (d === 'win') return 'Win';
+                            if (d === 'loss') return 'Loss';
+                            return String(w.data || 'Outcome');
+                          }
+                          return sanitizeMoveLabel(String(w.data || ''));
+                        })();
+                        // Compute net
+                        const net = (() => {
+                          if (w.status === WagerStatus.WON) {
+                            if (w.wdl) {
+                              const mult = isReal ? (w.winning_pool_share || 0) : (w.odds || 1);
+                              return (w.amount * mult) - w.amount;
+                            }
+                            return (w.amount * (w.winning_pool_share || 0)) - w.amount;
+                          }
+                          if (w.status === WagerStatus.LOST) return -w.amount;
+                          if (w.status === WagerStatus.CANCELLED) return 0;
+                          return null;
+                        })();
+                        // Only show multiplier for Real WDL winners; hide otherwise to reduce clutter
+                        const realWinnerMult = (isReal && w.wdl && w.status === WagerStatus.WON && Number.isFinite(w.winning_pool_share) && (w.winning_pool_share || 0) > 0)
+                          ? `x${getMultiplier(w.winning_pool_share)}`
+                          : '';
+                        return (
+                          <div
+                            key={w._id}
+                            className={[
+                              'wager-receipt',
+                              w.status === WagerStatus.WON ? 'wager-receipt--won' : '',
+                              w.status === WagerStatus.LOST ? 'wager-receipt--lost' : '',
+                              w.status === WagerStatus.CANCELLED ? 'wager-receipt--cancelled' : '',
+                            ].join(' ')}
+                            title={String(w.data)}
+                          >
+                            <div className="wager-receipt__title">
+                              <span className={`wr-type ${w.wdl ? 'wr-type--outcome' : 'wr-type--move'}`} aria-hidden>{typeIcon}</span>{' '}
+                              <span>{label}</span>
+                            </div>
+                            <div className="wager-receipt__meta">
+                              <span className="wr-pill wr-pill--stake">${w.amount}</span>{' '}
+                              {realWinnerMult && (
+                                <span className="wr-odds" title="Payout multiplier">{realWinnerMult}</span>
+                              )}{' '}
+                              <span className={`wr-status wr-status--${w.status}`} title={statusInfo.label}>
+                                {statusInfo.icon} {statusInfo.label}
+                              </span>{' '}
+                              {net !== null && (
+                                <span className={`wr-net ${net >= 0 ? 'wr-net--pos' : 'wr-net--neg'}`}>
+                                  {net >= 0 ? '+' : '-'}${Math.abs(net).toFixed(0)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }) : (
                         <div className="wager-receipt wager-receipt--empty">No wager receipts yet</div>
                       )}
                     </div>
