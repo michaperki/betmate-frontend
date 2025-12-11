@@ -90,8 +90,8 @@
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .odds { font-size: $text-sm; color: $text-secondary; }
+      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; display: flex; align-items: center; gap: $space-2; }
+      .odds { font-size: $text-sm; color: $warning; font-weight: $font-semibold; }
     }
 
     .bet-result {
@@ -105,6 +105,19 @@
       .net-refund { color: $info; }
     }
   }
+
+  // Type badge styling
+  .bh-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: $radius-full;
+    font-size: 12px;
+  }
+  .bh-type--outcome { background: rgba($accent-blue, 0.15); color: $accent-blue; }
+  .bh-type--move    { background: rgba($accent-purple, 0.15); color: $accent-purple; }
 
   .load-more { display: flex; justify-content: center; margin-top: $space-6; }
   .load-more button {
