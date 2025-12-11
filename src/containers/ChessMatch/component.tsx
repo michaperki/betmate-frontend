@@ -358,6 +358,17 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     game ? !gameOver(game.game_status as GameStatus) : false
   ), [game?.game_status]);
 
+  // After game ends, refetch wager history to ensure Real WDL pool shares are reflected
+  useEffect(() => {
+    if (!game) return;
+    if (gameOver(game.game_status as GameStatus)) {
+      const id = window.setTimeout(() => {
+        dispatch(fetchWagerHistory(undefined, 10, 0));
+      }, 800);
+      return () => window.clearTimeout(id);
+    }
+  }, [game?.game_status, dispatch]);
+
   useEffect(() => {
     const computeMax = () => {
       if (DEV_FORCE_MAX_BOARD_SIZE != null) return DEV_FORCE_MAX_BOARD_SIZE;
