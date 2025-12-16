@@ -7,6 +7,7 @@
   border: 1px solid $border-primary;
   padding: $space-5;
   margin-bottom: $space-5;
+  perspective: 1200px;
 
   .fmc-header {
     display: flex;
@@ -30,11 +31,14 @@
     }
   }
 
+  .fmc-flip { position: relative; }
+
   .fmc-body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: $space-4;
     margin-top: $space-4;
+    backface-visibility: hidden;
 
     &.mobile { grid-template-columns: 1fr; }
 
@@ -55,16 +59,37 @@
       align-items: center;
       justify-content: center;
       gap: $space-3;
-      .clocks { display: flex; align-items: center; gap: $space-3; }
-      .clock { @include text-heading-4; background: $bg-tertiary; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; }
+      .instrument { display: flex; align-items: center; gap: $space-4; background: $bg-tertiary; padding: $space-3; border-radius: $radius-lg; border: 1px solid $border-primary; }
+      .clock { @include text-heading-4; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; background: rgba(255,255,255,0.03); }
+      .clock.low { color: #ff6b6b; border-color: rgba(255,107,107,0.5); }
       .vs { @include text-heading-4; color: $brand-primary; font-weight: 800; }
       .scheduled { @include text-body-lg; color: $text-secondary; }
-      .stakes { text-align: center; }
-      .tier { @include text-caption; color: $text-secondary; letter-spacing: 0.06em; }
+      .stakes { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+      .tier-badge { @include text-body; font-weight: 700; }
       .limits { @include text-body; color: $text-primary; }
-      .pool { @include text-caption; color: $text-secondary; }
+      .market-line { @include text-caption; color: $text-secondary; }
+      .market-line.muted { opacity: 0.7; }
     }
   }
+
+  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; }
+  .market { display: flex; flex-direction: column; gap: $space-4; }
+  .section { display: flex; flex-direction: column; gap: $space-2; }
+  .section-title { @include text-heading-4; }
+  .odds-chips { display: flex; gap: $space-3; flex-wrap: wrap; }
+  .chip { padding: $space-2 $space-3; border: 1px solid $border-primary; border-radius: $radius-md; background: $bg-tertiary; font-weight: 700; }
+  .pool-line { @include text-caption; color: $text-secondary; }
+  .pool-line.muted { opacity: 0.7; }
+  .limits-line { @include text-body; color: $text-primary; }
+  .section.actions { display: flex; flex-direction: row; gap: $space-3; }
+
+  &.is-flipped .fmc-front { transform: rotateY(180deg); }
+  &.is-flipped .fmc-back { transform: rotateY(0); }
+  .fmc-front, .fmc-back { transition: transform 280ms ease; }
+
+  .color-chip { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; }
+  .color-chip.white { background: rgba(255,255,255,0.12); }
+  .color-chip.black { background: rgba(0,0,0,0.3); }
 
   .fmc-actions {
     margin-top: $space-4;
@@ -77,4 +102,3 @@
     .link { background: transparent; color: $accent-blue; border: none; text-decoration: underline; }
   }
 }
-

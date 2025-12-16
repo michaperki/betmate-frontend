@@ -1,7 +1,8 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { FeaturedMatchDTO } from 'types/matches';
+import { FeaturedMatchDTO, MatchDetailsDTO } from 'types/matches';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
+import { getMatchDetails } from 'store/requests/matchesRequests';
 import './style.scss';
 
 export interface FeaturedMatchCardProps {
@@ -13,9 +14,19 @@ const formatTimeControl = (tc?: FeaturedMatchDTO['time_control']) => {
   return `${Math.round(tc.initial_seconds / 60)}+${tc.increment_seconds || 0}`;
 };
 
+const truncate = (s?: string, n = 10) => {
+  if (!s) return '';
+  if (s.length <= n) return s;
+  return `${s.slice(0, n)}…`;
+};
+
+const pieceFor = (color: 'white' | 'black') => (color === 'white' ? '♔' : '♚');
+
 const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const history = useHistory();
   const { isMobile } = useResponsiveLayout();
+  const [flipped, setFlipped] = React.useState(false);
+  const [details, setDetails] = React.useState<MatchDetailsDTO | null>(null);
 
   const left = match.players.find(p => p.color === 'white') || match.players[0];
   const right = match.players.find(p => p.color === 'black') || match.players[1];
@@ -30,8 +41,19 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const isLive = match.status === 'in_progress';
   const moveText = `Move ${match.meta?.move_number ?? 0} • ${match.meta?.phase ?? ''}`.trim();
 
+  // Load details when flipping to back (desktop) to show market chips/pool
+  React.useEffect(() => {
+    let mounted = true;
+    if (flipped) {
+      getMatchDetails(match.match_id)
+        .then((resp) => { if (mounted) setDetails(resp.data); })
+        .catch(() => {});
+    }
+    return () => { mounted = false; };
+  }, [flipped, match.match_id]);
+
   return (
-    <section className="featured-match-card">
+    <section className={`featured-match-card ${flipped ? 'is-flipped' : ''}`}>
       <div className="fmc-header">
         <div className="title-row">
           <h3 className="title">Featured Match</h3>
@@ -40,65 +62,100 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
         <div className="meta-strip">
           <span className="meta-text">{metaLine}</span>
           {match.stats?.total_bets ? (
-            <span className="meta-right">Bets: {match.stats.total_bets}</span>
+            <span className="meta-right">{match.stats.total_bets} bets · ${match.stats.total_pool?.toLocaleString?.() || match.stats.total_pool}</span>
           ) : null}
         </div>
       </div>
+      <div className="fmc-flip">
+        {/* FRONT */}
+        <div className={`fmc-body ${isMobile ? 'mobile' : 'desktop'} fmc-front`}>
+          <div className="player-block left">
+            <div className="player-top">
+              <div className={`color-chip ${left?.color}`}>{pieceFor('white')}</div>
+              <div className="username" title={left?.username}>{truncate(left?.username, 12)}</div>
+              {left?.title && <div className="title-badge">{left.title}</div>}
+            </div>
+            <div className="player-mid"><div className="rating">{left?.rating}</div></div>
+            <div className="player-bottom">
+              <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
+            </div>
+          </div>
 
-      <div className={`fmc-body ${isMobile ? 'mobile' : 'desktop'}`}>
-        <div className="player-block left">
-          <div className="player-top">
-            <div className="username">{left?.username}</div>
-            <div className="title-badge">{left?.title || ''}</div>
+          <div className="center-block">
+            <div className="instrument">
+              {isLive ? (
+                <>
+                  <div className={`clock left-clock ${((match.clocks?.white_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.white_ms || 0) / 1000)}s</div>
+                  <div className="vs">VS</div>
+                  <div className={`clock right-clock ${((match.clocks?.black_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.black_ms || 0) / 1000)}s</div>
+                </>
+              ) : (
+                <div className="scheduled">{match.status === 'not_started' ? 'Scheduled' : 'Finished'}</div>
+              )}
+            </div>
+            <div className="stakes">
+              <div className="tier-badge">{match.stakes?.tier || 'High Stakes'}</div>
+              {match.stakes && (
+                <div className="limits">Bets from ${match.stakes.min_bet} to ${match.stakes.max_bet}</div>
+              )}
+              {match.stats?.total_bets ? (
+                <div className="market-line">{match.stats.total_bets} bets · ${match.stats.total_pool?.toLocaleString?.() || match.stats.total_pool} pool</div>
+              ) : (
+                <div className="market-line muted">Be the first to bet</div>
+              )}
+            </div>
           </div>
-          <div className="player-mid">
-            <div className="rating">{left?.rating}</div>
-          </div>
-          <div className="player-bottom">
-            <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
+
+          <div className="player-block right">
+            <div className="player-top">
+              <div className={`color-chip ${right?.color}`}>{pieceFor('black')}</div>
+              <div className="username" title={right?.username}>{truncate(right?.username, 12)}</div>
+              {right?.title && <div className="title-badge">{right.title}</div>}
+            </div>
+            <div className="player-mid"><div className="rating">{right?.rating}</div></div>
+            <div className="player-bottom">
+              <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
+            </div>
           </div>
         </div>
 
-        <div className="center-block">
-          <div className="clocks">
-            {isLive ? (
-              <>
-                <div className="clock left-clock">{Math.ceil((match.clocks?.white_ms || 0) / 1000)}s</div>
-                <div className="vs">VS</div>
-                <div className="clock right-clock">{Math.ceil((match.clocks?.black_ms || 0) / 1000)}s</div>
-              </>
-            ) : (
-              <div className="scheduled">{match.status === 'not_started' ? 'Scheduled' : 'Finished'}</div>
-            )}
-          </div>
-          <div className="stakes">
-            <div className="tier">{match.stakes?.tier || 'HIGH STAKES'}</div>
-            {match.stakes ? (
-              <div className="limits">{`$${match.stakes.min_bet} – $${match.stakes.max_bet}`}</div>
-            ) : null}
-            {match.stats?.total_pool !== undefined && (
-              <div className="pool">Total pool: ${match.stats.total_pool}</div>
-            )}
-          </div>
-        </div>
+        {/* BACK (market) */}
+        <div className="fmc-back">
+          <div className="market">
+            <div className="section">
+              <div className="section-title">Market</div>
+              <div className="odds-chips">
+                <div className="chip">WHITE {details?.odds?.white_win ? (1 / (details?.odds?.white_win || 0)).toFixed(2) + 'x' : '-'}</div>
+                <div className="chip">DRAW {details?.odds?.draw ? (1 / (details?.odds?.draw || 0)).toFixed(2) + 'x' : '-'}</div>
+                <div className="chip">BLACK {details?.odds?.black_win ? (1 / (details?.odds?.black_win || 0)).toFixed(2) + 'x' : '-'}</div>
+              </div>
+              {details?.stats ? (
+                <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
+              ) : (
+                <div className="pool-line muted">Market just opened</div>
+              )}
+            </div>
 
-        <div className="player-block right">
-          <div className="player-top">
-            <div className="username">{right?.username}</div>
-            <div className="title-badge">{right?.title || ''}</div>
-          </div>
-          <div className="player-mid">
-            <div className="rating">{right?.rating}</div>
-          </div>
-          <div className="player-bottom">
-            <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
+            <div className="section">
+              <div className="section-title">Limits</div>
+              {match.stakes && (
+                <div className="limits-line">Bets from ${match.stakes.min_bet} to ${match.stakes.max_bet}</div>
+              )}
+            </div>
+
+            <div className="section actions">
+              <button className="btn primary" onClick={() => history.push(`/chess/${match.match_id}`)}>Join Game</button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="fmc-actions">
         <button className="btn primary" onClick={() => history.push(`/chess/${match.match_id}`)}>Join Game</button>
-        <button className="btn secondary" onClick={() => history.push(`/matches/${match.match_id}`)}>View Details</button>
+        <button className="btn secondary" onClick={() => {
+          if (isMobile) { history.push(`/matches/${match.match_id}`); }
+          else { setFlipped((v) => !v); }
+        }}>{flipped ? 'Back' : 'View Market'}</button>
         {match.source?.url && (
           <button className="btn link" onClick={() => window.open(match.source!.url!, '_blank')}>Open in Source</button>
         )}

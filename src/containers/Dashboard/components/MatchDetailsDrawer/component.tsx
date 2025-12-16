@@ -26,6 +26,19 @@ const MatchDetailsDrawer: React.FC = () => {
     return () => { mounted = false; clearInterval(int); };
   }, [id, details?.status]);
 
+  const impliedPct = (p?: number) => (p ? Math.round(p * 100) : null);
+  const favorite = React.useMemo(() => {
+    if (!details?.odds) return null;
+    const entries: [string, number][] = [
+      ['WHITE', details.odds.white_win || 0],
+      ['DRAW', details.odds.draw || 0],
+      ['BLACK', details.odds.black_win || 0],
+    ];
+    const top = entries.sort((a, b) => b[1] - a[1])[0];
+    if (!top || !top[1]) return null;
+    return `${top[0]} ${impliedPct(top[1])}%`;
+  }, [details?.odds]);
+
   return (
     <div className="match-details-drawer">
       <div className="overlay" onClick={() => history.push('/')}></div>
@@ -37,39 +50,56 @@ const MatchDetailsDrawer: React.FC = () => {
         {loading && <div className="loading">Loading…</div>}
         {!loading && details && (
           <div className="content">
-            <div className="players">
-              <div className="player">
-                <div className="name">{details.players.find(p => p.color === 'white')?.username}</div>
-                <div className="rating">{details.players.find(p => p.color === 'white')?.rating}</div>
+            {/* Match State */}
+            <section className="section">
+              <div className="section-title">Match</div>
+              <div className="players">
+                <div className="player">
+                  <div className="name">{details.players.find(p => p.color === 'white')?.username}</div>
+                  <div className="rating">{details.players.find(p => p.color === 'white')?.rating}</div>
+                </div>
+                <div className="vs">VS</div>
+                <div className="player">
+                  <div className="name">{details.players.find(p => p.color === 'black')?.username}</div>
+                  <div className="rating">{details.players.find(p => p.color === 'black')?.rating}</div>
+                </div>
               </div>
-              <div className="vs">VS</div>
-              <div className="player">
-                <div className="name">{details.players.find(p => p.color === 'black')?.username}</div>
-                <div className="rating">{details.players.find(p => p.color === 'black')?.rating}</div>
+              <div className="snapshot">
+                <div className="line">{`Move ${details.meta?.move_number ?? 0} • ${details.meta?.side_to_move || ''} to move`}</div>
+                {details.meta?.last_move_san && <div className="line">Last move: {details.meta.last_move_san}</div>}
+                {favorite && <div className="favorite">Favorite: {favorite}</div>}
               </div>
-            </div>
-            <div className="snapshot">
-              <div className="line">{`Move ${details.meta?.move_number ?? 0} • ${details.meta?.side_to_move || ''} to move`}</div>
-              {details.meta?.last_move_san && <div className="line">Last move: {details.meta.last_move_san}</div>}
-            </div>
-            <div className="betting">
-              <div className="panel-title">Betting</div>
-              <div className="odds-row">
-                <div className="odds">White: {details.odds?.white_win ? (1 / details.odds.white_win).toFixed(2) + 'x' : '-'}</div>
-                <div className="odds">Draw: {details.odds?.draw ? (1 / details.odds.draw).toFixed(2) + 'x' : '-'}</div>
-                <div className="odds">Black: {details.odds?.black_win ? (1 / details.odds.black_win).toFixed(2) + 'x' : '-'}</div>
+            </section>
+
+            {/* Market */}
+            <section className="section">
+              <div className="section-title">Market</div>
+              <div className="odds-row chips">
+                <div className="chip">WHITE {details.odds?.white_win ? (1 / details.odds.white_win).toFixed(2) + 'x' : '-'}</div>
+                <div className="chip">DRAW {details.odds?.draw ? (1 / details.odds.draw).toFixed(2) + 'x' : '-'}</div>
+                <div className="chip">BLACK {details.odds?.black_win ? (1 / details.odds.black_win).toFixed(2) + 'x' : '-'}</div>
               </div>
+            </section>
+
+            {/* Limits & Pool */}
+            <section className="section">
+              <div className="section-title">Limits & Pool</div>
               {details.stakes && (
-                <div className="limits">Min/Max: ${details.stakes.min_bet}–${details.stakes.max_bet} {details.stakes.currency}</div>
+                <div className="limits">Bets from ${details.stakes.min_bet} to ${details.stakes.max_bet}</div>
               )}
-              {details.stats && (
-                <div className="pool">Pool: ${details.stats.total_pool} • Bets: {details.stats.total_bets}</div>
+              {details.stats ? (
+                <div className="pool">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} pool</div>
+              ) : (
+                <div className="pool muted">Be the first to bet</div>
               )}
+            </section>
+
+            {/* Actions */}
+            <section className="section">
               <div className="actions">
-                <button className="btn primary" onClick={() => history.push(`/chess/${details.match_id}`)}>Place Bet</button>
-                <button className="btn secondary" onClick={() => history.push(`/chess/${details.match_id}`)}>Join Game</button>
+                <button className="btn primary" onClick={() => history.push(`/chess/${details.match_id}`)}>Join Game</button>
               </div>
-            </div>
+            </section>
           </div>
         )}
       </div>
@@ -78,4 +108,3 @@ const MatchDetailsDrawer: React.FC = () => {
 };
 
 export default MatchDetailsDrawer;
-

@@ -32,7 +32,7 @@ const GameCard: React.FC<GameCardProps> = (props) => {
       </div>
       <div className='actions-row'>
         <button className='join-button' onClick={() => history.push(`/chess/${props.game._id}`)}>Join Game</button>
-        <button className='details-link' onClick={() => history.push(`/matches/${props.game._id}`)}>View Details</button>
+        <button className='details-link' onClick={() => history.push(`/matches/${props.game._id}`)}>View Market</button>
       </div>
     </div>
   );
