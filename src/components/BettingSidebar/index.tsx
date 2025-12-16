@@ -15,6 +15,8 @@ import MiniLeaderboard from './MiniLeaderboard';
 import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
 import { computeArcadeMoveOdds } from 'utils/pricing';
 import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
+import { getMultiplier } from 'utils/chess';
 import { getRealWdlMarket } from 'store/requests';
 
 import './style.scss';
@@ -55,7 +57,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   const moveOptions = game?.pool_wagers?.move?.options || [];
   const fen = game?.state;
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
-  const { mode } = useMode();
+  const { mode, risk } = useMode();
   const [realPrices, setRealPrices] = useState<{ white: number; draw: number; black: number } | null>(null);
 
   useEffect(() => {
@@ -165,12 +167,17 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   const handleBetOutcome = (outcome: string) => () => {
     if (!isAuthenticated || !selectedStake) return;
 
+    const p = Number(outcomeOptions[outcome] || 0);
+    const offeredMult = mode === 'real'
+      ? realWdlMultiplier(outcome as any, p, undefined, risk as any)
+      : (p > 0 ? (1 / p) : 1);
+
     placeBet(
       gameId,
       outcome,
       selectedStake,
       true, // is WDL
-      1 / (outcomeOptions[outcome] || 1),
+      offeredMult,
       game.move_hist.length + 1,
       mode,
       mode === 'real' ? 'USDT' : 'BET',
@@ -235,7 +242,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
               onMouseEnter={handleMovePanelMouseEnter}
               onMouseLeave={handleMovePanelMouseLeave}
             >
-              Bet on which move will happen next. Win tokens from the pool.
+              Bet on which move will happen next. Win {mode === 'real' ? 'USDT' : 'KBITZ'} from the pool.
             </div>
 
             <div
@@ -273,7 +280,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
             <div className="bet-explanation">
               {mode === 'real'
                 ? 'Real market prices (read-only preview).'
-                : 'Bet on the outcome of the game. Win tokens from the house.'}
+                : 'Bet on the outcome of the game. Win KBITZ from the house.'}
             </div>
 
             <div className="options-container">
@@ -285,14 +292,10 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
                 <ul className="bet-options-list">
                   {Object.entries(outcomeOptions).map(([outcome, odds]) => {
                     const key = String(outcome);
-                    const payout = formatPayout(1 / (odds as number));
-                    const pct = (() => {
-                      if (!realPrices) return null;
-                      if (key === 'white_win') return Math.round((realPrices.white || 0) * 100);
-                      if (key === 'black_win') return Math.round((realPrices.black || 0) * 100);
-                      if (key === 'draw') return Math.round((realPrices.draw || 0) * 100);
-                      return null;
-                    })();
+                    const p = Number(odds || 0);
+                    const mult = mode === 'real'
+                      ? realWdlMultiplier(key as any, p, undefined, risk as any)
+                      : (p > 0 ? (1 / p) : 0);
                     const label = key;
                     return (
                       <li
@@ -300,11 +303,11 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
                         className={`bet-option outcome-${key}`}
                         onClick={handleBetOutcome(key)}
                         aria-disabled={false}
-                        title={''}
+                        title={mult ? `Payout ${getMultiplier(mult)}x` : ''}
                       >
                         <span className="option-name">{label}</span>
                         <span className="option-payout">
-                          {mode === 'real' && pct != null ? `${pct}%` : payout}
+                          {`${getMultiplier(mult)}x`}
                         </span>
                       </li>
                     );

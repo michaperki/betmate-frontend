@@ -2,6 +2,7 @@ import {
   FeedWager, Wager, WagerStatus,
 } from 'types/resources/wager';
 import { getMultiplier } from 'utils/chess';
+import { formatAmount as fmtAmount } from 'utils/currency';
 
 export const createResolvedFeedWager = (wager: Wager): FeedWager => ({
   ...wager,
@@ -27,27 +28,29 @@ export const createFeedWagers = (wager: Wager): FeedWager[] => ([
   ...(wager.resolved ? [createResolvedFeedWager(wager)] : []),
 ]);
 
-const onWDLWagerCreate = (data: string, amount: number, odds: number): string => (
-  `You made a $${amount} bet with ${getMultiplier(odds)}x odds for ${data.replace('_', ' to ')}`
+const formatAmt = (amt: number, currency?: 'BET' | 'USDT') => fmtAmount(amt, (currency || 'BET') as any);
+
+const onWDLWagerCreate = (data: string, amount: number, odds: number, currency?: 'BET' | 'USDT'): string => (
+  `You made a ${formatAmt(amount, currency)} bet with ${getMultiplier(odds)}x odds for ${data.replace('_', ' to ')}`
 );
 
-const onMoveWagerCreate = (data: string, amount: number): string => (
-  `You made a $${amount} pool bet on ${data}`
+const onMoveWagerCreate = (data: string, amount: number, currency?: 'BET' | 'USDT'): string => (
+  `You made a ${formatAmt(amount, currency)} pool bet on ${data}`
 );
 
-const onWagerWin = (data: string, wdl: boolean, amount: number, odds: number): string => (
-  `You won $${(amount * odds).toFixed(2)} from your $${amount}${!wdl ? ' pool' : ''} bet on ${data.replace('_', ' to ')}`
+const onWagerWin = (data: string, wdl: boolean, amount: number, odds: number, currency?: 'BET' | 'USDT'): string => (
+  `You won ${formatAmt(amount * (odds || 1), currency)} from your ${formatAmt(amount, currency)}${!wdl ? ' pool' : ''} bet on ${data.replace('_', ' to ')}`
 );
 
-const onWagerLost = (data: string, wdl: boolean, amount: number): string => (
-  `You lost your $${amount}${!wdl ? ' pool' : ''} bet on ${data.replace('_', ' to ')}`
+const onWagerLost = (data: string, wdl: boolean, amount: number, currency?: 'BET' | 'USDT'): string => (
+  `You lost your ${formatAmt(amount, currency)}${!wdl ? ' pool' : ''} bet on ${data.replace('_', ' to ')}`
 );
 
-const onWagerCancelled = (data: string, wdl: boolean, amount: number): string => (
-  `Your $${amount}${!wdl ? ' pool' : ''} bet on ${data} was cancelled as no one was correct`
+const onWagerCancelled = (data: string, wdl: boolean, amount: number, currency?: 'BET' | 'USDT'): string => (
+  `Your ${formatAmt(amount, currency)}${!wdl ? ' pool' : ''} bet on ${data} was cancelled as no one was correct`
 );
 
-export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, amount: number, odds: number): string => {
+export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, amount: number, odds: number, currency?: 'BET' | 'USDT', mode?: 'arcade' | 'real'): string => {
   // Defensive checks for missing data
   if (!data || amount === undefined || amount === null) {
     console.warn('Missing wager data:', { status, data, wdl, amount, odds });
@@ -68,17 +71,17 @@ export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, 
     case WagerStatus.PENDING:
     case 'pending':
       return wdl
-        ? onWDLWagerCreate(data, amount, odds || 1)
-        : onMoveWagerCreate(data, amount);
+        ? onWDLWagerCreate(data, amount, odds || 1, currency)
+        : onMoveWagerCreate(data, amount, currency);
     case WagerStatus.WON:
     case 'won':
-      return onWagerWin(data, wdl, amount, odds || 1);
+      return onWagerWin(data, wdl, amount, odds || 1, currency);
     case WagerStatus.LOST:
     case 'lost':
-      return onWagerLost(data, wdl, amount);
+      return onWagerLost(data, wdl, amount, currency);
     case WagerStatus.CANCELLED:
     case 'cancelled':
-      return onWagerCancelled(data, wdl, amount);
+      return onWagerCancelled(data, wdl, amount, currency);
     default:
       console.warn('Unhandled wager status:', { status, normalizedStatus, data, wdl, amount, odds });
       return `Wager ${normalizedStatus} - status not recognized`;

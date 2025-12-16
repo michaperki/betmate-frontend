@@ -184,8 +184,8 @@ const Wallet: React.FC = () => {
         {err && <div className="wallet-error">{err}</div>}
         <section className="wallet-balances">
           <div className="wallet-card">
-            <div className="wallet-card__label">Arcade Tokens</div>
-            <div className="wallet-card__value">{Math.max(0, Math.round(tokenBalance))} BET</div>
+            <div className="wallet-card__label">KBITZ Balance</div>
+            <div className="wallet-card__value">{Math.max(0, Math.round(tokenBalance))} KBITZ</div>
           </div>
           <div className="wallet-card">
             <div className="wallet-card__label">Real Balance</div>

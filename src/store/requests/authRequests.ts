@@ -47,10 +47,10 @@ export const jwtSignIn = async (): Promise<RequestReturnType<JwtSignInResponseDa
   return validateSchema(JwtSignInResponseSchema, result, (d) => d.data);
 };
 
-export const getBalanceHistory = async (limit = 30): Promise<RequestReturnType<BalanceHistoryResponseData>> => {
+export const getBalanceHistory = async (limit = 30, currency?: 'BET' | 'USDT'): Promise<RequestReturnType<BalanceHistoryResponseData>> => {
   const result = await createBackendAxiosRequest<BalanceHistoryResponseData>({
     method: 'GET',
-    url: `/auth/balance-history?limit=${limit}`,
+    url: `/auth/balance-history?limit=${limit}${currency ? `&currency=${currency}` : ''}`,
     headers: getBearerTokenHeader(),
   });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FeedWager, WagerStatus } from 'types/resources/wager';
 import { getMultiplier } from 'utils/chess';
+import { formatAmount, formatNet } from 'utils/currency';
 
 interface WagerReceiptCardProps {
   wager: FeedWager;
@@ -50,6 +51,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
 
   const statusInfo = getStatusInfo(normalizedStatus as WagerStatus);
   const isReal = (wager as any).mode === 'real';
+  const currency: 'BET' | 'USDT' = ((wager as any).currency as any) || (isReal ? 'USDT' : 'BET');
   const typeIcon = wager.wdl ? '🏁' : '🎯';
   
   // Format the bet description more clearly
@@ -99,7 +101,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
         </div>
 
         <div className="bet-details">
-          <div className="amount-staked"><span className="value">${wager.amount}</span></div>
+          <div className="amount-staked"><span className="value">{formatAmount(wager.amount, currency)}</span></div>
 
           {/* No explicit REAL label; panel should filter by mode */}
 
@@ -113,7 +115,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
           {/* Net result: won/lost/cancelled only (no pending) */}
           {net !== null && (
             <div className={`net ${net >= 0 ? 'net-positive' : 'net-negative'}`}>
-              <span className="value">{net >= 0 ? '+$' : '-$'}{Math.abs(net).toFixed(2)}</span>
+              <span className="value">{formatNet(net, currency)}</span>
             </div>
           )}
 

@@ -45,7 +45,15 @@ export const ChatWager: React.FC<ChatWagerProps> = ({ wager }) => {
       className={`wager-status ${getStatusClass(normalizedStatus)}`}
     >
       <p className="m-0 text-sm">
-        {getFeedMessage(wager.status, wager.data, wager.wdl, wager.amount, wager.odds)}
+        {getFeedMessage(
+          wager.status,
+          wager.data,
+          wager.wdl,
+          wager.amount,
+          wager.odds,
+          ((wager as any).currency as any) || (((wager as any).mode === 'real') ? 'USDT' : 'BET'),
+          ((wager as any).mode as any)
+        )}
       </p>
     </div>
   );

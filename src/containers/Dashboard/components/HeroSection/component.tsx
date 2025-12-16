@@ -5,9 +5,11 @@ import { DashboardStats } from 'hooks/useDashboardData';
 import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { RootState } from 'store/reducers';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
 
 // Enhanced line chart component with animations
 const EnhancedChart: React.FC<{ data: any[] }> = ({ data }) => {
+  const { mode } = useMode();
   if (data.length < 2) return null;
 
   const balances = data.map(d => d.balance);
@@ -42,7 +44,7 @@ const EnhancedChart: React.FC<{ data: any[] }> = ({ data }) => {
       <div className="chart-header">
         <div className="chart-title">Balance History</div>
         <div className="chart-info">
-          <div className="chart-value">{latestBalance}<span className="chart-token">tokens</span></div>
+          <div className="chart-value">{latestBalance}<span className="chart-token">{mode === 'real' ? 'USDT' : 'KBITZ'}</span></div>
           <div className={`chart-change ${isPositive ? 'positive' : 'negative'}`}>
             {isPositive ? '↑' : '↓'}{Math.abs(Number(change))}
           </div>
@@ -105,12 +107,13 @@ export interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ userName = 'Player', stats }) => {
   const dispatch = useDispatch();
   const { balanceHistory, loadingBalanceHistory, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { mode } = useMode();
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(getBalanceHistory(14)); // Get last 14 days of balance history
+      dispatch(getBalanceHistory(14, mode === 'real' ? 'USDT' : 'BET')); // Get last 14 days; mode-aware currency
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, mode]);
 
   // Format data for the chart
   const chartData = balanceHistory

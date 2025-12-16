@@ -24,21 +24,21 @@ interface GameOutcomesProps {
 
 const GameOutcomes: React.FC<GameOutcomesProps> = (props) => {
   const { isDarkTheme = true } = props;
-  const { mode } = useMode();
+  const { mode, risk } = useMode();
   const approxMoveNum = 0; // Unknown here; omit early adjustment
   const getOdds = (odds: string) => {
     switch (odds) {
       case 'White':
         return mode === 'real'
-          ? realWdlMultiplier('white_win', props.odds.white_win, approxMoveNum)
+          ? realWdlMultiplier('white_win', props.odds.white_win, approxMoveNum, risk)
           : getMultiplier(1 / props.odds.white_win);
       case 'Black':
         return mode === 'real'
-          ? realWdlMultiplier('black_win', props.odds.black_win, approxMoveNum)
+          ? realWdlMultiplier('black_win', props.odds.black_win, approxMoveNum, risk)
           : getMultiplier(1 / props.odds.black_win);
       case 'Draw':
         return mode === 'real'
-          ? realWdlMultiplier('draw', props.odds.draw, approxMoveNum)
+          ? realWdlMultiplier('draw', props.odds.draw, approxMoveNum, risk)
           : getMultiplier(1 / props.odds.draw);
       default:
         return 0;
