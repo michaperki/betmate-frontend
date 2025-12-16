@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import NavBar from 'components/NavBar';
+import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
 import { getAdminFeatures, updateAdminFeatures, getAdminHome } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
@@ -77,14 +78,14 @@ const AdminHome: React.FC = () => {
       <NavBar />
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div className="admin-tabs">
-          <a href="/admin">Home</a>
-          <a href="/admin/risk">Risk</a>
-          <a href="/admin/wallet">Wallet</a>
-          <a href="/admin/ops">Ops</a>
+          <NavLink to="/admin">Home</NavLink>
+          <NavLink to="/admin/risk">Risk</NavLink>
+          <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Home</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-          <Card title="Environment" actions={<a href="/admin">Home</a>}>
+          <Card title="Environment" actions={<NavLink to="/admin">Home</NavLink>}>
             {home?.env && (
               <>
                 <Row k="Env" v={home.env.nodeEnv} />
@@ -96,7 +97,7 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Risk" actions={<a href="/admin/risk">Open</a>}>
+          <Card title="Risk" actions={<NavLink to="/admin/risk">Open</NavLink>}>
             {home?.risk && (
               <>
                 <Row k="Bankroll" v={home.risk.bankroll} />
@@ -105,7 +106,7 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Payments (24h)" actions={<a href="/admin/wallet">Open</a>}>
+          <Card title="Payments (24h)" actions={<NavLink to="/admin/wallet">Open</NavLink>}>
             {home?.payments && (
               <>
                 <Row k="Pending" v={home.payments.pending} />
@@ -114,7 +115,7 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Health" actions={<a href="/admin/ops">Open</a>}>
+          <Card title="Health" actions={<NavLink to="/admin/ops">Open</NavLink>}>
             {home?.health && (
               <>
                 <Row k="DB" v={home.health.db} />

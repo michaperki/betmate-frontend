@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import NavBar from 'components/NavBar';
+import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
 import { getAdminDeposits, clearStaleInvoices } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
@@ -45,10 +46,10 @@ const AdminWallet: React.FC = () => {
       <NavBar />
       <div style={{ padding: 24 }}>
         <div className="admin-tabs">
-          <a href="/admin">Home</a>
-          <a href="/admin/risk">Risk</a>
-          <a href="/admin/wallet">Wallet</a>
-          <a href="/admin/ops">Ops</a>
+          <NavLink to="/admin">Home</NavLink>
+          <NavLink to="/admin/risk">Risk</NavLink>
+          <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>Admin — Wallet</h2>

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import NavBar from 'components/NavBar';
+import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
 import { getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
@@ -133,10 +134,10 @@ const AdminRiskPage: React.FC = () => {
       <NavBar />
       <div className="content" style={{ padding: 20 }}>
         <div className="admin-tabs">
-          <a href="/admin">Home</a>
-          <a href="/admin/risk">Risk</a>
-          <a href="/admin/wallet">Wallet</a>
-          <a href="/admin/ops">Ops</a>
+          <NavLink to="/admin">Home</NavLink>
+          <NavLink to="/admin/risk">Risk</NavLink>
+          <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <h2>Admin — Real WDL Risk</h2>
         {err && <div style={{ color: 'red', marginBottom: 12 }}>{err}</div>}

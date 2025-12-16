@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import NavBar from 'components/NavBar';
+import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
 import { getOpsStats, pingMicroservice } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
@@ -29,10 +30,10 @@ const AdminOps: React.FC = () => {
       <NavBar />
       <div style={{ padding: 24 }}>
         <div className="admin-tabs">
-          <a href="/admin">Home</a>
-          <a href="/admin/risk">Risk</a>
-          <a href="/admin/wallet">Wallet</a>
-          <a href="/admin/ops">Ops</a>
+          <NavLink to="/admin">Home</NavLink>
+          <NavLink to="/admin/risk">Risk</NavLink>
+          <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h2 style={{ margin: 0 }}>Admin — Ops</h2>
