@@ -40,6 +40,7 @@
     gap: $space-4;
     margin-top: $space-4;
     backface-visibility: hidden;
+    align-items: start;
 
     &.mobile { grid-template-columns: 1fr; }
 
@@ -58,8 +59,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: $space-3;
+      .game-state { @include text-caption; color: $text-secondary; margin-bottom: $space-2; }
       .instrument { display: flex; align-items: center; gap: $space-4; background: $bg-tertiary; padding: $space-3; border-radius: $radius-lg; border: 1px solid $border-primary; }
       .clock { @include text-heading-4; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; background: rgba(255,255,255,0.03); }
       .clock.low { color: #ff6b6b; border-color: rgba(255,107,107,0.5); }

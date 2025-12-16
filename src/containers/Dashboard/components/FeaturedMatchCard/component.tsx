@@ -9,9 +9,20 @@ export interface FeaturedMatchCardProps {
   match: FeaturedMatchDTO;
 }
 
-const formatTimeControl = (tc?: FeaturedMatchDTO['time_control']) => {
+const displayTimeControl = (match: FeaturedMatchDTO) => {
+  const tc = match.time_control;
   if (!tc) return '';
-  return `${Math.round(tc.initial_seconds / 60)}+${tc.increment_seconds || 0}`;
+  const inc = tc.increment_seconds || 0;
+  let minutes = 0;
+  if (match.status === 'in_progress' && match.clocks) {
+    const approx = Math.max(match.clocks.white_ms || 0, match.clocks.black_ms || 0) / 60000;
+    minutes = Math.max(1, Math.round(approx));
+  } else {
+    const initial = tc.initial_seconds;
+    // Heuristic: values < 60 likely minutes; else seconds
+    minutes = initial < 60 ? Math.round(initial) : Math.round(initial / 60);
+  }
+  return `${minutes}+${inc}`;
 };
 
 const truncate = (s?: string, n = 10) => {
@@ -43,7 +54,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const right = match.players.find(p => p.color === 'black') || match.players[1];
 
   const metaLineParts: string[] = [];
-  if (match.time_control) metaLineParts.push(formatTimeControl(match.time_control));
+  if (match.time_control) metaLineParts.push(displayTimeControl(match));
   metaLineParts.push('Rapid');
   if (match.source?.provider) metaLineParts.push(match.source.provider.charAt(0).toUpperCase() + match.source.provider.slice(1));
   if (match.stakes?.tier) metaLineParts.push('High Stakes');
@@ -88,12 +99,10 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
               {left?.title && <div className="title-badge">{left.title}</div>}
             </div>
             <div className="player-mid"><div className="rating">{left?.rating}</div></div>
-            <div className="player-bottom">
-              <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
-            </div>
           </div>
 
           <div className="center-block">
+            <div className="game-state">{moveText}</div>
             <div className="instrument">
               {isLive ? (
                 <>
@@ -126,9 +135,6 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
               {right?.title && <div className="title-badge">{right.title}</div>}
             </div>
             <div className="player-mid"><div className="rating">{right?.rating}</div></div>
-            <div className="player-bottom">
-              <div className="context-line">{match.opening?.name ? `${match.opening.name}${match.opening.eco ? ` • ${match.opening.eco}` : ''}` : moveText}</div>
-            </div>
           </div>
         </div>
 
