@@ -55,6 +55,7 @@ export interface FeaturedMatchDTO {
   meta?: {
     move_number?: number;
     phase?: string;
+    side_to_move?: 'white' | 'black';
   }
 }
 
@@ -65,4 +66,3 @@ export interface MatchDetailsDTO extends FeaturedMatchDTO {
   };
   odds?: { white_win: number; draw: number; black_win: number };
 }
-
