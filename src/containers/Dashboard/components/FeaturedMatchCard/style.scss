@@ -31,7 +31,8 @@
     }
   }
 
-  .fmc-flip { position: relative; }
+  .fmc-flip { position: relative; transform-style: preserve-3d; min-height: 360px; }
+  @include mobile { .fmc-flip { min-height: 420px; } }
 
   .fmc-body {
     display: grid;
@@ -72,7 +73,8 @@
     }
   }
 
-  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; }
+  .fmc-front { position: absolute; inset: 0; }
+  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; overflow: auto; }
   .market { display: flex; flex-direction: column; gap: $space-4; }
   .section { display: flex; flex-direction: column; gap: $space-2; }
   .section-title { @include text-heading-4; }
@@ -90,6 +92,7 @@
   .color-chip { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; }
   .color-chip.white { background: rgba(255,255,255,0.12); }
   .color-chip.black { background: rgba(0,0,0,0.3); }
+  .flag { font-size: 16px; line-height: 1; }
 
   .fmc-actions {
     margin-top: $space-4;
@@ -101,4 +104,35 @@
     .secondary { background: transparent; color: $text-primary; border: 1px solid $border-primary; }
     .link { background: transparent; color: $accent-blue; border: none; text-decoration: underline; }
   }
+
+  // Motion & presence
+  .live-badge {
+    position: relative;
+    padding-left: 20px;
+  }
+  .live-badge::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; border-radius: 50%; background: #fff;
+    animation: blink 1.2s ease-in-out infinite;
+  }
+
+  .vs { animation: vsPulse 1.6s ease-in-out infinite; transform-origin: center; }
+  .clock { animation: tick 1.0s steps(2, end) infinite; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes tick {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.15); }
 }

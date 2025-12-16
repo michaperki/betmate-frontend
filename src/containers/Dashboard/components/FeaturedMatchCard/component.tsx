@@ -22,6 +22,15 @@ const truncate = (s?: string, n = 10) => {
 
 const pieceFor = (color: 'white' | 'black') => (color === 'white' ? '♔' : '♚');
 
+const countryToFlag = (cc?: string) => {
+  if (!cc) return '';
+  const code = cc.trim().toUpperCase();
+  if (code.length !== 2) return '';
+  const A = 0x1F1E6;
+  const chars = [...code].map(c => String.fromCodePoint(A + (c.charCodeAt(0) - 65))).join('');
+  return chars;
+};
+
 const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const history = useHistory();
   const { isMobile } = useResponsiveLayout();
@@ -72,6 +81,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
           <div className="player-block left">
             <div className="player-top">
               <div className={`color-chip ${left?.color}`}>{pieceFor('white')}</div>
+              {left?.country_code && <div className="flag" title={left.country_code}>{countryToFlag(left.country_code)}</div>}
               <div className="username" title={left?.username}>{truncate(left?.username, 12)}</div>
               {left?.title && <div className="title-badge">{left.title}</div>}
             </div>
@@ -109,6 +119,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
           <div className="player-block right">
             <div className="player-top">
               <div className={`color-chip ${right?.color}`}>{pieceFor('black')}</div>
+              {right?.country_code && <div className="flag" title={right.country_code}>{countryToFlag(right.country_code)}</div>}
               <div className="username" title={right?.username}>{truncate(right?.username, 12)}</div>
               {right?.title && <div className="title-badge">{right.title}</div>}
             </div>
@@ -141,10 +152,6 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
               {match.stakes && (
                 <div className="limits-line">Bets from ${match.stakes.min_bet} to ${match.stakes.max_bet}</div>
               )}
-            </div>
-
-            <div className="section actions">
-              <button className="btn primary" onClick={() => history.push(`/chess/${match.match_id}`)}>Join Game</button>
             </div>
           </div>
         </div>
