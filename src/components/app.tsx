@@ -23,6 +23,7 @@ import { ModeProvider } from 'context/ModeContext';
 import Wallet from './Wallet/component';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRiskPage from 'containers/AdminRiskPage/component';
+import AdminHome from 'containers/AdminHome/component';
 
 const Welcome = () => {
   return (
@@ -80,8 +81,15 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/signout" component={SignOutPanel} />
             <ProtectedRoute exact path="/user" component={UserPage} />
             <ProtectedRoute exact path="/wallet" render={() => (
+              <div className="dashboard-page">
+                <Wallet />
+              </div>
+            )} />
+            <ProtectedRoute exact path="/admin" render={() => (
                 <div className="dashboard-page">
-                  <Wallet />
+                  <NavBar />
+                  <AdminHome />
+                  <VersionFooter />
                 </div>
             )} />
             <ProtectedRoute exact path="/admin/risk" render={() => (

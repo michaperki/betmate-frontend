@@ -9,6 +9,7 @@ const mapStateToProps = (state: RootState) => ({
   firstName: state.auth.user?.first_name,
   tokenBalance: (state.auth.user?.token_balance ?? state.auth.user?.account ?? 0),
   cashBalance: (state.auth.user as any)?.cash_balance ?? 0,
+  role: (state.auth.user as any)?.role,
   isDarkTheme: true, // Default to dark theme
 });
 

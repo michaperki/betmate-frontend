@@ -30,3 +30,16 @@ export const resetRiskOverrides = async () => (
 export const clearAllWagers = async () => (
   createBackendAxiosRequest<{ ok: boolean; deleted: number }>({ method: 'POST', url: '/admin/dev/clear-wagers', headers: adminHeaders() })
 );
+
+// Feature flags (DB-backed)
+export const getAdminFeatures = async () => (
+  createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/features', headers: adminHeaders() })
+);
+
+export const updateAdminFeatures = async (patch: any) => (
+  createBackendAxiosRequest<any>({ method: 'PUT', url: '/admin/features', data: patch, headers: adminHeaders() })
+);
+
+export const getAdminHome = async () => (
+  createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/home', headers: adminHeaders() })
+);

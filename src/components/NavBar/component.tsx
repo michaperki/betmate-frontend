@@ -12,11 +12,12 @@ export interface NavBarProps {
   firstName: string;
   tokenBalance?: number;
   cashBalance?: number;
+  role?: string;
   compact?: boolean; // Whether to use the compact variant (for game screens)
   breadcrumb?: string; // Optional context label (currently used for non-game routes only)
 }
 
-const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalance, cashBalance, compact = false, breadcrumb }) => {
+const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalance, cashBalance, role, compact = false, breadcrumb }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const { mode, toggleMode, realEnabled } = useMode();
@@ -85,6 +86,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
               onClick={() => setMenuOpen(false)}
             >
               Wallet
+            </NavLink>
+          )}
+          {isAuthenticated && role === 'admin' && (
+            <NavLink
+              to="/admin"
+              exact
+              activeClassName="active"
+              className="navbar__item"
+              onClick={() => setMenuOpen(false)}
+            >
+              Admin
             </NavLink>
           )}
           {!isGameRoute && !isDashboard && (
