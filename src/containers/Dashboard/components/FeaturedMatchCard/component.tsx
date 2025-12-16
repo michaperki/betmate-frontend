@@ -27,8 +27,10 @@ const countryToFlag = (cc?: string) => {
   const code = cc.trim().toUpperCase();
   if (code.length !== 2) return '';
   const A = 0x1F1E6;
-  const chars = [...code].map(c => String.fromCodePoint(A + (c.charCodeAt(0) - 65))).join('');
-  return chars;
+  const first = code.charCodeAt(0) - 65;
+  const second = code.charCodeAt(1) - 65;
+  if (first < 0 || first > 25 || second < 0 || second > 25) return '';
+  return String.fromCodePoint(A + first) + String.fromCodePoint(A + second);
 };
 
 const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
