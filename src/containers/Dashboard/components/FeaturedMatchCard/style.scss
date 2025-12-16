@@ -27,7 +27,8 @@
       justify-content: space-between;
       color: $text-secondary;
       .meta-text { @include text-body; }
-      .meta-right { @include text-caption; }
+      .meta-right { display: flex; align-items: center; gap: $space-2; }
+      .stakes-pill { @include text-caption; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba($brand-primary, 0.12); color: $brand-primary; border: 1px solid rgba($brand-primary, 0.3); }
     }
   }
 
@@ -48,9 +49,9 @@
       flex-direction: column;
       gap: $space-2;
       .player-top { display: flex; align-items: center; gap: $space-2; }
-      .username { @include text-heading-4; color: $text-primary; font-weight: 700; }
+      .username { @include text-heading-3; color: $text-primary; font-weight: 700; }
       .title-badge { @include text-caption; color: $text-secondary; }
-      .rating { @include text-heading-3; color: $text-primary; }
+      .rating { @include text-body-lg; color: $text-secondary; font-weight: 700; }
       .context-line { @include text-body; color: $text-secondary; }
     }
 
@@ -63,7 +64,8 @@
       .game-state { @include text-caption; color: $text-secondary; margin-bottom: $space-2; }
       .instrument { display: flex; align-items: center; gap: $space-4; background: $bg-tertiary; padding: $space-3; border-radius: $radius-lg; border: 1px solid $border-primary; }
       .clock { @include text-heading-4; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; background: rgba(255,255,255,0.03); }
-      .clock.low { color: #ff6b6b; border-color: rgba(255,107,107,0.5); }
+      .clock.warn { color: #ffb74d; border-color: rgba(255,183,77,0.6); }
+      .clock.critical { color: #ef5350; border-color: rgba(239,83,80,0.7); animation: criticalPulse 1.2s ease-in-out infinite; }
       .vs { @include text-heading-4; color: $brand-primary; font-weight: 800; }
       .scheduled { @include text-body-lg; color: $text-secondary; }
       .stakes { text-align: center; display: flex; flex-direction: column; gap: 2px; }
@@ -90,9 +92,7 @@
   &.is-flipped .fmc-back { transform: rotateY(0); }
   .fmc-front, .fmc-back { transition: transform 280ms ease; }
 
-  .color-chip { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; }
-  .color-chip.white { background: rgba(255,255,255,0.12); }
-  .color-chip.black { background: rgba(0,0,0,0.3); }
+  .color-chip-img { display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
   .flag { font-size: 16px; line-height: 1; }
 
   .fmc-actions {
@@ -125,4 +125,9 @@
 @keyframes tick {
   0%, 100% { filter: none; }
   50% { filter: brightness(1.15); }
+}
+
+@keyframes criticalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,83,80,0.4); }
+  50% { box-shadow: 0 0 0 3px rgba(239,83,80,0.25); }
 }

@@ -23,7 +23,7 @@ const truncate = (s?: string, n = 10) => {
   return `${s.slice(0, n)}…`;
 };
 
-const pieceFor = (color: 'white' | 'black') => (color === 'white' ? '♔' : '♚');
+const pieceSrc = (color: 'white' | 'black') => (color === 'white' ? '/pieces_w/king.png' : '/pieces/king.png');
 
 const countryToFlag = (cc?: string) => {
   if (!cc) return '';
@@ -41,6 +41,8 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const { isMobile } = useResponsiveLayout();
   const [flipped, setFlipped] = React.useState(false);
   const [details, setDetails] = React.useState<MatchDetailsDTO | null>(null);
+  const [whiteMs, setWhiteMs] = React.useState<number>(match.clocks?.white_ms || 0);
+  const [blackMs, setBlackMs] = React.useState<number>(match.clocks?.black_ms || 0);
 
   const left = match.players.find(p => p.color === 'white') || match.players[0];
   const right = match.players.find(p => p.color === 'black') || match.players[1];
@@ -49,7 +51,6 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   if (match.time_control) metaLineParts.push(displayTimeControl(match));
   metaLineParts.push('Rapid');
   if (match.source?.provider) metaLineParts.push(match.source.provider.charAt(0).toUpperCase() + match.source.provider.slice(1));
-  if (match.stakes?.tier) metaLineParts.push('High Stakes');
   const metaLine = metaLineParts.join(' • ');
 
   const isLive = match.status === 'in_progress';
@@ -66,6 +67,39 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
     return () => { mounted = false; };
   }, [flipped, match.match_id]);
 
+  // Reset local clocks when props change
+  React.useEffect(() => {
+    setWhiteMs(match.clocks?.white_ms || 0);
+    setBlackMs(match.clocks?.black_ms || 0);
+  }, [match.clocks?.white_ms, match.clocks?.black_ms]);
+
+  // Tick active clock down each second (visual only)
+  React.useEffect(() => {
+    if (!isLive) return;
+    const id = setInterval(() => {
+      if (match.meta?.side_to_move === 'white') {
+        setWhiteMs((t) => Math.max(0, t - 1000));
+      } else if (match.meta?.side_to_move === 'black') {
+        setBlackMs((t) => Math.max(0, t - 1000));
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, [isLive, match.meta?.side_to_move]);
+
+  const formatClock = (ms?: number) => {
+    const total = Math.max(0, Math.floor((ms || 0) / 1000));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const clockClass = (ms?: number) => {
+    const t = (ms || 0) / 1000;
+    if (t <= 20) return 'critical';
+    if (t <= 60) return 'warn';
+    return '';
+  };
+
   return (
     <section className={`featured-match-card ${flipped ? 'is-flipped' : ''}`}>
       <div className="fmc-header">
@@ -75,9 +109,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
         </div>
         <div className="meta-strip">
           <span className="meta-text">{metaLine}</span>
-          {match.stats?.total_bets ? (
-            <span className="meta-right">{match.stats.total_bets} bets · ${match.stats.total_pool?.toLocaleString?.() || match.stats.total_pool}</span>
-          ) : null}
+          <div className="meta-right">
+            {match.stakes?.tier && <span className="stakes-pill">{match.stakes.tier}</span>}
+          </div>
         </div>
       </div>
       <div className="fmc-flip">
@@ -85,7 +119,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
         <div className={`fmc-body ${isMobile ? 'mobile' : 'desktop'} fmc-front`}>
           <div className="player-block left">
             <div className="player-top">
-              <div className={`color-chip ${left?.color}`}>{pieceFor('white')}</div>
+              <img className={`color-chip-img ${left?.color}`} src={pieceSrc('white')} alt="" width={18} height={18} />
               {left?.country_code && <div className="flag" title={left.country_code}>{countryToFlag(left.country_code)}</div>}
               <div className="username" title={left?.username}>{truncate(left?.username, 12)}</div>
               {left?.title && <div className="title-badge">{left.title}</div>}
@@ -98,18 +132,18 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
             <div className="instrument">
               {isLive ? (
                 <>
-                  <div className={`clock left-clock ${match.meta?.side_to_move === 'white' ? 'active' : ''} ${((match.clocks?.white_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.white_ms || 0) / 1000)}s</div>
+                  <div className={`clock left-clock ${match.meta?.side_to_move === 'white' ? 'active' : ''} ${clockClass(whiteMs)}`}>{formatClock(whiteMs)}</div>
                   <div className="vs">VS</div>
-                  <div className={`clock right-clock ${match.meta?.side_to_move === 'black' ? 'active' : ''} ${((match.clocks?.black_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.black_ms || 0) / 1000)}s</div>
+                  <div className={`clock right-clock ${match.meta?.side_to_move === 'black' ? 'active' : ''} ${clockClass(blackMs)}`}>{formatClock(blackMs)}</div>
                 </>
               ) : (
                 <div className="scheduled">{match.status === 'not_started' ? 'Scheduled' : 'Finished'}</div>
               )}
             </div>
             <div className="stakes">
-              <div className="tier-badge">{match.stakes?.tier || 'High Stakes'}</div>
+              <div className="tier-badge">{(match.stakes?.tier || 'High Stakes').toUpperCase()}</div>
               {match.stakes && (
-                <div className="limits">Bets from ${match.stakes.min_bet} to ${match.stakes.max_bet}</div>
+                <div className="limits">${match.stakes.min_bet} – ${match.stakes.max_bet} per bet</div>
               )}
               {match.stats?.total_bets ? (
                 <div className="market-line">{match.stats.total_bets} bets · ${match.stats.total_pool?.toLocaleString?.() || match.stats.total_pool} pool</div>
@@ -121,7 +155,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 
           <div className="player-block right">
             <div className="player-top">
-              <div className={`color-chip ${right?.color}`}>{pieceFor('black')}</div>
+              <img className={`color-chip-img ${right?.color}`} src={pieceSrc('black')} alt="" width={18} height={18} />
               {right?.country_code && <div className="flag" title={right.country_code}>{countryToFlag(right.country_code)}</div>}
               <div className="username" title={right?.username}>{truncate(right?.username, 12)}</div>
               {right?.title && <div className="title-badge">{right.title}</div>}
