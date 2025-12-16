@@ -119,7 +119,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
         <div className={`fmc-body ${isMobile ? 'mobile' : 'desktop'} fmc-front`}>
           <div className="player-block left">
             <div className="player-top">
-              <img className={`color-chip-img ${left?.color}`} src={pieceSrc('white')} alt="" width={18} height={18} />
+              <div className={`color-chip ${left?.color}`}>
+                <img className="piece" src={pieceSrc('white')} alt="White" />
+              </div>
               {left?.country_code && <div className="flag" title={left.country_code}>{countryToFlag(left.country_code)}</div>}
               <div className="username" title={left?.username}>{truncate(left?.username, 12)}</div>
               {left?.title && <div className="title-badge">{left.title}</div>}
@@ -155,7 +157,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 
           <div className="player-block right">
             <div className="player-top">
-              <img className={`color-chip-img ${right?.color}`} src={pieceSrc('black')} alt="" width={18} height={18} />
+              <div className={`color-chip ${right?.color}`}>
+                <img className="piece" src={pieceSrc('black')} alt="Black" />
+              </div>
               {right?.country_code && <div className="flag" title={right.country_code}>{countryToFlag(right.country_code)}</div>}
               <div className="username" title={right?.username}>{truncate(right?.username, 12)}</div>
               {right?.title && <div className="title-badge">{right.title}</div>}

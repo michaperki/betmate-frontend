@@ -92,7 +92,11 @@
   &.is-flipped .fmc-back { transform: rotateY(0); }
   .fmc-front, .fmc-back { transition: transform 280ms ease; }
 
-  .color-chip-img { display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+  .color-chip { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1px solid $border-primary; }
+  .color-chip.white { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+  .color-chip.black { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.30); }
+  .color-chip .piece { width: 20px; height: 20px; display: block; }
+  .color-chip.black .piece { filter: drop-shadow(0 0 1px rgba(255,255,255,0.45)) brightness(1.1); }
   .flag { font-size: 16px; line-height: 1; }
 
   .fmc-actions {
