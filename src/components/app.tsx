@@ -63,6 +63,7 @@ const App: React.FC<AppProps> = (props) => {
         <div>
           <Switch>
             <Route exact path="/" component={Welcome} />
+            <Route exact path="/matches/:id" component={Welcome} />
             <Route exact path="/chess/:id" component={ChessMatch} />
             {/* Raffles route removed */}
             <ProtectedRoute exact path="/active-bets" render={() => (

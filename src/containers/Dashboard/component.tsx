@@ -10,11 +10,16 @@ import SnapSummary from './components/SnapSummary/component';
 import QuickActionBar from './components/QuickActionBar/component';
 import StatsTiles from './components/StatsTiles/component';
 import FeaturedMatch from './components/FeaturedMatch';
+import FeaturedMatchCard from './components/FeaturedMatchCard';
+import MatchDetailsDrawer from './components/MatchDetailsDrawer';
 import LiveMatchesGrid from './components/LiveMatchesGrid';
 import FilterBar from './components/FilterBar';
 
 // Custom hooks
 import { useDashboardData } from 'hooks/useDashboardData';
+import { FeaturedMatchDTO } from 'types/matches';
+import { getFeaturedMatch } from 'store/requests/matchesRequests';
+import { useRouteMatch } from 'react-router-dom';
 import { useFilterState } from 'hooks/useFilterState';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 
@@ -30,6 +35,8 @@ export interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = (props) => {
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout();
   const { stats, featuredGame, regularGames } = useDashboardData(props.games, props.user);
+  const [featuredMatchDTO, setFeaturedMatchDTO] = React.useState<FeaturedMatchDTO | null>(null);
+  const matchRoute = useRouteMatch<{ id: string }>('/matches/:id');
   const {
     filters,
     filteredGames,
@@ -63,6 +70,22 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       // Cleanup on unmount
     };
   }, [refreshGames]);
+
+  // Fetch featured match DTO (card redesign data)
+  useEffect(() => {
+    let mounted = true;
+    const fetchFeatured = async () => {
+      try {
+        const resp = await getFeaturedMatch();
+        if (mounted) setFeaturedMatchDTO(resp.data);
+      } catch {
+        if (mounted) setFeaturedMatchDTO(null);
+      }
+    };
+    fetchFeatured();
+    const interval = setInterval(fetchFeatured, 10000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
 
   // Update the ref when props.games changes
   useEffect(() => {
@@ -133,9 +156,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         <div className="dashboard-main">
           
           {/* Featured Match (full width) */}
-          {featuredGame && (
+          {(featuredMatchDTO || featuredGame) && (
             <div className="featured-match-container">
-              <FeaturedMatch game={featuredGame} />
+              {featuredMatchDTO ? (
+                <FeaturedMatchCard match={featuredMatchDTO} />
+              ) : (
+                featuredGame && <FeaturedMatch game={featuredGame} />
+              )}
             </div>
           )}
           {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
@@ -169,6 +196,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           </div>
         </div>
       </div>
+      {matchRoute && <MatchDetailsDrawer />}
     </div>
   );
 };
