@@ -97,7 +97,7 @@ const BettingHistoryPage: React.FC = () => {
     const abs = (x: number) => Math.abs(x);
     if (w.status === WagerStatus.WON) {
       let mult = 1;
-      if (w.wdl) mult = isReal ? (w.winning_pool_share || 0) : (w.odds || 1);
+      if (w.wdl) mult = isReal ? (w.odds || 1) : (w.odds || 1);
       else mult = isReal ? (w.winning_pool_share || 0) : (w.odds || 1);
       const net = (w.amount * mult) - w.amount;
       const prefix = curr === 'USDT' ? '$' : '';
@@ -118,15 +118,10 @@ const BettingHistoryPage: React.FC = () => {
   const typeIcon = (w: Wager) => (w.wdl ? '🏁' : '🎯');
   const payoutBadge = (w: Wager) => {
     const isReal = (w as any).mode === 'real';
-    if (w.wdl) {
-      if (isReal) {
-        if (w.status === WagerStatus.WON && Number.isFinite(w.winning_pool_share) && (w.winning_pool_share || 0) > 0) {
-          return `x${getMultiplier(w.winning_pool_share)}`;
-        }
-        return '';
+      if (w.wdl) {
+        // Real and Arcade WDL: fixed odds at bet-time
+        return `x${getMultiplier(w.odds || 1)}`;
       }
-      return `x${getMultiplier(w.odds || 1)}`;
-    }
     // Move
     if (isReal) {
       return (w.status === WagerStatus.WON && Number.isFinite(w.winning_pool_share) && (w.winning_pool_share || 0) > 0)

@@ -133,7 +133,8 @@ const ENABLE_RESIZE_DEBUG = false;
 const DEV_FORCE_MAX_BOARD_SIZE: number | null = null;
 // Stage 2 prototype flags
 // Centered moves layout is now the default
-const STAKE_PRESETS = [10, 25, 50, 100, 250];
+// Arcade presets are generous tokens; Real presets are conservative USDT amounts
+const ARCADE_STAKE_PRESETS = [10, 25, 50, 100, 250];
 const OUTCOME_LABELS: Record<OutcomeId, string> = {
   black_win: 'Black',
   draw: 'Draw',
@@ -279,6 +280,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const [displayBlackSecs, setDisplayBlackSecs] = useState<number>(0);
   // Real market prices (Phase 1: read-only)
   const [realPrices, setRealPrices] = useState<{ white: number; draw: number; black: number } | null>(null);
+  const [realStakeOverride, setRealStakeOverride] = useState<number[] | null>(null);
 
   const {
     fetchGameById,
@@ -332,7 +334,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     preloadPieces();
   }, []);
 
-  // Fetch Real market prices when in real mode
+  // Fetch Real market prices + limits when in real mode
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -340,6 +342,29 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       try {
         const resp = await getRealWdlMarket(gameId);
         if (!cancelled && resp?.data?.prices) setRealPrices(resp.data.prices);
+        if (!cancelled && resp?.data?.limits?.per_bet) {
+          const lim = resp.data.limits.per_bet as { white?: number; draw?: number; black?: number };
+          const dd = (typeof lim.draw === 'number' && isFinite(lim.draw)) ? lim.draw : Infinity;
+          const ww = (typeof lim.white === 'number' && isFinite(lim.white)) ? lim.white : Infinity;
+          const bb = (typeof lim.black === 'number' && isFinite(lim.black)) ? lim.black : Infinity;
+          const minAcross = Math.max(1, Math.min(dd, ww, bb));
+          // Build presets dynamically based on safe max stake (rounded)
+          const build = (max: number) => {
+            if (!Number.isFinite(max) || max <= 1) return [1];
+            const candidates = [1, 2, 3, 5, 10, 20, 50, 100].filter((v) => v <= max);
+            if (candidates.length >= 4) return candidates.slice(0, 4);
+            return candidates.length ? candidates : [1];
+          };
+          const presets = build(minAcross);
+          setRealStakeOverride(presets);
+          setSelectedStake((prev) => {
+            const min = presets[0];
+            const max = presets[presets.length - 1];
+            if (prev < min) return min;
+            if (prev > max) return max;
+            return prev;
+          });
+        }
       } catch {
         if (!cancelled) setRealPrices(null);
       }
@@ -357,6 +382,28 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isGameActive = useMemo(() => (
     game ? !gameOver(game.game_status as GameStatus) : false
   ), [game?.game_status]);
+
+  // Compute conservative stake presets for Real mode to avoid cap rejections
+  const realStakePresets = useMemo(() => {
+    const override = realStakeOverride;
+    if (override && override.length) return override;
+    const moveNum = game?.move_hist?.length || 0;
+    const early = moveNum <= 20;
+    return early ? [1, 2, 3, 5] : [2, 5, 10, 20];
+  }, [game?.move_hist?.length, realStakeOverride]);
+
+  const stakePresets = useMemo(() => (
+    mode === 'real' ? realStakePresets : ARCADE_STAKE_PRESETS
+  ), [mode, realStakePresets]);
+
+  // If current stake is not in range for the mode, snap to closest preset
+  useEffect(() => {
+    if (!stakePresets || !stakePresets.length) return;
+    const min = stakePresets[0];
+    const max = stakePresets[stakePresets.length - 1];
+    if (selectedStake < min) setSelectedStake(min);
+    else if (selectedStake > max) setSelectedStake(max);
+  }, [stakePresets]);
 
   // After game ends, refetch wager history to ensure Real WDL pool shares are reflected
   useEffect(() => {
@@ -2165,8 +2212,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           return null;
                         })();
                         // Only show multiplier for Real WDL winners; hide otherwise to reduce clutter
-                        const realWinnerMult = (isReal && w.wdl && w.status === WagerStatus.WON && Number.isFinite(w.winning_pool_share) && (w.winning_pool_share || 0) > 0)
-                          ? `x${getMultiplier(w.winning_pool_share)}`
+                        const realWinnerMult = (isReal && w.wdl && w.status === WagerStatus.WON)
+                          ? `x${getMultiplier(w.odds || 1)}`
                           : '';
                         return (
                           <div
@@ -2216,7 +2263,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       <BottomToolbar
         selectedStake={selectedStake}
         onSelectStake={setSelectedStake}
-        stakePresets={STAKE_PRESETS}
+        stakePresets={stakePresets}
         viewerCount={viewerCount}
         onOpenChat={openChat}
         onOpenLeaderboard={openLeaderboard}

@@ -4,6 +4,8 @@ import Draw from 'assets/wager_panel/wdl/draw.svg';
 import BlackWin from 'assets/wager_panel/wdl/black_win.svg';
 import { GameOdds } from 'types/resources/game';
 import { getMultiplier } from 'utils/chess';
+import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
 import '../style.scss';
 
 const gameOutcomes = {
@@ -22,14 +24,22 @@ interface GameOutcomesProps {
 
 const GameOutcomes: React.FC<GameOutcomesProps> = (props) => {
   const { isDarkTheme = true } = props;
+  const { mode } = useMode();
+  const approxMoveNum = 0; // Unknown here; omit early adjustment
   const getOdds = (odds: string) => {
     switch (odds) {
       case 'White':
-        return getMultiplier(1 / props.odds.white_win);
+        return mode === 'real'
+          ? realWdlMultiplier('white_win', props.odds.white_win, approxMoveNum)
+          : getMultiplier(1 / props.odds.white_win);
       case 'Black':
-        return getMultiplier(1 / props.odds.black_win);
+        return mode === 'real'
+          ? realWdlMultiplier('black_win', props.odds.black_win, approxMoveNum)
+          : getMultiplier(1 / props.odds.black_win);
       case 'Draw':
-        return getMultiplier(1 / props.odds.draw);
+        return mode === 'real'
+          ? realWdlMultiplier('draw', props.odds.draw, approxMoveNum)
+          : getMultiplier(1 / props.odds.draw);
       default:
         return 0;
     }

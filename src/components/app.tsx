@@ -22,6 +22,7 @@ import VersionFooter from './VersionFooter';
 import { ModeProvider } from 'context/ModeContext';
 import Wallet from './Wallet/component';
 import ProtectedRoute from './ProtectedRoute';
+import AdminRiskPage from 'containers/AdminRiskPage/component';
 
 const Welcome = () => {
   return (
@@ -81,6 +82,13 @@ const App: React.FC<AppProps> = (props) => {
             <ProtectedRoute exact path="/wallet" render={() => (
                 <div className="dashboard-page">
                   <Wallet />
+                </div>
+            )} />
+            <ProtectedRoute exact path="/admin/risk" render={() => (
+                <div className="dashboard-page">
+                  <NavBar />
+                  <AdminRiskPage />
+                  <VersionFooter />
                 </div>
             )} />
             <Route component={FallBack} />
