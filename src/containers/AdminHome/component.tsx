@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
 import { getAdminFeatures, updateAdminFeatures, getAdminHome } from 'store/requests/adminRequests';
+import '../../styles/admin.scss';
 
 const Toggle: React.FC<{ label: string; value: boolean; onChange: (v: boolean) => void }>= ({ label, value, onChange }) => (
   <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
@@ -10,9 +11,12 @@ const Toggle: React.FC<{ label: string; value: boolean; onChange: (v: boolean) =
   </label>
 );
 
-const Card: React.FC<{ title: string }>= ({ title, children }) => (
-  <div style={{ background: '#111', border: '1px solid #2a2a2a', borderRadius: 8, padding: 16, minWidth: 280 }}>
-    <div style={{ fontWeight: 600, marginBottom: 8 }}>{title}</div>
+const Card: React.FC<{ title: string; actions?: React.ReactNode }>= ({ title, actions, children }) => (
+  <div className="admin-card">
+    <div className="admin-card__title">
+      <span>{title}</span>
+      {actions}
+    </div>
     {children}
   </div>
 );
@@ -51,6 +55,8 @@ const AdminHome: React.FC = () => {
       // also refresh status tiles if relevant
       const h = await getAdminHome();
       setHome(h);
+      // notify global listeners (ModeContext) to refresh /api/status
+      try { window.dispatchEvent(new CustomEvent('betmate:refresh-status')); } catch {}
     } finally {
       setSaving(false);
     }
@@ -67,12 +73,18 @@ const AdminHome: React.FC = () => {
   }
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page admin-content">
       <NavBar />
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="admin-tabs">
+          <a href="/admin">Home</a>
+          <a href="/admin/risk">Risk</a>
+          <a href="/admin/wallet">Wallet</a>
+          <a href="/admin/ops">Ops</a>
+        </div>
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Home</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-          <Card title="Environment">
+          <Card title="Environment" actions={<a href="/admin">Home</a>}>
             {home?.env && (
               <>
                 <Row k="Env" v={home.env.nodeEnv} />
@@ -84,7 +96,7 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Risk">
+          <Card title="Risk" actions={<a href="/admin/risk">Open</a>}>
             {home?.risk && (
               <>
                 <Row k="Bankroll" v={home.risk.bankroll} />
@@ -93,7 +105,7 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Payments (24h)">
+          <Card title="Payments (24h)" actions={<a href="/admin/wallet">Open</a>}>
             {home?.payments && (
               <>
                 <Row k="Pending" v={home.payments.pending} />
@@ -102,11 +114,11 @@ const AdminHome: React.FC = () => {
               </>
             )}
           </Card>
-          <Card title="Health">
+          <Card title="Health" actions={<a href="/admin/ops">Open</a>}>
             {home?.health && (
               <>
                 <Row k="DB" v={home.health.db} />
-                <Row k="Microservice" v={home.health.microserviceUrl || 'unset'} />
+                <Row k="Microservice:" v={home.health.microserviceUrl || 'unset'} />
                 <Row k="Rate-limits" v={home.health.rateLimitRecent} />
               </>
             )}
@@ -138,4 +150,3 @@ const AdminHome: React.FC = () => {
 };
 
 export default AdminHome;
-

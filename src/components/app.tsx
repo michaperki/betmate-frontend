@@ -22,8 +22,11 @@ import VersionFooter from './VersionFooter';
 import { ModeProvider } from 'context/ModeContext';
 import Wallet from './Wallet/component';
 import ProtectedRoute from './ProtectedRoute';
+import AdminRoute from './AdminRoute';
 import AdminRiskPage from 'containers/AdminRiskPage/component';
 import AdminHome from 'containers/AdminHome/component';
+import AdminWallet from 'containers/AdminWallet/component';
+import AdminOps from 'containers/AdminOps/component';
 
 const Welcome = () => {
   return (
@@ -85,14 +88,28 @@ const App: React.FC<AppProps> = (props) => {
                 <Wallet />
               </div>
             )} />
-            <ProtectedRoute exact path="/admin" render={() => (
+            <AdminRoute exact path="/admin" render={() => (
                 <div className="dashboard-page">
                   <NavBar />
                   <AdminHome />
                   <VersionFooter />
                 </div>
             )} />
-            <ProtectedRoute exact path="/admin/risk" render={() => (
+            <AdminRoute exact path="/admin/wallet" render={() => (
+                <div className="dashboard-page">
+                  <NavBar />
+                  <AdminWallet />
+                  <VersionFooter />
+                </div>
+            )} />
+            <AdminRoute exact path="/admin/ops" render={() => (
+                <div className="dashboard-page">
+                  <NavBar />
+                  <AdminOps />
+                  <VersionFooter />
+                </div>
+            )} />
+            <AdminRoute exact path="/admin/risk" render={() => (
                 <div className="dashboard-page">
                   <NavBar />
                   <AdminRiskPage />

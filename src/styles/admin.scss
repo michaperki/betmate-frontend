@@ -1,0 +1,35 @@
+.admin-content {
+  a, a:visited {
+    color: #60a5fa; /* sky-400 */
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+
+  .admin-tabs {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0 16px 0;
+    a { color: #93c5fd; }
+  }
+
+  .admin-card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 16px;
+    min-width: 280px;
+    color: #f3f4f6;
+  }
+  .admin-card__title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .admin-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+  }
+}

@@ -9,6 +9,7 @@ type ModeContextValue = {
   toggleMode: () => void;
   realEnabled: boolean;
   pricingVersion?: string;
+  faucetEnabled?: boolean;
 };
 
 const ModeContext = createContext<ModeContextValue | undefined>(undefined);
@@ -25,6 +26,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [mode, setModeState] = useState<BetMode>(getInitialMode);
   const [realEnabled, setRealEnabled] = useState<boolean>(true);
   const [pricingVersion, setPricingVersion] = useState<string | undefined>(undefined);
+  const [faucetEnabled, setFaucetEnabled] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     try {
@@ -46,22 +48,27 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch feature flags from backend
   useEffect(() => {
     let isMounted = true;
-    (async () => {
+    const fetchStatus = async () => {
       try {
         const res = await fetch(`${ROOT_URL}/api/status`);
         const json = await res.json();
         const enabled = !!json?.features?.realModeEnabled;
         const pv: string | undefined = json?.pricing?.pricingModelVersion || undefined;
+        const fe: boolean | undefined = json?.features?.enableFaucet;
         if (!isMounted) return;
         setRealEnabled(enabled);
         setPricingVersion(pv);
+        setFaucetEnabled(fe);
         if (!enabled && mode === 'real') setModeState('arcade');
       } catch {
-        // If status fails, assume enabled to avoid blocking UX
+        // If status fails, keep previous values
       }
-    })();
-    return () => { isMounted = false; };
-  }, []);
+    };
+    fetchStatus();
+    const onRefresh = () => { fetchStatus(); };
+    window.addEventListener('betmate:refresh-status', onRefresh as any);
+    return () => { isMounted = false; window.removeEventListener('betmate:refresh-status', onRefresh as any); };
+  }, [mode]);
 
   const setMode = (m: BetMode) => setModeState(m === 'real' && !realEnabled ? 'arcade' : m);
   const toggleMode = () => setModeState(prev => {
@@ -69,7 +76,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return prev === 'arcade' ? 'real' : 'arcade';
   });
 
-  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, pricingVersion }), [mode, realEnabled, pricingVersion]);
+  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, pricingVersion, faucetEnabled }), [mode, realEnabled, pricingVersion, faucetEnabled]);
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 };
 

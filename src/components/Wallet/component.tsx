@@ -8,7 +8,8 @@ import { RootState } from 'types/state';
 import { createDepositIntent, listDeposits, getDepositQuote, faucetCredit } from 'store/requests/billingRequests';
 import * as authRequests from 'store/requests/authRequests';
 import { JWT_SIGN_IN } from 'types/resources/auth';
-import { ENABLE_DEV_FAUCET, ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
+import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
+import { useMode } from 'context/ModeContext';
 import './style.scss';
 
 interface DepositItem {
@@ -34,6 +35,7 @@ const Wallet: React.FC = () => {
   const [banner, setBanner] = useState<string | null>(null);
   const [payCurrency, setPayCurrency] = useState<string>('USDTTRC20');
   const [quote, setQuote] = useState<{ charge_usd: number; fee_usd: number; estimated_pay_amount: number } | null>(null);
+  const { faucetEnabled } = useMode();
 
   const tokenBalance = user?.token_balance ?? user?.account ?? 0;
   const cashBalance = (user as any)?.cash_balance ?? 0;
@@ -151,7 +153,7 @@ const Wallet: React.FC = () => {
               <button className="wallet-deposit-btn" onClick={onDeposit} disabled={loading || !isAuthenticated}>
                 {loading ? 'Starting…' : `Add $${Math.max(5, Math.min(10000, Number(amount || 0)))}`}
               </button>
-              {ENABLE_DEV_FAUCET && (
+              {(faucetEnabled === true) && (
                 <button
                   className="wallet-deposit-btn"
                   style={{ background: '#0f766e', borderColor: '#0f766e' }}

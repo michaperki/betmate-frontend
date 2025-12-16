@@ -32,14 +32,68 @@ export const clearAllWagers = async () => (
 );
 
 // Feature flags (DB-backed)
-export const getAdminFeatures = async () => (
-  createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/features', headers: adminHeaders() })
-);
+export const getAdminFeatures = async () => {
+  const res = await createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/features', headers: adminHeaders() });
+  return res.data;
+};
 
-export const updateAdminFeatures = async (patch: any) => (
-  createBackendAxiosRequest<any>({ method: 'PUT', url: '/admin/features', data: patch, headers: adminHeaders() })
-);
+export const updateAdminFeatures = async (patch: any) => {
+  const res = await createBackendAxiosRequest<any>({ method: 'PUT', url: '/admin/features', data: patch, headers: adminHeaders() });
+  return res.data;
+};
 
-export const getAdminHome = async () => (
-  createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/home', headers: adminHeaders() })
-);
+export const getAdminHome = async () => {
+  const res = await createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/home', headers: adminHeaders() });
+  return res.data;
+};
+
+export const getAdminDeposits = async ({ status, since, limit }: { status?: string; since?: string; limit?: number; }) => {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (since) params.set('since', since);
+  if (limit) params.set('limit', String(limit));
+  try {
+    const res = await createBackendAxiosRequest<any>({ method: 'GET', url: `/admin/wallet/deposits?${params.toString()}`, headers: adminHeaders() });
+    return res.data;
+  } catch (e: any) {
+    // Fallback for local dev if admin route not present yet: show current user's deposits
+    const me = await createBackendAxiosRequest<any>({ method: 'GET', url: '/billing/deposits', headers: adminHeaders() });
+    return { deposits: me?.data || [] };
+  }
+};
+
+export const clearStaleInvoices = async (olderThanMinutes: number) => {
+  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/dev/clear-stale-invoices', data: { olderThanMinutes }, headers: adminHeaders() });
+  return res.data;
+};
+
+export const applyRiskPreset = async (level: 'low'|'med'|'high') => {
+  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/risk/preset', data: { level }, headers: adminHeaders() });
+  return res.data;
+};
+
+export const getOpsStats = async () => {
+  try {
+    const res = await createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/ops/stats', headers: adminHeaders() });
+    return res.data;
+  } catch (e) {
+    // Fallback to /admin/home health block if ops route not present yet
+    try {
+      const home = await createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/home', headers: adminHeaders() });
+      const h = home.data?.health || {};
+      return { db: h.db || 'unknown', rateLimitCounters: { analysis429: 0, auth429: 0, billingIntent429: 0 } };
+    } catch {
+      throw e;
+    }
+  }
+};
+
+export const pingMicroservice = async () => {
+  const res = await createBackendAxiosRequest<any>({ method: 'GET', url: '/admin/ops/ping', headers: adminHeaders() });
+  return res.data;
+};
+
+export const clearStaleWagers = async (olderThanMinutes: number) => {
+  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/dev/clear-stale-wagers', data: { olderThanMinutes }, headers: adminHeaders() });
+  return res.data;
+};

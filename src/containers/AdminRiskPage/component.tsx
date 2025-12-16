@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
-import { getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers } from 'store/requests/adminRequests';
+import { getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers } from 'store/requests/adminRequests';
+import '../../styles/admin.scss';
 import { getMultiplier } from 'utils/chess';
 
 const Field: React.FC<{ label: string; value: any; onChange: (v: any) => void; help?: string; width?: number } > = ({ label, value, onChange, help, width = 180 }) => (
@@ -128,9 +129,15 @@ const AdminRiskPage: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page admin-content">
       <NavBar />
       <div className="content" style={{ padding: 20 }}>
+        <div className="admin-tabs">
+          <a href="/admin">Home</a>
+          <a href="/admin/risk">Risk</a>
+          <a href="/admin/wallet">Wallet</a>
+          <a href="/admin/ops">Ops</a>
+        </div>
         <h2>Admin — Real WDL Risk</h2>
         {err && <div style={{ color: 'red', marginBottom: 12 }}>{err}</div>}
         {!cfg ? (
@@ -138,14 +145,15 @@ const AdminRiskPage: React.FC = () => {
         ) : (
           <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
             <div style={{ minWidth: 360 }}>
-              <h3>Global Exposure</h3>
+              <div className="admin-card">
+                <div className="admin-card__title">Global Exposure</div>
               <p style={{ fontSize: 13, marginTop: -6 }}>Worst-case across all live games versus configured caps.</p>
               {(() => {
                 const used = glob?.exposure?.total || 0;
                 const cap = glob?.caps?.globalExposureCap || 1;
                 const border = severityColor(used, cap);
                 return (
-                  <div style={{ padding: 12, borderRadius: 6, background: '#fff', border: `1px solid ${border}`, color: '#111' }}>
+                  <div style={{ padding: 12, borderRadius: 6, background: '#111', border: `1px solid ${border}`, color: '#f3f4f6' }}>
                     <div style={{ fontWeight: 700, marginBottom: 4 }}>Total worst-case</div>
                     <div style={{ fontSize: 14, marginBottom: 8 }}>${fmt(used)} / ${fmt(cap)}</div>
                     <Bar used={used} cap={cap} label="Global cap" />
@@ -157,7 +165,7 @@ const AdminRiskPage: React.FC = () => {
               })()}
 
               <div style={{ marginTop: 18 }}>
-                <h4>Game Exposure</h4>
+                <div className="admin-card__title">Game Exposure</div>
                 <p style={{ fontSize: 13 }}>Inspect a specific game’s liabilities by outcome.</p>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <input placeholder="Game ID (Mongo _id)" value={gameId} onChange={e => setGameId(e.target.value)} style={{ padding: 6, border: '1px solid #ccc', borderRadius: 4, width: 260 }} />
@@ -166,7 +174,7 @@ const AdminRiskPage: React.FC = () => {
                 {gameExp && (() => {
                   const border = severityColor(gameExp.exposure?.worstCase || 0, gameExp.caps?.perGameWorstCaseCap || 1);
                   return (
-                    <div style={{ marginTop: 10, border: `1px solid ${border}`, borderRadius: 6, padding: 12, background: '#fff', color: '#111' }}>
+                    <div style={{ marginTop: 10, border: `1px solid ${border}`, borderRadius: 6, padding: 12, background: '#111', color: '#f3f4f6' }}>
                       <div style={{ fontWeight: 700, marginBottom: 6 }}>Game {gameExp.gameId}</div>
                       <Bar used={gameExp.exposure?.worstCase || 0} cap={gameExp.caps?.perGameWorstCaseCap || 1} label="Worst-case" />
                       <Bar used={gameExp.exposure?.perOutcome?.white_win || 0} cap={gameExp.caps?.perOutcomeCap?.white_win || 1} label="White" />
@@ -176,12 +184,13 @@ const AdminRiskPage: React.FC = () => {
                   );
                 })()}
               </div>
+              </div>
             </div>
             <div style={{ minWidth: 420 }}>
               {(() => {
                 return (
-                  <div style={{ padding: 12, borderRadius: 6, background: '#fff', border: '1px solid #eee', color: '#111' }}>
-                    <h3 style={{ marginTop: 0 }}>Config</h3>
+                  <div className="admin-card" style={{ padding: 12 }}>
+                    <div className="admin-card__title">Config</div>
                     <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Toggle availability and adjust limits/margins. Caps auto-scale from Bankroll; you can override directly if needed.</p>
                     <div style={{ marginBottom: 8 }}>
                       <label>
@@ -213,10 +222,14 @@ const AdminRiskPage: React.FC = () => {
                     <Field label="Per-Outcome Cap — Black (USDT)" value={cfg?.perOutcomeCap?.black_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })} />
                     <Field label="Per-Bet Liability Cap (USDT)" value={cfg.perBetLiabilityCap ?? ''} onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })} />
                     <Field label="Per-Player Per-Game Cap (USDT)" value={cfg.perPlayerPerGameCap ?? ''} onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })} />
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap' }}>
                       <button onClick={save} disabled={saving}>Save</button>
                       <button onClick={doReset} disabled={saving} style={{ background: '#eee' }}>Reset Overrides</button>
                       {saved && <span style={{ color: '#28a745', fontSize: 12 }}>Saved ✓</span>}
+                      <span style={{ marginLeft: 12, opacity: 0.6 }}>Presets:</span>
+                      <button onClick={async () => { await applyRiskPreset('low'); refresh(); }} disabled={saving}>Low</button>
+                      <button onClick={async () => { await applyRiskPreset('med'); refresh(); }} disabled={saving}>Med</button>
+                      <button onClick={async () => { await applyRiskPreset('high'); refresh(); }} disabled={saving}>High</button>
                     </div>
                   </div>
                 );
@@ -224,26 +237,47 @@ const AdminRiskPage: React.FC = () => {
             </div>
 
             <div style={{ minWidth: 360, flex: 1 }}>
-              <div style={{ padding: 12, borderRadius: 6, background: '#fff', border: '1px solid #eee', color: '#111' }}>
-                <h3 style={{ marginTop: 0 }}>Danger Zone</h3>
+              <div className="admin-card" style={{ padding: 12 }}>
+                <div className="admin-card__title">Danger Zone</div>
                 <p style={{ color: '#b94a48', fontSize: 13 }}>
-                  Dev‑only: clear ALL wagers from the database. This will remove pending/settled bets and reset exposures to 0.
+                  Dev/staging only. Use with care.
                 </p>
-                <button
-                  style={{ background: '#d9534f', color: '#fff', border: 0, borderRadius: 4, padding: '8px 12px' }}
-                  onClick={async () => {
-                    try {
-                      const res = await clearAllWagers();
-                      const g2 = await getGlobalExposure();
-                      setGlob(g2.data);
-                      alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
-                    } catch (e: any) {
-                      alert('Failed to clear wagers. Check console.');
-                    }
-                  }}
-                >
-                  Clear all wagers
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <button
+                    style={{ background: '#d9534f', color: '#fff', border: 0, borderRadius: 4, padding: '8px 12px' }}
+                    onClick={async () => {
+                      try {
+                        const res = await clearAllWagers();
+                        const g2 = await getGlobalExposure();
+                        setGlob(g2.data);
+                        alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
+                      } catch (e: any) {
+                        alert('Failed to clear wagers. Check console.');
+                      }
+                    }}
+                  >
+                    Clear all wagers
+                  </button>
+                  <div>
+                    <div style={{ marginBottom: 6 }}>Clear stale pending wagers (Real WDL):</div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input type="number" min={5} max={1440} defaultValue={60} id="stale-wagers-mins" />
+                      <button
+                        onClick={async () => {
+                          const mins = Number((document.getElementById('stale-wagers-mins') as HTMLInputElement).value || '60');
+                          try {
+                            const res = await clearStaleWagers(mins);
+                            const g2 = await getGlobalExposure();
+                            setGlob(g2.data);
+                            alert(`Cancelled ${res.updated} stale wagers older than ${res.olderThanMinutes} minutes.`);
+                          } catch (e) { alert('Failed to clear stale wagers.'); }
+                        }}
+                      >
+                        Clear stale
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
