@@ -10,7 +10,6 @@ export interface FeaturedMatchCardProps {
 
 const formatTimeControl = (tc?: FeaturedMatchDTO['time_control']) => {
   if (!tc) return '';
-  const inc = tc.increment_seconds ? `+${tc.increment_seconds}` : '+0';
   return `${Math.round(tc.initial_seconds / 60)}+${tc.increment_seconds || 0}`;
 };
 
@@ -109,4 +108,3 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 };
 
 export default FeaturedMatchCard;
-
