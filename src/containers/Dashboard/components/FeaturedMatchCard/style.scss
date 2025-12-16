@@ -31,8 +31,7 @@
     }
   }
 
-  .fmc-flip { position: relative; transform-style: preserve-3d; min-height: 360px; }
-  @include mobile { .fmc-flip { min-height: 420px; } }
+  .fmc-flip { position: relative; transform-style: preserve-3d; }
 
   .fmc-body {
     display: grid;
@@ -75,7 +74,7 @@
     }
   }
 
-  .fmc-front { position: absolute; inset: 0; }
+  .fmc-front { position: relative; }
   .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; overflow: auto; }
   .market { display: flex; flex-direction: column; gap: $space-4; }
   .section { display: flex; flex-direction: column; gap: $space-2; }
