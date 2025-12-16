@@ -98,6 +98,7 @@
 .player-name {
   font-weight: 500;
   color: $text-primary;
+  // Always single line, ellipsize if too long
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

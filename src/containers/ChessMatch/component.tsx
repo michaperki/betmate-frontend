@@ -901,7 +901,10 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     const raw = sanitizeMoveLabel(san).replace(/[+#!?]+$/g, '');
     if (/^O-O/.test(raw)) return raw; // show castle as-is
     const matches = raw.match(/[a-h][1-8]/g);
-    return matches && matches.length ? matches[matches.length - 1] : null;
+    const square = matches && matches.length ? matches[matches.length - 1] : null;
+    if (!square) return null;
+    const isCapture = /x/.test(raw);
+    return isCapture ? `×${square}` : square;
   }, [sanitizeMoveLabel]);
 
   const handleMoveHoverStart = useCallback((move: string) => {
@@ -1295,7 +1298,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             </span>
             <span className="move-option__dest">{dest}</span>
             <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-              {analysis ? (isBest ? '💪' : (percentile == null ? '—' : `${percentile}`)) : '—'}
+              {analysis
+                ? (percentile == null
+                    ? (isBest ? '💪' : '—')
+                    : (isBest ? `${percentile} 💪` : `${percentile}`))
+                : '—'}
             </span>
           </span>
           <span className="move-option__meta">{wageredText}</span>
@@ -1387,7 +1394,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                   </span>
                   <span className="move-option__dest">{dest}</span>
                   <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                    {analysis ? (isBest ? '💪' : (percentile == null ? '—' : `${percentile}`)) : '—'}
+                    {analysis
+                      ? (percentile == null
+                          ? (isBest ? '💪' : '—')
+                          : (isBest ? `${percentile} 💪` : `${percentile}`))
+                      : '—'}
                   </span>
                 </span>
                 <span className="move-option__meta">{mode === 'arcade' ? `${Number(arcadeOddsByMove[canonicalSan(option.move)] || 1).toFixed(2)}x` : wageredText}</span>
@@ -1715,7 +1726,11 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                 : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
             return (
               <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
-                {analysis ? (percentile == null ? '—' : `${percentile}`) : '—'}
+                {analysis
+                  ? (percentile == null
+                      ? (isBest ? '💪' : '—')
+                      : (isBest ? `${percentile} 💪` : `${percentile}`))
+                  : '—'}
               </span>
             );
           })()}

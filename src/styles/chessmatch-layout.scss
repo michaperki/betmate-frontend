@@ -218,12 +218,17 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .notation-rail__list {
   flex: 1 1 auto;
   max-height: none;
   min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .notation-column .wager-receipts {
@@ -322,11 +327,16 @@
   .player-meta {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto; // allow name to take remaining space
+    min-width: 0;   // enable text-overflow ellipsis within flex container
   }
 
   .player-name {
     font-size: $text-sm;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .player-rating {
@@ -487,9 +497,9 @@
 
   &__list {
     position: relative;
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
-    max-height: 260px;
+    max-height: none; // allow list to fill available height
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -497,27 +507,9 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
     -webkit-overflow-scrolling: touch;
-
-    &::before,
-    &::after {
-      content: '';
-      position: sticky;
-      left: 0;
-      right: 0;
-      height: 8px;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    &::before {
-      top: 0;
-      background: linear-gradient(180deg, rgba($bg-primary, 0.9), transparent);
-    }
-
-    &::after {
-      bottom: 0;
-      background: linear-gradient(0deg, rgba($bg-primary, 0.9), transparent);
-    }
+    // Remove sticky gradient overlays that created extra space at bottom
+    &::before { content: none; }
+    &::after { content: none; }
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -1217,9 +1209,11 @@
     }
 
     .move-option__left {
-      display: inline-flex;
+      // Use grid so quality numbers line up vertically across rows
+      display: grid;
+      grid-template-columns: 40px 6ch auto; // icon | fixed-width dest | quality
       align-items: center;
-      gap: 4px; // bring target square closer to the piece
+      column-gap: 6px;
       min-width: 0;
     }
 
@@ -1245,6 +1239,9 @@
     .move-option__dest {
       font-weight: 700;
       letter-spacing: 0.04em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .move-option__meta {
