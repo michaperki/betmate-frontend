@@ -214,11 +214,12 @@
 }
 
 .notation-column .notation-rail {
-  flex: 0 0 60%;
+  /* Keep notation rail at a fixed height so it doesn't grow with moves */
+  flex: none;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: clamp(200px, 35vh, 320px);
 }
 
 .notation-rail__list {
@@ -464,7 +465,9 @@
   border-radius: $radius-xl;
   border: 1px solid $border-primary;
   background: $bg-tertiary;
-  min-height: 360px;
+  /* Fixed visual block so receipts below remain visible */
+  height: clamp(200px, 35vh, 320px);
+  min-height: 0;
 
   &__header {
     display: flex;
@@ -530,9 +533,10 @@
   }
 
   @media (max-width: 1024px) {
-    flex: 1 1 100%;
+    flex: none;
     order: 2;
-    min-height: auto;
+    height: clamp(180px, 30vh, 300px);
+    min-height: 0;
   }
 }
 

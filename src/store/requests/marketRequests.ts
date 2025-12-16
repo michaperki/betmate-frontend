@@ -10,6 +10,7 @@ export interface RealWdlMarketResponse {
   b: number;
   rake: number;
   myPosition?: { white: number; draw: number; black: number };
+  limits?: { per_bet?: { white?: number; draw?: number; black?: number } };
 }
 
 export const getRealWdlMarket = async (
@@ -20,4 +21,3 @@ export const getRealWdlMarket = async (
     url: `/real/markets/${gameId}`,
   })
 );
-

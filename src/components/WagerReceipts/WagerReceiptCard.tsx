@@ -71,10 +71,10 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
   // Calculate compact net result (minimal, non-flashy)
   const calculateNet = () => {
     if (normalizedStatus === WagerStatus.WON) {
-      // Real WDL uses pool share; Arcade WDL uses fixed odds; Move uses pool share
+      // WDL: both Arcade and Real use fixed odds at bet-time
       const isReal = (wager as any).mode === 'real';
       if (wager.wdl) {
-        const mult = isReal ? (wager.winning_pool_share || 0) : wager.odds;
+        const mult = wager.odds;
         return (wager.amount * mult - wager.amount);
       }
       return (wager.amount * (wager.winning_pool_share || 0) - wager.amount);
@@ -106,13 +106,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
           {/* WDL payout label — skip showing raw 1x for pending */}
           {wager.wdl && (
             <div className="odds">
-              {isReal ? (
-                normalizedStatus === WagerStatus.WON && Number.isFinite(wager.winning_pool_share) && (wager.winning_pool_share || 0) > 0
-                  ? <span className="value">x{getMultiplier(wager.winning_pool_share)}</span>
-                  : null
-              ) : (
-                <span className="value">{getMultiplier(wager.odds)}x</span>
-              )}
+              <span className="value">{getMultiplier(wager.odds)}x</span>
             </div>
           )}
 
