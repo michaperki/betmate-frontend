@@ -2,9 +2,6 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { WDLBar } from 'components/WagerPanel/helper_components';
 
-import blackPawn from 'assets/dashboard/blackPawn.svg';
-import whitePawn from 'assets/dashboard/whitePawn.svg';
-
 import './style.scss';
 import { Game } from 'types/resources/game';
 
@@ -18,33 +15,25 @@ const GameCard: React.FC<GameCardProps> = (props) => {
   return (
     <div className='game-card'>
       <div className='game-title'>
-        <img src={blackPawn} width={props.topGame ? 150 : 100} />
-        <div className='game-title regular-text'>
+        <div className='game-title-inner regular-text'>
+          <div className='game-title-small'>
+            <p className='player-name-whole player-title'>{props.game.player_white.name}</p>
+            <p className='player-title'>({props.game.player_white.elo})</p>
+          </div>
+          <p className='vs-text'>vs</p>
           <div className='game-title-small'>
             <p className='player-name-whole player-title'>{props.game.player_black.name}</p>
             <p className='player-title'>({props.game.player_black.elo})</p>
           </div>
-          <p className='vs-text'>vs</p>
-          <div className='game-title-small'>
-            <p className='player-name-whole player-title'
-              // style={{
-              //   width: '80px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', display: 'block',
-              // }}
-            >{props.game.player_white.name}</p>
-            <p className='player-title'>({props.game.player_white.elo})</p>
-          </div>
         </div>
-        <img src={whitePawn} width={props.topGame ? 150 : 100} />
       </div>
       <div className='wdl-bar'>
-        <WDLBar
-          odds={props.game.odds}
-          height={props.topGame ? 30 : 15}
-          // Remove fixed width to let CSS handle responsive sizing
-        />
+        <WDLBar odds={props.game.odds} height={props.topGame ? 30 : 15} />
       </div>
-
-      <button className='join-button' onClick={() => history.push(`/chess/${props.game._id}`)}>join game</button>
+      <div className='actions-row'>
+        <button className='join-button' onClick={() => history.push(`/chess/${props.game._id}`)}>Join Game</button>
+        <button className='details-link' onClick={() => history.push(`/matches/${props.game._id}`)}>View Market</button>
+      </div>
     </div>
   );
 };

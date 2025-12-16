@@ -1,0 +1,137 @@
+@import '../../../../styles/tokens.scss';
+@import '../../../../styles/mixins.scss';
+
+.featured-match-card {
+  @include card-elevated;
+  background: $bg-secondary;
+  border: 1px solid $border-primary;
+  padding: $space-5;
+  margin-bottom: $space-5;
+  perspective: 1200px;
+
+  .fmc-header {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1;
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+      .title { @include text-heading-3; margin: 0; }
+      .live-badge { background: #E53935; color: white; border-radius: 999px; padding: 2px 8px; font-weight: 700; font-size: 12px; }
+    }
+
+    .meta-strip {
+      display: flex;
+      justify-content: space-between;
+      color: $text-secondary;
+      .meta-text { @include text-body; }
+      .meta-right { display: flex; align-items: center; gap: $space-2; }
+      .stakes-pill { @include text-caption; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba($brand-primary, 0.12); color: $brand-primary; border: 1px solid rgba($brand-primary, 0.3); }
+    }
+  }
+
+  .fmc-flip { position: relative; transform-style: preserve-3d; }
+
+  .fmc-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: $space-4;
+    margin-top: $space-4;
+    backface-visibility: hidden;
+    align-items: start;
+
+    &.mobile { grid-template-columns: 1fr; }
+
+    .player-block {
+      display: flex;
+      flex-direction: column;
+      gap: $space-2;
+      .player-top { display: flex; align-items: center; gap: $space-2; }
+      .username { @include text-heading-3; color: $text-primary; font-weight: 700; }
+      .title-badge { @include text-caption; color: $text-secondary; }
+      .rating { @include text-body-lg; color: $text-secondary; font-weight: 700; }
+      .context-line { @include text-body; color: $text-secondary; }
+    }
+
+    .center-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: $space-3;
+      .game-state { @include text-caption; color: $text-secondary; margin-bottom: $space-2; }
+      .instrument { display: flex; align-items: center; gap: $space-4; background: $bg-tertiary; padding: $space-3; border-radius: $radius-lg; border: 1px solid $border-primary; }
+      .clock { @include text-heading-4; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; background: rgba(255,255,255,0.03); }
+      .clock.warn { color: #ffb74d; border-color: rgba(255,183,77,0.6); }
+      .clock.critical { color: #ef5350; border-color: rgba(239,83,80,0.7); animation: criticalPulse 1.2s ease-in-out infinite; }
+      .vs { @include text-heading-4; color: $brand-primary; font-weight: 800; }
+      .scheduled { @include text-body-lg; color: $text-secondary; }
+      .stakes { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+      .tier-badge { @include text-body; font-weight: 700; }
+      .limits { @include text-body; color: $text-primary; }
+      .market-line { @include text-caption; color: $text-secondary; }
+      .market-line.muted { opacity: 0.7; }
+    }
+  }
+
+  .fmc-front { position: relative; }
+  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; overflow: hidden; background: linear-gradient(180deg, rgba($accent-purple, 0.10), rgba($accent-blue, 0.06)); }
+  .market { display: flex; flex-direction: column; gap: $space-3; }
+  .section { display: flex; flex-direction: column; gap: $space-1; }
+  .section-title { @include text-heading-4; }
+  .odds-chips { display: flex; gap: $space-2; flex-wrap: wrap; }
+  .chip { padding: $space-2 $space-2; border: 1px solid $border-primary; border-radius: $radius-md; background: $bg-tertiary; font-weight: 700; }
+  .pool-line { @include text-caption; color: $text-secondary; }
+  .pool-line.muted { opacity: 0.7; }
+  .limits-line { @include text-body; color: $text-primary; }
+  .section.actions { display: flex; flex-direction: row; gap: $space-3; }
+
+  &.is-flipped .fmc-front { transform: rotateY(180deg); }
+  &.is-flipped .fmc-back { transform: rotateY(0); }
+  .fmc-front, .fmc-back { transition: transform 280ms ease; }
+
+  .color-chip { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1px solid $border-primary; }
+  .color-chip.white { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+  .color-chip.black { background: rgba(255,255,255,0.40); border-color: rgba(255,255,255,0.60); }
+  .color-chip .piece { width: 20px; height: 20px; display: block; }
+  .color-chip.black .piece { filter: drop-shadow(0 0 1px rgba(0,0,0,0.35)); }
+  .flag { font-size: 16px; line-height: 1; }
+
+  .fmc-actions {
+    margin-top: $space-4;
+    display: flex;
+    gap: $space-3;
+    flex-wrap: wrap;
+    .btn { padding: $space-2 $space-3; border-radius: $radius-sm; cursor: pointer; }
+    .primary { background: $brand-primary; color: $text-inverse; border: none; }
+    .secondary { background: transparent; color: $text-primary; border: 1px solid $border-primary; }
+    .link { background: transparent; color: $accent-blue; border: none; text-decoration: underline; }
+  }
+
+  // Motion & presence
+  .live-badge { padding-left: 0; }
+  .vs { animation: vsPulse 1.6s ease-in-out infinite; transform-origin: center; }
+  .clock.active { animation: tick 1.0s steps(2, end) infinite; color: $brand-primary; border-color: rgba($brand-primary, 0.6); box-shadow: 0 0 0 1px rgba($brand-primary, 0.2) inset; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes tick {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.15); }
+}
+
+@keyframes criticalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,83,80,0.4); }
+  50% { box-shadow: 0 0 0 3px rgba(239,83,80,0.25); }
+}
