@@ -3,6 +3,8 @@ import { gameInProgress } from 'utils/chess';
 import { GameStatus } from 'types/resources/game';
 import { GameOdds } from 'types/resources/game';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
 
 interface DrawBetBubbleProps {
   gameStatus: GameStatus;
@@ -16,6 +18,7 @@ interface DrawBetBubbleProps {
 
 const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
   const isGameInProgress = gameInProgress(props.gameStatus);
+  const { mode, risk } = useMode();
   
   // Betting state
   const [isHolding, setIsHolding] = useState(false);
@@ -73,14 +76,24 @@ const DrawBetBubble: React.FC<DrawBetBubbleProps> = (props) => {
   };
 
   const getMultiplier = () => {
-    const odds = getOdds();
-    return odds ? (1 / odds).toFixed(1) : '0.0';
+    const p = getOdds();
+    if (!p) return '0.0';
+    if (mode === 'real') {
+      const mult = realWdlMultiplier('draw', p, undefined, risk as any);
+      return mult.toFixed(1);
+    }
+    return (1 / p).toFixed(1);
   };
 
   const getPayout = () => {
-    const odds = getOdds();
+    const p = getOdds();
     const stake = props.selectedStake || 0;
-    return odds ? (stake / odds).toFixed(0) : '0';
+    if (!p) return '0';
+    if (mode === 'real') {
+      const mult = realWdlMultiplier('draw', p, undefined, risk as any);
+      return Math.round(stake * mult).toString();
+    }
+    return (stake / p).toFixed(0);
   };
 
   // Add touch event listeners with passive: false option

@@ -148,7 +148,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
                 tokenBalance={tokenBalance}
                 cashBalance={cashBalance}
                 mode={mode}
-                label={mode === 'arcade' ? 'Arcade' : 'Real'}
+                label={mode === 'arcade' ? 'KBITZ' : 'USDT'}
                 compact={compact}
                 armed={armed}
                 onClick={handleToggleClick}
@@ -162,7 +162,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
           {/* Dashboard: no token display → show a minimal chip to toggle */}
           {isAuthenticated && isDashboard && (
             <div className="navbar__mode-only" onClick={handleToggleClick} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}>
-              <span className="mode-chip">{mode === 'arcade' ? 'Arcade' : 'Real'}</span>
+              <span className="mode-chip">{mode === 'arcade' ? 'KBITZ' : 'USDT'}</span>
             </div>
           )}
 

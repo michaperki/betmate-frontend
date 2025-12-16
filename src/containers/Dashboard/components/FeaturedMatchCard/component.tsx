@@ -4,6 +4,10 @@ import { FeaturedMatchDTO, MatchDetailsDTO } from 'types/matches';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { getMatchDetails } from 'store/requests/matchesRequests';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
+import { modeCurrency, formatAmount } from 'utils/currency';
+import { getMultiplier } from 'utils/chess';
 
 export interface FeaturedMatchCardProps {
   match: FeaturedMatchDTO;
@@ -39,6 +43,7 @@ const countryToFlag = (cc?: string) => {
 const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   const history = useHistory();
   const { isMobile } = useResponsiveLayout();
+  const { mode, risk } = useMode();
   const [flipped, setFlipped] = React.useState(false);
   const [details, setDetails] = React.useState<MatchDetailsDTO | null>(null);
   const [whiteMs, setWhiteMs] = React.useState<number>(match.clocks?.white_ms || 0);
@@ -145,10 +150,20 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
             <div className="stakes">
               <div className="tier-badge">{(match.stakes?.tier || 'High Stakes').toUpperCase()}</div>
               {match.stakes && (
-                <div className="limits">${match.stakes.min_bet} – ${match.stakes.max_bet} per bet</div>
+                <div className="limits">{formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} – {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))} per bet</div>
               )}
               {match.stats?.total_bets ? (
-                <div className="market-line">{match.stats.total_bets} bets · ${match.stats.total_pool?.toLocaleString?.() || match.stats.total_pool} pool</div>
+                <div className="market-line">
+                  {match.stats.total_bets} bets · {
+                    (() => {
+                      const c = modeCurrency(mode);
+                      const perMode = (details as any)?.stats_by_currency;
+                      if (perMode && perMode[c]) return formatAmount(perMode[c].total_pool || 0, c);
+                      // fallback to original aggregate (unit-agnostic)
+                      return c === 'USDT' ? `$${(match.stats.total_pool || 0).toLocaleString?.() || match.stats.total_pool}` : `${Math.round(match.stats.total_pool || 0)} KBITZ`;
+                    })()
+                  } pool
+                </div>
               ) : (
                 <div className="market-line muted">Be the first to bet</div>
               )}
@@ -174,9 +189,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
             <div className="section">
               <div className="section-title">Market</div>
               <div className="odds-chips">
-                <div className="chip">WHITE {details?.odds?.white_win ? (1 / (details?.odds?.white_win || 0)).toFixed(2) + 'x' : '-'}</div>
-                <div className="chip">DRAW {details?.odds?.draw ? (1 / (details?.odds?.draw || 0)).toFixed(2) + 'x' : '-'}</div>
-                <div className="chip">BLACK {details?.odds?.black_win ? (1 / (details?.odds?.black_win || 0)).toFixed(2) + 'x' : '-'}</div>
+                <div className="chip">WHITE {details?.odds?.white_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('white_win', (details.odds.white_win || 0), undefined, risk as any) : (1 / (details.odds.white_win || 0)))}x`) : '-'}</div>
+                <div className="chip">DRAW {details?.odds?.draw ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('draw', (details.odds.draw || 0), undefined, risk as any) : (1 / (details.odds.draw || 0)))}x`) : '-'}</div>
+                <div className="chip">BLACK {details?.odds?.black_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('black_win', (details.odds.black_win || 0), undefined, risk as any) : (1 / (details.odds.black_win || 0)))}x`) : '-'}</div>
               </div>
               {details?.stats ? (
                 <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
@@ -188,7 +203,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
             <div className="section">
               <div className="section-title">Limits</div>
               {match.stakes && (
-                <div className="limits-line">Bets from ${match.stakes.min_bet} to ${match.stakes.max_bet}</div>
+                <div className="limits-line">Bets from {formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} to {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))}</div>
               )}
             </div>
           </div>

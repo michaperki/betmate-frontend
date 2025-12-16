@@ -5,6 +5,8 @@ import { GameStatus } from 'types/resources/game';
 import { GameOdds } from 'types/resources/game';
 import './dark-style.scss';
 import balanceIcon from 'assets/wager_panel/balance-icon.svg';
+import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
 
 interface ChessMatchProps {
   icon: string,
@@ -42,6 +44,7 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   const progressTimerRef = useRef<number | null>(null);
 
   const HOLD_DURATION = 800; // 800ms hold time
+  const { mode, risk } = useMode();
 
   useEffect(() => { // Update timers
     const doDecrease = playerTime >= 0 && isPlayerTurn;
@@ -146,14 +149,26 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   };
 
   const getMultiplier = () => {
-    const odds = getOdds();
-    return odds ? (1 / odds).toFixed(1) : '0.0';
+    const p = getOdds();
+    const outcome = props.isBlack ? 'black_win' : 'white_win';
+    if (!p) return '0.0';
+    if (mode === 'real') {
+      const mult = realWdlMultiplier(outcome as any, p, undefined, risk as any);
+      return mult.toFixed(1);
+    }
+    return (1 / p).toFixed(1);
   };
 
   const getPayout = () => {
-    const odds = getOdds();
+    const p = getOdds();
     const stake = props.selectedStake || 0;
-    return odds ? (stake / odds).toFixed(0) : '0';
+    if (!p) return '0';
+    if (mode === 'real') {
+      const outcome = props.isBlack ? 'black_win' : 'white_win';
+      const mult = realWdlMultiplier(outcome as any, p, undefined, risk as any);
+      return Math.round(stake * mult).toString();
+    }
+    return (stake / p).toFixed(0);
   };
 
   // Cleanup on unmount

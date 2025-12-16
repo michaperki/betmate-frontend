@@ -1,6 +1,7 @@
 import React from 'react';
 import { DashboardStats } from 'hooks/useDashboardData';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
 
 interface SnapSummaryProps {
   userName?: string;
@@ -10,6 +11,7 @@ interface SnapSummaryProps {
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
 
 const SnapSummary: React.FC<SnapSummaryProps> = ({ userName = 'Player', stats }) => {
+  const { mode } = useMode();
   return (
     <section className="snap-summary">
       <div className="summary-left">
@@ -25,7 +27,7 @@ const SnapSummary: React.FC<SnapSummaryProps> = ({ userName = 'Player', stats })
         <div className="metric">
           <div className="metric-label">Balance</div>
           <div className="metric-value">{Math.round(stats.currentBalance)}</div>
-          <div className="metric-suffix">tokens</div>
+          <div className="metric-suffix">{mode === 'real' ? 'USDT' : 'KBITZ'}</div>
         </div>
         <div className="metric">
           <div className="metric-label">Win rate</div>
@@ -48,4 +50,3 @@ const SnapSummary: React.FC<SnapSummaryProps> = ({ userName = 'Player', stats })
 };
 
 export default SnapSummary;
-

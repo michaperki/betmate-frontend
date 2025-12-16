@@ -1,12 +1,14 @@
 import React from 'react';
 import { DashboardStats } from 'hooks/useDashboardData';
 import './style.scss';
+import { useMode } from 'context/ModeContext';
 
 export interface QuickStatsBarProps {
   stats: DashboardStats;
 }
 
 const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
+  const { mode } = useMode();
   const statsData = [
     {
       label: 'Total Wagers',
@@ -23,7 +25,7 @@ const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
     {
       label: 'Balance',
       value: Math.round(stats.currentBalance),
-      suffix: ' tokens',
+      suffix: ` ${mode === 'real' ? 'USDT' : 'KBITZ'}`,
       color: 'yellow',
     },
     {

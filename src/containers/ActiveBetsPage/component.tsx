@@ -6,6 +6,7 @@ import { RootState } from 'types/state';
 import { Wager } from 'types/resources/wager';
 import { Game } from 'types/resources/game';
 import './style.scss';
+import { formatAmount } from 'utils/currency';
 
 const ActiveBetsPage: React.FC = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ const ActiveBetsPage: React.FC = () => {
 
   // Calculate potential win amount
   const calculatePotentialWin = (wager: Wager): number => {
-    return wager.amount * wager.odds;
+    return (wager.amount || 0) * (wager.odds || 1);
   };
 
   return (
@@ -109,8 +110,8 @@ const ActiveBetsPage: React.FC = () => {
                   <div className="odds">{wager.odds.toFixed(2)}x</div>
                 </div>
                 <div className="bet-amount">
-                  <div className="amount">{wager.amount} tokens</div>
-                  <div className="potential-win">Potential win {calculatePotentialWin(wager).toFixed(2)}</div>
+                  <div className="amount">{formatAmount(wager.amount, ((wager as any).currency as any) || (((wager as any).mode === 'real') ? 'USDT' : 'BET'))}</div>
+                  <div className="potential-win">Potential win {formatAmount(calculatePotentialWin(wager), ((wager as any).currency as any) || (((wager as any).mode === 'real') ? 'USDT' : 'BET'))}</div>
                 </div>
               </div>
             );

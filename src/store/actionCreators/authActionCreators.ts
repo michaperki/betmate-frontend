@@ -34,10 +34,10 @@ export const jwtSignIn = (): Actions => ({
   payload: { token: localStorage.getItem(authTokenName) || '' },
 });
 
-export const getBalanceHistory = (limit = 30): Actions => ({
+export const getBalanceHistory = (limit = 30, currency?: 'BET' | 'USDT'): Actions => ({
   type: GET_BALANCE_HISTORY,
   status: 'REQUEST',
-  payload: { limit },
+  payload: { limit, currency },
 });
 
 export const getBalanceHistorySuccess = (history: BalanceHistoryItem[]): Actions => ({

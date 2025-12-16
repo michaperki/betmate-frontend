@@ -5,6 +5,8 @@ import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
 import { WagerStatus } from 'types/resources/wager';
 import './style.scss';
+import { formatAmount, formatNet } from 'utils/currency';
+import { useMode } from 'context/ModeContext';
 
 // Tiny sparkline based on balance history
 const MiniSparkline: React.FC = () => {
@@ -42,13 +44,14 @@ const StatsTiles: React.FC = () => {
   const dispatch = useDispatch();
   const wagerHistory = useSelector((s: RootState) => s.wager.wagerHistory);
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const { mode } = useMode();
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(getBalanceHistory(30));
+      dispatch(getBalanceHistory(30, mode === 'real' ? 'USDT' : 'BET'));
       dispatch(fetchWagerHistory(undefined, 10, 0));
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, mode]);
 
   const recent = wagerHistory.slice(0, 3);
   const streak = computeStreak(wagerHistory);
@@ -76,12 +79,13 @@ const StatsTiles: React.FC = () => {
               {recent.map((w: any) => {
                 let netText = '';
                 let netCls = '';
+                const currency: 'BET' | 'USDT' = (w as any).currency || (((w as any).mode === 'real') ? 'USDT' : 'BET');
                 if (w.status === WagerStatus.WON || w.status === 'won') {
-                  const net = (w.amount * w.odds) - w.amount;
-                  netText = `Net +$${net.toFixed(2)}`;
+                  const net = (w.amount * (w.odds || 1)) - w.amount;
+                  netText = `Net ${formatNet(net, currency)}`;
                   netCls = 'net-positive';
                 } else if (w.status === WagerStatus.LOST || w.status === 'lost') {
-                  netText = `Net -$${Number(w.amount).toFixed(2)}`;
+                  netText = `Net ${formatNet(-Number(w.amount || 0), currency)}`;
                   netCls = 'net-negative';
                 } else if (w.status === WagerStatus.CANCELLED || w.status === 'cancelled') {
                   netText = 'Refund';
@@ -102,7 +106,7 @@ const StatsTiles: React.FC = () => {
                       {w.wdl ? <span className="odds">@ {w.odds.toFixed(2)}x</span> : null}
                     </span>
                     <span className="right">
-                      <span className="amount">${w.amount}</span>
+                      <span className="amount">{formatAmount(w.amount, currency)}</span>
                       <span className={`net ${netCls}`}>{netText}</span>
                     </span>
                   </li>

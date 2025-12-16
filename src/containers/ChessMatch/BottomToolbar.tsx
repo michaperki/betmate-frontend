@@ -2,6 +2,9 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faTrophy } from '@fortawesome/free-solid-svg-icons';
 import VersionTag from 'components/VersionTag';
+import { useMode } from 'context/ModeContext';
+import { currencySymbol, modeCurrency } from 'utils/currency';
+import { getMultiplier } from 'utils/chess';
 
 interface BottomToolbarProps {
   selectedStake: number;
@@ -19,6 +22,8 @@ interface BottomToolbarProps {
   // Real-mode info: optional draw percentage (0-100)
   isRealMode?: boolean;
   drawPct?: number;
+  // Real-mode info: optional draw multiplier (capped) for display
+  drawMult?: number;
 }
 
 const BottomToolbar: React.FC<BottomToolbarProps> = ({
@@ -35,7 +40,10 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   pricingVersion,
   isRealMode,
   drawPct,
+  drawMult,
 }) => {
+  const { mode } = useMode();
+  const sym = currencySymbol(modeCurrency(mode));
   return (
     <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
       <div className="bottom-toolbar__left">
@@ -59,9 +67,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
               className={`stake-chip ${selectedStake === value ? 'is-active' : ''}`}
               onClick={() => onSelectStake(value)}
               aria-pressed={selectedStake === value}
-              aria-label={`Set bet amount to $${value}`}
+              aria-label={`Set bet amount to ${sym}${value}`}
             >
-              ${value}
+              {sym}{value}
             </button>
           ))}
         </div>
@@ -74,13 +82,13 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
           disabled={!canDraw || drawState === 'loading'}
           aria-label="Bet on Draw"
           aria-busy={drawState === 'loading'}
-          title={isRealMode && typeof drawPct === 'number' && isFinite(drawPct)
-            ? `Real market • Draw ${Math.round(drawPct)}%`
+          title={isRealMode && typeof drawMult === 'number' && isFinite(drawMult)
+            ? `Real odds • Draw ${getMultiplier(drawMult)}x`
             : 'Bet Draw'}
         >
           <span className="bt-draw-btn__label">
-            {isRealMode && typeof drawPct === 'number' && isFinite(drawPct)
-              ? `Draw • ${Math.round(drawPct)}%`
+            {isRealMode && typeof drawMult === 'number' && isFinite(drawMult)
+              ? `Draw • ${getMultiplier(drawMult)}x`
               : 'Draw'}
           </span>
           <span className="bt-draw-btn__spinner" aria-hidden />

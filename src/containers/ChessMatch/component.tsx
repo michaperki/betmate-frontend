@@ -53,6 +53,7 @@ import './style.scss';
 import './dark-style.scss';
 import './evaluation-bar.scss';
 import './bottom-toolbar.scss';
+import { realWdlMultiplier } from 'utils/realOdds';
 import BottomToolbar from './BottomToolbar';
 // Removed legacy GameInfoPanel styles
 
@@ -564,7 +565,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
   const isTurnHighlightEnabled = isAtLatestSnapshot && isGameInProgress;
-  const { pricingVersion } = useMode();
+  const { pricingVersion, risk } = useMode();
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
   const BOARD_STACK_GAP = 4;
@@ -1572,16 +1573,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
     if (mode === 'arcade' && game?.odds && typeof (game.odds as any)[outcomeId] === 'number') {
       const p = Math.max(1e-6, Number((game.odds as any)[outcomeId]));
       const mult = Math.max(1, (1 / p));
-      const multStr = (Math.round(mult * 100) / 100).toFixed(2);
-      suffix = ` ${multStr}x`;
+      suffix = ` ${getMultiplier(mult)}x`;
     } else if (mode === 'real') {
-      // Show current market-implied probability
-      const p = outcomeId === 'white_win' ? realPrices?.white
-        : outcomeId === 'black_win' ? realPrices?.black
-        : realPrices?.draw;
-      if (typeof p === 'number' && isFinite(p)) {
-        const pct = Math.max(0, Math.min(100, Math.round(p * 100)));
-        suffix = ` ${pct}%`;
+      // Show capped multiplier matching risk config
+      if (game?.odds && typeof (game.odds as any)[outcomeId] === 'number') {
+        const p = Math.max(1e-6, Number((game.odds as any)[outcomeId]));
+        const mult = realWdlMultiplier(outcomeId as any, p, undefined, risk as any);
+        suffix = ` ${getMultiplier(mult)}x`;
       }
     }
 
@@ -2274,6 +2272,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         pricingVersion={pricingVersion}
         isRealMode={mode === 'real'}
         drawPct={typeof realPrices?.draw === 'number' ? realPrices!.draw * 100 : undefined as any}
+        drawMult={(mode === 'real' && game?.odds?.draw) ? realWdlMultiplier('draw', game.odds.draw, undefined, risk as any) : undefined}
       />
 
       {/* Fullscreen overlays */}

@@ -33,7 +33,7 @@ const LeaderboardRow: React.FC<RowProps> = (props) => {
           {props.data.winnings >= 0 ? '+' : ''}
         </div>
         <div className={`balance ${props.data.winnings >= 0 ? 'positive' : 'negative'}`}>
-          {Math.abs(props.data.winnings).toFixed(0)} tokens
+          {Math.abs(props.data.winnings).toFixed(0)} KBITZ
         </div>
       </div>
     </div>

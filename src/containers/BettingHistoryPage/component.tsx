@@ -7,6 +7,7 @@ import { Wager, WagerStatus } from 'types/resources/wager';
 import { Game } from 'types/resources/game';
 import { useMode } from 'context/ModeContext';
 import { getMultiplier } from 'utils/chess';
+import { formatAmount as fmtAmount } from 'utils/currency';
 import './style.scss';
 
 const ITEMS_PER_PAGE = 10;
@@ -83,11 +84,7 @@ const BettingHistoryPage: React.FC = () => {
   };
 
   // Currency-aware amount formatting
-  const formatAmount = (w: Wager): string => {
-    const curr = (w as any).currency || 'BET';
-    if (curr === 'USDT') return `$${(w.amount ?? 0).toFixed(2)}`;
-    return `${(w.amount ?? 0).toFixed(0)} BET`;
-  };
+  const formatAmount = (w: Wager): string => fmtAmount(w.amount || 0, (((w as any).currency as any) || (((w as any).mode === 'real') ? 'USDT' : 'BET')));
 
   // Compute compact net result with Real/Arcade semantics
   const formatNet = (w: Wager): { text: string; cls: string } | null => {
@@ -100,14 +97,10 @@ const BettingHistoryPage: React.FC = () => {
       if (w.wdl) mult = isReal ? (w.odds || 1) : (w.odds || 1);
       else mult = isReal ? (w.winning_pool_share || 0) : (w.odds || 1);
       const net = (w.amount * mult) - w.amount;
-      const prefix = curr === 'USDT' ? '$' : '';
-      const suffix = curr === 'USDT' ? '' : ' BET';
-      return { text: `Net ${sign(net)}${prefix}${abs(net).toFixed(2)}${suffix}` , cls: 'net-positive' };
+      return { text: `Net ${sign(net)}${fmtAmount(abs(net), curr as any).replace(/^\+|^-/, '')}` , cls: 'net-positive' };
     }
     if (w.status === WagerStatus.LOST) {
-      const prefix = curr === 'USDT' ? '$' : '';
-      const suffix = curr === 'USDT' ? '' : ' BET';
-      return { text: `Net -${prefix}${(w.amount ?? 0).toFixed(2)}${suffix}`, cls: 'net-negative' };
+      return { text: `Net -${fmtAmount(w.amount || 0, curr as any).replace(/^\+|^-/, '')}`, cls: 'net-negative' };
     }
     if (w.status === WagerStatus.CANCELLED) {
       return { text: 'Refund', cls: 'net-refund' };

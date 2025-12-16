@@ -80,7 +80,8 @@ export function* watchGetBalanceHistory() {
       }
 
       const limit = action.payload.limit || 30;
-      const response: RequestReturnType<BalanceHistoryResponseData> = yield call(authRequests.getBalanceHistory, limit);
+      const currency = (action.payload as any).currency as ('BET' | 'USDT' | undefined);
+      const response: RequestReturnType<BalanceHistoryResponseData> = yield call(authRequests.getBalanceHistory, limit, currency);
 
       yield put(getBalanceHistorySuccess(response.data));
     } catch (error) {

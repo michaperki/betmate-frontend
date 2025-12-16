@@ -77,7 +77,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
     };
   }, [tokenBalance, cashBalance, balance, mode]);
 
-  const unit = mode === 'real' ? 'cash' : 'tokens';
+  const unit = mode === 'real' ? 'USDT' : 'KBITZ';
 
   return (
     <div

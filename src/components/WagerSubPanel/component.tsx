@@ -9,6 +9,8 @@ import { onEnterMovePanel, onLeaveMovePanel } from 'store/actionCreators/chessgr
 import { Game } from 'types/resources/game';
 import { createWager } from 'store/actionCreators/wagerActionCreators';
 import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
+import { modeCurrency, currencySymbol } from 'utils/currency';
 
 interface WagerSubPanelProps {
   onEnterMovePanel: typeof onEnterMovePanel
@@ -24,7 +26,7 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
   const [panelLoading, setPanelLoading] = useState(false);
   const { id: gameId } = useParams<{ id: string }>();
   const history = useHistory();
-  const { mode } = useMode();
+  const { mode, risk } = useMode();
 
   const wagersLoading = !props.games[gameId]?.pool_wagers?.move?.options?.length;
 
@@ -37,11 +39,17 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
       if (wdl) {
         // For WDL wagers, map the wager type to the correct odds property
         if (wager === 'white_win') {
-          oddsValue = 1 / props.games[gameId].odds.white_win;
+          oddsValue = mode === 'real'
+            ? realWdlMultiplier('white_win', props.games[gameId].odds.white_win, undefined, risk as any)
+            : (1 / props.games[gameId].odds.white_win);
         } else if (wager === 'black_win') {
-          oddsValue = 1 / props.games[gameId].odds.black_win;
+          oddsValue = mode === 'real'
+            ? realWdlMultiplier('black_win', props.games[gameId].odds.black_win, undefined, risk as any)
+            : (1 / props.games[gameId].odds.black_win);
         } else if (wager === 'draw') {
-          oddsValue = 1 / props.games[gameId].odds.draw;
+          oddsValue = mode === 'real'
+            ? realWdlMultiplier('draw', props.games[gameId].odds.draw, undefined, risk as any)
+            : (1 / props.games[gameId].odds.draw);
         }
       }
 
@@ -58,11 +66,11 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
       );
       setPanelLoading(true);
     }
-  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId], mode, history]);
+  }, [wagerAmount, props.isAuthenticated, gameId, props.games[gameId], mode, risk, history]);
 
   const wagerExplanation = props.betType === 'move'
-    ? 'Bet on which move will happen next. Win tokens from others in the pool.'
-    : 'Bet on the outcome of the game. Win tokens from the house.';
+    ? `Bet on which move will happen next. Win ${mode === 'real' ? 'cash' : 'tokens'} from others in the pool.`
+    : `Bet on the outcome of the game. Win ${mode === 'real' ? 'cash' : 'tokens'} from the ${mode === 'real' ? 'house' : 'house'}.`;
 
   const handleMouseEnter = () => props.betType === 'move' && props.onEnterMovePanel();
   const handleMouseLeave = () => props.betType === 'move' && props.onLeaveMovePanel();
@@ -80,7 +88,7 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
           className="slider"
           thumbClassName={`thumb thumb-${props.betType}`}
           trackClassName={`track track-${props.betType}`}
-          renderThumb={(prps, state) => <div {...prps}>${state.valueNow}</div>}
+          renderThumb={(prps, state) => <div {...prps}>{`${currencySymbol(modeCurrency(mode))}${state.valueNow}`}</div>}
           renderTrack={(prps) => <div {...prps} />}
           value={wagerAmount}
           onChange={(value) => setWagerAmount(value)}
