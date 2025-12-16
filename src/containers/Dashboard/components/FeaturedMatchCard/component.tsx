@@ -13,15 +13,7 @@ const displayTimeControl = (match: FeaturedMatchDTO) => {
   const tc = match.time_control;
   if (!tc) return '';
   const inc = tc.increment_seconds || 0;
-  let minutes = 0;
-  if (match.status === 'in_progress' && match.clocks) {
-    const approx = Math.max(match.clocks.white_ms || 0, match.clocks.black_ms || 0) / 60000;
-    minutes = Math.max(1, Math.round(approx));
-  } else {
-    const initial = tc.initial_seconds;
-    // Heuristic: values < 60 likely minutes; else seconds
-    minutes = initial < 60 ? Math.round(initial) : Math.round(initial / 60);
-  }
+  const minutes = Math.round((tc.initial_seconds || 0) / 60);
   return `${minutes}+${inc}`;
 };
 
@@ -106,9 +98,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
             <div className="instrument">
               {isLive ? (
                 <>
-                  <div className={`clock left-clock ${((match.clocks?.white_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.white_ms || 0) / 1000)}s</div>
+                  <div className={`clock left-clock ${match.meta?.side_to_move === 'white' ? 'active' : ''} ${((match.clocks?.white_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.white_ms || 0) / 1000)}s</div>
                   <div className="vs">VS</div>
-                  <div className={`clock right-clock ${((match.clocks?.black_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.black_ms || 0) / 1000)}s</div>
+                  <div className={`clock right-clock ${match.meta?.side_to_move === 'black' ? 'active' : ''} ${((match.clocks?.black_ms || 0) < 60000) ? 'low' : ''}`}>{Math.ceil((match.clocks?.black_ms || 0) / 1000)}s</div>
                 </>
               ) : (
                 <div className="scheduled">{match.status === 'not_started' ? 'Scheduled' : 'Finished'}</div>
