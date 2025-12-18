@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import NavBar from 'components/NavBar';
 import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
-import { getAdminDeposits, clearStaleInvoices } from 'store/requests/adminRequests';
+import { getAdminDeposits, clearStaleInvoices, getAdminWithdrawals, approveWithdrawal, rejectWithdrawal, markWithdrawalPaid, markWithdrawalProcessing, markWithdrawalFailed } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
 type DepositItem = {
@@ -25,6 +25,11 @@ const AdminWallet: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [confirmText, setConfirmText] = useState('');
+  // Withdrawals
+  const [wStatus, setWStatus] = useState<string>('');
+  const [wRows, setWRows] = useState<any[]>([]);
+  const [wLoading, setWLoading] = useState(false);
+  const [wErr, setWErr] = useState<string | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -39,7 +44,20 @@ const AdminWallet: React.FC = () => {
     }
   };
 
-  useEffect(() => { refresh(); }, []);
+  const refreshWithdrawals = async () => {
+    setWLoading(true);
+    setWErr(null);
+    try {
+      const data = await getAdminWithdrawals({ status: wStatus, since, limit });
+      setWRows(data.withdrawals || []);
+    } catch (e: any) {
+      setWErr(e?.message || 'Failed to load withdrawals');
+    } finally {
+      setWLoading(false);
+    }
+  };
+
+  useEffect(() => { refresh(); refreshWithdrawals(); }, []);
 
   return (
     <div className="dashboard-page admin-content">
@@ -49,11 +67,12 @@ const AdminWallet: React.FC = () => {
           <NavLink to="/admin">Home</NavLink>
           <NavLink to="/admin/risk">Risk</NavLink>
           <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>Admin — Wallet</h2>
-          <button onClick={refresh} disabled={loading} style={{ marginLeft: 'auto' }}>{loading ? 'Refreshing…' : 'Refresh'}</button>
+          <button onClick={() => { refresh(); refreshWithdrawals(); }} disabled={loading || wLoading} style={{ marginLeft: 'auto' }}>{(loading || wLoading) ? 'Refreshing…' : 'Refresh'}</button>
         </div>
         <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -91,6 +110,53 @@ const AdminWallet: React.FC = () => {
               ))}
             </div>
           )}
+        </div>
+
+        <div style={{ marginTop: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <h3 style={{ margin: 0 }}>Withdrawals</h3>
+            <select value={wStatus} onChange={(e) => setWStatus(e.target.value)}>
+              <option value="">All</option>
+              <option value="requested">Requested</option>
+              <option value="approved">Approved</option>
+              <option value="processing">Processing</option>
+              <option value="paid">Paid</option>
+              <option value="rejected">Rejected</option>
+              <option value="failed">Failed</option>
+            </select>
+            <button onClick={refreshWithdrawals} disabled={wLoading}>Apply</button>
+          </div>
+          {wErr && <div style={{ color: '#b91c1c', marginTop: 8 }}>{wErr}</div>}
+          <div style={{ marginTop: 12 }}>
+            {!wRows.length ? (
+              <div>No withdrawals found</div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 2fr 1fr', gap: 8 }}>
+                <div style={{ fontWeight: 600 }}>Created</div>
+                <div style={{ fontWeight: 600 }}>Amount</div>
+                <div style={{ fontWeight: 600 }}>Status</div>
+                <div style={{ fontWeight: 600 }}>Address</div>
+                <div style={{ fontWeight: 600 }}>Actions</div>
+                <div style={{ fontWeight: 600 }}>Ref</div>
+                {wRows.map((w) => (
+                  <React.Fragment key={w._id}>
+                    <div>{new Date(w.created_at).toLocaleString()}</div>
+                    <div>{w.currency} ${w.amount}</div>
+                    <div>{w.status}</div>
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.address}</div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <button disabled={wLoading} onClick={async () => { await approveWithdrawal(w._id); refreshWithdrawals(); }}>Approve</button>
+                      <button disabled={wLoading} onClick={async () => { await rejectWithdrawal(w._id); refreshWithdrawals(); }}>Reject</button>
+                      <button disabled={wLoading} onClick={async () => { await markWithdrawalProcessing(w._id); refreshWithdrawals(); }}>Processing</button>
+                      <button disabled={wLoading} onClick={async () => { await markWithdrawalPaid(w._id); refreshWithdrawals(); }}>Mark Paid</button>
+                      <button disabled={wLoading} onClick={async () => { await markWithdrawalFailed(w._id); refreshWithdrawals(); }}>Mark Failed</button>
+                    </div>
+                    <div>{w.provider_ref ? <code>{w.provider_ref}</code> : '-'}</div>
+                  </React.Fragment>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ marginTop: 24, padding: 12, border: '1px solid #e5e7eb', borderRadius: 6 }}>

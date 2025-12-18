@@ -81,6 +81,7 @@ const AdminHome: React.FC = () => {
           <NavLink to="/admin">Home</NavLink>
           <NavLink to="/admin/risk">Risk</NavLink>
           <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Home</div>
@@ -131,6 +132,8 @@ const AdminHome: React.FC = () => {
             <Toggle label="Real Mode" value={!!features.realModeEnabled} onChange={(v) => patch({ realModeEnabled: v })} />
             <Toggle label="Faucet" value={!!features.enableFaucet} onChange={(v) => patch({ enableFaucet: v })} />
             <Toggle label="Rate Limiting" value={!!features.enableRateLimiting} onChange={(v) => patch({ enableRateLimiting: v })} />
+            <Toggle label="Withdrawals" value={!!features.enableWithdrawals} onChange={(v) => patch({ enableWithdrawals: v })} />
+            <Toggle label="Require KYC" value={!!features.requireKyc} onChange={(v) => patch({ requireKyc: v })} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>Pricing Model</span>
               <input

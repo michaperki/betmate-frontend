@@ -97,3 +97,45 @@ export const clearStaleWagers = async (olderThanMinutes: number) => {
   const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/dev/clear-stale-wagers', data: { olderThanMinutes }, headers: adminHeaders() });
   return res.data;
 };
+
+// Withdrawals (admin)
+export const getAdminWithdrawals = async ({ status, since, limit }: { status?: string; since?: string; limit?: number; }) => {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (since) params.set('since', since);
+  if (limit) params.set('limit', String(limit));
+  const res = await createBackendAxiosRequest<any>({ method: 'GET', url: `/admin/wallet/withdrawals?${params.toString()}`, headers: adminHeaders() });
+  return res.data;
+};
+
+export const approveWithdrawal = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/wallet/withdrawals/${id}/approve`, headers: adminHeaders() })).data
+);
+export const rejectWithdrawal = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/wallet/withdrawals/${id}/reject`, headers: adminHeaders() })).data
+);
+export const markWithdrawalProcessing = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/wallet/withdrawals/${id}/mark-processing`, headers: adminHeaders() })).data
+);
+export const markWithdrawalPaid = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/wallet/withdrawals/${id}/mark-paid`, headers: adminHeaders() })).data
+);
+export const markWithdrawalFailed = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/wallet/withdrawals/${id}/mark-failed`, headers: adminHeaders() })).data
+);
+
+// KYC admin APIs
+export const getKycUsers = async ({ status, limit }: { status?: string; limit?: number }) => {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  if (limit) params.set('limit', String(limit));
+  const res = await createBackendAxiosRequest<any>({ method: 'GET', url: `/admin/kyc/users?${params.toString()}`, headers: adminHeaders() });
+  return res.data;
+};
+
+export const approveKycUser = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/kyc/${id}/approve`, headers: adminHeaders() })).data
+);
+export const rejectKycUser = async (id: string) => (
+  (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/kyc/${id}/reject`, headers: adminHeaders() })).data
+);

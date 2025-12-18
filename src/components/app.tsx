@@ -27,6 +27,7 @@ import AdminRiskPage from 'containers/AdminRiskPage/component';
 import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
+import AdminKYC from 'containers/AdminKYC/component';
 
 const Welcome = () => {
   return (
@@ -107,6 +108,13 @@ const App: React.FC<AppProps> = (props) => {
                 <div className="dashboard-page">
                   <NavBar />
                   <AdminOps />
+                  <VersionFooter />
+                </div>
+            )} />
+            <AdminRoute exact path="/admin/kyc" render={() => (
+                <div className="dashboard-page">
+                  <NavBar />
+                  <AdminKYC />
                   <VersionFooter />
                 </div>
             )} />
