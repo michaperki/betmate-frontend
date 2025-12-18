@@ -41,16 +41,13 @@ const reducer = (state = initialState, action: Actions): AuthState => {
   
   switch (action.type) {
     case ADJUST_BALANCE: {
-      // Adjust the user's account balance optimistically
       if (!state.user) return state;
       const delta = Number(action.payload?.delta || 0);
-      const next = Math.max(0, (state.user.account || 0) + delta);
-      const nextToken = Math.max(0, (state.user.token_balance || state.user.account || 0) + delta);
+      const nextToken = Math.max(0, (state.user.token_balance || 0) + delta);
       return {
         ...state,
         user: {
           ...state.user,
-          account: next,
           token_balance: nextToken,
         },
       };
@@ -64,7 +61,6 @@ const reducer = (state = initialState, action: Actions): AuthState => {
         ...state,
         user: {
           ...state.user,
-          account: value,
           token_balance: value,
         },
       };

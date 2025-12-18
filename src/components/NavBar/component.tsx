@@ -155,13 +155,14 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}
                 title={!realEnabled ? 'Real mode coming soon' : (armed ? `Tap again to switch to ${mode === 'arcade' ? 'Real' : 'Arcade'}` : 'Tap twice to toggle mode')}
                 ariaLabel={`Current mode ${mode}. Tap twice to toggle`}
+                testId="mode-toggle"
               />
             </div>
           )}
 
           {/* Dashboard: no token display → show a minimal chip to toggle */}
           {isAuthenticated && isDashboard && (
-            <div className="navbar__mode-only" onClick={handleToggleClick} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}>
+            <div className="navbar__mode-only" onClick={handleToggleClick} role="button" tabIndex={0} data-testid="mode-toggle" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}>
               <span className="mode-chip">{mode === 'arcade' ? 'KBITZ' : 'USDT'}</span>
             </div>
           )}

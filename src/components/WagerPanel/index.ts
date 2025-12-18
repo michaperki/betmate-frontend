@@ -6,7 +6,8 @@ import './style.scss';
 
 const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.auth.isAuthenticated,
-  balance: state.auth.user?.account,
+  tokenBalance: state.auth.user?.token_balance ?? 0,
+  cashBalance: (state.auth.user as any)?.cash_balance ?? 0,
   games: state.game.games,
 });
 

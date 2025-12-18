@@ -59,6 +59,7 @@ const GameOutcomes: React.FC<GameOutcomesProps> = (props) => {
                   ? `dark-wdl-option ${props.isAuthenticated ? 'dark-wdl-auth' : ''}`
                   : `wdl-option ${props.isAuthenticated ? 'wdl-auth' : ''}`}
                 onClick={props.handleSubmit(outcomeCode)}
+                data-testid={`wdl-option-${outcome}`}
               >
                 <img src={image} alt={outcome} />
                 <div>

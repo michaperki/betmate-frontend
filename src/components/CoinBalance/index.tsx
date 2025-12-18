@@ -19,6 +19,7 @@ interface CoinBalanceProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   title?: string;
   ariaLabel?: string;
+  testId?: string; // for E2E selectors
 }
 
 const CoinBalance: React.FC<CoinBalanceProps> = ({
@@ -34,6 +35,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
   onKeyDown,
   title,
   ariaLabel,
+  testId,
 }) => {
   const selectBalance = (): number | undefined => {
     if (mode === 'arcade') return tokenBalance ?? balance;
@@ -88,6 +90,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
       aria-label={ariaLabel || 'Balance and mode'}
       onClick={onClick}
       onKeyDown={onKeyDown}
+      data-testid={testId}
     >
       <img src={BalanceIcon} alt="Balance" className="balance-icon" />
       <span className="balance-text">

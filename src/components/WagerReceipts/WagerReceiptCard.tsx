@@ -74,12 +74,14 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
   const calculateNet = () => {
     if (normalizedStatus === WagerStatus.WON) {
       // WDL: both Arcade and Real use fixed odds at bet-time
-      const isReal = (wager as any).mode === 'real';
       if (wager.wdl) {
         const mult = wager.odds;
         return (wager.amount * mult - wager.amount);
       }
-      return (wager.amount * (wager.winning_pool_share || 0) - wager.amount);
+      // Move: Arcade uses fixed odds; Real uses pool share
+      const isRealMove = ((wager as any).mode === 'real');
+      const mult = isRealMove ? (wager.winning_pool_share || 0) : (wager.odds || 1);
+      return (wager.amount * mult - wager.amount);
     }
     if (normalizedStatus === WagerStatus.LOST) {
       return -wager.amount;
@@ -93,7 +95,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
   const net = calculateNet();
 
   return (
-    <div className={`wager-receipt-card ${statusInfo.colorClass}`}>
+    <div className={`wager-receipt-card ${statusInfo.colorClass}`} data-testid="receipt-card">
       <div className="receipt-content">
         <div className="bet-info">
           <span className="status-icon" aria-hidden>{typeIcon}</span>

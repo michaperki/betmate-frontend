@@ -15,6 +15,7 @@ type ModeContextValue = {
     confidence?: { earlyMoveNum?: number };
     maxOdds?: { white_win: number; draw: number; black_win: number };
   };
+  limits?: { arcadeMaxStakeMove: number; arcadeMaxStakeWdl: number; arcadeMoveMargin: number; poolRake: number };
 };
 
 const ModeContext = createContext<ModeContextValue | undefined>(undefined);
@@ -33,6 +34,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pricingVersion, setPricingVersion] = useState<string | undefined>(undefined);
   const [faucetEnabled, setFaucetEnabled] = useState<boolean | undefined>(undefined);
   const [risk, setRisk] = useState<ModeContextValue['risk']>(undefined);
+  const [limits, setLimits] = useState<ModeContextValue['limits']>(undefined);
 
   useEffect(() => {
     try {
@@ -62,11 +64,13 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const pv: string | undefined = json?.pricing?.pricingModelVersion || undefined;
         const fe: boolean | undefined = json?.features?.enableFaucet;
         const rk: any = json?.risk || undefined;
+        const lm: any = json?.limits || undefined;
         if (!isMounted) return;
         setRealEnabled(enabled);
         setPricingVersion(pv);
         setFaucetEnabled(fe);
         setRisk(rk);
+        setLimits(lm);
         if (!enabled && mode === 'real') setModeState('arcade');
       } catch {
         // If status fails, keep previous values
@@ -84,7 +88,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return prev === 'arcade' ? 'real' : 'arcade';
   });
 
-  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, pricingVersion, faucetEnabled, risk }), [mode, realEnabled, pricingVersion, faucetEnabled, risk]);
+  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, pricingVersion, faucetEnabled, risk, limits }), [mode, realEnabled, pricingVersion, faucetEnabled, risk, limits]);
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 };
 

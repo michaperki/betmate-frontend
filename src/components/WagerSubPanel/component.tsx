@@ -28,7 +28,9 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
   const history = useHistory();
   const { mode, risk } = useMode();
 
-  const wagersLoading = !props.games[gameId]?.pool_wagers?.move?.options?.length;
+  // Compute loading flags separately for move and WDL panels
+  const moveWagersLoading = !props.games[gameId]?.pool_wagers?.move?.options?.length;
+  const wdlLoading = !props.games[gameId]?.odds;
 
   const handleSubmit = useCallback((wdl: boolean) => (wager: string) => (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
@@ -96,17 +98,16 @@ const WagerSubPanel: React.FC<WagerSubPanelProps> = (props) => {
         {props.betType === 'move'
           ? (
             <MoveOptions
-              wagersLoading={wagersLoading}
+              wagersLoading={moveWagersLoading}
               handleSubmit={handleSubmit(false)}
             />
           ) : (
             <GameOutcomes
               odds={props.games[gameId]?.odds}
-              wagersLoading={wagersLoading}
+              wagersLoading={wdlLoading}
               handleSubmit={handleSubmit(true)}
             />
-          )
-        }
+          )}
         <WagerMessages
           panelLoading={panelLoading}
           setPanelLoading={setPanelLoading}

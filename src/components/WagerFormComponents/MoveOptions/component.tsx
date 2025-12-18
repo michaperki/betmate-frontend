@@ -22,7 +22,7 @@ interface MoveOptionsProps {
 const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const fen = props.games[gameId]?.state;
-  const { mode } = useMode();
+  const { mode, limits } = useMode();
 
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
 
@@ -54,9 +54,11 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
 
   // Compute oddsByMove from top analysis and offered moves (+Other)
   const oddsByMove = useMemo(() => {
-    const offered = [...formattedOptions, 'Other'];
-    return computeArcadeMoveOdds(offered, (topMoves || []).map(t => ({ move: t.move, score: t.score })));
-  }, [formattedOptions.join('|'), topMoves]);
+    // Align FE display with backend by using only offered moves (no implicit 'Other' in normalization)
+    const offered = [...formattedOptions];
+    const margin = typeof limits?.arcadeMoveMargin === 'number' ? limits!.arcadeMoveMargin : 0.08;
+    return computeArcadeMoveOdds(offered, (topMoves || []).map(t => ({ move: t.move, score: t.score })), margin);
+  }, [formattedOptions.join('|'), topMoves, limits?.arcadeMoveMargin]);
 
   const renderMoveOptions = () => {
     const { options: rawOptions, wagers } = props.games[gameId]?.pool_wagers?.move;
@@ -135,6 +137,7 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
           className={`move-option ${props.isAuthenticated ? 'move-auth' : ''}`}
           style={{ borderColor: props.isAuthenticated ? moveOptionColors[i % moveOptionColors.length] : 'grey' }}
           data-move={move}
+          data-testid="move-option"
           onMouseEnter={() => {
             if (move === 'Other') return; // Skip chess move visualization for "Other"
 

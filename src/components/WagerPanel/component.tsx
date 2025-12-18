@@ -8,7 +8,8 @@ import { useMode } from 'context/ModeContext';
 
 interface WagerPanelProps {
   isAuthenticated: boolean,
-  balance: number | undefined,
+  tokenBalance?: number,
+  cashBalance?: number,
   games: Record<string, Game>,
 }
 
@@ -16,11 +17,13 @@ const WagerPanel: React.FC<WagerPanelProps> = (props) => {
   const { id: gameId } = useParams<{ id: string }>();
   const { mode } = useMode();
 
+  const displayBalance = mode === 'real' ? (props.cashBalance ?? 0) : (props.tokenBalance ?? 0);
+
   return (
     <div className="wager-panel-container">
-      {(props.isAuthenticated && props.balance !== undefined) && (
+      {(props.isAuthenticated) && (
         <div className="balance-text">
-          <p>Balance: {props.balance.toFixed(2)} {mode === 'real' ? 'USDT' : 'KBITZ'}</p>
+          <p>Balance: {displayBalance.toFixed(2)} {mode === 'real' ? 'USDT' : 'KBITZ'}</p>
           <img src={BalanceIcon} />
         </div>
       )}

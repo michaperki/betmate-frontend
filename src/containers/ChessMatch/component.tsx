@@ -501,8 +501,8 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // brief flicker when a new snapshot arrives and positionIndex updates.
   const isEffectivelyLive = isFollowingLive || isAtLatestSnapshot;
   const betsLocked = !isEffectivelyLive;
-  // During migration, prefer the max of token_balance and legacy account to avoid 0 overshadowing a real balance
-  const arcadeBalance = Math.max(0, (props.tokenBalance ?? props.balance ?? 0));
+  // Arcade balance strictly from token_balance (legacy account removed)
+  const arcadeBalance = Math.max(0, (props.tokenBalance ?? 0));
   const availableBalance = mode === 'real' ? (props.cashBalance ?? 0) : arcadeBalance;
   const hasSufficientBalance = availableBalance >= (selectedStake || 0);
   // Attempt criteria (auth handled in handlers with redirect)
@@ -565,7 +565,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   const isWhiteTurn = activeSnapshot?.turn === 'w';
   const isBlackTurn = !isWhiteTurn;
   const isTurnHighlightEnabled = isAtLatestSnapshot && isGameInProgress;
-  const { pricingVersion, risk } = useMode();
+  const { pricingVersion, risk, limits } = useMode();
   const squareSize = boardSize / 8;
   const evalBarWidth = Math.max(14, squareSize / 2);
   const BOARD_STACK_GAP = 4;
@@ -743,11 +743,14 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Compute Arcade fixed-odds for currently displayed candidate moves (top 4 per side + mobile)
   const arcadeOddsByMove = useMemo(() => {
     if (mode !== 'arcade') return {} as Record<string, number>;
-    const offered = displayedCandidateKeys || [];
+    // Use the server-offered move list for normalization to match backend acceptance exactly
+    const offeredRaw: string[] = (game?.pool_wagers?.move?.options as any) || [];
+    const offered = (offeredRaw.length ? offeredRaw : displayedCandidateKeys).map((s) => canonicalSan(String(s)));
     const analyzed = analysisByIndex[positionIndex] || {};
     const topList: Array<{ move: string; score: number }> = Object.entries(analyzed).map(([san, a]) => ({ move: san, score: Number(a?.score || 0) }));
-    return computeArcadeMoveOdds(offered, topList);
-  }, [mode, displayedCandidateKeys, analysisByIndex, positionIndex]);
+    const margin = typeof limits?.arcadeMoveMargin === 'number' ? limits!.arcadeMoveMargin : undefined;
+    return computeArcadeMoveOdds(offered, topList, margin);
+  }, [mode, game?.pool_wagers?.move?.options, displayedCandidateKeys, analysisByIndex, positionIndex, canonicalSan, limits?.arcadeMoveMargin]);
 
   const lastCandidateFetchAtRef = useRef(0);
   useEffect(() => {
@@ -906,6 +909,34 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
     return composedConfig;
   }, [activeSnapshot?.fen, activeSnapshot?.lastMove, arrowShapes, chessgroundConfig, game?.state, handleDragMove, isAtLatestSnapshot]);
+
+  // Unauthenticated preview board config must be computed via a hook at the top level
+  // to keep hook order stable across renders. Do NOT call hooks inside conditional returns.
+  const unauthPreviewConfig = useMemo<Config>(() => {
+    const last = (game?.move_hist?.length || 0) > 0
+      ? [game!.move_hist![game!.move_hist!.length - 1].from as Key, game!.move_hist![game!.move_hist!.length - 1].to as Key]
+      : undefined;
+    return {
+      fen: game?.state || DEFAULT_FEN,
+      viewOnly: true,
+      coordinates: true,
+      turnColor: (game?.state || DEFAULT_FEN).includes(' w ') ? 'white' : 'black',
+      lastMove: last,
+      movable: {
+        free: false,
+        color: 'both',
+        rookCastle: true,
+      },
+      highlight: { lastMove: true, check: true },
+      animation: { duration: 200 },
+      drawable: {
+        enabled: false,
+        visible: false,
+        defaultSnapToValidMove: true,
+        eraseOnClick: false,
+      },
+    } as unknown as Config;
+  }, [game?.state, game?.move_hist]);
 
   const normalizeMoveNotation = useCallback((move: string) => (
     move
@@ -1953,28 +1984,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
             <p>Sign in to place bets on this chess match!</p>
             <div className="preview-board">
               <ChessgroundWrapper
-                config={useMemo(() => ({
-                  fen: game?.state || DEFAULT_FEN,
-                  viewOnly: true,
-                  coordinates: true,
-                  turnColor: game?.state?.includes(' w ') ? 'white' as const : 'black' as const,
-                  lastMove: game?.move_hist?.length > 0
-                    ? [game.move_hist[game.move_hist.length - 1].from as Key, game.move_hist[game.move_hist.length - 1].to as Key]
-                    : undefined,
-                  movable: {
-                    free: false,
-                    color: 'both',
-                    rookCastle: true,
-                  },
-                  highlight: { lastMove: true, check: true },
-                  animation: { duration: 200 },
-                  drawable: {
-                    enabled: false,
-                    visible: false,
-                    defaultSnapToValidMove: true,
-                    eraseOnClick: false,
-                  },
-                }), [game?.state, game?.move_hist])}
+                config={unauthPreviewConfig}
               />
             </div>
             <div className="auth-buttons">
@@ -2200,10 +2210,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         const net = (() => {
                           if (w.status === WagerStatus.WON) {
                             if (w.wdl) {
-                              const mult = isReal ? (w.winning_pool_share || 0) : (w.odds || 1);
+                              // WDL: fixed odds for both modes
+                              const mult = (w.odds || 1);
                               return (w.amount * mult) - w.amount;
                             }
-                            return (w.amount * (w.winning_pool_share || 0)) - w.amount;
+                            // Move: Arcade=fixed odds, Real=pool share
+                            const mult = ((w as any).mode === 'real') ? (w.winning_pool_share || 0) : (w.odds || 1);
+                            return (w.amount * mult) - w.amount;
                           }
                           if (w.status === WagerStatus.LOST) return -w.amount;
                           if (w.status === WagerStatus.CANCELLED) return 0;

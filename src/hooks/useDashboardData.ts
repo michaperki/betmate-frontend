@@ -19,7 +19,7 @@ export const useDashboardData = (games: Game[], user: User | null) => {
   const [stats, setStats] = useState<DashboardStats>({
     totalWagers: 0,
     winRate: 0,
-    currentBalance: (user?.token_balance ?? user?.account ?? 0),
+    currentBalance: (user?.token_balance ?? 0),
     activeMatches: 0,
   });
 
@@ -48,7 +48,7 @@ export const useDashboardData = (games: Game[], user: User | null) => {
       setStats(prev => ({
         ...prev,
         activeMatches: 0,
-        currentBalance: (user?.token_balance ?? user?.account ?? 0),
+        currentBalance: (user?.token_balance ?? 0),
       }));
       return;
     }
@@ -65,7 +65,7 @@ export const useDashboardData = (games: Game[], user: User | null) => {
     setStats({
       totalWagers: userBettingStats?.totalWagers || 0,
       winRate: userBettingStats?.winRate || 0,
-      currentBalance: (user?.token_balance ?? user?.account ?? 0),
+      currentBalance: (user?.token_balance ?? 0),
       activeMatches: games.length,
     });
   }, [games, user, userBettingStats]);

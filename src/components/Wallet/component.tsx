@@ -37,7 +37,7 @@ const Wallet: React.FC = () => {
   const [quote, setQuote] = useState<{ charge_usd: number; fee_usd: number; estimated_pay_amount: number } | null>(null);
   const { faucetEnabled } = useMode();
 
-  const tokenBalance = user?.token_balance ?? user?.account ?? 0;
+  const tokenBalance = user?.token_balance ?? 0;
   const cashBalance = (user as any)?.cash_balance ?? 0;
 
   const refresh = useCallback(async () => {
@@ -160,6 +160,7 @@ const Wallet: React.FC = () => {
                   onClick={() => onFaucet(250)}
                   disabled={loading || !isAuthenticated}
                   title="Dev faucet (credits your Real balance for testing)"
+                  data-testid="wallet-faucet-btn"
                 >
                   Faucet +$250
                 </button>
