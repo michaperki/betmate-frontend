@@ -86,3 +86,5 @@ const AdminKYC: React.FC = () => {
 
 export default AdminKYC;
 
+// Ensure module under isolatedModules
+export {};
