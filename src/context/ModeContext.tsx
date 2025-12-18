@@ -8,6 +8,8 @@ type ModeContextValue = {
   setMode: (m: BetMode) => void;
   toggleMode: () => void;
   realEnabled: boolean;
+  withdrawEnabled?: boolean;
+  requireKyc?: boolean;
   pricingVersion?: string;
   faucetEnabled?: boolean;
   risk?: {
@@ -31,6 +33,8 @@ function getInitialMode(): BetMode {
 export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setModeState] = useState<BetMode>(getInitialMode);
   const [realEnabled, setRealEnabled] = useState<boolean>(true);
+  const [withdrawEnabled, setWithdrawEnabled] = useState<boolean | undefined>(undefined);
+  const [requireKyc, setRequireKyc] = useState<boolean | undefined>(undefined);
   const [pricingVersion, setPricingVersion] = useState<string | undefined>(undefined);
   const [faucetEnabled, setFaucetEnabled] = useState<boolean | undefined>(undefined);
   const [risk, setRisk] = useState<ModeContextValue['risk']>(undefined);
@@ -63,12 +67,16 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const enabled = !!json?.features?.realModeEnabled;
         const pv: string | undefined = json?.pricing?.pricingModelVersion || undefined;
         const fe: boolean | undefined = json?.features?.enableFaucet;
+        const we: boolean | undefined = json?.features?.enableWithdrawals;
+        const rkf: boolean | undefined = json?.features?.requireKyc;
         const rk: any = json?.risk || undefined;
         const lm: any = json?.limits || undefined;
         if (!isMounted) return;
         setRealEnabled(enabled);
         setPricingVersion(pv);
         setFaucetEnabled(fe);
+        setWithdrawEnabled(we);
+        setRequireKyc(rkf);
         setRisk(rk);
         setLimits(lm);
         if (!enabled && mode === 'real') setModeState('arcade');
@@ -88,7 +96,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return prev === 'arcade' ? 'real' : 'arcade';
   });
 
-  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, pricingVersion, faucetEnabled, risk, limits }), [mode, realEnabled, pricingVersion, faucetEnabled, risk, limits]);
+  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits }), [mode, realEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits]);
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 };
 

@@ -49,3 +49,36 @@ export const faucetCredit = async (amount: number) => (
     },
   }) as unknown as RequestReturnType<{ ok: boolean; credited: number }>
 );
+
+export const listWithdrawals = async () => (
+  createBackendAxiosRequest<{ withdrawals: any[] }>({
+    method: 'GET',
+    url: '/billing/withdrawals',
+    headers: getBearerTokenHeader(),
+  }) as unknown as RequestReturnType<{ withdrawals: any[] }>
+);
+
+export const requestWithdrawal = async (amount: number, currency: string, address: string) => (
+  createBackendAxiosRequest<{ ok: boolean; withdrawal_id: string }>({
+    method: 'POST',
+    url: '/billing/withdrawals/request',
+    data: { amount, currency, address },
+    headers: getBearerTokenHeader(),
+  }) as unknown as RequestReturnType<{ ok: boolean; withdrawal_id: string }>
+);
+
+export const cancelWithdrawal = async (id: string) => (
+  createBackendAxiosRequest<{ ok: boolean; status: string }>({
+    method: 'POST',
+    url: `/billing/withdrawals/${encodeURIComponent(id)}/cancel`,
+    headers: getBearerTokenHeader(),
+  }) as unknown as RequestReturnType<{ ok: boolean; status: string }>
+);
+
+export const startKycMock = async () => (
+  createBackendAxiosRequest<{ ok: boolean; kyc_status: string }>({
+    method: 'POST',
+    url: '/auth/kyc/start',
+    headers: getBearerTokenHeader(),
+  }) as unknown as RequestReturnType<{ ok: boolean; kyc_status: string }>
+);

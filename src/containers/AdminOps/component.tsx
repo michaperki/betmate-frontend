@@ -33,6 +33,7 @@ const AdminOps: React.FC = () => {
           <NavLink to="/admin">Home</NavLink>
           <NavLink to="/admin/risk">Risk</NavLink>
           <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
