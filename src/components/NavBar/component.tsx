@@ -55,14 +55,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
           <span>BetMate</span>
         </NavLink>
 
-        {/* Breadcrumb: keep original 'Live Game' label for game route */}
-        {isGameRoute && (
-          <div className="navbar__breadcrumb" aria-label="Breadcrumb">
-            <NavLink to="/" className="navbar__crumb" onClick={() => setMenuOpen(false)}>Home</NavLink>
-            <span className="navbar__crumb-sep">/</span>
-            <span className="navbar__crumb-current">Live Game</span>
-          </div>
-        )}
+        {/* Breadcrumb removed */}
 
         {/* Mobile menu toggle */}
         <button 

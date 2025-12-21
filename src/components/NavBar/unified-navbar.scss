@@ -107,48 +107,7 @@
     }
   }
 
-  // Breadcrumb (for game context)
-  &__breadcrumb {
-    display: none;
-    align-items: center;
-    gap: $space-2;
-    color: $text-secondary;
-    font-size: $text-sm;
-    margin-left: $space-4;
-    flex: 1 1 auto;
-    min-width: 0;
-
-    @include tablet-up {
-      display: flex;
-    }
-
-    .navbar--compact & {
-      display: flex;
-    }
-
-    .navbar__crumb {
-      color: $text-secondary;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      &:hover {
-        color: $text-primary;
-      }
-    }
-
-    .navbar__crumb-sep {
-      opacity: 0.5;
-    }
-
-    .navbar__crumb-current {
-      color: $text-primary;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
+  // Breadcrumb styles removed
   
   // Navigation menu (desktop version)
   &__menu {

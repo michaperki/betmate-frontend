@@ -28,6 +28,7 @@ import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
+import TestLayoutPage from 'containers/TestLayoutPage/component';
 
 const Welcome = () => {
   return (
@@ -66,6 +67,7 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/" component={Welcome} />
             <Route exact path="/matches/:id" component={Welcome} />
             <Route exact path="/chess/:id" component={ChessMatch} />
+            <Route exact path="/ui-test" component={TestLayoutPage} />
             {/* Raffles route removed */}
             <ProtectedRoute exact path="/active-bets" render={() => (
                 <div className="dashboard-page">

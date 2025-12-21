@@ -1,0 +1,691 @@
+.test-layout-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #0a0a0a; /* match existing dark theme backdrop */
+  color: #e5e7eb;
+}
+
+.test-layout-page__content {
+  flex: 1 1 auto;
+  padding: 16px;
+}
+
+/*
+  Layout primitives and sizing rules
+  - We compute sizes from viewport width/height once and only change grid placement per breakpoint.
+  - This keeps the Board size continuous (no jumps at breakpoints).
+*/
+.test-layout-grid {
+  /* Spacing and chrome estimates (kept constant across breakpoints) */
+  --gap: 16px;
+  --nav-h: 56px;    /* compact navbar assumed */
+  --footer-h: 48px; /* version footer cluster */
+  --pad-h: 16px;
+  --pad-v: 16px;
+
+  /* Available viewport box for the grid */
+  --H: calc(100vh - var(--nav-h) - var(--footer-h) - (2 * var(--pad-v)));
+  --W: calc(100vw - (2 * var(--pad-h)));
+
+  /* Side panel square size p (continuous across layouts) */
+  /* Cap and floor to keep boxes sensible */
+  --pMax: 1024px;
+  --pMin: 160px;
+  /* Defaults for mobile (single column). Overridden in breakpoints. */
+  --p: clamp(var(--pMin), var(--pMax), var(--pMax));
+  --s: min(var(--W), var(--H));
+
+  display: grid;
+  gap: var(--gap);
+  height: var(--H);
+  width: 100%;
+  margin: 0 auto;
+  justify-content: center;
+  align-content: start;
+}
+
+/* Mobile: single column (centered), Board first. */
+.test-layout-grid {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "A"
+    "L"
+    "BAR"
+    "R1"
+    "R2";
+  justify-items: center;
+}
+.frame--board { grid-area: A; }
+.frame--left { grid-area: L; }
+.frame--right-top { grid-area: R1; }
+.frame--right-bottom { grid-area: R2; }
+.frame--bar { grid-area: BAR; }
+
+/* Make explicit widths on mobile to preserve proportions */
+@media (max-width: 767px) {
+  .test-layout-grid .frame--board { width: min(var(--s), 100%); }
+  .test-layout-grid .frame:not(.frame--board) { width: min(var(--p), 100%); }
+}
+
+/* Tablet: Board spans full row; three panels in a single row below */
+@media (min-width: 768px) {
+  .test-layout-grid {
+    /* Tablet sizing: total height = s + gap + bar + p; width = s */
+    --bar: 42px;
+    --p: clamp(
+      var(--pMin),
+      min(
+        var(--pMax),
+        /* height bound: 4p + 3g + bar <= H → p <= (H - 3g - bar)/4 */
+        calc((var(--H) - (3 * var(--gap)) - var(--bar)) / 4),
+        /* width bound: 3p + 2g <= W → p <= (W - 2g)/3 */
+        calc((var(--W) - (2 * var(--gap))) / 3)
+      ),
+      var(--pMax)
+    );
+    /* Board spans all three columns */
+    --s: calc((3 * var(--p)) + (2 * var(--gap)));
+    grid-template-columns: var(--p) var(--p) var(--p);
+    grid-template-rows: var(--s) var(--p) var(--bar);
+    grid-template-areas:
+      "A A A"
+      "L R2 R1" /* place right-top on the right */
+      "BAR BAR BAR";
+    justify-items: start;
+  }
+  .test-layout-grid .frame { width: 100%; }
+}
+
+/* Desktop: three columns (Left | Board | Right stack)
+   Engage 3-col earlier for narrower screens (>=900px)
+*/
+@media (min-width: 900px) {
+  .test-layout-grid {
+    /* Desktop: prioritize Board size. Side panels keep a reasonable width. */
+    --bar: 44px;
+    --pDeskMin: 220px;
+    --pDeskMax: 360px;
+    --p: clamp(var(--pDeskMin), calc(var(--W) * 0.16), var(--pDeskMax));
+    /* Board width bound by available width after side panels and gaps */
+    --sW: calc(var(--W) - (2 * var(--p)) - (2 * var(--gap)));
+    /* Board height bound by available height */
+    --sH: var(--H);
+    /* Reserve space for bottom bar + an extra gap */
+    --s: min(var(--sW), calc(var(--H) - var(--gap) - var(--bar)));
+    /* Right stack row heights derived from board height for perfect alignment */
+    --row: calc((var(--s) - var(--gap)) / 2);
+    grid-template-columns: var(--p) auto var(--p);
+    grid-template-rows: var(--row) var(--row) var(--bar);
+    grid-template-areas:
+      "L A R1"
+      "L A R2"
+      "BAR BAR BAR";
+  }
+  /* Make left panel a tall rectangle equal to board height */
+  .test-layout-grid .frame--left {
+    aspect-ratio: auto;
+    height: var(--s);
+    width: 100%;
+    align-self: stretch;
+  }
+  /* Ensure right stack panels are rectangles sized to their rows */
+  .test-layout-grid .frame--right-top,
+  .test-layout-grid .frame--right-bottom {
+    aspect-ratio: auto;
+    height: 100%; /* equals var(--p) per row */
+    width: 100%;
+  }
+}
+
+/* Visuals */
+.frame {
+  aspect-ratio: 1 / 1;
+  border: 2px dashed rgba(229, 231, 235, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 160ms ease, height 160ms ease;
+}
+
+.frame--bar {
+  aspect-ratio: auto;
+  height: 100%;
+  width: 100%;
+  border: 1px dashed rgba(229,231,235,0.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+}
+
+.test-bottom-bar {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+  position: relative;
+}
+.test-bottom-bar .bt-left,
+.test-bottom-bar .bt-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.test-bottom-bar .bt-center { display: flex; justify-content: center; }
+
+.test-bottom-bar .bt-mode {
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+.test-bottom-bar .bt-chip {
+  height: 26px;
+  min-width: 42px;
+  padding: 0 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #e5e7eb;
+  font-size: 12px;
+  cursor: pointer;
+}
+.test-bottom-bar .bt-chip.is-active {
+  border-color: rgba(59,130,246,0.45);
+  background: rgba(59,130,246,0.12);
+}
+.test-bottom-bar .bt-draw {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(59,130,246,0.45);
+  background: rgba(59,130,246,0.12);
+  color: #e5e7eb;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.test-bottom-bar .bt-viewers { display: inline-flex; align-items: center; gap: 4px; opacity: 0.9; }
+.test-bottom-bar .bt-icon { height: 26px; width: 26px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; display: inline-flex; align-items: center; justify-content: center; }
+
+/* Separation: push right cluster and add subtle divider */
+.test-bottom-bar .bt-right { justify-content: flex-end; padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.08); }
+
+/* Popovers */
+.test-bottom-bar .bt-right { position: relative; }
+.bt-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 6px;
+  width: min(260px, 80vw);
+  background: rgba(16,16,24,0.96);
+  border: 1px dashed rgba(229,231,235,0.2);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+  color: #e5e7eb;
+  z-index: 10;
+}
+.bt-popover.chat { right: 42px; }
+.bt-popover.leaders { right: 6px; }
+.bt-popover__title { font-size: 12px; font-weight: 700; margin-bottom: 6px; opacity: 0.95; }
+.bt-popover__body { font-size: 12px; opacity: 0.9; }
+
+@media (max-width: 899px) {
+  .test-bottom-bar { grid-template-columns: 1fr auto auto; gap: 6px; padding: 0 6px; }
+  .test-bottom-bar .bt-left { gap: 4px; }
+  .test-bottom-bar .bt-chip { min-width: 40px; height: 24px; font-size: 11px; }
+  .test-bottom-bar .bt-draw { height: 26px; padding: 0 10px; font-size: 12px; }
+  .test-bottom-bar .bt-mode { font-size: 10px; padding: 2px 6px; }
+}
+
+.frame__label {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.frame--left {
+  /* Remove green/tinted frame around the moves panel */
+  background: transparent;
+  border: 0;
+}
+.frame--board {
+  /* Remove frame visuals behind the real board */
+  background: transparent;
+  border: 0;
+  /* Allow inner content (square board + headers) to define height */
+  aspect-ratio: auto;
+}
+.frame--right-top {
+  /* Remove demo tint now that Notation Pad is in place */
+  background: transparent;
+  border: 0;
+}
+.frame--right-bottom {
+  /* Remove demo tint; receipts will provide their own styling */
+  background: transparent;
+  border: 0;
+}
+
+/*
+  Inner layout for Board frame: Player1 header, Board+Eval row, Player2 header
+  - Board gets the majority of space; Eval is a thin vertical bar
+  - Heights derive from outer square size var(--s)
+*/
+.frame--board .board-inner {
+  display: grid;
+  grid-template-rows: var(--header-h) 1fr var(--header-h);
+  row-gap: var(--inner-gap);
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+
+  /* derive inner metrics from outer size */
+  --inner-gap: 8px;
+  /* Keep headers compact so board dominates */
+  --header-h: clamp(14px, calc(var(--s) * 0.05), 36px);
+  /* Eval bar ~5% of board width, thin but visible */
+  --eval-w: clamp(8px, calc(var(--s) * 0.05), 28px);
+}
+
+.frame--board .board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(229, 231, 235, 0.18);
+  border-radius: 6px;
+  padding: 6px 10px;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  z-index: 3; /* ensure above board center */
+  pointer-events: auto;
+}
+
+.frame--board .board__label { font-size: 13px; opacity: 0.9; }
+
+.frame--board .ph-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.frame--board .ph-name {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60ch;
+}
+.frame--board .ph-rating {
+  font-size: 12px;
+  opacity: 0.8;
+}
+.frame--board .ph-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.frame--board .ph-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  font-variant-numeric: tabular-nums;
+}
+.frame--board .ph-clock .tick-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(34,197,94,0.9);
+  opacity: 0;
+}
+.frame--board .board-header.is-ticking .ph-clock .tick-dot {
+  animation: dot-blink 1s infinite;
+  opacity: 1;
+}
+@keyframes dot-blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.frame--board .ph-state-chip {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+}
+.frame--board .board-header.is-loading .ph-state-chip {
+  background: #f59e0b; /* amber */
+  box-shadow: 0 0 0 0 rgba(245,158,11,0.4);
+  animation: pulse-chip 1.2s infinite;
+}
+.frame--board .board-header.is-confirmed .ph-state-chip { background: #22c55e; }
+.frame--board .board-header.is-rejected .ph-state-chip { background: #ef4444; }
+@keyframes pulse-chip {
+  0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+
+/* Active wager emphasis (used on smaller screens as wager button) */
+.frame--board .board-header.is-active {
+  border-color: rgba(59,130,246,0.45);
+  background: linear-gradient(0deg, rgba(59,130,246,0.08), rgba(255,255,255,0.02));
+}
+.frame--board .board-header.is-inactive {
+  opacity: 0.95;
+}
+
+/* Mobile-first clickable affordances so header reads as a button */
+@media (max-width: 899px) {
+  .frame--board .board-header {
+    border-color: rgba(59,130,246,0.45);
+    background: linear-gradient(0deg, rgba(59,130,246,0.08), rgba(255,255,255,0.02));
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.12) inset;
+  }
+  .frame--board .board-header:active {
+    transform: translateY(1px);
+  }
+  .frame--board .board-header:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+  }
+}
+
+.frame--board .board-center {
+  display: grid;
+  /* Board column hugs its content (square), eval fixed width) */
+  grid-template-columns: auto var(--eval-w);
+  column-gap: var(--inner-gap);
+  align-items: stretch; /* let inner board fill height */
+  min-height: 0; /* allow child to size */
+  overflow: hidden; /* prevent board from spilling into Player 2 header */
+  position: relative;
+  z-index: 1;
+}
+
+.frame--board .board-square {
+  /* Mobile-first: width-bound perfect square */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  background: transparent; /* no tint behind chessboard */
+  border: 0; /* no dashed frame behind chessboard */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  justify-self: start;
+  position: relative; /* allow absolute chessboard wrapper to fill */
+}
+
+/* Tablet/Desktop: board frame fills its track, board square height-bound */
+@media (min-width: 768px) {
+  .frame--board { aspect-ratio: auto; width: 100%; height: 100%; }
+  .frame--board .board-square { height: 100%; width: auto; aspect-ratio: 1 / 1; }
+}
+
+.frame--board .eval-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, rgba(59,130,246,0.35), rgba(245,158,11,0.35));
+  border: 1px dashed rgba(229, 231, 235, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+}
+
+/* Notation Pad — minimal, lichess-inspired */
+.notation-pad {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 8px;
+}
+
+.notation-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.notation-controls .np-btn {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #e5e7eb;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+.notation-controls .np-btn:hover { background: rgba(255,255,255,0.08); }
+.notation-controls .np-spacer { flex: 1; }
+.notation-controls .np-status { font-size: 12px; opacity: 0.85; }
+
+.notation-list {
+  flex: 1 1 auto;
+  overflow: auto;
+  border: 1px dashed rgba(229,231,235,0.18);
+  border-radius: 6px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+@media (min-width: 1024px) {
+  .notation-list { grid-template-columns: 1fr 1fr; }
+}
+.notation-move {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.notation-move:hover { background: rgba(255,255,255,0.05); }
+.notation-move.is-active { background: rgba(59,130,246,0.12); }
+.notation-move .nm-index { font-size: 12px; opacity: 0.7; }
+.notation-move .nm-san { font-size: 13px; }
+
+/* Left Panel — variable-sized playful squares */
+.left-panel {
+  --lp-gap: 14px;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  gap: var(--lp-gap);
+  padding: 14px;
+  box-sizing: border-box;
+  grid-template-columns: repeat(var(--cols, 2), var(--tile, 72px));
+  grid-auto-rows: var(--tile, 72px);
+  grid-auto-flow: row dense;
+  align-content: center; /* vertically center the grid if extra space */
+  justify-content: center; /* horizontally center the grid if extra space */
+}
+
+/* Mobile: left panel becomes a compact horizontal bar */
+@media (max-width: 767px) {
+  .frame--left {
+    aspect-ratio: auto;
+    height: auto;
+    align-self: start;
+  }
+  .left-panel {
+    height: auto;
+    padding: 10px 12px;
+    --lp-gap: 10px;
+    justify-content: center;
+    align-content: center;
+  }
+}
+
+.lp-tile {
+  position: relative;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px dashed rgba(229, 231, 235, 0.22);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box; /* include border in track size */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  cursor: pointer;
+}
+.lp-tile:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.24); }
+
+.lp-tile__chip {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 120% at 20% 0%, rgba(59,130,246,0.18), transparent 60%),
+              radial-gradient(120% 120% at 100% 80%, rgba(16,185,129,0.18), transparent 60%);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.lp-tile__text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 92%;
+  padding: 8px 0 10px;
+  color: #e5e7eb;
+  font-weight: 700;
+}
+.lp-tile .lp-name { font-size: 14px; letter-spacing: 0.02em; }
+.lp-tile .lp-score { font-size: 13px; opacity: 0.9; }
+
+/* Tile states */
+.lp-tile.is-active {
+  border-color: rgba(59,130,246,0.55);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.25) inset, 0 6px 18px rgba(0,0,0,0.22);
+}
+.lp-tile.is-disabled {
+  filter: grayscale(0.5) brightness(0.9);
+  opacity: 0.7;
+}
+.lp-tile.is-loading {
+  /* remain clickable to cycle states in this demo */
+}
+.lp-tile.is-success {
+  border-color: rgba(34,197,94,0.6);
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.2) inset, 0 6px 18px rgba(0,0,0,0.22);
+}
+
+.lp-tile__spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: rgba(59,130,246,0.9);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  opacity: 0;
+  pointer-events: none;
+}
+.lp-tile.is-loading .lp-tile__spinner { opacity: 1; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.lp-tile__check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(34,197,94,0.95);
+  color: #0a0a0a;
+  width: 18px;
+  height: 18px;
+  font-weight: 900;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+}
+.lp-tile.is-success .lp-tile__check { opacity: 1; }
+
+/* Compact Wager Receipts in Test page (fit panel; subtle) */
+/* Receipts grid — minimal table-like layout that fits panel */
+.receipts-grid {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(36px, auto) minmax(36px, auto) minmax(52px, auto);
+  grid-auto-rows: minmax(0, auto);
+  gap: 4px 6px;
+  padding: 6px;
+  box-sizing: border-box;
+  font-size: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: center;
+}
+.receipts-grid .rg-head,
+.receipts-grid .rg-body,
+.receipts-grid .rg-row { display: contents; }
+
+.receipts-grid .rg-cell { white-space: nowrap; }
+.receipts-grid .rg-col-bet { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.receipts-grid .rg-head .rg-cell {
+  color: #aeb0b6;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+.receipts-grid .rg-row .rg-cell { padding: 3px 0; }
+.receipts-grid .rg-row:hover .rg-cell { background: rgba(255,255,255,0.04); }
+.receipts-grid .rg-col-stake,
+.receipts-grid .rg-col-odds {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.receipts-grid .rg-col-status { text-transform: capitalize; }
+.receipts-grid .rg-col-bet .rg-type-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.receipts-grid .rg-col-bet .rg-type-dot.move { background: #60a5fa; }
+.receipts-grid .rg-col-bet .rg-type-dot.outcome { background: #8b5cf6; }
+.receipts-grid .rg-col-bet .rg-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (max-width: 899px) {
+  .receipts-grid { font-size: 11px; gap: 3px 6px; }
+  .receipts-grid .rg-head .rg-cell { font-size: 10px; }
+}
+
+/* Status colors */
+.receipts-grid .rg-row.is-pending .rg-col-status   { color: #60a5fa; }
+.receipts-grid .rg-row.is-won .rg-col-status       { color: #22c55e; }
+.receipts-grid .rg-row.is-lost .rg-col-status      { color: #ef4444; }
+.receipts-grid .rg-row.is-cancelled .rg-col-status { color: #f59e0b; }
