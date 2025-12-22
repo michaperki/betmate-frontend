@@ -57,7 +57,7 @@ import './bottom-toolbar.scss';
 import { realWdlMultiplier } from 'utils/realOdds';
 import BottomToolbar from './BottomToolbar';
 // Removed legacy GameInfoPanel styles
-import { getMoveMenuTransitionVariant, tileMotionByVariant, presenceMode, stackParentVariants } from 'features/moveMenu/moveMenuTransitions';
+import { tileMotionByVariant, presenceMode, stackParentVariants, MoveMenuTransitionVariant } from 'features/moveMenu/moveMenuTransitions';
 import { isNewCmLayoutEnabled } from 'features/flags';
 
 interface ChessMatchProps {
@@ -1051,13 +1051,13 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
   const enableNewLayout = useMemo(() => isNewCmLayoutEnabled(), []);
   // Transition variant selection (respects reduced motion)
-  const transitionVariant = useMemo(() => {
+  const transitionVariant = useMemo<MoveMenuTransitionVariant>(() => {
     try {
       if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return 'none' as const;
       }
     } catch {}
-    return enableNewLayout ? ('morph' as const) : ('none' as const);
+    return enableNewLayout ? 'morph' : 'none';
   }, [enableNewLayout]);
   const motionSpec = useMemo(() => tileMotionByVariant(transitionVariant), [transitionVariant]);
 
@@ -2157,6 +2157,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
+                      {enableNewLayout && !isMobile && (
+                        <div className="player-bet-actions">
+                          <button
+                            type="button"
+                            className="player-bet-cta player-bet-cta--black"
+                            disabled={!canAttemptWager || !hasSufficientBalance || outcomeStates['black_win'] === 'loading'}
+                            onClick={() => triggerOutcomeBet('black_win')}
+                          >
+                            Wager Black
+                          </button>
+                        </div>
+                      )}
                       <span className="ph-spinner" aria-hidden />
                       <span className="ph-check" aria-hidden>✓</span>
                     </div>
@@ -2200,6 +2212,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
+                      {enableNewLayout && !isMobile && (
+                        <div className="player-bet-actions">
+                          <button
+                            type="button"
+                            className="player-bet-cta player-bet-cta--white"
+                            disabled={!canAttemptWager || !hasSufficientBalance || outcomeStates['white_win'] === 'loading'}
+                            onClick={() => triggerOutcomeBet('white_win')}
+                          >
+                            Wager White
+                          </button>
+                        </div>
+                      )}
                       <span className="ph-spinner" aria-hidden />
                       <span className="ph-check" aria-hidden>✓</span>
                     </div>
@@ -2279,7 +2303,64 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                     </div>
                   </aside>
                   <section className="wager-receipts" aria-label="Wager receipts">
-                    <div className="wager-receipts__list">
+                    {enableNewLayout ? (
+                      <div className="receipts-grid" role="table" aria-label="Wager receipts">
+                        <div className="rg-head" role="row">
+                          <div className="rg-cell rg-col-bet" role="columnheader">Bet</div>
+                          <div className="rg-cell rg-col-stake" role="columnheader">Stake</div>
+                          <div className="rg-cell rg-col-odds" role="columnheader">Odds</div>
+                          <div className="rg-cell rg-col-status" role="columnheader">Status</div>
+                        </div>
+                        <div className="rg-body">
+                          {displayReceipts && displayReceipts.length ? displayReceipts.slice(0, 10).map((w) => {
+                            const isReal = (w as any).mode === 'real';
+                            const type = w.wdl ? 'outcome' : 'move';
+                            const label = (() => {
+                              if (w.wdl) {
+                                const d = (w.data || '').toLowerCase();
+                                if (d.includes('white')) return 'White Win';
+                                if (d.includes('black')) return 'Black Win';
+                                if (d.includes('draw')) return 'Draw';
+                                if (d === 'win') return 'Win';
+                                if (d === 'loss') return 'Loss';
+                                return String(w.data || 'Outcome');
+                              }
+                              return sanitizeMoveLabel(String(w.data || ''));
+                            })();
+                            const oddsText = (() => {
+                              if (w.wdl && isReal && w.status === WagerStatus.WON) {
+                                return `x${getMultiplier(w.odds || 1)}`;
+                              }
+                              if (!w.wdl && !isReal) {
+                                const mult = (w.odds || 1);
+                                return `x${getMultiplier(mult)}`;
+                              }
+                              return '—';
+                            })();
+                            const statusClass = `is-${String(w.status || '').toLowerCase()}`;
+                            return (
+                              <div key={w._id} className={['rg-row', statusClass, `type-${type}`].join(' ')} role="row">
+                                <div className="rg-cell rg-col-bet" role="cell">
+                                  <span className={["rg-type-dot", type].join(' ')} aria-hidden />
+                                  <span className="rg-label" title={label}>{label}</span>
+                                </div>
+                                <div className="rg-cell rg-col-stake" role="cell">${Math.max(0, w.amount).toFixed(0)}</div>
+                                <div className="rg-cell rg-col-odds" role="cell">{oddsText}</div>
+                                <div className="rg-cell rg-col-status" role="cell">{String(w.status || 'pending')}</div>
+                              </div>
+                            );
+                          }) : (
+                            <div className="rg-row is-empty" role="row">
+                              <div className="rg-cell rg-col-bet" role="cell">No wagers</div>
+                              <div className="rg-cell rg-col-stake" role="cell">—</div>
+                              <div className="rg-cell rg-col-odds" role="cell">—</div>
+                              <div className="rg-cell rg-col-status" role="cell">—</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="wager-receipts__list">
                       {displayReceipts && displayReceipts.length ? displayReceipts.slice(0, 10).map((w) => {
                         const isReal = (w as any).mode === 'real';
                         const typeIcon = w.wdl ? '🏁' : '🎯';
@@ -2358,6 +2439,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                         <div className="wager-receipt wager-receipt--empty">No wager receipts yet</div>
                       )}
                     </div>
+                    )}
                   </section>
                   </div>
                 </div>
