@@ -325,6 +325,10 @@ const TestLayoutPage: React.FC = () => {
                         className={classes}
                         title={`${m.label} (${m.score})`}
                         onClick={() => cycleTileState(i)}
+                        onMouseEnter={() => handleMoveHoverStart(m.label)}
+                        onMouseLeave={handleMoveHoverEnd}
+                        onFocus={() => handleMoveHoverStart(m.label)}
+                        onBlur={handleMoveHoverEnd}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') cycleTileState(i); }}

@@ -461,6 +461,83 @@
   gap: 8px;
 }
 
+/* New Notation Rail — parity with real UI */
+.notation-rail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
+  gap: 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px dashed rgba(229,231,235,0.18);
+  border-radius: 8px;
+}
+.notation-rail__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.notation-rail__controls .np-btn {
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.notation-rail__controls .np-btn:hover { background: rgba(255,255,255,0.08); }
+.notation-rail__controls .np-spacer { flex: 1; }
+.notation-rail__controls .np-status { font-size: 12px; opacity: 0.85; }
+
+.notation-rail__list {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+  padding-right: 4px; /* avoid scrollbar overlap */
+}
+
+.notation-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.notation-row--latest { background: rgba(255,255,255,0.03); }
+.notation-row--active { outline: 1px solid rgba(59,130,246,0.35); background: rgba(59,130,246,0.08); }
+
+.notation-row__number {
+  font-size: 12px;
+  opacity: 0.7;
+  text-align: right;
+}
+.notation-row__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.02);
+  color: #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.notation-row__cell:hover { background: rgba(255,255,255,0.06); }
+.notation-row__cell.is-active { border-color: rgba(59,130,246,0.45); background: rgba(59,130,246,0.14); }
+.notation-row__cell--placeholder { opacity: 0.6; border-style: dashed; }
+.notation-row__text { font-size: 13px; }
+
+/* Nudge notation slightly to the right to avoid kissing the eval bar */
+@media (min-width: 768px) {
+  .frame--right-top .notation-rail { margin-left: 6px; }
+}
+
 .notation-controls {
   display: flex;
   align-items: center;
