@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useHistory } from 'react-router-dom';
@@ -56,6 +57,8 @@ import './bottom-toolbar.scss';
 import { realWdlMultiplier } from 'utils/realOdds';
 import BottomToolbar from './BottomToolbar';
 // Removed legacy GameInfoPanel styles
+import { getMoveMenuTransitionVariant, tileMotionByVariant, presenceMode, stackParentVariants } from 'features/moveMenu/moveMenuTransitions';
+import { isNewCmLayoutEnabled } from 'features/flags';
 
 interface ChessMatchProps {
   joinGame: typeof joinGame;
@@ -1046,6 +1049,18 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
   // Optimistic local pending receipts to show instant feedback
   const [pendingReceipts, setPendingReceipts] = useState<Wager[]>([]);
 
+  const enableNewLayout = useMemo(() => isNewCmLayoutEnabled(), []);
+  // Transition variant selection (respects reduced motion)
+  const transitionVariant = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return 'none' as const;
+      }
+    } catch {}
+    return enableNewLayout ? ('morph' as const) : ('none' as const);
+  }, [enableNewLayout]);
+  const motionSpec = useMemo(() => tileMotionByVariant(transitionVariant), [transitionVariant]);
+
   // Hydrate from localStorage on mount
   useEffect(() => {
     try {
@@ -1325,7 +1340,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
       );
     }
 
-    return options.map((option) => {
+    const items = options.map((option) => {
       const moveKey = `${positionIndex}-${option.move}`;
       const visualState = moveStates[moveKey] ?? 'idle';
       const piece = getPieceTypeFromSAN(option.move);
@@ -1343,6 +1358,65 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
           : (percentile >= 70 ? 'quality-strong' : (percentile >= 40 ? 'quality-decent' : 'quality-poor'));
       const pieceSrc = `/pieces_w/${piece}.png`;
       const isSelected = selectedMove === option.move;
+      if (enableNewLayout) {
+        return (
+          <motion.button
+            layout
+            initial={motionSpec.initial as any}
+            animate={motionSpec.animate as any}
+            exit={motionSpec.exit as any}
+            transition={motionSpec.transition}
+            key={`${color}-${option.move}`}
+            type="button"
+            className={`move-option state-${visualState} ${isSelected ? 'is-selected' : ''}`}
+            disabled={!canAttemptWager || !hasSufficientBalance}
+            aria-disabled={!canAttemptWager || !hasSufficientBalance}
+            data-locked={betsLocked || !isGameActive || !hasSufficientBalance}
+            title={!hasSufficientBalance ? 'Insufficient balance' : undefined}
+            onClick={() => {
+              if (canAttemptWager && hasSufficientBalance) {
+                handleMoveBet(option.move);
+              } else {
+                if (selectedMove !== option.move) {
+                  setSelectedMove(option.move);
+                  handleMoveHoverEnd();
+                  handleMoveHoverStart(option.move);
+                }
+              }
+            }}
+            onMouseEnter={() => handleMoveHoverStart(option.move)}
+            onMouseLeave={handleMoveHoverEnd}
+            onFocus={() => handleMoveHoverStart(option.move)}
+            onBlur={handleMoveHoverEnd}
+            onTouchStart={() => handleMoveHoverStart(option.move)}
+            onTouchEnd={handleMoveHoverEnd}
+            data-state={visualState}
+          >
+            <span className="move-option__left">
+              <span className="move-option__icon" aria-hidden data-color={color}>
+                <img src={pieceSrc} alt="" decoding="async" />
+              </span>
+              <span className="move-option__dest">{dest}</span>
+              <span className={`move-option__quality ${qualityClass}`} aria-label={isBest ? 'Best move' : 'Move quality percentile'}>
+                {analysis
+                  ? (percentile == null
+                      ? (isBest ? '💪' : '—')
+                      : (isBest ? `${percentile} 💪` : `${percentile}`))
+                  : '—'}
+              </span>
+            </span>
+            <motion.span
+              className="move-option__meta"
+              key={`${option.move}-${wageredText}`}
+              initial={{ opacity: 0.6 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {wageredText}
+            </motion.span>
+          </motion.button>
+        );
+      }
       return (
         <button
           key={`${color}-${option.move}`}
@@ -1388,7 +1462,30 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
         </button>
       );
     });
-  };
+
+    if (enableNewLayout) {
+      const inner = (
+        <AnimatePresence initial={false} mode={presenceMode}>
+          {items as any}
+        </AnimatePresence>
+      );
+      if (transitionVariant === 'stack') {
+        return (
+          <motion.div
+            key={`panel-${color}-stack-parent`}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={stackParentVariants}
+          >
+            {inner}
+          </motion.div>
+        );
+      }
+      return inner;
+    }
+    return items as any;
+    };
 
   const renderMovePanel = (
     color: HoverableColor,
@@ -2004,7 +2101,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
 
       <OnboardingGate isAuthenticated={isAuthenticated} />
 
-      <div className="dark-game-page">
+      <div className={`dark-game-page ${enableNewLayout ? 'cm-new-layout' : ''}`}>
         <ConnectionStatus />
         <NavBar compact={true} />
         <div className="chess-match-page">

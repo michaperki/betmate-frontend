@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useParams } from 'react-router';
 import { Chess } from 'chess.js';
 import { VerticalBar } from 'components/WagerPanel/helper_components';
@@ -8,6 +9,7 @@ import BotIndicator from 'components/BotIndicator';
 import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
 import { computeArcadeMoveOdds } from 'utils/pricing';
 import './style.scss';
+import { getMoveMenuTransitionVariant, tileMotionByVariant, presenceMode, stackParentVariants } from 'features/moveMenu/moveMenuTransitions';
 import { useMode } from 'context/ModeContext';
 
 interface MoveOptionsProps {
@@ -25,6 +27,15 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
   const { mode, limits } = useMode();
 
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
+  const transitionVariant = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return 'none' as const;
+      }
+    } catch {}
+    return getMoveMenuTransitionVariant();
+  }, []);
+  const motionSpec = useMemo(() => tileMotionByVariant(transitionVariant), [transitionVariant]);
 
   // Fetch top moves for current position to price Arcade move odds
   useEffect(() => {
@@ -125,14 +136,19 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
       return 0;
     });
 
-    return sortedMoves.map(([move, movePool], i) => {
+    const items = sortedMoves.map(([move, movePool], i) => {
       // Always show the "Other" option
       // if (move === 'Other' && movePool === 0 && allMoves.length > 1) {
       //   return null;
       // }
 
       return (
-        <div
+        <motion.div
+          layout
+          initial={motionSpec.initial as any}
+          animate={motionSpec.animate as any}
+          exit={motionSpec.exit as any}
+          transition={motionSpec.transition}
           key={move}
           className={`move-option ${props.isAuthenticated ? 'move-auth' : ''}`}
           style={{ borderColor: props.isAuthenticated ? moveOptionColors[i % moveOptionColors.length] : 'grey' }}
@@ -163,10 +179,41 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
             <p>{formatMove(move)}</p>
             {botWagerMoves[move] && <BotIndicator />}
           </div>
-          {mode === 'arcade' && <div className="move-odds">{Number(oddsByMove[move] || 1).toFixed(2)}x</div>}
-        </div>
+          {mode === 'arcade' && (
+            <motion.div
+              className="move-odds"
+              key={`${move}-${Number(oddsByMove[move] || 1).toFixed(2)}`}
+              initial={{ opacity: 0.6 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {Number(oddsByMove[move] || 1).toFixed(2)}x
+            </motion.div>
+          )}
+        </motion.div>
       );
     }).filter(Boolean);
+
+    // Wrap in AnimatePresence (and optional stagger for 'stack')
+    const inner = (
+      <AnimatePresence initial={false} mode={presenceMode}>
+        {items as any}
+      </AnimatePresence>
+    );
+    if (transitionVariant === 'stack') {
+      return (
+        <motion.div
+          key="move-menu-stack-parent"
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={stackParentVariants}
+        >
+          {inner}
+        </motion.div>
+      );
+    }
+    return inner;
   };
 
   return (

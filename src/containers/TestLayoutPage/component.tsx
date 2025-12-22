@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
 import './style.scss';
@@ -8,8 +9,9 @@ import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faTrophy, faWrench } from '@fortawesome/free-solid-svg-icons';
 import { useMode } from 'context/ModeContext';
+import { tileMotionByVariant, presenceMode } from 'features/moveMenu/moveMenuTransitions';
 
 const TestLayoutPage: React.FC = () => {
   type ClockState = 'idle' | 'ticking';
@@ -32,18 +34,53 @@ const TestLayoutPage: React.FC = () => {
   const cycleTop = () => setTopIndex((i) => (i + 1) % combos.length);
   const cycleBottom = () => setBottomIndex((i) => (i + 1) % combos.length);
 
-  // Demo move tiles for Left panel
-  const demoMoves = useMemo(() => ([
-    { label: 'Move A', score: 100 },
-    { label: 'Move B', score: 90 },
-    { label: 'Move C', score: 60 },
-    { label: 'Move D', score: 60 },
-  ]), []);
+  // Move Panel Demo — simulate real candidate updates (analysis reorder, add/remove, score tweaks)
+  type SimMove = { id: string; label: string; score: number };
+  const CANDIDATE_POOL = useMemo(() => (
+    ['e4','d4','c4','Nf3','Nc3','g3','b3','f4','Bb5','Bc4','O-O','O-O-O','a4','h3','h4','Qa4','Qf3']
+  ), []);
+  const [simMoves, setSimMoves] = useState<SimMove[]>(() => (
+    ['e4','d4','Nf3','c4'].map((s, i) => ({ id: s, label: s, score: 100 - i * 8 }))
+  ));
+  const transitionVariant = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return 'none' as const;
+      }
+    } catch {}
+    return 'morph' as const;
+  }, []);
+  const motionSpec = useMemo(() => tileMotionByVariant(transitionVariant), [transitionVariant]);
   const leftPanelRef = useRef<HTMLDivElement | null>(null);
   const [leftCols, setLeftCols] = useState(2);
   const [leftTile, setLeftTile] = useState(80);
   type TileStatus = 'idle' | 'active' | 'disabled' | 'loading' | 'success';
-  const [tileStates, setTileStates] = useState<TileStatus[]>(() => demoMoves.map(() => 'idle'));
+  const [tileStates, setTileStates] = useState<TileStatus[]>(() => simMoves.map(() => 'idle'));
+  const [autoAdvance, setAutoAdvance] = useState(false);
+
+  const nextPosition = useCallback(() => {
+    setSimMoves(() => {
+      // Pick 4 unique candidates and assign descending scores to simulate a new analysis frame
+      const pool = CANDIDATE_POOL.slice();
+      const picks: string[] = [];
+      while (picks.length < 4 && pool.length) {
+        const idx = Math.floor(Math.random() * pool.length);
+        picks.push(pool.splice(idx, 1)[0]);
+      }
+      const base = Math.round(70 + Math.random() * 30);
+      return picks.map((s, i) => ({
+        id: `${s}-${Date.now()}`,
+        label: s,
+        score: Math.max(10, base - i * (5 + Math.round(Math.random() * 5))),
+      }));
+    });
+  }, [CANDIDATE_POOL]);
+
+  useEffect(() => {
+    if (!autoAdvance) return;
+    const t = window.setInterval(() => { nextPosition(); }, 6000);
+    return () => window.clearInterval(t);
+  }, [autoAdvance, nextPosition]);
   const cycleTileState = (index: number) => {
     setTileStates((prev) => {
       const next = [...prev];
@@ -54,6 +91,40 @@ const TestLayoutPage: React.FC = () => {
       return next;
     });
   };
+  // Simulate stream-like updates
+  useEffect(() => {
+    const t = window.setInterval(() => {
+      setSimMoves((prev) => {
+        if (!prev.length) return prev;
+        const roll = Math.random();
+        const next = [...prev];
+        if (roll < 0.34) {
+          // Reorder subtly via score jitter (like analysis updates)
+          const jitter = next.map(m => ({ ...m, score: Math.max(10, Math.round(m.score + (Math.random()*10 - 5))) }));
+          jitter.sort((a, b) => b.score - a.score);
+          return jitter;
+        } else if (roll < 0.67) {
+          // Replace a candidate (enter/exit)
+          const pool = CANDIDATE_POOL.filter(s => !next.some(n => n.id === s));
+          if (pool.length) {
+            const idx = Math.floor(Math.random() * next.length);
+            const add = pool[Math.floor(Math.random()*pool.length)];
+            next.splice(idx, 1, { id: add, label: add, score: Math.round(70 + Math.random()*30) });
+            return next;
+          }
+          return next;
+        }
+        // Text-only score update
+        const idx = Math.floor(Math.random() * next.length);
+        next[idx] = { ...next[idx], score: Math.max(10, Math.round(next[idx].score + (Math.random()*12 - 6))) };
+        return next;
+      });
+      // align tile state length
+      setTileStates((prev) => Array.from({ length: simMoves.length }, (_, i) => prev[i] || 'idle'));
+    }, 1400);
+    return () => window.clearInterval(t);
+  }, [CANDIDATE_POOL, simMoves.length]);
+
   useEffect(() => {
     if (!leftPanelRef.current) return;
     const gap = 14; // keep in sync with --lp-gap
@@ -65,7 +136,7 @@ const TestLayoutPage: React.FC = () => {
       const viewportW = typeof window !== 'undefined' ? window.innerWidth : W;
       // Mobile: force a single row (all columns), compute tile from width only so container shrinks to content
       if (viewportW < 768) {
-        const n = demoMoves.length;
+        const n = simMoves.length;
         const tileW = Math.floor((W - gap * (n - 1)) / n);
         const bestTile = Math.max(0, tileW);
         const breathing = Math.floor(bestTile * 0.88);
@@ -76,8 +147,8 @@ const TestLayoutPage: React.FC = () => {
       // Tablet/Desktop: search best fit
       let bestTile = 0;
       let bestCols = 1;
-      for (let c = 1; c <= demoMoves.length; c += 1) {
-        const rows = Math.ceil(demoMoves.length / c);
+      for (let c = 1; c <= simMoves.length; c += 1) {
+        const rows = Math.ceil(simMoves.length / c);
         const tileW = Math.floor((W - gap * (c - 1)) / c);
         const tileH = Math.floor((H - gap * (rows - 1)) / rows);
         const size = Math.max(0, Math.min(tileW, tileH));
@@ -89,7 +160,7 @@ const TestLayoutPage: React.FC = () => {
     });
     ro.observe(leftPanelRef.current);
     return () => ro.disconnect();
-  }, [demoMoves.length]);
+  }, [simMoves.length]);
 
   return (
     <div className="test-layout-page">
@@ -99,14 +170,19 @@ const TestLayoutPage: React.FC = () => {
           <div className="frame frame--left" aria-label="left-panel">
             {(() => {
               const styleVars = { ['--cols' as any]: leftCols, ['--tile' as any]: `${leftTile}px` };
-              return (
-                <div className="left-panel" ref={leftPanelRef} style={styleVars}>
-                  {demoMoves.map((m, i) => {
+              const list = (
+                <AnimatePresence initial={false} mode={presenceMode}>
+                  {simMoves.map((m, i) => {
                     const st = tileStates[i] || 'idle';
                     const classes = ['lp-tile', `is-${st}`].join(' ');
                     return (
-                      <div
-                        key={m.label + i}
+                      <motion.div
+                        layout
+                        key={m.id}
+                        initial={motionSpec.initial as any}
+                        animate={motionSpec.animate as any}
+                        exit={motionSpec.exit as any}
+                        transition={motionSpec.transition}
                         className={classes}
                         title={`${m.label} (${m.score})`}
                         onClick={() => cycleTileState(i)}
@@ -122,11 +198,24 @@ const TestLayoutPage: React.FC = () => {
                         <div className="lp-tile__check" aria-hidden>✓</div>
                         <div className="lp-tile__text">
                           <span className="lp-name">{m.label}</span>
-                          <span className="lp-score">{m.score}</span>
+                          <motion.span
+                            className="lp-score"
+                            key={`${m.id}-${m.score}`}
+                            initial={{ opacity: 0.6 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {m.score}
+                          </motion.span>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
+                </AnimatePresence>
+              );
+              return (
+                <div className="left-panel" ref={leftPanelRef} style={styleVars}>
+                  {list}
                 </div>
               );
             })()}
@@ -319,6 +408,7 @@ const TestLayoutPage: React.FC = () => {
               const modeLabel = mode === 'real' ? 'USDT' : 'KBITZ';
               const [showChat, setShowChat] = useState(false);
               const [showLeaders, setShowLeaders] = useState(false);
+              const [showDev, setShowDev] = useState(false);
               return (
                 <div className="test-bottom-bar" role="toolbar" aria-label="Quick actions">
                   <div className="bt-left">
@@ -350,6 +440,9 @@ const TestLayoutPage: React.FC = () => {
                     <button className="bt-icon" aria-label="Open leaderboard" title="Open leaderboard" onClick={() => { setShowLeaders((v) => !v); setShowChat(false); }}>
                       <FontAwesomeIcon icon={faTrophy} />
                     </button>
+                    <button className="bt-icon" aria-label="Open dev tools" title="Open dev tools" onClick={() => { setShowDev((v) => !v); setShowChat(false); setShowLeaders(false); }}>
+                      <FontAwesomeIcon icon={faWrench} />
+                    </button>
                     {showChat && (
                       <div className="bt-popover chat" role="dialog" aria-label="Chat">
                         <div className="bt-popover__title">Chat (placeholder)</div>
@@ -360,6 +453,18 @@ const TestLayoutPage: React.FC = () => {
                       <div className="bt-popover leaders" role="dialog" aria-label="Leaderboard">
                         <div className="bt-popover__title">Leaderboard (placeholder)</div>
                         <div className="bt-popover__body">Top bettors and results…</div>
+                      </div>
+                    )}
+                    {showDev && (
+                      <div className="bt-popover dev" role="dialog" aria-label="Dev tools">
+                        <div className="bt-popover__title">Dev Tools</div>
+                        <div className="bt-popover__body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <button className="np-btn" onClick={nextPosition} aria-label="Simulate next position">Next position</button>
+                          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} />
+                            Auto advance
+                          </label>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -27,6 +27,9 @@ module.exports = {
     modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     alias: {
       'chessground/assets': path.resolve(__dirname, 'node_modules/chessground/assets'),
+      // Ensure a single React instance across the bundle to avoid invalid hook calls
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
     },
     extensions: ['.tsx', '.ts', '.js'],
   },
@@ -174,6 +177,10 @@ module.exports = {
       'process.env.BUILD_CONTEXT': JSON.stringify(process.env.CONTEXT || ''),
       'process.env.BUILD_URL': JSON.stringify(process.env.DEPLOY_URL || process.env.URL || ''),
       'process.env.BUILD_BRANCH': JSON.stringify(process.env.BRANCH || ''),
+      // App feature flags and dev tools toggles
+      'process.env.SHOW_DEV_TOOLS': JSON.stringify(process.env.SHOW_DEV_TOOLS || ''),
+      'process.env.MOVE_MENU_TRANSITION': JSON.stringify(process.env.MOVE_MENU_TRANSITION || ''),
+      'process.env.NEW_CM_LAYOUT': JSON.stringify(process.env.NEW_CM_LAYOUT || ''),
     }),
   ],
   devServer: {
