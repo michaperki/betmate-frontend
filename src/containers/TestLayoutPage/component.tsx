@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { AnimatePresence, motion } from 'framer-motion';
 import NavBar from 'components/NavBar';
 import VersionFooter from 'components/VersionFooter';
@@ -12,6 +13,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faTrophy, faWrench } from '@fortawesome/free-solid-svg-icons';
 import { useMode } from 'context/ModeContext';
 import { tileMotionByVariant, presenceMode } from 'features/moveMenu/moveMenuTransitions';
+import { RootState } from 'types/state';
+import { Game, Move } from 'types/resources/game';
+import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
+import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCreators';
+import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
+import { getFeaturedMatch } from 'store/requests/matchesRequests';
 
 const TestLayoutPage: React.FC = () => {
   type ClockState = 'idle' | 'ticking';
@@ -57,6 +64,37 @@ const TestLayoutPage: React.FC = () => {
   type TileStatus = 'idle' | 'active' | 'disabled' | 'loading' | 'success';
   const [tileStates, setTileStates] = useState<TileStatus[]>(() => simMoves.map(() => 'idle'));
   const [autoAdvance, setAutoAdvance] = useState(false);
+  const [liveMode, setLiveMode] = useState(true);
+  const [liveGameId, setLiveGameId] = useState<string>('');
+  const dispatch = useDispatch();
+  const game: Game | undefined = useSelector((s: RootState) => (liveGameId ? s.game.games[liveGameId] : undefined));
+  const allWagersMap = useSelector((s: RootState) => s.wager?.wagers ?? {});
+  const fetchedHistory = useSelector((s: RootState) => s.wager?.wagerHistory ?? []);
+  const demoSAN = useMemo(() => ['e4','e5','Nf3','Nc6','Bb5','a6','Ba4','Nf6','O-O','Be7'], []);
+  const sanList: string[] = useMemo(() => (
+    (liveMode && game && Array.isArray(game.move_hist) && game?.move_hist?.length)
+      ? (game.move_hist as Move[]).map((m) => String(m.san))
+      : demoSAN
+  ), [liveMode, game?.move_hist, demoSAN]);
+  const [notationCursor, setNotationCursor] = useState<number>(0);
+  useEffect(() => { setNotationCursor(Math.max(0, sanList.length - 1)); }, [sanList.length]);
+  const displayReceipts = useMemo(() => {
+    if (!liveMode || !liveGameId) return [] as any[];
+    const local = Object.values(allWagersMap) as any[];
+    const merged = [...local, ...fetchedHistory];
+    const seen: Record<string, boolean> = {};
+    const filtered = merged.filter((w) => {
+      if (!w || seen[w._id]) return false;
+      seen[w._id] = true;
+      return String(w.game_id) === String(liveGameId);
+    });
+    filtered.sort((a, b) => {
+      const ta = a.created_at ? Date.parse(a.created_at) : 0;
+      const tb = b.created_at ? Date.parse(b.created_at) : 0;
+      return tb - ta;
+    });
+    return filtered.slice(0, 10);
+  }, [allWagersMap, fetchedHistory, liveMode, liveGameId]);
 
   const nextPosition = useCallback(() => {
     setSimMoves(() => {
@@ -81,6 +119,40 @@ const TestLayoutPage: React.FC = () => {
     const t = window.setInterval(() => { nextPosition(); }, 6000);
     return () => window.clearInterval(t);
   }, [autoAdvance, nextPosition]);
+
+  // Poll featured match ID and follow it
+  useEffect(() => {
+    let mounted = true;
+    const fetchFeatured = async () => {
+      try {
+        const resp = await getFeaturedMatch();
+        const id = String(resp?.data?.match_id || '');
+        if (mounted && id && id !== liveGameId) {
+          // Switch to new featured game
+          try { if (liveGameId) dispatch(leaveGame(liveGameId)); } catch {}
+          setLiveGameId(id);
+        }
+      } catch {}
+    };
+    fetchFeatured();
+    const t = window.setInterval(fetchFeatured, 10000);
+    return () => { mounted = false; window.clearInterval(t); };
+  }, [dispatch, liveGameId]);
+
+  // Live mode lifecycle: join/leave current featured game, fetch data
+  useEffect(() => {
+    if (!liveMode || !liveGameId) return;
+    try {
+      dispatch(fetchGameById(liveGameId));
+      dispatch(fetchGameStats(liveGameId));
+    } catch {}
+    try { dispatch(joinGame(liveGameId)); } catch {}
+    const h = window.setInterval(() => { try { dispatch(fetchWagerHistory(undefined, 10, 0)); } catch {} }, 5000);
+    return () => {
+      try { dispatch(leaveGame(liveGameId)); } catch {}
+      window.clearInterval(h);
+    };
+  }, [dispatch, liveMode, liveGameId]);
   const cycleTileState = (index: number) => {
     setTileStates((prev) => {
       const next = [...prev];
@@ -300,35 +372,33 @@ const TestLayoutPage: React.FC = () => {
           </div>
           <div className="frame frame--right-top" aria-label="right-top">
             {(() => {
-              const demoSAN = ['e4', 'e5', 'Nf3', 'Nc6', 'Bb5', 'a6', 'Ba4', 'Nf6', 'O-O', 'Be7'];
-              const [cursor, setCursor] = useState(demoSAN.length - 1);
-              const back = () => setCursor((i) => Math.max(0, i - 1));
-              const fwd = () => setCursor((i) => Math.min(demoSAN.length - 1, i + 1));
-              const start = () => setCursor(0);
-              const end = () => setCursor(demoSAN.length - 1);
+              const back = () => setNotationCursor((i) => Math.max(0, i - 1));
+              const fwd = () => setNotationCursor((i) => Math.min(sanList.length - 1, i + 1));
+              const start = () => setNotationCursor(0);
+              const end = () => setNotationCursor(Math.max(0, sanList.length - 1));
               return (
-                <div className="notation-pad" role="region" aria-label="Notation pad (demo)">
+                <div className="notation-pad" role="region" aria-label="Notation pad">
                   <div className="notation-controls">
                     <button className="np-btn" onClick={start} aria-label="Go to start">⏮</button>
                     <button className="np-btn" onClick={back} aria-label="Step back">◀</button>
                     <button className="np-btn" onClick={fwd} aria-label="Step forward">▶</button>
                     <button className="np-btn" onClick={end} aria-label="Go to end">⏭</button>
                     <div className="np-spacer" />
-                    <div className="np-status">{cursor + 1} / {demoSAN.length}</div>
+                    <div className="np-status">{sanList.length ? (notationCursor + 1) : 0} / {sanList.length}</div>
                   </div>
                   <div className="notation-list" role="list">
-                    {demoSAN.map((san, i) => (
+                    {sanList.map((san, i) => (
                       <div
                         key={i}
                         role="listitem"
                         className={[
                           'notation-move',
-                          i === cursor ? 'is-active' : '',
+                          i === notationCursor ? 'is-active' : '',
                         ].filter(Boolean).join(' ')}
-                        onClick={() => setCursor(i)}
+                        onClick={() => setNotationCursor(i)}
                         tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setCursor(i); }}
-                        aria-current={i === cursor ? 'true' : undefined}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setNotationCursor(i); }}
+                        aria-current={i === notationCursor ? 'true' : undefined}
                       >
                         <span className="nm-index">{i + 1}.</span>
                         <span className="nm-san">{san}</span>
@@ -341,32 +411,6 @@ const TestLayoutPage: React.FC = () => {
           </div>
           <div className="frame frame--right-bottom" aria-label="right-bottom">
             {(() => {
-              type ReceiptStatus = 'pending' | 'won' | 'lost' | 'cancelled';
-              type Receipt = {
-                id: string;
-                type: 'move' | 'outcome';
-                label: string;
-                stake: number;
-                odds: number;
-                status: ReceiptStatus;
-              };
-              const [receipts, setReceipts] = useState<Receipt[]>([
-                { id: 'r1', type: 'outcome', label: 'White', stake: 25, odds: 1.85, status: 'pending' },
-                { id: 'r2', type: 'move', label: 'Nf3', stake: 10, odds: 3.2, status: 'won' },
-                { id: 'r3', type: 'outcome', label: 'Draw', stake: 15, odds: 3.8, status: 'lost' },
-                { id: 'r4', type: 'move', label: 'Bb5', stake: 12, odds: 2.6, status: 'cancelled' },
-              ]);
-              const cycle = (id: string) => {
-                setReceipts((prev) => prev.map((r) => {
-                  if (r.id !== id) return r;
-                  const order: ReceiptStatus[] = ['pending', 'won', 'lost', 'cancelled'];
-                  const idx = order.indexOf(r.status);
-                  return { ...r, status: order[(idx + 1) % order.length] };
-                }));
-              };
-              const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 2 });
-              const fmtStake = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-              const fmtOdds = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 1 });
               return (
                 <div className="receipts-grid" role="table" aria-label="Wager receipts">
                   <div className="rg-head" role="row">
@@ -376,24 +420,34 @@ const TestLayoutPage: React.FC = () => {
                     <div className="rg-cell rg-col-status" role="columnheader">Status</div>
                   </div>
                   <div className="rg-body">
-                    {receipts.map((w) => (
-                      <div
-                        key={w.id}
-                        className={['rg-row', `is-${w.status}`, `type-${w.type}`].join(' ')}
-                        role="row"
-                        onClick={() => cycle(w.id)}
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') cycle(w.id); }}
-                      >
-                        <div className="rg-cell rg-col-bet" role="cell">
-                          <span className={["rg-type-dot", w.type].join(' ')} aria-hidden />
-                          <span className="rg-label" title={w.label}>{w.label}</span>
+                    {(liveMode ? displayReceipts : []).map((w) => {
+                      const type = w.wdl ? 'outcome' : 'move';
+                      const label = w.wdl ? String(w.data) : String(w.data);
+                      const oddsText = (() => {
+                        if (w.wdl && w.mode === 'real' && w.status === 'won') return `x${(w.odds || 1).toFixed(2)}`;
+                        if (!w.wdl && w.mode !== 'real') return `x${(w.odds || 1).toFixed(2)}`;
+                        return '—';
+                      })();
+                      return (
+                        <div key={w._id} className={['rg-row', `is-${String(w.status || '').toLowerCase()}`, `type-${type}`].join(' ')} role="row">
+                          <div className="rg-cell rg-col-bet" role="cell">
+                            <span className={["rg-type-dot", type].join(' ')} aria-hidden />
+                            <span className="rg-label" title={label}>{label}</span>
+                          </div>
+                          <div className="rg-cell rg-col-stake" role="cell">${Math.max(0, w.amount).toFixed(0)}</div>
+                          <div className="rg-cell rg-col-odds" role="cell">{oddsText}</div>
+                          <div className="rg-cell rg-col-status" role="cell">{String(w.status || 'pending')}</div>
                         </div>
-                        <div className="rg-cell rg-col-stake" role="cell">{fmtStake(w.stake)}</div>
-                        <div className="rg-cell rg-col-odds" role="cell">{fmtOdds(w.odds)}</div>
-                        <div className="rg-cell rg-col-status" role="cell">{w.status}</div>
+                      );
+                    })}
+                    {(!liveMode || !displayReceipts.length) && (
+                      <div className="rg-row is-empty" role="row">
+                        <div className="rg-cell rg-col-bet" role="cell">No wagers</div>
+                        <div className="rg-cell rg-col-stake" role="cell">—</div>
+                        <div className="rg-cell rg-col-odds" role="cell">—</div>
+                        <div className="rg-cell rg-col-status" role="cell">—</div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               );
@@ -458,11 +512,16 @@ const TestLayoutPage: React.FC = () => {
                     {showDev && (
                       <div className="bt-popover dev" role="dialog" aria-label="Dev tools">
                         <div className="bt-popover__title">Dev Tools</div>
-                        <div className="bt-popover__body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div className="bt-popover__body" style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 260 }}>
                           <button className="np-btn" onClick={nextPosition} aria-label="Simulate next position">Next position</button>
                           <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                             <input type="checkbox" checked={autoAdvance} onChange={(e) => setAutoAdvance(e.target.checked)} />
                             Auto advance
+                          </label>
+                          <hr style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
+                          <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                            <input type="checkbox" checked={liveMode} onChange={(e) => setLiveMode(e.target.checked)} />
+                            Follow featured match (auto)
                           </label>
                         </div>
                       </div>
