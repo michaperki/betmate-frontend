@@ -429,13 +429,34 @@ const TestLayoutPage: React.FC = () => {
               const fwd = () => setNotationCursor((i) => Math.min(sanList.length - 1, i + 1));
               const start = () => setNotationCursor(0);
               const end = () => setNotationCursor(Math.max(0, sanList.length - 1));
-              // Build pairs similar to real UI
+              // Build pairs like the real UI
               const pairs = [] as Array<{ moveNumber: number; white?: string; black?: string }>;
               for (let i = 0; i < sanList.length; i += 2) {
                 pairs.push({ moveNumber: Math.floor(i / 2) + 1, white: sanList[i], black: sanList[i + 1] });
               }
-              const latestIndex = pairs.length - 1;
+              const latestIndex = Math.max(0, pairs.length - 1);
               const activePairIndex = Math.max(0, Math.floor(notationCursor / 2));
+              const renderCell = (san?: string, color?: 'white' | 'black', cellIndex?: number) => {
+                if (!san) {
+                  return (
+                    <span className={[ 'notation-row__cell', 'notation-row__cell--placeholder', `notation-row__cell--${color}`].join(' ')} aria-hidden>—</span>
+                  );
+                }
+                const isCellActive = cellIndex === notationCursor;
+                return (
+                  <button
+                    type="button"
+                    className={[ 'notation-row__cell', `notation-row__cell--${color}`, isCellActive ? 'is-active' : '' ].filter(Boolean).join(' ')}
+                    onClick={() => setNotationCursor(cellIndex!)}
+                    onMouseEnter={() => handleMoveHoverStart(san)}
+                    onFocus={() => handleMoveHoverStart(san)}
+                    onMouseLeave={handleMoveHoverEnd}
+                    onBlur={handleMoveHoverEnd}
+                  >
+                    <span className="notation-row__text">{san}</span>
+                  </button>
+                );
+              };
               return (
                 <div className="notation-rail" role="region" aria-label="Notation">
                   <div className="notation-rail__controls">
@@ -450,31 +471,10 @@ const TestLayoutPage: React.FC = () => {
                     {pairs.length ? pairs.map((pair, idx) => {
                       const rowActive = idx === activePairIndex;
                       const rowLatest = idx === latestIndex;
-                      const renderCell = (san?: string, color?: 'white' | 'black', cellIndex?: number) => {
-                        if (!san) {
-                          return (
-                            <span className={['notation-row__cell', 'notation-row__cell--placeholder', `notation-row__cell--${color}`].join(' ')} aria-hidden>—</span>
-                          );
-                        }
-                        const isCellActive = cellIndex === notationCursor;
-                        return (
-                          <button
-                            type="button"
-                            className={['notation-row__cell', `notation-row__cell--${color}`, isCellActive ? 'is-active' : ''].filter(Boolean).join(' ')}
-                            onClick={() => setNotationCursor(cellIndex!)}
-                            onMouseEnter={() => handleMoveHoverStart(san)}
-                            onFocus={() => handleMoveHoverStart(san)}
-                            onMouseLeave={handleMoveHoverEnd}
-                            onBlur={handleMoveHoverEnd}
-                          >
-                            <span className="notation-row__text">{san}</span>
-                          </button>
-                        );
-                      };
                       const whiteIndex = idx * 2;
                       const blackIndex = whiteIndex + 1;
                       return (
-                        <div key={`notation-row-${pair.moveNumber}`} className={['notation-row', rowActive ? 'notation-row--active' : '', rowLatest ? 'notation-row--latest' : ''].filter(Boolean).join(' ')}>
+                        <div key={`notation-row-${pair.moveNumber}`} className={[ 'notation-row', rowActive ? 'notation-row--active' : '', rowLatest ? 'notation-row--latest' : '' ].filter(Boolean).join(' ')}>
                           <span className="notation-row__number">{pair.moveNumber}.</span>
                           {renderCell(pair.white, 'white', whiteIndex)}
                           {renderCell(pair.black, 'black', blackIndex)}
