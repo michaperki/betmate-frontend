@@ -6,6 +6,7 @@ import VersionFooter from 'components/VersionFooter';
 import './style.scss';
 import ChessgroundWrapper from 'components/ChessgroundWrapper';
 import { Config } from 'chessground/config';
+import { Key } from 'chessground/types';
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
@@ -19,6 +20,8 @@ import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreator
 import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCreators';
 import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
+import { Chess } from 'chess.js';
+import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
 
 const TestLayoutPage: React.FC = () => {
   type ClockState = 'idle' | 'ticking';
@@ -163,8 +166,9 @@ const TestLayoutPage: React.FC = () => {
       return next;
     });
   };
-  // Simulate stream-like updates
+  // Simulate stream-like updates (disabled when live is on)
   useEffect(() => {
+    if (liveMode) return;
     const t = window.setInterval(() => {
       setSimMoves((prev) => {
         if (!prev.length) return prev;
@@ -195,7 +199,32 @@ const TestLayoutPage: React.FC = () => {
       setTileStates((prev) => Array.from({ length: simMoves.length }, (_, i) => prev[i] || 'idle'));
     }, 1400);
     return () => window.clearInterval(t);
-  }, [CANDIDATE_POOL, simMoves.length]);
+  }, [CANDIDATE_POOL, simMoves.length, liveMode]);
+
+  // Live move tiles: fetch top moves for current FEN
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (!liveMode) return;
+      const fen = game?.state || '';
+      if (!fen) return;
+      try {
+        const resp = await getTopMoves(fen, 12);
+        const arr: MoveAnalysis[] = Array.isArray(resp?.data) ? (resp.data as any) : [];
+        const top = arr
+          .filter((x) => x && x.move)
+          .slice(0, 4)
+          .map((x, i) => ({ id: `${String(x.move)}-${sanList.length}`, label: String(x.move), score: Math.round(100 - i * 8) }));
+        if (!cancelled && top.length) {
+          setSimMoves(top);
+          setTileStates((prev) => Array.from({ length: top.length }, (_, i) => prev[i] || 'idle'));
+        }
+      } catch {}
+    };
+    run();
+    const t = window.setTimeout(run, 350);
+    return () => { cancelled = true; window.clearTimeout(t); };
+  }, [liveMode, game?.state, sanList.length]);
 
   useEffect(() => {
     if (!leftPanelRef.current) return;
@@ -298,11 +327,7 @@ const TestLayoutPage: React.FC = () => {
                 className={[
                   'board-header',
                   'board-header--top',
-                  topState.clock === 'ticking' ? 'is-ticking' : 'is-idle',
-                  topState.active === 'active' ? 'is-active' : 'is-inactive',
-                  topState.confirm === 'loading' ? 'is-loading' : '',
-                  topState.confirm === 'confirmed' ? 'is-confirmed' : '',
-                  topState.confirm === 'rejected' ? 'is-rejected' : '',
+                  (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'b'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                 ].filter(Boolean).join(' ')}
                 onClick={cycleTop}
                 role="button"
@@ -311,12 +336,12 @@ const TestLayoutPage: React.FC = () => {
                 aria-label="Toggle Player 1 header state"
               >
                 <div className="ph-left">
-                  <div className="ph-name">Player 1</div>
-                  <div className="ph-rating">2420</div>
+                  <div className="ph-name">{liveMode ? (game?.player_black?.name || 'Black') : 'Player 1'}</div>
+                  <div className="ph-rating">{liveMode ? (game?.player_black?.elo || '') : '2420'}</div>
                 </div>
                 <div className="ph-right">
                   <div className="ph-clock">
-                    <span>05:00</span>
+                    <span>{liveMode ? formatClockSafe(game?.time_black, game?.time_format) : '05:00'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
                   <div className="ph-state-chip" aria-hidden />
@@ -325,17 +350,7 @@ const TestLayoutPage: React.FC = () => {
               <div className="board-center">
                 <div className="board-square">
                   <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
-                    <ChessgroundWrapper
-                      config={{
-                        orientation: 'white',
-                        coordinates: true,
-                        viewOnly: true,
-                        highlight: { lastMove: true, check: true } as any,
-                        animation: { duration: 200 } as any,
-                        draggable: { showGhost: true } as any,
-                        movable: { free: false, color: 'both' } as any,
-                      } as Config}
-                    />
+                    <ChessgroundWrapper config={buildBoardConfig(game)} />
                   </div>
                 </div>
                 <div className="eval-bar"><span className="board__label">Eval</span></div>
@@ -344,11 +359,7 @@ const TestLayoutPage: React.FC = () => {
                 className={[
                   'board-header',
                   'board-header--bottom',
-                  bottomState.clock === 'ticking' ? 'is-ticking' : 'is-idle',
-                  bottomState.active === 'active' ? 'is-active' : 'is-inactive',
-                  bottomState.confirm === 'loading' ? 'is-loading' : '',
-                  bottomState.confirm === 'confirmed' ? 'is-confirmed' : '',
-                  bottomState.confirm === 'rejected' ? 'is-rejected' : '',
+                  (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'w'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                 ].filter(Boolean).join(' ')}
                 onClick={cycleBottom}
                 role="button"
@@ -357,12 +368,12 @@ const TestLayoutPage: React.FC = () => {
                 aria-label="Toggle Player 2 header state"
               >
                 <div className="ph-left">
-                  <div className="ph-name">Player 2</div>
-                  <div className="ph-rating">2510</div>
+                  <div className="ph-name">{liveMode ? (game?.player_white?.name || 'White') : 'Player 2'}</div>
+                  <div className="ph-rating">{liveMode ? (game?.player_white?.elo || '') : '2510'}</div>
                 </div>
                 <div className="ph-right">
                   <div className="ph-clock">
-                    <span>04:32</span>
+                    <span>{liveMode ? formatClockSafe(game?.time_white, game?.time_format) : '04:32'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
                   <div className="ph-state-chip" aria-hidden />
@@ -539,3 +550,54 @@ const TestLayoutPage: React.FC = () => {
 };
 
 export default TestLayoutPage;
+
+// Helpers local to the Test UI
+function formatClockSafe(value?: number, timeFormat?: string): string {
+  const parseInitialSeconds = (tf?: string): number | null => {
+    if (!tf) return null;
+    const base = String(tf).split('+')[0]?.trim();
+    const mins = Number.parseInt(base, 10);
+    return Number.isFinite(mins) && mins >= 0 ? mins * 60 : null;
+  };
+  const initialSecs = parseInitialSeconds(timeFormat);
+  let seconds: number = Math.max(0, Number(value || 0));
+  if (initialSecs != null) seconds = seconds > initialSecs * 10 ? Math.floor(seconds / 1000) : Math.floor(seconds);
+  else seconds = seconds > 10000 ? Math.floor(seconds / 1000) : Math.floor(seconds);
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function buildBoardConfig(game?: Game): Config {
+  try {
+    const fen = game?.state || undefined;
+    let last: [Key, Key] | undefined;
+    const hist = (game?.move_hist || []) as Move[];
+    if (fen && hist.length) {
+      const mv = hist[hist.length - 1];
+      last = [mv.from as Key, mv.to as Key];
+    }
+    const cfg: Config = {
+      orientation: 'white',
+      coordinates: true,
+      viewOnly: true,
+      fen: fen as any,
+      lastMove: last,
+      highlight: { lastMove: true, check: true } as any,
+      animation: { duration: 250 } as any,
+      draggable: { showGhost: true } as any,
+      movable: { free: false, color: 'both' } as any,
+    };
+    return cfg;
+  } catch {
+    return {
+      orientation: 'white',
+      coordinates: true,
+      viewOnly: true,
+      highlight: { lastMove: true, check: true } as any,
+      animation: { duration: 200 } as any,
+      draggable: { showGhost: true } as any,
+      movable: { free: false, color: 'both' } as any,
+    } as Config;
+  }
+}
