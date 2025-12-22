@@ -81,6 +81,28 @@ const TestLayoutPage: React.FC = () => {
   ), [liveMode, game?.move_hist, demoSAN]);
   const [notationCursor, setNotationCursor] = useState<number>(0);
   useEffect(() => { setNotationCursor(Math.max(0, sanList.length - 1)); }, [sanList.length]);
+  // Hover arrow state for board overlay
+  const [hoverArrow, setHoverArrow] = useState<[string, string] | null>(null);
+  const normalizeMoveNotation = useCallback((move: string) => (
+    String(move)
+      .replace(/^[0-9]+\.{1,3}\s*/, '')
+      .replace(/^\.{3}\s*/, '')
+      .trim()
+  ), []);
+  const computeArrowForMove = useCallback((san: string): [string, string] | null => {
+    try {
+      const fen = (game?.state || undefined);
+      const chess = new Chess(fen);
+      const mv = chess.move(normalizeMoveNotation(san), { sloppy: true } as any);
+      if (mv && mv.from && mv.to) return [String(mv.from), String(mv.to)];
+    } catch {}
+    return null;
+  }, [game?.state, normalizeMoveNotation]);
+  const handleMoveHoverStart = useCallback((san: string) => {
+    const arrow = computeArrowForMove(san);
+    setHoverArrow(arrow ? [arrow[0], arrow[1]] : null);
+  }, [computeArrowForMove]);
+  const handleMoveHoverEnd = useCallback(() => setHoverArrow(null), []);
   const displayReceipts = useMemo(() => {
     if (!liveMode || !liveGameId) return [] as any[];
     const local = Object.values(allWagersMap) as any[];
@@ -263,6 +285,22 @@ const TestLayoutPage: React.FC = () => {
     return () => ro.disconnect();
   }, [simMoves.length]);
 
+  // Build board config with hover arrow overlay
+  const boardConfig: Config = useMemo(() => {
+    const cfg = buildBoardConfig(game);
+    const shapes = hoverArrow ? [{ orig: hoverArrow[0] as Key, dest: hoverArrow[1] as Key, brush: 'green' as any }] : [];
+    return {
+      ...cfg,
+      drawable: {
+        enabled: true,
+        visible: true,
+        defaultSnapToValidMove: true,
+        eraseOnClick: false,
+        autoShapes: shapes as any,
+      } as any,
+    } as Config;
+  }, [game, hoverArrow]);
+
   return (
     <div className="test-layout-page">
       <NavBar compact={true} />
@@ -350,7 +388,7 @@ const TestLayoutPage: React.FC = () => {
               <div className="board-center">
                 <div className="board-square">
                   <div className="chessboard-wrapper brown" style={{ width: '100%', height: '100%' }}>
-                    <ChessgroundWrapper config={buildBoardConfig(game)} />
+                    <ChessgroundWrapper config={boardConfig} />
                   </div>
                 </div>
                 <div className="eval-bar"><span className="board__label">Eval</span></div>
@@ -387,9 +425,16 @@ const TestLayoutPage: React.FC = () => {
               const fwd = () => setNotationCursor((i) => Math.min(sanList.length - 1, i + 1));
               const start = () => setNotationCursor(0);
               const end = () => setNotationCursor(Math.max(0, sanList.length - 1));
+              // Build pairs similar to real UI
+              const pairs = [] as Array<{ moveNumber: number; white?: string; black?: string }>;
+              for (let i = 0; i < sanList.length; i += 2) {
+                pairs.push({ moveNumber: Math.floor(i / 2) + 1, white: sanList[i], black: sanList[i + 1] });
+              }
+              const latestIndex = pairs.length - 1;
+              const activePairIndex = Math.max(0, Math.floor(notationCursor / 2));
               return (
-                <div className="notation-pad" role="region" aria-label="Notation pad">
-                  <div className="notation-controls">
+                <div className="notation-rail" role="region" aria-label="Notation">
+                  <div className="notation-rail__controls">
                     <button className="np-btn" onClick={start} aria-label="Go to start">⏮</button>
                     <button className="np-btn" onClick={back} aria-label="Step back">◀</button>
                     <button className="np-btn" onClick={fwd} aria-label="Step forward">▶</button>
@@ -397,24 +442,47 @@ const TestLayoutPage: React.FC = () => {
                     <div className="np-spacer" />
                     <div className="np-status">{sanList.length ? (notationCursor + 1) : 0} / {sanList.length}</div>
                   </div>
-                  <div className="notation-list" role="list">
-                    {sanList.map((san, i) => (
-                      <div
-                        key={i}
-                        role="listitem"
-                        className={[
-                          'notation-move',
-                          i === notationCursor ? 'is-active' : '',
-                        ].filter(Boolean).join(' ')}
-                        onClick={() => setNotationCursor(i)}
-                        tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setNotationCursor(i); }}
-                        aria-current={i === notationCursor ? 'true' : undefined}
-                      >
-                        <span className="nm-index">{i + 1}.</span>
-                        <span className="nm-san">{san}</span>
+                  <div className="notation-rail__list" role="list" onMouseLeave={handleMoveHoverEnd}>
+                    {pairs.length ? pairs.map((pair, idx) => {
+                      const rowActive = idx === activePairIndex;
+                      const rowLatest = idx === latestIndex;
+                      const renderCell = (san?: string, color?: 'white' | 'black', cellIndex?: number) => {
+                        if (!san) {
+                          return (
+                            <span className={['notation-row__cell', 'notation-row__cell--placeholder', `notation-row__cell--${color}`].join(' ')} aria-hidden>—</span>
+                          );
+                        }
+                        const isCellActive = cellIndex === notationCursor;
+                        return (
+                          <button
+                            type="button"
+                            className={['notation-row__cell', `notation-row__cell--${color}`, isCellActive ? 'is-active' : ''].filter(Boolean).join(' ')}
+                            onClick={() => setNotationCursor(cellIndex!)}
+                            onMouseEnter={() => handleMoveHoverStart(san)}
+                            onFocus={() => handleMoveHoverStart(san)}
+                            onMouseLeave={handleMoveHoverEnd}
+                            onBlur={handleMoveHoverEnd}
+                          >
+                            <span className="notation-row__text">{san}</span>
+                          </button>
+                        );
+                      };
+                      const whiteIndex = idx * 2;
+                      const blackIndex = whiteIndex + 1;
+                      return (
+                        <div key={`notation-row-${pair.moveNumber}`} className={['notation-row', rowActive ? 'notation-row--active' : '', rowLatest ? 'notation-row--latest' : ''].filter(Boolean).join(' ')}>
+                          <span className="notation-row__number">{pair.moveNumber}.</span>
+                          {renderCell(pair.white, 'white', whiteIndex)}
+                          {renderCell(pair.black, 'black', blackIndex)}
+                        </div>
+                      );
+                    }) : (
+                      <div className="notation-row notation-row--empty">
+                        <span className="notation-row__number">—</span>
+                        <span className="notation-row__cell notation-row__cell--placeholder">Moves will appear here</span>
+                        <span className="notation-row__cell notation-row__cell--placeholder" />
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               );
