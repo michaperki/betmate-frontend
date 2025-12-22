@@ -2157,18 +2157,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
-                      {enableNewLayout && !isMobile && (
-                        <div className="player-bet-actions">
-                          <button
-                            type="button"
-                            className="player-bet-cta player-bet-cta--black"
-                            disabled={!canAttemptWager || !hasSufficientBalance || outcomeStates['black_win'] === 'loading'}
-                            onClick={() => triggerOutcomeBet('black_win')}
-                          >
-                            Wager Black
-                          </button>
-                        </div>
-                      )}
+                      {/* Removed desktop header CTA per design feedback; header remains clickable on mobile only */}
                       <span className="ph-spinner" aria-hidden />
                       <span className="ph-check" aria-hidden>✓</span>
                     </div>
@@ -2212,18 +2201,7 @@ const ChessMatch: React.FC<ChessMatchProps> = (props) => {
                           <span className="player-bet-hint">Tap</span>
                         )}
                       </div>
-                      {enableNewLayout && !isMobile && (
-                        <div className="player-bet-actions">
-                          <button
-                            type="button"
-                            className="player-bet-cta player-bet-cta--white"
-                            disabled={!canAttemptWager || !hasSufficientBalance || outcomeStates['white_win'] === 'loading'}
-                            onClick={() => triggerOutcomeBet('white_win')}
-                          >
-                            Wager White
-                          </button>
-                        </div>
-                      )}
+                      {/* Removed desktop header CTA per design feedback; header remains clickable on mobile only */}
                       <span className="ph-spinner" aria-hidden />
                       <span className="ph-check" aria-hidden>✓</span>
                     </div>
