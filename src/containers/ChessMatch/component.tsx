@@ -19,6 +19,7 @@ import { Game, Move } from 'types/resources/game';
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCreators';
 import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
+import { shortWagerReason } from 'utils/wagerErrorText';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
 import { Chess } from 'chess.js';
 import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
@@ -81,6 +82,7 @@ const ChessMatch: React.FC = () => {
   const allWagersMap = useSelector((s: RootState) => s.wager?.wagers ?? {});
   const fetchedHistory = useSelector((s: RootState) => s.wager?.wagerHistory ?? []);
   const isAuthenticated = useSelector((s: RootState) => s.auth?.isAuthenticated ?? false);
+  const authUser = useSelector((s: RootState) => s.auth?.user || null);
   const demoSAN = useMemo(() => ['e4','e5','Nf3','Nc6','Bb5','a6','Ba4','Nf6','O-O','Be7'], []);
   const sanList: string[] = useMemo(() => (
     (liveMode && game && Array.isArray(game.move_hist) && game?.move_hist?.length)
@@ -137,9 +139,17 @@ const ChessMatch: React.FC = () => {
   // Header CTA states (used for loading/confirmed/rejected styling)
   const [topHeaderStatus, setTopHeaderStatus] = useState<'idle'|'loading'|'confirmed'|'rejected'>('idle');
   const [bottomHeaderStatus, setBottomHeaderStatus] = useState<'idle'|'loading'|'confirmed'|'rejected'>('idle');
+  // Optional brief reason strings for header rejections
+  const [topHeaderReason, setTopHeaderReason] = useState<string>('');
+  const [bottomHeaderReason, setBottomHeaderReason] = useState<string>('');
   const [pendingMove, setPendingMove] = useState<null | { san: string; index: number; startedAt: number }>(null);
+  const [tileReasons, setTileReasons] = useState<Record<number, string>>({});
   // Track pending WDL submission to correlate with Redux changes
   const [pendingWdl, setPendingWdl] = useState<null | { outcome: 'white_win'|'black_win'|'draw'; origin: 'top'|'bottom'|'toolbar'; startedAt: number }>(null);
+  // Bottom bar ephemeral status (e.g., move rejection reason)
+  const [barMessage, setBarMessage] = useState<string>('');
+  // Screen-reader friendly announcement region (no visible toast)
+  const [liveAnnounce, setLiveAnnounce] = useState<string>('');
 
   // Clock display like ChessMatch
   const [displayWhiteSecs, setDisplayWhiteSecs] = useState<number>(0);
@@ -502,7 +512,7 @@ const ChessMatch: React.FC = () => {
     if (!liveMode) return; // Only place bets in live mode
     if (!isAtLatestSnapshot) return; // Disable when viewing historical snapshot
     if (!game?._id) return;
-    if (!isAuthenticated) { history.push('/signin'); return; }
+    if (!isAuthenticated) { setBarMessage('Sign in to bet'); setTimeout(() => setBarMessage(''), 1400); history.push('/signin'); return; }
     const amount = Math.max(1, Number(stake) || 1);
     const wdl = false;
     const moveNumber = (Array.isArray(game?.move_hist) ? game!.move_hist.length : 0) + 1;
@@ -516,6 +526,45 @@ const ChessMatch: React.FC = () => {
 
     const idx = simMoves.findIndex(m => String(m.label) === String(san));
     if (idx >= 0) {
+      // Debounce repeated clicks while loading
+      if ((tileStates[idx] || 'idle') === 'loading') return;
+    }
+
+    // Client-side pre-checks: balance and Arcade cap
+    try {
+      const arcadeBal = Math.max(0, Number((authUser as any)?.token_balance ?? (authUser as any)?.account ?? 0));
+      const cashBal = Math.max(0, Number((authUser as any)?.cash_balance ?? 0));
+      const effectiveBal = mode === 'real' ? cashBal : arcadeBal;
+      if (amount > effectiveBal) {
+        const reason = shortWagerReason('INSUFFICIENT', 'Insufficient funds');
+        if (idx >= 0) {
+          setTileStates((prev) => prev.map((st, i) => (i === idx ? 'disabled' : st)));
+          setTileReasons((m) => ({ ...m, [idx]: reason }));
+          setTimeout(() => setTileReasons((m) => { const n = { ...m }; delete n[idx]; return n; }), 1600);
+        }
+        setBarMessage(`Move bet rejected — ${reason}`);
+        setTimeout(() => setBarMessage(''), 1600);
+        setLiveAnnounce(`Move bet rejected — ${reason}`);
+        return;
+      }
+      if (mode !== 'real' && limits) {
+        const maxMove = Number(limits.arcadeMaxStakeMove || Infinity);
+        if (amount > maxMove) {
+          const reason = shortWagerReason('CAP_PER_BET', 'Stake exceeds maximum for this bet');
+          if (idx >= 0) {
+            setTileStates((prev) => prev.map((st, i) => (i === idx ? 'disabled' : st)));
+            setTileReasons((m) => ({ ...m, [idx]: reason }));
+            setTimeout(() => setTileReasons((m) => { const n = { ...m }; delete n[idx]; return n; }), 1600);
+          }
+          setBarMessage(`Move bet rejected — ${reason}`);
+          setTimeout(() => setBarMessage(''), 1600);
+          setLiveAnnounce(`Move bet rejected — ${reason}`);
+          return;
+        }
+      }
+    } catch {}
+
+    if (idx >= 0) {
       setTileStates((prev) => prev.map((st, i) => (i === idx ? 'loading' : st)));
       setPendingMove({ san: String(san), index: idx, startedAt: Date.now() });
     }
@@ -523,13 +572,23 @@ const ChessMatch: React.FC = () => {
     try {
       dispatch(createWager(String(game!._id), String(san), amount, wdl, odds, moveNumber, mode, currency));
     } catch {}
-  }, [dispatch, game?._id, game?.move_hist, isAuthenticated, history, stake, mode, arcadeOddsMap, liveMode, simMoves]);
+  }, [dispatch, game?._id, game?.move_hist, isAuthenticated, history, stake, mode, arcadeOddsMap, liveMode, simMoves, tileStates, limits, authUser]);
 
   // Place WDL wager (used by Player Headers and Draw button)
   const handlePlaceWdlBet = useCallback((outcome: 'white_win'|'draw'|'black_win', origin?: 'top'|'bottom'|'toolbar') => {
     if (!isAtLatestSnapshot || !isGameInProgress) return;
     if (!game?._id) return;
-    if (!isAuthenticated) { history.push('/signin'); return; }
+    if (!isAuthenticated) {
+      const msg = 'Sign in to bet';
+      if (origin === 'top') { setTopHeaderReason(msg); setTopHeaderStatus('rejected'); setTimeout(() => { setTopHeaderStatus('idle'); setTopHeaderReason(''); }, 1600); }
+      if (origin === 'bottom') { setBottomHeaderReason(msg); setBottomHeaderStatus('rejected'); setTimeout(() => { setBottomHeaderStatus('idle'); setBottomHeaderReason(''); }, 1600); }
+      if (origin === 'toolbar') { setBarMessage(msg); setTimeout(() => setBarMessage(''), 1600); }
+      history.push('/signin');
+      return;
+    }
+    // Debounce multiple clicks while loading
+    if (origin === 'top' && topHeaderStatus === 'loading') return;
+    if (origin === 'bottom' && bottomHeaderStatus === 'loading') return;
     const amount = Math.max(1, Number(stake) || 1);
     const moveNum = (Array.isArray(game?.move_hist) ? game!.move_hist.length : 0) + 1;
     const currency: 'BET' | 'USDT' = mode === 'real' ? 'USDT' : 'BET';
@@ -543,6 +602,32 @@ const ChessMatch: React.FC = () => {
     if (mode === 'arcade') odds = p > 0 ? Math.round((1 / p) * 100) / 100 : 1;
     else odds = p > 0 ? realWdlMultiplier(outcome, p, moveNum, risk as any) : 1;
 
+    // Client-side pre-checks: balance and Arcade WDL cap
+    try {
+      const arcadeBal = Math.max(0, Number((authUser as any)?.token_balance ?? (authUser as any)?.account ?? 0));
+      const cashBal = Math.max(0, Number((authUser as any)?.cash_balance ?? 0));
+      const effectiveBal = mode === 'real' ? cashBal : arcadeBal;
+      if (amount > effectiveBal) {
+        const reason = shortWagerReason('INSUFFICIENT', 'Insufficient funds');
+        if (origin === 'top') { setTopHeaderReason(reason); setTopHeaderStatus('rejected'); setTimeout(() => { setTopHeaderStatus('idle'); setTopHeaderReason(''); }, 1600); }
+        if (origin === 'bottom') { setBottomHeaderReason(reason); setBottomHeaderStatus('rejected'); setTimeout(() => { setBottomHeaderStatus('idle'); setBottomHeaderReason(''); }, 1600); }
+        if (origin === 'toolbar') { setBarMessage(`Wager rejected — ${reason}`); setTimeout(() => setBarMessage(''), 1600); }
+        setLiveAnnounce(`Wager rejected — ${reason}`);
+        return;
+      }
+      if (mode !== 'real' && limits) {
+        const maxWdl = Number(limits.arcadeMaxStakeWdl || Infinity);
+        if (amount > maxWdl) {
+          const reason = shortWagerReason('CAP_PER_BET', 'Stake exceeds maximum for this bet');
+          if (origin === 'top') { setTopHeaderReason(reason); setTopHeaderStatus('rejected'); setTimeout(() => { setTopHeaderStatus('idle'); setTopHeaderReason(''); }, 1600); }
+          if (origin === 'bottom') { setBottomHeaderReason(reason); setBottomHeaderStatus('rejected'); setTimeout(() => { setBottomHeaderStatus('idle'); setBottomHeaderReason(''); }, 1600); }
+          if (origin === 'toolbar') { setBarMessage(`Wager rejected — ${reason}`); setTimeout(() => setBarMessage(''), 1600); }
+          setLiveAnnounce(`Wager rejected — ${reason}`);
+          return;
+        }
+      }
+    } catch {}
+
     // Indicate loading state on the header that initiated the action
     if (origin === 'top') setTopHeaderStatus('loading');
     if (origin === 'bottom') setBottomHeaderStatus('loading');
@@ -553,19 +638,37 @@ const ChessMatch: React.FC = () => {
       if (origin === 'top') { setTopHeaderStatus('rejected'); setTimeout(() => setTopHeaderStatus('idle'), 1400); }
       if (origin === 'bottom') { setBottomHeaderStatus('rejected'); setTimeout(() => setBottomHeaderStatus('idle'), 1400); }
     }
-  }, [dispatch, game?._id, game?.move_hist, isAuthenticated, history, stake, mode, risk]);
+  }, [dispatch, game?._id, game?.move_hist, isAuthenticated, history, stake, mode, risk, limits, topHeaderStatus, bottomHeaderStatus, authUser]);
 
   // React to wager create success/failure from Redux
   const wagersMap = useSelector((s: RootState) => s.wager.wagers);
   const wagerError = useSelector((s: RootState) => s.wager.error);
+  const wagerErrorCode = useSelector((s: RootState) => s.wager.errorCode);
   const wagersCount = Object.keys(wagersMap || {}).length;
   const lastWagersRef = useRef<number>(wagersCount);
   useEffect(() => {
     if (!pendingWdl) return;
     // Failure path: if reducer error is set soon after request
     if (wagerError) {
-      if (pendingWdl.origin === 'top') { setTopHeaderStatus('rejected'); setTimeout(() => setTopHeaderStatus('idle'), 1400); }
-      if (pendingWdl.origin === 'bottom') { setBottomHeaderStatus('rejected'); setTimeout(() => setBottomHeaderStatus('idle'), 1400); }
+      const short = shortWagerReason(wagerErrorCode as any, String(wagerError));
+      // Show inline rejected state on the header that initiated the bet
+      if (pendingWdl.origin === 'top') {
+        setTopHeaderReason(short);
+        setTopHeaderStatus('rejected');
+        setTimeout(() => { setTopHeaderStatus('idle'); setTopHeaderReason(''); }, 1600);
+      }
+      if (pendingWdl.origin === 'bottom') {
+        setBottomHeaderReason(short);
+        setBottomHeaderStatus('rejected');
+        setTimeout(() => { setBottomHeaderStatus('idle'); setBottomHeaderReason(''); }, 1600);
+      }
+      // If rejection was from toolbar (center Draw), surface in bottom bar
+      if (pendingWdl.origin === 'toolbar') {
+        setBarMessage(`Wager rejected — ${short}`);
+        setTimeout(() => setBarMessage(''), 1600);
+      }
+      // Announce for assistive tech
+      try { setLiveAnnounce(`Wager rejected — ${short}`); } catch {}
       setPendingWdl(null);
       return;
     }
@@ -577,6 +680,7 @@ const ChessMatch: React.FC = () => {
       if (recent.length) {
         if (pendingWdl.origin === 'top') { setTopHeaderStatus('confirmed'); setTimeout(() => setTopHeaderStatus('idle'), 1200); }
         if (pendingWdl.origin === 'bottom') { setBottomHeaderStatus('confirmed'); setTimeout(() => setBottomHeaderStatus('idle'), 1200); }
+        try { setLiveAnnounce('Wager accepted'); } catch {}
         setPendingWdl(null);
       }
     }
@@ -587,9 +691,18 @@ const ChessMatch: React.FC = () => {
   useEffect(() => {
     if (!pendingMove) return;
     if (wagerError) {
+      const short = shortWagerReason(wagerErrorCode as any, String(wagerError));
       const i = pendingMove.index;
       setTileStates((prev) => prev.map((st, idx) => (idx === i ? 'disabled' : st)));
-      setTimeout(() => setTileStates((prev) => prev.map((st, idx) => (idx === i ? 'idle' : st))), 1200);
+      // Surface brief reason in bottom bar and tile tooltip
+      setBarMessage(`Move bet rejected — ${short}`);
+      setTileReasons((m) => ({ ...m, [i]: short }));
+      setTimeout(() => {
+        setTileStates((prev) => prev.map((st, idx) => (idx === i ? 'idle' : st)));
+        setBarMessage('');
+        setTileReasons((m) => { const n = { ...m }; delete n[i]; return n; });
+      }, 1600);
+      try { setLiveAnnounce(`Move bet rejected — ${short}`); } catch {}
       setPendingMove(null);
       return;
     }
@@ -601,6 +714,7 @@ const ChessMatch: React.FC = () => {
         const i = pendingMove.index;
         setTileStates((prev) => prev.map((st, idx) => (idx === i ? 'success' : st)));
         setTimeout(() => setTileStates((prev) => prev.map((st, idx) => (idx === i ? 'idle' : st))), 1200);
+        try { setLiveAnnounce('Wager accepted'); } catch {}
         setPendingMove(null);
       }
     }
@@ -611,6 +725,8 @@ const ChessMatch: React.FC = () => {
     <div className="match-page">
       <NavBar compact={true} />
       <main className="match-page__content">
+        {/* Visually hidden aria-live region for accept/reject announcements */}
+        <div aria-live="polite" style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0 }}>{liveAnnounce}</div>
         <div className="match-layout-grid">
           <div className="frame frame--left" aria-label="left-panel">
             {(() => {
@@ -638,6 +754,7 @@ const ChessMatch: React.FC = () => {
                     const tag = moveTag(m.label, i, simMoves.map(mm => mm.score));
                     // Icon zone glyph (large, static)
                     const bigGlyph = largeIconGlyph(m.label, sideToMove);
+                    const reason = tileReasons[i];
                     return (
                       <motion.div
                         layout
@@ -647,7 +764,9 @@ const ChessMatch: React.FC = () => {
                         exit={motionSpec.exit as any}
                         transition={motionSpec.transition}
                         className={classes}
-                        title={locked ? `${m.label} · Go Live to place bets` : `${m.label}${typeof showX === 'number' ? ` · x${showX}` : ''}`}
+                        title={locked
+                          ? `${m.label} · Go Live to place bets`
+                          : (reason ? `${m.label} · Rejected — ${reason}` : `${m.label}${typeof showX === 'number' ? ` · x${showX}` : ''}`)}
                         onClick={() => (liveMode && bettingEnabled ? handlePlaceMoveBet(m.label) : undefined)}
                         onMouseEnter={() => handleMoveHoverStart(m.label)}
                         onMouseLeave={handleMoveHoverEnd}
@@ -711,7 +830,10 @@ const ChessMatch: React.FC = () => {
                 onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && bettingEnabled) handlePlaceWdlBet('black_win', 'top'); }}
                 aria-label="Bet on Black"
                 aria-disabled={!bettingEnabled}
-                title={bettingEnabled ? undefined : 'Go Live to place bets'}
+                aria-busy={topHeaderStatus === 'loading'}
+                title={bettingEnabled
+                  ? (topHeaderStatus === 'rejected' && topHeaderReason ? `Rejected — ${topHeaderReason}` : undefined)
+                  : 'Go Live to place bets'}
               >
                 <div className="ph-left">
                   <div className="ph-name">{liveMode ? (game?.player_black?.name || 'Black') : 'Player 1'}</div>
@@ -726,6 +848,9 @@ const ChessMatch: React.FC = () => {
                     <div className="ph-odds" title={`Black x${headerBlackX.toFixed(2)}`}>x{headerBlackX.toFixed(2)}</div>
                   )}
                   <div className="ph-state-chip" aria-hidden />
+                  {topHeaderStatus === 'rejected' && topHeaderReason && (
+                    <div className="ph-reason" style={{ marginLeft: 8, fontSize: 12, opacity: 0.9 }}>Rejected — {topHeaderReason}</div>
+                  )}
                 </div>
               </div>
               <div className="board-center">
@@ -776,7 +901,10 @@ const ChessMatch: React.FC = () => {
                 onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && bettingEnabled) handlePlaceWdlBet('white_win', 'bottom'); }}
                 aria-label="Bet on White"
                 aria-disabled={!bettingEnabled}
-                title={bettingEnabled ? undefined : 'Go Live to place bets'}
+                aria-busy={bottomHeaderStatus === 'loading'}
+                title={bettingEnabled
+                  ? (bottomHeaderStatus === 'rejected' && bottomHeaderReason ? `Rejected — ${bottomHeaderReason}` : undefined)
+                  : 'Go Live to place bets'}
               >
                 <div className="ph-left">
                   <div className="ph-name">{liveMode ? (game?.player_white?.name || 'White') : 'Player 2'}</div>
@@ -791,6 +919,9 @@ const ChessMatch: React.FC = () => {
                     <div className="ph-odds" title={`White x${headerWhiteX.toFixed(2)}`}>x{headerWhiteX.toFixed(2)}</div>
                   )}
                   <div className="ph-state-chip" aria-hidden />
+                  {bottomHeaderStatus === 'rejected' && bottomHeaderReason && (
+                    <div className="ph-reason" style={{ marginLeft: 8, fontSize: 12, opacity: 0.9 }}>Rejected — {bottomHeaderReason}</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -976,6 +1107,11 @@ const ChessMatch: React.FC = () => {
                     })()}
                   </div>
                   <div className="bt-center">
+                    {barMessage && (
+                      <div className="bt-status" role="status" aria-live="polite" style={{ marginRight: 12, fontSize: 12, opacity: 0.9 }}>
+                        {barMessage}
+                      </div>
+                    )}
                     <button
                       className="bt-draw"
                       disabled={!(pDraw > 0) || !bettingEnabled}

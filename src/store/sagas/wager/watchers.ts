@@ -24,8 +24,11 @@ import {
 
 export function* watchCreateWager() {
   while (true) {
+    // Keep a reference to the latest request for contextual logging on failure
+    let lastRequest: CreateWagerActions | undefined;
     try {
       const action: CreateWagerActions = yield take((a: Actions) => (a.type === 'CREATE_WAGER' && a.status === 'REQUEST'));
+      lastRequest = action;
       if (action.status !== 'REQUEST') continue; // Type protection only
 
       // Optimistically adjust Arcade balance only if we have a token present
@@ -45,6 +48,20 @@ export function* watchCreateWager() {
         action.payload.mode,
         action.payload.currency,
       );
+      // Dev-friendly console log for accepted wagers (no UI toast)
+      try {
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.info('[CREATE_WAGER] success', {
+            gameId: action.payload.gameId,
+            data: action.payload.wager,
+            wdl: action.payload.wdl,
+            amount: action.payload.amount,
+            mode: action.payload.mode,
+            wagerId: response?.data?._id,
+          });
+        }
+      } catch {}
       yield put<Actions>({ type: 'CREATE_WAGER', payload: response.data, status: 'SUCCESS' });
 
       // Refresh game stats after successful wager creation
@@ -64,6 +81,24 @@ export function* watchCreateWager() {
       // Reconcile balance with server (lightweight refresh via JWT flow)
       yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
     } catch (error) {
+      // Dev-friendly console log for rejected wagers
+      try {
+        if (process.env.NODE_ENV !== 'production') {
+          const err = getErrorPayload(error);
+          // eslint-disable-next-line no-console
+          console.info('[CREATE_WAGER] failure', {
+            message: err.message,
+            code: (err as any).code,
+            gameId: (lastRequest as any)?.payload?.gameId,
+            data: (lastRequest as any)?.payload?.wager,
+            wdl: (lastRequest as any)?.payload?.wdl,
+            amount: (lastRequest as any)?.payload?.amount,
+            mode: (lastRequest as any)?.payload?.mode,
+          });
+          // also attach global for quick inspection
+          (window as any).__bmLastWagerError = { ...err, at: Date.now(), context: (lastRequest as any)?.payload };
+        }
+      } catch {}
       yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
       // Roll back optimistic balance if the wager failed to create
       try {
