@@ -18,7 +18,7 @@ const UserPage: React.FC<UserProps> = (props) => {
 
   return (
     <div className="background">
-      <div>Account: {props.user?.account}</div>
+      <div>Token Balance: {props.user?.token_balance ?? 0}</div>
       <div>
         {Object.values(props.wagers)
           .sort((wA, wB) => new Date(wB.updated_at).getTime() - new Date(wA.updated_at).getTime())

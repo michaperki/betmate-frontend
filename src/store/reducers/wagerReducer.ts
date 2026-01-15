@@ -33,6 +33,12 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
   // Handle error states
   if (action.status === 'FAILURE') {
     switch (action.type) {
+      case 'CREATE_WAGER':
+        return {
+          ...state,
+          error: action.payload.message || 'Failed to create wager',
+          loading: false,
+        };
       case 'FETCH_USER_BETTING_STATS':
       case 'FETCH_ACTIVE_WAGERS':
       case 'FETCH_WAGER_HISTORY':

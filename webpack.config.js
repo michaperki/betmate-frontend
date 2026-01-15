@@ -180,7 +180,7 @@ module.exports = {
       // App feature flags and dev tools toggles
       'process.env.SHOW_DEV_TOOLS': JSON.stringify(process.env.SHOW_DEV_TOOLS || ''),
       'process.env.MOVE_MENU_TRANSITION': JSON.stringify(process.env.MOVE_MENU_TRANSITION || ''),
-      'process.env.NEW_CM_LAYOUT': JSON.stringify(process.env.NEW_CM_LAYOUT || ''),
+      // NEW_CM_LAYOUT removed — new ChessMatch UI is default
     }),
   ],
   devServer: {

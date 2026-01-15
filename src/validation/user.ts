@@ -15,8 +15,7 @@ export const UserSchema = joi.object<User>({
   first_name: joi.string().required(),
   last_name: joi.string().required(),
   full_name: joi.string().required(),
-  account: joi.number().required(),
-  // Optional/new fields tolerated for forward compatibility
+  // Optional fields
   token_balance: joi.number().optional(),
   cash_balance: joi.number().optional(),
   onboarding_version_seen: joi.number().optional(),

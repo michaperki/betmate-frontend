@@ -15,7 +15,9 @@ export interface User {
   first_name: string
   last_name: string
   full_name: string
-  account: number // This is the user's token balance for betting
+  // Legacy token balance field kept for back-compat only
+  account?: number
+  // Primary Arcade balance going forward
   token_balance?: number
   cash_balance?: number
   onboarding_version_seen?: number
