@@ -75,6 +75,7 @@ const ChessMatch: React.FC = () => {
   const [autoAdvance, setAutoAdvance] = useState(false);
   const [liveMode, setLiveMode] = useState(true);
   const [liveGameId, setLiveGameId] = useState<string>('');
+  const [badgeMetaHTTP, setBadgeMetaHTTP] = useState<any | null>(null);
   const { mode, limits, risk } = useMode();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -133,6 +134,18 @@ const ChessMatch: React.FC = () => {
   const handleMoveHoverEnd = useCallback(() => setHoverArrow(null), []);
   // Track analysis top moves for odds computation (Arcade)
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
+  // Map of SAN -> emoji from latest HTTP analysis (fallback if websocket meta absent)
+  const emojiByMove = useMemo(() => {
+    const m = new Map<string, string>();
+    try {
+      for (const t of topMoves || []) {
+        const k = String((t as any).move || '').replace(/[+#]$/g, '');
+        const e = String((t as any).emoji || '');
+        if (k && e) m.set(k, e);
+      }
+    } catch {}
+    return m;
+  }, [topMoves]);
   // Lift stake + presets to top-level so tile clicks can place wagers
   const [stake, setStake] = useState<number>(2);
   const presets = [1, 2, 3, 5];
@@ -358,8 +371,9 @@ const ChessMatch: React.FC = () => {
       const fen = fenAtCursor || '';
       if (!fen) return;
       try {
-        const resp = await getTopMoves(fen, 12);
+        const resp: any = await getTopMoves(fen, 12, { gameId: liveGameId, atMove: notationCursor + 1 });
         const arr: MoveAnalysis[] = Array.isArray(resp?.data) ? (resp.data as any) : [];
+        setBadgeMetaHTTP(resp?.meta || null);
         if (!cancelled) setTopMoves(arr);
         const offered = (game?.pool_wagers?.move?.options as string[] | undefined) || undefined;
         const candidates = deriveMoveCandidates(fen, arr, offered, 8).slice(0, 4);
@@ -749,11 +763,25 @@ const ChessMatch: React.FC = () => {
                     const span = Math.max(1, maxS - minS);
                     const conf = Math.max(0, Math.min(1, (m.score - minS) / span));
                     const confOpacity = 0.25 + conf * 0.65; // 0.25..0.9
-                    // Header tiny category glyph and optional tag
-                    const tinyGlyph = tinyCategoryGlyph(m.label);
-                    const tag = moveTag(m.label, i, simMoves.map(mm => mm.score));
-                    // Icon zone glyph (large, static)
-                    const bigGlyph = largeIconGlyph(m.label, sideToMove);
+                    // Prefer server-provided badge (emoji/opening) from websocket badge_meta
+                    const rawBadges = (game as any)?.badge_meta?.badges || {};
+                    const rawBadgesHttp = (badgeMetaHTTP && (badgeMetaHTTP as any).badges) ? (badgeMetaHTTP as any).badges : {};
+                    const canonical = (s: string) => String(s || '').replace(/[+#]$/g, '');
+                    const bExact = rawBadges[label];
+                    const bCanon = rawBadges[canonical(label)];
+                    const httpExact = rawBadgesHttp[label];
+                    const httpCanon = rawBadgesHttp[canonical(label)];
+                    const serverBadge = (bExact || bCanon) || (httpExact || httpCanon);
+                    const isOpening = serverBadge && serverBadge.badge_type === 'opening';
+                    const openingName = isOpening ? String(serverBadge.badge_text || '') : '';
+                    const openingSub = isOpening ? String(serverBadge.badge_subtext || '') : '';
+                    const emojiGlyph = (serverBadge && serverBadge.badge_type === 'emoji')
+                      ? String(serverBadge.badge_text || '')
+                      : (emojiByMove.get(canonical(label)) || '');
+                    // Header: keep move text clear; drop tag when opening
+                    const tinyGlyph = isOpening ? '' : (emojiGlyph || tinyCategoryGlyph(m.label));
+                    // Icon zone: center opening name; else emoji or fallback glyph
+                    const bigGlyph = isOpening ? openingName : (emojiGlyph || largeIconGlyph(m.label, sideToMove));
                     const reason = tileReasons[i];
                     return (
                       <motion.div
@@ -787,10 +815,16 @@ const ChessMatch: React.FC = () => {
                           <div className="lp-header">
                             <span className="lp-h-glyph" aria-hidden>{tinyGlyph}</span>
                             <span className="lp-h-move">{m.label}</span>
-                            {tag && <span className="lp-h-tag" aria-label={tag}>{tag}</span>}
                           </div>
                           <div className="lp-iconzone">
-                            <span className="lp-iz-glyph" aria-hidden>{bigGlyph}</span>
+                            {isOpening ? (
+                              <div className="lp-iz-glyph lp-iz-opening" aria-hidden>
+                                <div className="op-main">{openingName}</div>
+                                {openingSub ? <div className="op-sub">{openingSub}</div> : null}
+                              </div>
+                            ) : (
+                              <span className="lp-iz-glyph" aria-hidden>{bigGlyph}</span>
+                            )}
                           </div>
                           <div className="lp-footer">
                             <span className="lp-f-score" aria-label="Score">{m.score}</span>

@@ -55,6 +55,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   // Define game and moveOptions first to avoid "used before defined" errors
   const game = games[gameId];
   const moveOptions = game?.pool_wagers?.move?.options || [];
+  const badgeMeta = (game as any)?.badge_meta || null;
   const fen = game?.state;
   const [topMoves, setTopMoves] = useState<MoveAnalysis[]>([]);
   const { mode, risk } = useMode();
@@ -65,7 +66,17 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
     (async () => {
       try {
         if (!fen) { setTopMoves([]); return; }
-        const resp = await getTopMoves(fen, 12);
+        // Compute historical move index if possible
+        let atMoveIndex: number | undefined = undefined;
+        try {
+          const moves: string[] = Array.isArray((game as any)?.move_hist) ? (game as any).move_hist.map((m: any) => String(m.san)).filter(Boolean) : [];
+          if (moves.length) {
+            const c = new Chess();
+            for (let i = 0; i < moves.length; i += 1) { try { c.move(moves[i], { sloppy: true } as any); } catch { break; } if (c.fen() === fen) { atMoveIndex = i + 1; break; } }
+            if (atMoveIndex === undefined) atMoveIndex = moves.length;
+          }
+        } catch {}
+        const resp = await getTopMoves(fen, 12, { gameId, atMove: atMoveIndex });
         if (!cancelled) setTopMoves(resp.data || []);
       } catch {
         if (!cancelled) setTopMoves([]);
@@ -266,7 +277,19 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
                         onMouseEnter={handleMovePieceHover(m.move)}
                         onMouseLeave={handleMovePieceUnhover}
                       >
-                        <span className="option-name">{m.move}</span>
+                        <span className="option-name">
+                          {m.move}
+                          {/* Inline badge from server (emoji/opening) */}
+                          {badgeMeta?.badges?.[m.move] && badgeMeta?.badges?.[m.move].badge_type !== 'none' && (
+                            <span
+                              className={`option-badge ${badgeMeta.badges[m.move].badge_type}`}
+                              title={badgeMeta.badges[m.move].badge_detail || ''}
+                              style={{ marginLeft: 6 }}
+                            >
+                              {badgeMeta.badges[m.move].badge_text}
+                            </span>
+                          )}
+                        </span>
                         <span className="option-payout">{formatPayout(m.odds)}</span>
                       </li>
                     ))}

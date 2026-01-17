@@ -754,6 +754,18 @@ button.bt-live { cursor: pointer; }
 .lp-iz-glyph { font-size: clamp(32px, 40%, 64px); opacity: 0.15; filter: saturate(0.6) contrast(0.9); }
 .lp-tile:hover .lp-iz-glyph { opacity: 0.25; }
 
+// Opening name centered in icon zone
+.lp-iz-opening {
+  text-align: center;
+  opacity: 0.85;
+  filter: none;
+  max-width: 100%;
+  display: inline-block;
+  white-space: normal;
+  .op-main { font-size: 13px; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; }
+  .op-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+}
+
 .lp-f-score { font-weight: 800; font-variant-numeric: tabular-nums; }
 .lp-f-odds { font-weight: 700; opacity: 0.95; }
 

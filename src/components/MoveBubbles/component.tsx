@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from 'types/state';
 import { Chess } from 'chess.js';
 import { getTopMoves, getMoveAnalysis, MoveAnalysis } from 'store/requests/analysisRequests';
 import './style.scss';
@@ -63,6 +65,25 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
   const holdStartRef = useRef<number>(0);
   const progressTimerRef = useRef<number | null>(null);
   const lastGameStateRef = useRef<string>('');
+  // Badge meta from backend (opening/emoji/dominance)
+  const [badgeMeta, setBadgeMeta] = useState<any | null>(null);
+  // Access game doc to compute current move index for historical opening context
+  const gameDoc = useSelector((s: RootState) => (gameId ? s.game.games[gameId] : undefined));
+  const atMoveIndex = useMemo(() => {
+    try {
+      if (!gameDoc || !Array.isArray((gameDoc as any).move_hist)) return undefined;
+      const moves: string[] = (gameDoc as any).move_hist.map((m: any) => String(m.san)).filter(Boolean);
+      if (!moves.length) return 0;
+      const c = new Chess();
+      for (let i = 0; i < moves.length; i += 1) {
+        try { c.move(moves[i], { sloppy: true } as any); } catch { break; }
+        // Compare normalized FENs
+        if (cleanFEN(c.fen()) === cleanFEN(gameState)) return i + 1;
+      }
+      return moves.length;
+    } catch { return undefined; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameDoc?.move_hist, gameState]);
   
   // State for storing move analysis results
   const [userMoveAnalysis, setUserMoveAnalysis] = useState<Record<string, MoveData>>({});
@@ -236,8 +257,10 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
       const cleanFen = cleanFEN(gameState);
       
       // Use centralized request helper (dedupe + cooldown aware)
-      const resp = await getTopMoves(cleanFen, 12);
+      const resp: any = await getTopMoves(cleanFen, 12, { gameId, atMove: typeof atMoveIndex === 'number' ? atMoveIndex : undefined });
       const data = Array.isArray(resp?.data) ? resp.data : [];
+      // Capture badge metadata if provided by backend
+      setBadgeMeta(resp?.meta || null);
       // Filter out poor moves (below 40% percentile)
       const filteredMoves = data.filter((moveData: MoveData) => (
         moveData.is_best_move || moveData.percentile >= 40
@@ -800,6 +823,16 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
 
   return (
     <div className="move-bubbles-container">
+      {/* Compact badge legend */}
+      <div className="badge-legend" aria-label="Move badge legend" style={{ fontSize: 12, opacity: 0.8, marginBottom: 6 }}>
+        <span title="Check">⚡</span>
+        <span style={{ marginLeft: 8 }} title="Capture">💥</span>
+        <span style={{ marginLeft: 8 }} title="Promotion">🔥</span>
+        <span style={{ marginLeft: 8 }} title="Only Move">🛡️</span>
+        <span style={{ marginLeft: 8 }} title="Initiative">🚀</span>
+        <span style={{ marginLeft: 8 }} title="Quiet">🍃</span>
+        <span style={{ marginLeft: 8 }} title="Blunder">🤡</span>
+      </div>
       <div className={`move-bubbles-scroll ${animatingOut ? 'animating-out' : ''} ${isScrollable ? 'scrollable' : ''}`} key={animationKey}>
         {allMoves.map((moveData, index) => {
           const totalWagered = getTotalWagered(moveData.move);
@@ -811,6 +844,9 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
           const isFromAI = topMoves.some(aiMove => aiMove.move === moveData.move);
           const isUserSubmitted = !isFromAI && (userSubmittedMoves?.has(moveData.move) || false);
           const isUserInteracted = userInteractedMoves?.has(moveData.move) || false;
+
+          // Resolve server-provided badge for this move, if any
+          const moveBadge = badgeMeta?.badges?.[moveData.move];
 
           return (
             <div
@@ -853,6 +889,12 @@ const MoveBubbles: React.FC<MoveBubblesProps> = function MoveBubbles(props) {
                 return false;
               }}
             >
+              {/* Server badge (emoji/opening) */}
+              {moveBadge && moveBadge.badge_type !== 'none' && (
+                <div className={`move-badge ${moveBadge.badge_type}`} title={moveBadge.badge_detail || ''}>
+                  {moveBadge.badge_text}
+                </div>
+              )}
               {/* Quality badge */}
               {(qualityBadge || isUserSubmitted || moveData.loading) && (
                 <div className={`quality-badge ${isUserSubmitted && !moveData.loading ? 'user-badge' : ''} ${moveData.loading ? 'loading-badge' : ''}`}>
