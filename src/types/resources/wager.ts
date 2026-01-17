@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { AsyncAction } from 'types/state';
+import { AsyncAction, Code } from 'types/state';
 
 export type WagerWDL = 'win' | 'draw' | 'loss';
 
@@ -52,6 +52,8 @@ export interface WagerState {
   stats: UserBettingStats,
   loading: boolean,
   error: string | null,
+  // Optional: last error code from backend (e.g., CAP_PER_BET)
+  errorCode?: Code,
 }
 
 /* -------- Action Types -------- */

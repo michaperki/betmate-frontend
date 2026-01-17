@@ -10,13 +10,21 @@ const initialState: WagerState = {
     winRate: 0
   },
   loading: false,
-  error: null
+  error: null,
+  errorCode: undefined,
 };
 
 const wagerReducer = (state = initialState, action: Actions): WagerState => {
   // Handle loading states
   if (action.status === 'REQUEST') {
     switch (action.type) {
+      case 'CREATE_WAGER':
+        return {
+          ...state,
+          // clear any stale error before new attempt
+          error: null,
+          errorCode: undefined,
+        };
       case 'FETCH_USER_BETTING_STATS':
       case 'FETCH_ACTIVE_WAGERS':
       case 'FETCH_WAGER_HISTORY':
@@ -37,6 +45,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
         return {
           ...state,
           error: action.payload.message || 'Failed to create wager',
+          errorCode: (action as any).payload?.code,
           loading: false,
         };
       case 'FETCH_USER_BETTING_STATS':
@@ -63,6 +72,8 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
             ...state.wagers,
             [action.payload._id]: action.payload,
           },
+          error: null,
+          errorCode: undefined,
         };
 
       case 'FETCH_WAGERS':

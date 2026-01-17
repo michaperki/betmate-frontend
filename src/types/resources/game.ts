@@ -94,6 +94,8 @@ export interface Game {
   pool_wagers: {
     move: PoolWagerState
   },
+  // Optional server-provided badge metadata (opening/emoji/dominance)
+  badge_meta?: any
   _id: string
   created_at: string
   updated_at: string
@@ -162,7 +164,7 @@ export type JoinGameData = { gameId: string }; // ws
 export type LeaveGameData = { gameId: string }; // ws
 export type StartGameData = { gameId: string, game_status: GameStatus }; // ws
 export type UpdateGameStateData = { gameId: string, state: string, move_hist: Move[], time_white: number, time_black: number, pool_wagers: { move: PoolWagerState } }; // ws
-export type UpdateGameOddsData = { gameId: string, odds: GameOdds, pool_wagers: { move: PoolWagerState } }; // ws
+export type UpdateGameOddsData = { gameId: string, odds: GameOdds, pool_wagers: { move: PoolWagerState }, badge_meta?: any }; // ws
 export type UpdateGameEndData = { gameId: string, complete: boolean, game_status: string }; // ws
 export type BroadcastPoolWager = { gameId: string, type: 'move', data: string, amount: number }; // ws
 export type GameChatMessage = GameChat;

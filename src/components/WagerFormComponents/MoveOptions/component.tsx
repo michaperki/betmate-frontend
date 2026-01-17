@@ -43,7 +43,7 @@ const MoveOptions: React.FC<MoveOptionsProps> = (props) => {
     (async () => {
       try {
         if (!fen) { setTopMoves([]); return; }
-        const resp = await getTopMoves(fen, 12);
+        const resp = await getTopMoves(fen, 12, { gameId });
         if (!cancelled) setTopMoves(resp.data || []);
       } catch {
         if (!cancelled) setTopMoves([]);

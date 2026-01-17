@@ -7,6 +7,10 @@ export interface MoveAnalysis {
   score: number;       // Raw engine score
   percentile: number;  // Percentile rank compared to best move (0-100)
   is_best_move: boolean; // Whether this is the engine's top choice
+  // Optional enhanced fields from microservice
+  emoji?: string;
+  emoji_confidence?: number;
+  reason_codes?: string[];
 }
 
 // Simple in-memory de-dupe + result cache
@@ -26,17 +30,32 @@ const batchKey = (fen: string, moves: string[]) => `${fen}::batch::${[...moves].
 function normalizeTopMovesPayload(input: any): MoveAnalysis[] {
   const payload = input?.body ? (() => { try { return JSON.parse(input.body); } catch { return input; } })() : input;
   const arr = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? input : []);
+  const badges = (payload?.meta && (payload.meta as any).badges) ? (payload.meta as any).badges : undefined;
   const out: MoveAnalysis[] = [];
   for (const item of arr) {
     if (!item || typeof item !== 'object') continue;
-    const mv = String(item.move || '');
+    const mv = String((item as any).move || '');
     if (!mv) continue;
-    out.push({
+    const base: MoveAnalysis = {
       move: mv,
-      score: Number(item.score || 0),
-      percentile: Number(item.percentile || 0),
-      is_best_move: Boolean(item.is_best_move),
-    });
+      score: Number((item as any).score || 0),
+      percentile: Number((item as any).percentile || 0),
+      is_best_move: Boolean((item as any).is_best_move),
+    };
+    // Preserve enhanced fields if present
+    const emoji = (item as any).emoji;
+    const emoji_confidence = (item as any).emoji_confidence;
+    const reason_codes = (item as any).reason_codes;
+    if (typeof emoji === 'string') (base as any).emoji = emoji;
+    if (typeof emoji_confidence === 'number') (base as any).emoji_confidence = emoji_confidence;
+    if (Array.isArray(reason_codes)) (base as any).reason_codes = reason_codes;
+    // Fallback to badge meta if item lacks emoji
+    const canon = mv.replace(/[+#]$/g, '');
+    const b = badges ? (badges[mv] || badges[canon]) : undefined;
+    if (!('emoji' in base) && b && b.badge_type === 'emoji' && typeof b.badge_text === 'string') {
+      (base as any).emoji = b.badge_text;
+    }
+    out.push(base);
   }
   return out;
 }
@@ -83,6 +102,7 @@ export const getMoveAnalysis = async (
 export const getTopMoves = async (
   fen: string,
   n = 12,
+  opts?: { gameId?: string; atMove?: number },
 ): Promise<RequestReturnType<MoveAnalysis[]>> => {
   const key = topKey(fen, n);
   const cached = cacheTop.get(key);
@@ -93,12 +113,14 @@ export const getTopMoves = async (
   const p = createBackendAxiosRequest<any>({
     method: 'GET',
     url: '/analysis/top-moves',
-    params: { fen, n },
+    params: { fen, n, ...(opts?.gameId ? { game_id: opts.gameId } : {}), ...(typeof opts?.atMove === 'number' ? { at_move: opts.atMove } : {}) },
   })
     .then((raw) => {
       // Normalize to MoveAnalysis[] while preserving Axios shape
       const normalized = normalizeTopMovesPayload(raw.data);
-      const resp = { ...raw, data: normalized } as RequestReturnType<MoveAnalysis[]>;
+      const resp = { ...raw, data: normalized } as RequestReturnType<MoveAnalysis[]> & { meta?: any };
+      // Preserve backend-provided badge meta if present
+      (resp as any).meta = (raw?.data && (raw.data as any).meta) ? (raw.data as any).meta : undefined;
       cacheTop.set(key, resp);
       inFlightTop.delete(key);
       return resp;

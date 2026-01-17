@@ -100,7 +100,9 @@ export const UpdateGameOddsSchema = joi.object<UpdateGameOddsData>({
   gameId: joi.string().required(),
   odds: GameOddsSchema.required(),
   pool_wagers: PoolWagerSchema.required(),
-});
+  // Allow optional server-provided badge metadata without failing validation
+  badge_meta: joi.any().optional(),
+}).unknown(true);
 
 export const UpdateGameEndSchema = joi.object<UpdateGameEndData>({
   gameId: joi.string().required(),
