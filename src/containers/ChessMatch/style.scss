@@ -708,6 +708,10 @@ button.bt-live { cursor: pointer; }
     min-width: 0;
     box-sizing: border-box;
   }
+  /* Cap notation list height on small screens so actions remain visible */
+  .match-page .notation-rail__list {
+    max-height: clamp(160px, 36vh, 360px);
+  }
   .left-panel {
     height: auto;
     padding: 10px 12px;
