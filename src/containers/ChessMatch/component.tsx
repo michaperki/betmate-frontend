@@ -70,6 +70,17 @@ const ChessMatch: React.FC = () => {
   const leftPanelRef = useRef<HTMLDivElement | null>(null);
   const [leftCols, setLeftCols] = useState(2);
   const [leftTile, setLeftTile] = useState(80);
+  // Narrow layout detection for formatting
+  const [isNarrow, setIsNarrow] = useState<boolean>(() => {
+    try { return typeof window !== 'undefined' ? window.innerWidth < 900 : false; } catch { return false; }
+  });
+  useEffect(() => {
+    const onResize = () => {
+      try { setIsNarrow(typeof window !== 'undefined' && window.innerWidth < 900); } catch {}
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   type TileStatus = 'idle' | 'active' | 'disabled' | 'loading' | 'success';
   const [tileStates, setTileStates] = useState<TileStatus[]>(() => simMoves.map(() => 'idle'));
   const [autoAdvance, setAutoAdvance] = useState(false);
@@ -391,24 +402,37 @@ const ChessMatch: React.FC = () => {
 
   useEffect(() => {
     if (!leftPanelRef.current) return;
-    const gap = 14; // keep in sync with --lp-gap
     const ro = new ResizeObserver(([entry]) => {
       const cr = entry.contentRect;
       const W = Math.floor(cr.width);
       const H = Math.floor(cr.height);
       if (W <= 0 || H <= 0) return;
+
+      // Use the actual grid gap from CSS to keep math in sync with styles
+      const el = leftPanelRef.current as HTMLElement;
+      const cs = window.getComputedStyle(el);
+      const parsePx = (v: string | null | undefined) => {
+        if (!v) return 0;
+        const n = parseFloat(String(v).trim());
+        return Number.isFinite(n) ? n : 0;
+      };
+      const gapVar = cs.getPropertyValue('--lp-gap');
+      const colGap = cs.getPropertyValue('column-gap');
+      const gap = parsePx(gapVar) || parsePx(colGap) || 14;
+
       const viewportW = typeof window !== 'undefined' ? window.innerWidth : W;
-      // Mobile: force a single row (all columns), compute tile from width only so container shrinks to content
+      // Mobile: force a single row (N columns), compute tile from width only
       if (viewportW < 768) {
-        const n = simMoves.length;
+        const n = Math.max(1, simMoves.length);
         const tileW = Math.floor((W - gap * (n - 1)) / n);
         const bestTile = Math.max(0, tileW);
         const breathing = Math.floor(bestTile * 0.88);
         setLeftCols(n);
-        setLeftTile(Math.max(32, breathing));
+        setLeftTile(Math.max(44, breathing));
         return;
       }
-      // Tablet/Desktop: search best fit
+
+      // Tablet/Desktop: search best fit (columns x rows) within container
       let bestTile = 0;
       let bestCols = 1;
       for (let c = 1; c <= simMoves.length; c += 1) {
@@ -420,7 +444,7 @@ const ChessMatch: React.FC = () => {
       }
       const breathing = Math.floor(bestTile * 0.92);
       setLeftCols(bestCols);
-      setLeftTile(Math.max(40, breathing));
+      setLeftTile(Math.max(56, breathing));
     });
     ro.observe(leftPanelRef.current);
     return () => ro.disconnect();
@@ -829,7 +853,7 @@ const ChessMatch: React.FC = () => {
                           <div className="lp-footer">
                             <span className="lp-f-score" aria-label="Score">{m.score}</span>
                             {typeof showX === 'number' && (
-                              <span className="lp-f-odds" aria-label="Estimated multiplier">x{showX.toFixed(2)}</span>
+                              <span className="lp-f-odds" aria-label="Estimated multiplier">x{(isNarrow ? showX.toFixed(1) : showX.toFixed(2))}</span>
                             )}
                           </div>
                         </div>

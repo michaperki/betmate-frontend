@@ -65,7 +65,10 @@
 /* Make explicit widths on mobile to preserve proportions */
 @media (max-width: 767px) {
   .match-layout-grid .frame--board { width: min(var(--s), 100%); }
-  .match-layout-grid .frame:not(.frame--board) { width: min(var(--p), 100%); }
+  /* Ensure the Left Rail matches the board width on mobile to avoid horizontal scroll */
+  .match-layout-grid .frame--left { width: min(var(--s), 100%); }
+  /* Other frames may keep the default side width */
+  .match-layout-grid .frame:not(.frame--board):not(.frame--left) { width: min(var(--p), 100%); }
 }
 
 /* Tablet: Board spans full row; three panels in a single row below */
@@ -701,6 +704,13 @@ button.bt-live { cursor: pointer; }
     justify-content: center;
     align-content: center;
   }
+  /* Compact Left Rail contents on small screens: show only essentials */
+  .lp-iconzone { display: none; }
+  .lp-h-glyph { display: none; }
+  .lp-header, .lp-footer { padding: 4px 8px; }
+  .lp-h-move { font-size: 13px; }
+  .lp-f-score { font-size: 11px; }
+  .lp-f-odds { font-size: 10px; }
 }
 
 .lp-tile {
@@ -738,6 +748,7 @@ button.bt-live { cursor: pointer; }
   height: 100%;
   width: 100%;
   color: #e5e7eb;
+  min-height: 0; /* allow middle area to shrink without clipping footer */
 }
 .lp-header, .lp-footer {
   display: flex;
@@ -745,13 +756,16 @@ button.bt-live { cursor: pointer; }
   justify-content: space-between;
   padding: 6px 10px;
 }
+/* Footer: keep values readable and spaced, even when narrow */
+.lp-footer { align-items: baseline; gap: 6px; }
 .lp-header { gap: 8px; }
 .lp-h-glyph { font-size: 13px; opacity: 0.75; min-width: 14px; text-align: center; }
 .lp-h-move { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lp-h-tag { margin-left: auto; font-size: 10px; letter-spacing: 0.06em; opacity: 0.75; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 1px 6px; }
 
-.lp-iconzone { display: flex; align-items: center; justify-content: center; padding: 8px; }
-.lp-iz-glyph { font-size: clamp(32px, 40%, 64px); opacity: 0.15; filter: saturate(0.6) contrast(0.9); }
+.lp-iconzone { display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; min-height: 0; overflow: hidden; }
+/* Make the background glyph not affect layout so footer never gets pushed out */
+.lp-iz-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 0; font-size: clamp(24px, 32%, 64px); opacity: 0.15; filter: saturate(0.6) contrast(0.9); pointer-events: none; }
 .lp-tile:hover .lp-iz-glyph { opacity: 0.25; }
 
 // Opening name centered in icon zone
@@ -766,8 +780,16 @@ button.bt-live { cursor: pointer; }
   .op-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
 }
 
-.lp-f-score { font-weight: 800; font-variant-numeric: tabular-nums; }
-.lp-f-odds { font-weight: 700; opacity: 0.95; }
+/* Tablet and narrower: shrink background glyph more aggressively to prioritize footer */
+@media (max-width: 899px) {
+  .lp-iconzone { padding: 6px; }
+  .lp-iz-glyph { font-size: clamp(20px, 5.5vw, 52px); opacity: 0.14; }
+  .lp-f-score { font-size: 12px; }
+  .lp-f-odds { font-size: 11px; }
+}
+
+.lp-f-score { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lp-f-odds { font-weight: 700; opacity: 0.95; white-space: nowrap; }
 
 /* Tile states */
 .lp-tile.is-active {
