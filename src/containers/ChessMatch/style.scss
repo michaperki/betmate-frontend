@@ -51,9 +51,9 @@
   grid-template-areas:
     "A"
     "L"
-    "BAR"
     "R1"
-    "R2";
+    "R2"
+    "BAR"; /* place Bottom Bar last on mobile */
   justify-items: center;
 }
 .frame--board { grid-area: A; }
@@ -67,8 +67,11 @@
   .match-layout-grid .frame--board { width: min(var(--s), 100%); }
   /* Ensure the Left Rail matches the board width on mobile to avoid horizontal scroll */
   .match-layout-grid .frame--left { width: min(var(--s), 100%); }
+  /* Right frames should also match board width and stretch contents */
+  .match-layout-grid .frame--right-top,
+  .match-layout-grid .frame--right-bottom { width: min(var(--s), 100%); align-items: stretch; justify-content: stretch; }
   /* Other frames may keep the default side width */
-  .match-layout-grid .frame:not(.frame--board):not(.frame--left) { width: min(var(--p), 100%); }
+  .match-layout-grid .frame:not(.frame--board):not(.frame--left):not(.frame--right-top):not(.frame--right-bottom) { width: min(var(--p), 100%); }
 }
 
 /* Tablet: Board spans full row; three panels in a single row below */
@@ -696,6 +699,14 @@ button.bt-live { cursor: pointer; }
     aspect-ratio: auto;
     height: auto;
     align-self: start;
+  }
+  /* Make notation and receipts fill frame width and not overflow */
+  .match-page .frame--right-top .notation-rail,
+  .match-page .frame--right-bottom .receipts-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
   .left-panel {
     height: auto;
