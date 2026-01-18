@@ -9,6 +9,12 @@
   margin-bottom: $space-5;
   perspective: 1200px;
 
+  // Mobile condense: reduce chrome so actions stay in view
+  @include mobile {
+    padding: $space-3;
+    margin-bottom: $space-4;
+  }
+
   .fmc-header {
     display: flex;
     flex-direction: column;
@@ -44,6 +50,12 @@
 
     &.mobile { grid-template-columns: 1fr; }
 
+    // Tighten vertical rhythm on mobile
+    @include mobile {
+      gap: $space-2;
+      margin-top: $space-2;
+    }
+
     .player-block {
       display: flex;
       flex-direction: column;
@@ -52,6 +64,10 @@
       .username { @include text-heading-3; color: $text-primary; font-weight: 700; }
       .title-badge { @include text-caption; color: $text-secondary; }
       .rating { @include text-body-lg; color: $text-secondary; font-weight: 700; }
+      @include mobile {
+        .username { @include text-heading-4; }
+        .rating { @include text-body; font-weight: 700; }
+      }
       .context-line { @include text-body; color: $text-secondary; }
     }
 
@@ -73,6 +89,13 @@
       .limits { @include text-body; color: $text-primary; }
       .market-line { @include text-caption; color: $text-secondary; }
       .market-line.muted { opacity: 0.7; }
+      @include mobile {
+        .instrument { gap: $space-3; padding: $space-2; }
+        .clock { @include text-body-lg; padding: $space-1 $space-2; }
+        .vs { @include text-body-lg; }
+        // Hide non-essential lines to save height
+        .limits, .market-line { display: none; }
+      }
     }
   }
 
@@ -108,6 +131,13 @@
     .primary { background: $brand-primary; color: $text-inverse; border: none; }
     .secondary { background: transparent; color: $text-primary; border: 1px solid $border-primary; }
     .link { background: transparent; color: $accent-blue; border: none; text-decoration: underline; }
+
+    // Keep actions in view on mobile by reducing margins and padding
+    @include mobile {
+      margin-top: $space-2;
+      gap: $space-2;
+      .btn { padding: $space-2 $space-3; }
+    }
   }
 
   // Motion & presence
