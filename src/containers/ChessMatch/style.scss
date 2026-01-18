@@ -716,7 +716,8 @@ button.bt-live { cursor: pointer; }
   }
   /* Cap notation list height on small screens so actions remain visible */
   .match-page .notation-rail__list {
-    max-height: clamp(160px, 36vh, 360px);
+    /* Reduce height further on mobile; keep it scrollable and compact */
+    max-height: clamp(120px, 18vh, 240px);
   }
   .left-panel {
     height: auto;
