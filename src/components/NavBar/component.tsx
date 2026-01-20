@@ -131,7 +131,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
 
           {/* Unified account cluster: avatar (non-dashboard) + token balance */}
           {isAuthenticated && showBalance && (
-            <div className="navbar__account">
+            <div className="navbar__account" data-tour-id="mode-toggle">
               {!isDashboard && firstName && (
                 <div className="navbar__account-avatar" title={firstName} aria-label="Account">
                   {firstName.charAt(0).toUpperCase()}
@@ -155,7 +155,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
 
           {/* Dashboard: no token display → show a minimal chip to toggle */}
           {isAuthenticated && isDashboard && (
-            <div className="navbar__mode-only" onClick={handleToggleClick} role="button" tabIndex={0} data-testid="mode-toggle" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}>
+            <div className="navbar__mode-only" data-tour-id="mode-toggle" onClick={handleToggleClick} role="button" tabIndex={0} data-testid="mode-toggle" onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}>
               <span className="mode-chip">{mode === 'arcade' ? 'KBITZ' : 'USDT'}</span>
             </div>
           )}

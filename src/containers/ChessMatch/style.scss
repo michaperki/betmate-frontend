@@ -355,6 +355,33 @@ button.bt-live { cursor: pointer; }
   pointer-events: auto;
 }
 
+/* Outcome action affordance (player headers + Draw button)
+   Minimal, tactile feedback without changing layout/content */
+.outcome-action {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.outcome-action:hover {
+  box-shadow: 0 8px 22px rgba(0, 239, 178, 0.10);
+  transform: translateY(-1px);
+}
+.outcome-action:active { transform: translateY(0); }
+.outcome-action:focus-visible {
+  outline: 2px solid #00EFB2; /* brand green */
+  outline-offset: 2px;
+}
+
+/* Player headers: subtle green accent for outcome affordance (keeps existing blues) */
+.frame--board .board-header.outcome-action {
+  border-color: rgba(0, 239, 178, 0.18);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 6px 16px rgba(0, 239, 178, 0.08);
+}
+
+/* Draw button (match bottom bar): add green halo without changing its blue identity */
+.match-bottom-bar .bt-draw.outcome-action {
+  box-shadow: 0 0 0 1px rgba(0, 239, 178, 0.16), 0 8px 18px rgba(0, 239, 178, 0.10);
+}
+
 .frame--board .board-header.is-disabled {
   opacity: 0.6;
   cursor: not-allowed;

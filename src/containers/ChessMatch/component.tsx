@@ -863,18 +863,20 @@ const ChessMatch: React.FC = () => {
                 </AnimatePresence>
               );
               return (
-                <div className="left-panel" ref={leftPanelRef} style={styleVars}>
+                <div className="left-panel" ref={leftPanelRef} style={styleVars} data-tour-id="move-tiles">
                   {list}
                 </div>
               );
             })()}
           </div>
-          <div className="frame frame--board" aria-label="board">
+          <div className="frame frame--board" aria-label="board" data-tour-id="board">
             <div className="board-inner">
               <div
+                data-tour-id="player-header"
                 className={[
                   'board-header',
                   'board-header--top',
+                  'outcome-action',
                   (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'b'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                   (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'b'; } catch { return false; } })()) ? 'is-ticking' : '',
                   topHeaderStatus === 'loading' ? 'is-loading' : '',
@@ -946,6 +948,7 @@ const ChessMatch: React.FC = () => {
                 className={[
                   'board-header',
                   'board-header--bottom',
+                  'outcome-action',
                   (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'w'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                   (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'w'; } catch { return false; } })()) ? 'is-ticking' : '',
                   bottomHeaderStatus === 'loading' ? 'is-loading' : '',
@@ -1053,7 +1056,7 @@ const ChessMatch: React.FC = () => {
               );
             })()}
           </div>
-          <div className="frame frame--right-bottom" aria-label="right-bottom">
+          <div className="frame frame--right-bottom" aria-label="right-bottom" data-tour-id="receipts">
             {(() => {
               return (
                 <div className="receipts-grid" role="table" aria-label="Wager receipts">
@@ -1171,7 +1174,8 @@ const ChessMatch: React.FC = () => {
                       </div>
                     )}
                     <button
-                      className="bt-draw"
+                      className="bt-draw outcome-action"
+                      data-tour-id="draw-button"
                       disabled={!(pDraw > 0) || !bettingEnabled}
                       onClick={() => { if (bettingEnabled) handlePlaceWdlBet('draw', 'toolbar'); }}
                       title={bettingEnabled ? (drawX ? `Draw x${drawX.toFixed(2)}` : 'Draw') : 'Go Live to place bets'}

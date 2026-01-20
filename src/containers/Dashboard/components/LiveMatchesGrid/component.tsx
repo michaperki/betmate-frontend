@@ -25,7 +25,7 @@ const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = fa
 
   if (isLoading) {
     return (
-      <section className="live-matches-grid">
+      <section className="live-matches-grid" data-tour-id="live-matches">
         <div className="matches-header">
           <h2 className="matches-title">Live Matches 🔎</h2>
         </div>
@@ -42,7 +42,7 @@ const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = fa
 
   if (games.length === 0) {
     return (
-      <section className="live-matches-grid">
+      <section className="live-matches-grid" data-tour-id="live-matches">
         <div className="matches-header">
           <h2 className="matches-title">Live Matches 🔎</h2>
         </div>
@@ -58,7 +58,7 @@ const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = fa
   }
 
   return (
-    <section className="live-matches-grid">
+    <section className="live-matches-grid" data-tour-id="live-matches">
       <div className="matches-header">
         <h2 className="matches-title">Live Matches 🔎</h2>
         <span className="matches-count">{games.length} active</span>

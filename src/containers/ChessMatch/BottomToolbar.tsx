@@ -45,7 +45,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const { mode } = useMode();
   const sym = currencySymbol(modeCurrency(mode));
   return (
-    <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
+    <div className="bottom-toolbar" role="region" aria-label="Match quick controls" data-tour-id="bottom-toolbar">
       <div className="bottom-toolbar__left">
         <span className={`live-pill ${isLive ? 'is-live' : 'is-paused'}`}>
           {isLive ? 'Live' : 'Not Live'}
@@ -76,8 +76,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       </div>
       <div className="bottom-toolbar__right">
         <button
+          data-tour-id="draw-button"
           type="button"
-          className={`bt-draw-btn state-${drawState}`}
+          className={`bt-draw-btn outcome-action state-${drawState}`}
           onClick={onDraw}
           disabled={!canDraw || drawState === 'loading'}
           aria-label="Bet on Draw"

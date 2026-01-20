@@ -39,7 +39,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const hasActiveFilters = filters.timeFilter !== 'all' || filters.ratingFilter !== 'all';
 
   return (
-    <div className="filter-bar">
+    <div className="filter-bar" data-tour-id="filters">
       <div className="filter-controls">
         <div className="filter-group">
           <label className="filter-label">Time</label>

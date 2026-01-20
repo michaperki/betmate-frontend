@@ -106,7 +106,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   };
 
   return (
-    <section className={`featured-match-card ${flipped ? 'is-flipped' : ''}`}>
+    <section className={`featured-match-card ${flipped ? 'is-flipped' : ''}`} data-tour-id="featured-match">
       <div className="fmc-header">
         <div className="title-row">
           <h3 className="title">Featured Match</h3>

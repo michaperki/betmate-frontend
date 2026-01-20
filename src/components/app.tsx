@@ -19,6 +19,7 @@ import BettingHistoryPage from 'containers/BettingHistoryPage';
 import NavBar from './NavBar';
 import RequireAuthHOC from 'hocs/requireAuth';
 import VersionFooter from './VersionFooter';
+import OnboardingTour from './OnboardingTour';
 import { ModeProvider } from 'context/ModeContext';
 import Wallet from './Wallet/component';
 import ProtectedRoute from './ProtectedRoute';
@@ -63,6 +64,8 @@ const App: React.FC<AppProps> = (props) => {
     <ModeProvider>
       <Router>
         <div>
+          {/* Global, non-invasive onboarding tour overlay */}
+          <OnboardingTour />
           <Switch>
             <Route exact path="/" component={Welcome} />
             <Route exact path="/matches/:id" component={Welcome} />
