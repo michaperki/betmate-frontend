@@ -930,14 +930,14 @@ const ChessMatch: React.FC = () => {
                   // Ensure total = 100 by assigning remainder to black
                   const blackPct = Math.max(0, Math.min(100, 100 - whitePct - drawPct));
                   return (
-                    <div className="eval-bar" role="meter" aria-label="Evaluation bar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={whitePct}>
-                      <div className="eval-bar__seg eval-bar__seg--black" style={{ height: `${blackPct}%` }}>
+                    <div className="eval-bar" role="meter" aria-label="Win/Draw/Loss odds" aria-valuemin={0} aria-valuemax={100} aria-valuenow={whitePct}>
+                      <div className="eval-bar__seg eval-bar__seg--black" style={{ height: `${blackPct}%` }} title={`Black win ${blackPct}%`} aria-label={`Black win ${blackPct}%`}>
                         <span className="eval-bar__pct">{blackPct}%</span>
                       </div>
-                      <div className="eval-bar__seg eval-bar__seg--draw" style={{ height: `${drawPct}%` }}>
+                      <div className="eval-bar__seg eval-bar__seg--draw" style={{ height: `${drawPct}%` }} title={`Draw ${drawPct}%`} aria-label={`Draw ${drawPct}%`}>
                         <span className="eval-bar__pct">{drawPct}%</span>
                       </div>
-                      <div className="eval-bar__seg eval-bar__seg--white" style={{ height: `${whitePct}%` }}>
+                      <div className="eval-bar__seg eval-bar__seg--white" style={{ height: `${whitePct}%` }} title={`White win ${whitePct}%`} aria-label={`White win ${whitePct}%`}>
                         <span className="eval-bar__pct eval-bar__pct--dark">{whitePct}%</span>
                       </div>
                     </div>
@@ -1091,7 +1091,9 @@ const ChessMatch: React.FC = () => {
                     })}
                     {(!liveMode || !displayReceipts.length) && (
                       <div className="rg-row is-empty" role="row">
-                        <div className="rg-cell rg-col-bet" role="cell">No wagers</div>
+                        <div className="rg-cell rg-col-bet" role="cell" title="Place a WDL or move bet to see a receipt">
+                          No wagers yet — place a WDL or move bet to see a receipt
+                        </div>
                         <div className="rg-cell rg-col-stake" role="cell">—</div>
                         <div className="rg-cell rg-col-odds" role="cell">—</div>
                         <div className="rg-cell rg-col-status" role="cell">—</div>

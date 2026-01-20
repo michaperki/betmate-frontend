@@ -254,6 +254,12 @@ button.bt-live { cursor: pointer; }
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+.match-bottom-bar .bt-draw:disabled {
+  opacity: 0.5;
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.18);
+  cursor: not-allowed;
+}
 .match-bottom-bar .bt-viewers { display: inline-flex; align-items: center; gap: 4px; opacity: 0.9; }
 .match-bottom-bar .bt-icon { height: 26px; width: 26px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; display: inline-flex; align-items: center; justify-content: center; }
 
@@ -799,13 +805,21 @@ button.bt-live { cursor: pointer; }
   padding: 6px 10px;
 }
 /* Footer: keep values readable and spaced, even when narrow */
-.lp-footer { align-items: baseline; gap: 6px; }
-.lp-header { gap: 8px; }
+.lp-footer { align-items: baseline; gap: 6px; min-height: 24px; }
+.lp-header { gap: 8px; min-height: 24px; }
 .lp-h-glyph { font-size: 13px; opacity: 0.75; min-width: 14px; text-align: center; }
 .lp-h-move { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lp-h-tag { margin-left: auto; font-size: 10px; letter-spacing: 0.06em; opacity: 0.75; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 1px 6px; }
 
-.lp-iconzone { display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; min-height: 0; overflow: hidden; }
+.lp-iconzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+  min-height: 40px; /* reserve space to reduce layout jitter when tiles reorder */
+  overflow: hidden;
+}
 /* Make the background glyph not affect layout so footer never gets pushed out */
 .lp-iz-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 0; font-size: clamp(24px, 32%, 64px); opacity: 0.15; filter: saturate(0.6) contrast(0.9); pointer-events: none; }
 .lp-tile:hover .lp-iz-glyph { opacity: 0.25; }
@@ -830,8 +844,19 @@ button.bt-live { cursor: pointer; }
   .lp-f-odds { font-size: 11px; }
 }
 
-.lp-f-score { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.lp-f-odds { font-weight: 700; opacity: 0.95; white-space: nowrap; }
+.lp-f-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.lp-f-odds {
+  font-weight: 800;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #eaf2ff; /* slightly brighter for contrast */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
 
 /* Tile states */
 .lp-tile.is-active {
@@ -958,6 +983,14 @@ button.bt-live { cursor: pointer; }
 @media (max-width: 899px) {
   .receipts-grid { font-size: 11px; gap: 3px 6px; }
   .receipts-grid .rg-head .rg-cell { font-size: 10px; }
+}
+
+/* Friendlier empty state: allow wrapping and soften color */
+.receipts-grid .rg-row.is-empty .rg-col-bet {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  color: #aeb0b6;
 }
 
 /* Status colors */
