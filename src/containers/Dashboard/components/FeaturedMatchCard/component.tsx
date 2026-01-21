@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { FeaturedMatchDTO, MatchDetailsDTO } from 'types/matches';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { getMatchDetails } from 'store/requests/matchesRequests';
+import { fetchGameById } from 'store/requests/gameRequests';
 import './style.scss';
 import { useMode } from 'context/ModeContext';
 import { realWdlMultiplier } from 'utils/realOdds';
@@ -20,6 +21,16 @@ const displayTimeControl = (match: FeaturedMatchDTO) => {
   const minutes = Math.round((tc.initial_seconds || 0) / 60);
   return `${minutes}+${inc}`;
 };
+
+const speedFromTime = (match: FeaturedMatchDTO) => {
+  const minutes = Math.round((match.time_control?.initial_seconds || 0) / 60);
+  if (minutes <= 2) return 'Bullet';
+  if (minutes <= 5) return 'Blitz';
+  if (minutes <= 15) return 'Rapid';
+  return 'Classical';
+};
+
+const tierFromMatch = (match: FeaturedMatchDTO) => String(match.stakes?.tier || '');
 
 const truncate = (s?: string, n = 10) => {
   if (!s) return '';
@@ -54,11 +65,11 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 
   const metaLineParts: string[] = [];
   if (match.time_control) metaLineParts.push(displayTimeControl(match));
-  metaLineParts.push('Rapid');
+  metaLineParts.push(speedFromTime(match));
   if (match.source?.provider) metaLineParts.push(match.source.provider.charAt(0).toUpperCase() + match.source.provider.slice(1));
   const metaLine = metaLineParts.join(' • ');
 
-  const isLive = match.status === 'in_progress';
+  const isLive = match.status === 'in_progress' || ((match.meta?.move_number || 0) > 0);
   const moveText = `Move ${match.meta?.move_number ?? 0} • ${match.meta?.phase ?? ''}`.trim();
 
   // Load details when flipping to back (desktop) to show market chips/pool
@@ -71,6 +82,47 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
     }
     return () => { mounted = false; };
   }, [flipped, match.match_id]);
+
+  // If live but no clocks provided by featured DTO, fetch details once to hydrate clocks
+  React.useEffect(() => {
+    let mounted = true;
+    if (isLive && !match.clocks) {
+      // Try details first (includes precomputed odds + clocks), then fall back to raw game doc
+      getMatchDetails(match.match_id)
+        .then((resp) => {
+          if (!mounted) return;
+          setDetails(resp.data);
+          if (resp.data?.clocks) {
+            setWhiteMs(resp.data.clocks.white_ms || 0);
+            setBlackMs(resp.data.clocks.black_ms || 0);
+            return;
+          }
+          return fetchGameById(match.match_id).then((r) => {
+            if (!mounted) return;
+            const g = r.data;
+            if (g && (g.time_white != null || g.time_black != null)) {
+              setWhiteMs(Math.max(0, Number(g.time_white || 0) * 1000));
+              setBlackMs(Math.max(0, Number(g.time_black || 0) * 1000));
+            }
+          });
+        })
+        .catch(() => {
+          // Last resort: pull directly from /chess/:id
+          fetchGameById(match.match_id)
+            .then((r) => {
+              if (!mounted) return;
+              const g = r.data;
+              if (g && (g.time_white != null || g.time_black != null)) {
+                setWhiteMs(Math.max(0, Number(g.time_white || 0) * 1000));
+                setBlackMs(Math.max(0, Number(g.time_black || 0) * 1000));
+              }
+            })
+            .catch(() => {});
+        });
+    }
+    return () => { mounted = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLive, match.match_id]);
 
   // Reset local clocks when props change
   React.useEffect(() => {
@@ -115,7 +167,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
         <div className="meta-strip">
           <span className="meta-text">{metaLine}</span>
           <div className="meta-right">
-            {match.stakes?.tier && <span className="stakes-pill">{match.stakes.tier}</span>}
+            {tierFromMatch(match) && <span className="stakes-pill">{tierFromMatch(match)}</span>}
           </div>
         </div>
       </div>
@@ -148,7 +200,9 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
               )}
             </div>
             <div className="stakes">
-              <div className="tier-badge">{(match.stakes?.tier || 'High Stakes').toUpperCase()}</div>
+              {tierFromMatch(match) ? (
+                <div className="tier-badge">{tierFromMatch(match).toUpperCase()}</div>
+              ) : null}
               {match.stakes && (
                 <div className="limits">{formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} – {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))} per bet</div>
               )}
@@ -185,26 +239,30 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 
         {/* BACK (market) */}
         <div className="fmc-back">
-          <div className="market">
-            <div className="section">
-              <div className="section-title">Market</div>
-              <div className="odds-chips">
-                <div className="chip">WHITE {details?.odds?.white_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('white_win', (details.odds.white_win || 0), undefined, risk as any) : (1 / (details.odds.white_win || 0)))}x`) : '-'}</div>
-                <div className="chip">DRAW {details?.odds?.draw ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('draw', (details.odds.draw || 0), undefined, risk as any) : (1 / (details.odds.draw || 0)))}x`) : '-'}</div>
-                <div className="chip">BLACK {details?.odds?.black_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('black_win', (details.odds.black_win || 0), undefined, risk as any) : (1 / (details.odds.black_win || 0)))}x`) : '-'}</div>
-              </div>
-              {details?.stats ? (
-                <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
-              ) : (
-                <div className="pool-line muted">Market just opened</div>
-              )}
-            </div>
+          <div className="fmc-back__center">
+            <div className="fmc-back__panel">
+              <div className="market">
+                <div className="section">
+                  <div className="section-title">Market</div>
+                  <div className="odds-chips">
+                    <div className="chip">WHITE {details?.odds?.white_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('white_win', (details.odds.white_win || 0), undefined, risk as any) : (1 / (details.odds.white_win || 0)))}x`) : '-'}</div>
+                    <div className="chip">DRAW {details?.odds?.draw ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('draw', (details.odds.draw || 0), undefined, risk as any) : (1 / (details.odds.draw || 0)))}x`) : '-'}</div>
+                    <div className="chip">BLACK {details?.odds?.black_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('black_win', (details.odds.black_win || 0), undefined, risk as any) : (1 / (details.odds.black_win || 0)))}x`) : '-'}</div>
+                  </div>
+                  {details?.stats ? (
+                    <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
+                  ) : (
+                    <div className="pool-line muted">Market just opened</div>
+                  )}
+                </div>
 
-            <div className="section">
-              <div className="section-title">Limits</div>
-              {match.stakes && (
-                <div className="limits-line">Bets from {formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} to {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))}</div>
-              )}
+                <div className="section">
+                  <div className="section-title">Limits</div>
+                  {match.stakes && (
+                    <div className="limits-line">Bets from {formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} to {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))}</div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
