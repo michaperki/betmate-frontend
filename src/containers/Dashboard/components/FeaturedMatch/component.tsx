@@ -23,7 +23,7 @@ const FeaturedMatch: React.FC<FeaturedMatchProps> = ({ game }) => {
           Featured Match
         </h2>
         <div className="featured-badge">
-          <span className="badge-text">High Stakes</span>
+          <span className="badge-text">Live</span>
         </div>
       </div>
 
