@@ -64,14 +64,54 @@
 
 /* Make explicit widths on mobile to preserve proportions */
 @media (max-width: 767px) {
+  /* Let the grid grow naturally on mobile to prevent row overlap */
+  .match-layout-grid { height: auto; --bar: 44px; grid-template-rows: auto auto auto auto var(--bar); }
   .match-layout-grid .frame--board { width: min(var(--s), 100%); }
   /* Ensure the Left Rail matches the board width on mobile to avoid horizontal scroll */
   .match-layout-grid .frame--left { width: min(var(--s), 100%); }
   /* Right frames should also match board width and stretch contents */
   .match-layout-grid .frame--right-top,
   .match-layout-grid .frame--right-bottom { width: min(var(--s), 100%); align-items: stretch; justify-content: stretch; }
+  /* Mobile: make right panels auto-height instead of square; cap their height */
+  /* Notation panel: fixed height on mobile so receipts growth doesn't shrink it */
+  .match-layout-grid .frame--right-top {
+    aspect-ratio: auto;
+    height: clamp(120px, 22vh, 200px);
+    overflow: hidden;
+  }
+  /* Receipts panel: allow growth with an upper bound; scroll internally */
+  .match-layout-grid .frame--right-bottom {
+    aspect-ratio: auto;
+    height: auto;
+    max-height: clamp(140px, 32vh, 320px);
+    overflow: hidden;
+  }
   /* Other frames may keep the default side width */
   .match-layout-grid .frame:not(.frame--board):not(.frame--left):not(.frame--right-top):not(.frame--right-bottom) { width: min(var(--p), 100%); }
+
+  /* Ensure notation uses its fixed height and scrolls internally */
+  .match-page .frame--right-top .notation-rail { height: 100%; display: flex; flex-direction: column; }
+  .match-page .frame--right-top .notation-rail__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+
+  /* EXPERIMENT: Fix bottom toolbar to viewport bottom on mobile (easy rollback)
+     - Controlled by 'mobile-fixed-bar' class on .match-page
+     - Remove the class to revert to in-flow bar */
+  .match-page.mobile-fixed-bar .frame--bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46px;
+    z-index: 30;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+  .match-page.mobile-fixed-bar .match-page__content {
+    padding-bottom: 62px; /* reserve space so content isn't hidden under fixed bar */
+  }
 }
 
 /* Tablet: Board spans full row; three panels in a single row below */
@@ -240,6 +280,18 @@ button.bt-live { cursor: pointer; }
   font-size: 12px;
   cursor: pointer;
 }
+.match-bottom-bar .bt-stake {
+  display: none; /* shown only on mobile */
+  height: 26px;
+  min-width: 50px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(59,130,246,0.12);
+  color: #e5e7eb;
+  font-size: 12px;
+  font-weight: 700;
+}
 .match-bottom-bar .bt-chip.is-active {
   border-color: rgba(59,130,246,0.45);
   background: rgba(59,130,246,0.12);
@@ -292,6 +344,38 @@ button.bt-live { cursor: pointer; }
   .match-bottom-bar .bt-chip { min-width: 40px; height: 24px; font-size: 11px; }
   .match-bottom-bar .bt-draw { height: 26px; padding: 0 10px; font-size: 12px; }
   .match-bottom-bar .bt-mode { font-size: 10px; padding: 2px 6px; }
+}
+
+/* Mobile: condense bottom bar */
+@media (max-width: 767px) {
+  /* Ensure both edges stay visible: left/right auto, center sized to content */
+  .match-bottom-bar { grid-template-columns: auto max-content auto; gap: 4px; padding: 0 4px; }
+  .match-bottom-bar .bt-left,
+  .match-bottom-bar .bt-center,
+  .match-bottom-bar .bt-right { min-width: 0; }
+  .match-bottom-bar .bt-center { overflow: hidden; justify-content: center; }
+  /* Keep draw button to its content width on mobile */
+  .match-bottom-bar .bt-center .bt-draw { width: auto; text-align: center; padding-left: 8px; padding-right: 8px; }
+  .match-bottom-bar .bt-draw {
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 0 8px; /* reduce horizontal padding on narrow screens */
+    font-size: 11px; /* slightly smaller label to fit */
+    min-width: 0; /* allow draw button to shrink */
+  }
+  /* Hide multiple chips; use compact stake toggle */
+  .match-bottom-bar .bt-chip { display: none; }
+  .match-bottom-bar .bt-stake { display: inline-flex; align-items: center; justify-content: center; }
+  /* Reduce viewers footprint */
+  .match-bottom-bar .bt-viewers { display: none; }
+  /* Hide auxiliary icons to save space */
+  .match-bottom-bar .bt-icon { display: none; }
+  /* Tighten left/right clusters */
+  .match-bottom-bar .bt-left { gap: 3px; }
+  .match-bottom-bar .bt-right { gap: 3px; padding-left: 0; border-left: 0; }
+  .match-bottom-bar .bt-live { margin-left: 0; padding: 0 6px; }
+  .match-bottom-bar .bt-mode { padding: 1px 5px; }
 }
 
 .frame__label {
@@ -741,10 +825,9 @@ button.bt-live { cursor: pointer; }
     min-width: 0;
     box-sizing: border-box;
   }
-  /* Cap notation list height on small screens so actions remain visible */
-  .match-page .notation-rail__list {
-    max-height: clamp(160px, 36vh, 360px);
-  }
+  /* Cap notation list height tighter on small screens so receipts and bar remain visible */
+  .match-page .notation-rail { height: 100%; display: flex; flex-direction: column; }
+  .match-page .notation-rail__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
   .left-panel {
     height: auto;
     padding: 10px 12px;
@@ -983,6 +1066,12 @@ button.bt-live { cursor: pointer; }
 @media (max-width: 899px) {
   .receipts-grid { font-size: 11px; gap: 3px 6px; }
   .receipts-grid .rg-head .rg-cell { font-size: 10px; }
+}
+
+/* Mobile: limit empty receipts height so it doesn't dominate */
+@media (max-width: 767px) {
+  .frame--right-bottom { align-self: start; }
+  .frame--right-bottom .receipts-grid { max-height: clamp(120px, 28vh, 260px); }
 }
 
 /* Friendlier empty state: allow wrapping and soften color */

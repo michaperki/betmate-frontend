@@ -100,8 +100,51 @@
   }
 
   .fmc-front { position: relative; }
-  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; overflow: hidden; background: linear-gradient(180deg, rgba($accent-purple, 0.10), rgba($accent-blue, 0.06)); }
-  .market { display: flex; flex-direction: column; gap: $space-3; }
+  // Back face now has a centered content wrapper and inner panel
+  .fmc-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    overflow: hidden;
+    // background moved to inner panel to avoid a full-width gradient strip
+    background: transparent;
+    padding: 0; // padding handled by inner wrapper/panel
+  }
+  .fmc-back__center {
+    width: 100%;
+    max-width: 1000px; // centered content width; aligns visually with front
+    margin: 0 auto;
+    padding: $space-4; // top padding so headings don’t sit too high
+    @include mobile { padding: $space-3; }
+  }
+  .fmc-back__panel {
+    background: linear-gradient(180deg, rgba($accent-purple, 0.10), rgba($accent-blue, 0.06));
+    border: 1px solid $border-primary;
+    border-radius: $radius-lg;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: $space-4;
+    @include mobile { padding: $space-3; }
+  }
+
+  // Back content layout: 1-column by default; 2-columns on wide screens
+  .market {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 1024px) {
+    .fmc-back__panel .market {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      column-gap: $space-5;
+      row-gap: $space-4;
+      align-items: start;
+    }
+    .fmc-back__panel .market .section { margin: 0; }
+  }
   .section { display: flex; flex-direction: column; gap: $space-1; }
   .section-title { @include text-heading-4; }
   .odds-chips { display: flex; gap: $space-2; flex-wrap: wrap; }

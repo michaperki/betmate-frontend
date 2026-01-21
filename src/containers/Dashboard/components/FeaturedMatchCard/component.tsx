@@ -239,26 +239,30 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
 
         {/* BACK (market) */}
         <div className="fmc-back">
-          <div className="market">
-            <div className="section">
-              <div className="section-title">Market</div>
-              <div className="odds-chips">
-                <div className="chip">WHITE {details?.odds?.white_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('white_win', (details.odds.white_win || 0), undefined, risk as any) : (1 / (details.odds.white_win || 0)))}x`) : '-'}</div>
-                <div className="chip">DRAW {details?.odds?.draw ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('draw', (details.odds.draw || 0), undefined, risk as any) : (1 / (details.odds.draw || 0)))}x`) : '-'}</div>
-                <div className="chip">BLACK {details?.odds?.black_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('black_win', (details.odds.black_win || 0), undefined, risk as any) : (1 / (details.odds.black_win || 0)))}x`) : '-'}</div>
-              </div>
-              {details?.stats ? (
-                <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
-              ) : (
-                <div className="pool-line muted">Market just opened</div>
-              )}
-            </div>
+          <div className="fmc-back__center">
+            <div className="fmc-back__panel">
+              <div className="market">
+                <div className="section">
+                  <div className="section-title">Market</div>
+                  <div className="odds-chips">
+                    <div className="chip">WHITE {details?.odds?.white_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('white_win', (details.odds.white_win || 0), undefined, risk as any) : (1 / (details.odds.white_win || 0)))}x`) : '-'}</div>
+                    <div className="chip">DRAW {details?.odds?.draw ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('draw', (details.odds.draw || 0), undefined, risk as any) : (1 / (details.odds.draw || 0)))}x`) : '-'}</div>
+                    <div className="chip">BLACK {details?.odds?.black_win ? (`${getMultiplier(mode === 'real' ? realWdlMultiplier('black_win', (details.odds.black_win || 0), undefined, risk as any) : (1 / (details.odds.black_win || 0)))}x`) : '-'}</div>
+                  </div>
+                  {details?.stats ? (
+                    <div className="pool-line">{details.stats.total_bets} bets · ${details.stats.total_pool?.toLocaleString?.() || details.stats.total_pool} in pool</div>
+                  ) : (
+                    <div className="pool-line muted">Market just opened</div>
+                  )}
+                </div>
 
-            <div className="section">
-              <div className="section-title">Limits</div>
-              {match.stakes && (
-                <div className="limits-line">Bets from {formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} to {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))}</div>
-              )}
+                <div className="section">
+                  <div className="section-title">Limits</div>
+                  {match.stakes && (
+                    <div className="limits-line">Bets from {formatAmount(match.stakes.min_bet || 0, modeCurrency(mode))} to {formatAmount(match.stakes.max_bet || 0, modeCurrency(mode))}</div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

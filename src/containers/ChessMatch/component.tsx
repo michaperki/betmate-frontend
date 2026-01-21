@@ -760,7 +760,8 @@ const ChessMatch: React.FC = () => {
   }, [wagersCount, wagersMap, wagerError, pendingMove, game?._id]);
 
   return (
-    <div className="match-page">
+    // Add 'mobile-fixed-bar' for mobile-only fixed bottom toolbar (easy rollback: remove class)
+    <div className="match-page mobile-fixed-bar">
       <NavBar compact={true} />
       <main className="match-page__content">
         {/* Visually hidden aria-live region for accept/reject announcements */}
@@ -1133,6 +1134,21 @@ const ChessMatch: React.FC = () => {
                     <div className="bt-mode" title="Current mode" aria-label="Current mode">
                       {modeLabel}
                     </div>
+                    {/* Mobile-friendly stake toggle; hidden on desktop via CSS */}
+                    <button
+                      className="bt-stake"
+                      aria-label="Change stake"
+                      title="Change stake"
+                      onClick={() => {
+                        try {
+                          const idx = presets.indexOf(stake);
+                          const next = presets[(idx + 1 + presets.length) % presets.length] ?? presets[0];
+                          setStake(next);
+                        } catch { setStake(presets[0]); }
+                      }}
+                    >
+                      ${stake}
+                    </button>
                     {presets.map((v) => (
                       <button
                         key={`stake-${v}`}
