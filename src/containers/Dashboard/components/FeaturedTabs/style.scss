@@ -4,6 +4,11 @@
   // Do NOT constrain the featured tab; only panel tabs get capped
   .tab-content { overflow: visible; }
 
+  // Desktop: add 10px margin above tab header for breathing room
+  @media (min-width: 1024px) {
+    .tab-header { margin-top: 10px; }
+  }
+
   // Ensure panels are flex columns so their lists can scroll
   .active-bets-panel,
   .betting-history-panel,
