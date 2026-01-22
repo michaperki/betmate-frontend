@@ -532,13 +532,15 @@ button.bt-live { cursor: pointer; }
 .frame--board .ph-clock .tick-dot { display: none !important; }
 html.light-mode .frame--board .ph-clock .tick-dot { display: none !important; }
 html.dark-mode .frame--board .ph-clock .tick-dot { display: none !important; }
-.frame--board .board-header.is-ticking .ph-clock {
+.frame--board .board-header.is-ticking .ph-clock,
+.frame--board .board-header.is-active .ph-clock {
   background: rgba(var(--brand-primary-rgb), 0.10) !important;
   box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.20) !important;
   border-color: rgba(var(--brand-primary-rgb), 0.35) !important;
   animation: ph-clock-pulse 1.5s ease-in-out infinite;
 }
-html.light-mode .frame--board .board-header.is-ticking .ph-clock {
+html.light-mode .frame--board .board-header.is-ticking .ph-clock,
+html.light-mode .frame--board .board-header.is-active .ph-clock {
   background: rgba(var(--brand-primary-rgb), 0.12) !important;
   box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.25) !important;
 }
