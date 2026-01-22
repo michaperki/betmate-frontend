@@ -9,6 +9,8 @@
   align-items: center;
   background: $bg-secondary;
   border: 1px solid $border-primary;
+  // Provide breathing room below the quick stats block on all viewports
+  margin-bottom: 8px;
 
   @include mobile {
     grid-template-columns: 1fr;
