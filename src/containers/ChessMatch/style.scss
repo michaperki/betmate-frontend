@@ -427,8 +427,8 @@ button.bt-live { cursor: pointer; }
 
   /* derive inner metrics from outer size */
   --inner-gap: 8px;
-  /* Keep headers compact so board dominates */
-  --header-h: clamp(14px, calc(var(--s) * 0.05), 36px);
+  /* Slightly taller header to comfortably fit the clock */
+  --header-h: clamp(40px, calc(var(--s) * 0.055), 52px);
   /* Eval bar ~5% of board width, thin but visible */
   --eval-w: clamp(8px, calc(var(--s) * 0.05), 28px);
 }
@@ -440,7 +440,7 @@ button.bt-live { cursor: pointer; }
   background: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 5px 10px;
   gap: 8px;
   cursor: pointer;
   user-select: none;
@@ -524,34 +524,33 @@ button.bt-live { cursor: pointer; }
   border-radius: 12px;
   background: var(--bg-tertiary);
   font-variant-numeric: tabular-nums;
-  /* ensure vertical spacing inside header */
-  margin-top: 2px;
-  margin-bottom: 2px;
+  /* rely on header padding for the 5px border spacing */
+  margin: 0;
 }
 /* Replace the blinking dot with a pill glow on the entire clock */
 .frame--board .ph-clock .tick-dot { display: none !important; }
 html.light-mode .frame--board .ph-clock .tick-dot { display: none !important; }
 html.dark-mode .frame--board .ph-clock .tick-dot { display: none !important; }
-.frame--board .board-header.is-ticking .ph-clock,
-.frame--board .board-header.is-active .ph-clock {
-  background: rgba(var(--brand-primary-rgb), 0.10) !important;
-  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.20) !important;
-  border-color: rgba(var(--brand-primary-rgb), 0.35) !important;
+/* Glow only when the pill itself has is-ticking */
+.frame--board .ph-clock.is-ticking {
+  background: rgb(var(--brand-primary-rgb) / 0.12);
+  border: 1px solid rgb(var(--brand-primary-rgb) / 0.35);
+  box-shadow: 0 0 0 2px rgb(var(--brand-primary-rgb) / 0.25);
   animation: ph-clock-pulse 1.5s ease-in-out infinite;
 }
-html.light-mode .frame--board .board-header.is-ticking .ph-clock,
-html.light-mode .frame--board .board-header.is-active .ph-clock {
-  background: rgba(var(--brand-primary-rgb), 0.12) !important;
-  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.25) !important;
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .ph-clock.is-ticking { animation: none; }
 }
 @keyframes ph-clock-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(var(--brand-primary-rgb), 0.25); }
-  70% { box-shadow: 0 0 0 8px rgba(var(--brand-primary-rgb), 0.0); }
-  100% { box-shadow: 0 0 0 0 rgba(var(--brand-primary-rgb), 0.0); }
+  0% { box-shadow: 0 0 0 0 rgb(var(--brand-primary-rgb) / 0.25); }
+  70% { box-shadow: 0 0 0 8px rgb(var(--brand-primary-rgb) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--brand-primary-rgb) / 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .frame--board .board-header.is-ticking .ph-clock { animation: none; }
 }
+
+/* removed enforced block; using .ph-clock.is-ticking instead */
 
 .frame--board .ph-state-chip {
   width: 10px;
@@ -1214,3 +1213,19 @@ html.light-mode {
 .receipts-grid .rg-row.is-won .rg-col-status       { color: $success; }
 .receipts-grid .rg-row.is-lost .rg-col-status      { color: $error; }
 .receipts-grid .rg-row.is-cancelled .rg-col-status { color: $warning; }
+
+/* ------------------------------------------------------------
+   Player header clock (ph-clock) — cascade winners at EOF
+   Ensures glow and spacing override earlier light-mode rules
+------------------------------------------------------------- */
+.frame--board .ph-clock { margin-top: 0; margin-bottom: 0; }
+.frame--board .ph-clock .tick-dot { display: none; }
+.frame--board .ph-clock.is-ticking {
+  background: rgb(var(--brand-primary-rgb) / 0.12) !important;
+  border-color: rgb(var(--brand-primary-rgb) / 0.35) !important;
+  box-shadow: 0 0 0 2px rgb(var(--brand-primary-rgb) / 0.25) !important;
+  animation: ph-clock-pulse 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .ph-clock.is-ticking { animation: none; }
+}

@@ -901,7 +901,10 @@ const ChessMatch: React.FC = () => {
                   <div className="ph-rating">{liveMode ? (game?.player_black?.elo || '') : '2420'}</div>
                 </div>
                 <div className="ph-right">
-                  <div className="ph-clock">
+                  <div className={[
+                    'ph-clock',
+                    (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'b'; } catch { return false; } })()) ? 'is-ticking' : ''
+                  ].filter(Boolean).join(' ')}>
                     <span>{liveMode ? formatClockSafe(displayBlackSecs, game?.time_format) : '05:00'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
@@ -973,7 +976,10 @@ const ChessMatch: React.FC = () => {
                   <div className="ph-rating">{liveMode ? (game?.player_white?.elo || '') : '2510'}</div>
                 </div>
                 <div className="ph-right">
-                  <div className="ph-clock">
+                  <div className={[
+                    'ph-clock',
+                    (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'w'; } catch { return false; } })()) ? 'is-ticking' : ''
+                  ].filter(Boolean).join(' ')}>
                     <span>{liveMode ? formatClockSafe(displayWhiteSecs, game?.time_format) : '04:32'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
