@@ -3,7 +3,8 @@
 .featured-tabs {
   // Keep tab header fixed; constrain body
   .tab-content {
-    max-height: 560px; // approximate Featured card height
+    // Match featured card height when available; fallback used otherwise
+    height: var(--featured-height, 480px);
     display: flex;
     flex-direction: column;
     overflow: hidden; // scrolling happens in inner containers
@@ -36,7 +37,6 @@
 
   // Mobile: slightly shorter to reduce scroll friction
   @media (max-width: 768px) {
-    .tab-content { max-height: 420px; }
+    .tab-content { height: var(--featured-height, 360px); }
   }
 }
-

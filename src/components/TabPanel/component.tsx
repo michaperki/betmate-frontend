@@ -11,6 +11,7 @@ interface TabPanelProps {
   defaultTabId?: string;
   className?: string;
   onTabChange?: (tabId: string) => void;
+  style?: React.CSSProperties;
 }
 
 const TabPanel: React.FC<TabPanelProps> = ({
@@ -18,6 +19,7 @@ const TabPanel: React.FC<TabPanelProps> = ({
   defaultTabId,
   className = '',
   onTabChange,
+  style,
 }) => {
   const [activeTabId, setActiveTabId] = useState(defaultTabId || (tabs.length > 0 ? tabs[0].id : ''));
 
@@ -46,7 +48,7 @@ const TabPanel: React.FC<TabPanelProps> = ({
   }, [tabIds, handleTabClick]);
 
   return (
-    <div className={`tab-panel ${className}`}>
+    <div className={`tab-panel ${className}`} style={style}>
       <div className="tab-header" role="tablist" aria-label="Section tabs">
         {tabs.map((tab, idx) => (
           <button
