@@ -29,7 +29,7 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
   const history = useHistory();
   const defaultTab = useMemo(() => parsePanelParam(location.search), [location.search]);
   const [activeTab, setActiveTab] = useState<'featured' | 'active' | 'history'>(defaultTab);
-  const [featuredHeight, setFeaturedHeight] = useState<number | null>(null);
+  const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   const activeCount = useSelector((s: RootState) => s.wager.activeWagers.length);
@@ -54,10 +54,10 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
     const measure = () => {
       const root = wrapperRef.current;
       if (!root) return;
-      const el = root.querySelector('.featured-match-container') as HTMLElement | null;
+      const el = root.querySelector('.tab-panel') as HTMLElement | null;
       if (el) {
         const h = Math.round(el.getBoundingClientRect().height);
-        if (Number.isFinite(h) && h > 0) setFeaturedHeight(h);
+        if (Number.isFinite(h) && h > 0) setPanelHeight(h);
       }
     };
     if (activeTab === 'featured') {
@@ -70,7 +70,7 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
   }, [activeTab, featuredMatchDTO, featuredGame]);
 
   return (
-    <div className="featured-tabs" ref={wrapperRef} style={{ ['--featured-height' as any]: featuredHeight ? `${featuredHeight}px` : undefined }}>
+    <div className="featured-tabs" ref={wrapperRef} style={{ ['--panel-height' as any]: panelHeight ? `${panelHeight}px` : undefined }}>
       <TabPanel
         key={defaultTab}
         defaultTabId={defaultTab}
