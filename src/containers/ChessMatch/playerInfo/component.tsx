@@ -183,6 +183,8 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
   return (
     <div
       className={`player-info-dark ${isPlayerTurn ? 'player-turn' : ''} ${isHolding ? 'betting-active' : ''} ${canBet ? 'can-bet' : ''}`}
+      tabIndex={0}
+      role={canBet ? 'button' : undefined}
       onMouseDown={canBet ? handleBetStart : undefined}
       onMouseUp={canBet ? handleBetEnd : undefined}
       onMouseLeave={canBet ? handleBetEnd : undefined}
@@ -217,7 +219,7 @@ const PlayerInfo: React.FC<ChessMatchProps> = (props) => {
 
       {canBet && (
         <div className="bet-info">
-          <div className="bet-multiplier">{getMultiplier()}x</div>
+          <div className="bet-multiplier" aria-label="odds multiplier">{getMultiplier()}x</div>
           <div className="bet-payout">→{getPayout()}</div>
           {props.currentWagers?.amount && (
             <div className="current-wager">

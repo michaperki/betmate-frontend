@@ -508,37 +508,37 @@ button.bt-live { cursor: pointer; }
   gap: 10px;
 }
 .frame--board .ph-odds {
-  padding: 2px 8px;
-  border-radius: 12px;
+  padding: 1px 6px; /* smaller than clock */
+  border-radius: 6px; /* not a full pill */
   border: 1px solid var(--border-secondary);
   background: var(--bg-tertiary);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600; /* less heavy than clock */
   color: var(--text-primary);
 }
 .frame--board .ph-clock {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
+  padding: 4px 8px; /* vertical breathing room so pill doesn't touch borders */
   border-radius: 12px;
   background: var(--bg-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.frame--board .ph-clock .tick-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: $success;
-  opacity: 0;
+/* Replace the blinking dot with a pill glow on the entire clock */
+.frame--board .ph-clock .tick-dot { display: none; }
+.frame--board .board-header.is-ticking .ph-clock {
+  background: rgba(var(--brand-primary-rgb), 0.10);
+  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.20);
+  animation: ph-clock-pulse 1.5s ease-in-out infinite;
 }
-.frame--board .board-header.is-ticking .ph-clock .tick-dot {
-  animation: dot-blink 1s infinite;
-  opacity: 1;
+@keyframes ph-clock-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(var(--brand-primary-rgb), 0.25); }
+  70% { box-shadow: 0 0 0 8px rgba(var(--brand-primary-rgb), 0.0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--brand-primary-rgb), 0.0); }
 }
-@keyframes dot-blink {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .board-header.is-ticking .ph-clock { animation: none; }
 }
 
 .frame--board .ph-state-chip {
