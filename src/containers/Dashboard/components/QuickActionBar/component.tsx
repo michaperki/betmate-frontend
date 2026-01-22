@@ -18,10 +18,10 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({ featuredGameId }) => {
       >
         Join Featured Match
       </Link>
-      <Link to="/active-bets" className="btn btn--secondary btn--sm qa-btn">
+      <Link to="/?panel=active" className="btn btn--secondary btn--sm qa-btn">
         View Active Bets
       </Link>
-      <Link to="/betting-history" className="btn btn--secondary btn--sm qa-btn">
+      <Link to="/?panel=history" className="btn btn--secondary btn--sm qa-btn">
         Betting History
       </Link>
     </nav>
@@ -29,4 +29,3 @@ const QuickActionBar: React.FC<QuickActionBarProps> = ({ featuredGameId }) => {
 };
 
 export default QuickActionBar;
-

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import './dark-style.scss'; // Use the new dark mobile-first styling
 
 interface TabPanelProps {
@@ -10,18 +10,21 @@ interface TabPanelProps {
   }[];
   defaultTabId?: string;
   className?: string;
+  onTabChange?: (tabId: string) => void;
 }
 
 const TabPanel: React.FC<TabPanelProps> = ({
   tabs,
   defaultTabId,
-  className = ''
+  className = '',
+  onTabChange,
 }) => {
   const [activeTabId, setActiveTabId] = useState(defaultTabId || (tabs.length > 0 ? tabs[0].id : ''));
 
-  const handleTabClick = (tabId: string) => {
+  const handleTabClick = useCallback((tabId: string) => {
     setActiveTabId(tabId);
-  };
+    if (onTabChange) onTabChange(tabId);
+  }, [onTabChange]);
 
   // If no tabs, render nothing
   if (tabs.length === 0) return null;
@@ -29,14 +32,32 @@ const TabPanel: React.FC<TabPanelProps> = ({
   // Find the active tab content
   const activeTab = tabs.find(tab => tab.id === activeTabId) || tabs[0];
 
+  const tabIds = useMemo(() => tabs.map(t => t.id), [tabs]);
+  const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement>, idx: number) => {
+    if (e.key === 'ArrowRight') {
+      const next = (idx + 1) % tabIds.length;
+      handleTabClick(tabIds[next]);
+      e.preventDefault();
+    } else if (e.key === 'ArrowLeft') {
+      const prev = (idx - 1 + tabIds.length) % tabIds.length;
+      handleTabClick(tabIds[prev]);
+      e.preventDefault();
+    }
+  }, [tabIds, handleTabClick]);
+
   return (
     <div className={`tab-panel ${className}`}>
-      <div className="tab-header">
-        {tabs.map(tab => (
+      <div className="tab-header" role="tablist" aria-label="Section tabs">
+        {tabs.map((tab, idx) => (
           <button
             key={tab.id}
+            id={`tab-${tab.id}`}
             className={`tab-button ${activeTabId === tab.id ? 'active' : ''}`}
+            role="tab"
+            aria-selected={activeTabId === tab.id}
+            aria-controls={`tabpanel-${tab.id}`}
             onClick={() => handleTabClick(tab.id)}
+            onKeyDown={(e) => onKeyDown(e, idx)}
           >
             <span>{tab.label}</span>
             {tab.badgeCount !== undefined && tab.badgeCount > 0 && (
@@ -45,7 +66,12 @@ const TabPanel: React.FC<TabPanelProps> = ({
           </button>
         ))}
       </div>
-      <div className="tab-content">
+      <div
+        className="tab-content"
+        id={`tabpanel-${activeTab.id}`}
+        role="tabpanel"
+        aria-labelledby={`tab-${activeTab.id}`}
+      >
         {activeTab.content}
       </div>
     </div>

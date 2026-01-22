@@ -5,7 +5,7 @@
   margin: $space-8 auto;
   padding: 0 $space-4;
   font-family: $font-primary;
-  color: $text-primary;
+  color: var(--text-primary);
 
   .header {
     display: flex;
@@ -17,7 +17,7 @@
       font-size: $text-2xl;
       font-weight: $font-semibold;
       margin: 0;
-      color: $text-primary;
+      color: var(--text-primary);
     }
 
     .filter-controls {
@@ -27,9 +27,9 @@
       select {
         padding: $space-2 $space-3;
         border-radius: $radius-base;
-        border: 1px solid $border-primary;
-        background-color: $bg-secondary;
-        color: $text-primary;
+        border: 1px solid var(--border-primary);
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
         font-size: $text-sm;
         min-width: 140px;
         cursor: pointer;
@@ -37,22 +37,22 @@
 
         &:focus {
           outline: none;
-          border-color: $brand-primary;
-          box-shadow: 0 0 0 3px rgba(0, 239, 178, 0.1);
+          border-color: var(--brand-primary);
+          box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
         }
 
         html.light-mode & {
-          background-color: #ffffff;
-          border-color: #e2e8f0;
-          color: #2d3748;
+          background-color: var(--bg-secondary);
+          border-color: var(--border-primary);
+          color: var(--text-primary);
 
           &:focus {
             border-color: var(--brand-primary);
-            box-shadow: 0 0 0 3px rgba(0, 219, 153, 0.15);
+            box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.15);
           }
 
           &:hover {
-            border-color: #cbd5e0;
+            border-color: var(--brand-primary);
           }
         }
       }
@@ -67,17 +67,17 @@
 
     .stat-card {
       flex: 1;
-      background-color: $bg-secondary;
+      background-color: var(--card-bg);
       border-radius: $radius-lg;
       padding: $space-6;
-      border: 1px solid $border-primary;
+      border: 1px solid var(--card-border);
       text-align: center;
       transition: transform $duration-base $ease-out, box-shadow $duration-base $ease-out;
 
       html.light-mode & {
-        background-color: #ffffff;
-        border-color: #e4e7eb;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        background-color: var(--card-bg);
+        border-color: var(--card-border);
+        box-shadow: var(--shadow-sm);
       }
 
       &:hover {
@@ -93,39 +93,39 @@
         font-size: $text-3xl;
         font-weight: $font-semibold;
         margin-bottom: $space-2;
-        color: $text-primary;
+        color: var(--text-primary);
 
         html.light-mode & {
-          color: #1a202c;
+          color: var(--text-primary);
         }
       }
 
       .stat-label {
-        color: $text-secondary;
+        color: var(--text-secondary);
         font-size: $text-sm;
 
         html.light-mode & {
-          color: #4a5568;
+          color: var(--text-secondary);
           font-weight: 500;
         }
       }
 
       &--won {
         .stat-value {
-          color: $success;
+          color: var(--success);
 
           html.light-mode & {
-            color: #00b876;
+            color: var(--success);
           }
         }
       }
 
       &--lost {
         .stat-value {
-          color: $error;
+          color: var(--error);
 
           html.light-mode & {
-            color: #e53e3e;
+            color: var(--error);
           }
         }
     }
@@ -133,29 +133,27 @@
   }
 
   .history-container {
-    background-color: $bg-secondary;
+    background-color: var(--card-bg);
     border-radius: $radius-lg;
     padding: $space-6;
-    border: 1px solid $border-primary;
+    border: 1px solid var(--card-border);
 
     html.light-mode & {
-      background-color: #ffffff;
-      border-color: #e4e7eb;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      background-color: var(--card-bg);
+      border-color: var(--card-border);
+      box-shadow: var(--shadow-base);
     }
   }
 
   .bet-history-item {
     display: flex;
-    border-bottom: 1px solid $border-primary;
+    border-bottom: 1px solid var(--border-primary);
     padding: $space-4 0;
     align-items: center;
     min-height: 56px; // consistent row height
     transition: background-color $duration-base $ease-out;
 
-    html.light-mode & {
-      border-bottom-color: #edf2f7;
-    }
+    html.light-mode & { border-bottom-color: var(--border-primary); }
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.03);
@@ -173,33 +171,27 @@
 
     .match-title {
       font-weight: $font-semibold;
-      color: $text-primary;
+      color: var(--text-primary);
       margin-bottom: $space-1;
 
-      html.light-mode & {
-        color: #1a202c;
-      }
+      html.light-mode & { color: var(--text-primary); }
     }
 
     .match-title .vs {
       margin: 0 $space-2;
-      color: $text-secondary;
+      color: var(--text-secondary);
 
-      html.light-mode & {
-        color: #4a5568;
-      }
+      html.light-mode & { color: var(--text-secondary); }
     }
 
     .meta {
-      color: $text-secondary;
+      color: var(--text-secondary);
       font-size: $text-sm;
       display: flex;
       align-items: center;
       gap: $space-2;
 
-      html.light-mode & {
-        color: #4a5568;
-      }
+      html.light-mode & { color: var(--text-secondary); }
     }
 
     .view-link {
@@ -213,7 +205,7 @@
     }
 
     .view-link:hover {
-      color: $text-primary;
+      color: var(--text-primary);
 
       html.light-mode & {
         color: var(--brand-primary);
@@ -227,25 +219,20 @@
       .bet-type {
         font-weight: $font-medium;
         margin-bottom: $space-1;
-        color: $text-primary;
+        color: var(--text-primary);
         display: flex;
         align-items: center;
         gap: $space-2;
 
-        html.light-mode & {
-          color: #1a202c;
-          font-weight: 600;
-        }
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
       }
 
       .odds {
         font-size: $text-sm;
-        color: $warning;
+        color: var(--warning);
         font-weight: $font-semibold;
 
-        html.light-mode & {
-          color: #dd6b20;
-        }
+        html.light-mode & { color: var(--warning); }
       }
     }
 
@@ -256,46 +243,35 @@
       .amount {
         font-weight: $font-medium;
         margin-bottom: $space-1;
-        color: $text-primary;
+        color: var(--text-primary);
 
-        html.light-mode & {
-          color: #1a202c;
-          font-weight: 600;
-        }
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
       }
 
       .net {
         font-size: $text-sm;
-        color: $text-secondary;
+        color: var(--text-secondary);
         min-height: 1em;
 
-        html.light-mode & {
-          color: #4a5568;
-        }
+        html.light-mode & { color: var(--text-secondary); }
       }
 
       .net-positive {
-        color: rgba($success, 0.8);
+        color: var(--success);
 
-        html.light-mode & {
-          color: #00b876;
-        }
+        html.light-mode & { color: var(--success); }
       }
 
       .net-negative {
-        color: rgba($error, 0.8);
+        color: var(--error);
 
-        html.light-mode & {
-          color: #e53e3e;
-        }
+        html.light-mode & { color: var(--error); }
       }
 
       .net-refund {
-        color: $info;
+        color: var(--info);
 
-        html.light-mode & {
-          color: #3182ce;
-        }
+        html.light-mode & { color: var(--info); }
       }
     }
   }
@@ -310,8 +286,8 @@
     border-radius: $radius-full;
     font-size: 12px;
   }
-  .bh-type--outcome { background: rgba($accent-blue, 0.15); color: $accent-blue; }
-  .bh-type--move    { background: rgba($accent-purple, 0.15); color: $accent-purple; }
+  .bh-type--outcome { background: color-mix(in oklab, var(--accent-blue) 15%, transparent); color: var(--accent-blue); }
+  .bh-type--move    { background: color-mix(in oklab, var(--accent-purple) 15%, transparent); color: var(--accent-purple); }
 
   .load-more {
     display: flex;
@@ -321,17 +297,17 @@
 
   .load-more button {
     padding: $space-2 $space-4;
-    border: 1px solid $border-primary;
-    background-color: $bg-secondary;
-    color: $text-primary;
+    border: 1px solid var(--border-primary);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: $radius-base;
     cursor: pointer;
     font-weight: $font-medium;
     transition: all $duration-base $ease-out;
 
     &:hover {
-      background-color: $bg-tertiary;
-      border-color: $border-accent;
+      background-color: var(--bg-tertiary);
+      border-color: var(--border-accent);
       transform: translateY(-1px);
     }
 
@@ -345,26 +321,16 @@
       transform: none;
     }
 
-    html.light-mode & {
-      background-color: #f7fafc;
-      border-color: #e2e8f0;
-      color: #2d3748;
-
-      &:hover {
-        background-color: #edf2f7;
-        border-color: var(--brand-primary);
-        color: var(--brand-primary);
-      }
-    }
+    html.light-mode & { background-color: var(--bg-secondary); border-color: var(--border-primary); color: var(--text-primary); }
   }
 
   .empty-state {
     text-align: center;
     padding: $space-8 0;
 
-    h3 { font-size: $text-xl; margin-bottom: $space-3; color: $text-primary; }
-    p { color: $text-secondary; margin-bottom: $space-4; }
-    .cta-button { padding: $space-3 $space-6; background-color: $brand-primary; color: $text-inverse; border-radius: $radius-base; font-weight: $font-medium; text-decoration: none; display: inline-block; transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out; &:hover { background-color: $brand-primary-hover; box-shadow: $shadow-glow-green; } }
+    h3 { font-size: $text-xl; margin-bottom: $space-3; color: var(--text-primary); }
+    p { color: var(--text-secondary); margin-bottom: $space-4; }
+    .cta-button { padding: $space-3 $space-6; background-color: var(--brand-primary); color: var(--text-inverse); border-radius: $radius-base; font-weight: $font-medium; text-decoration: none; display: inline-block; transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out; &:hover { background-color: var(--brand-primary-hover); box-shadow: var(--shadow-base); } }
   }
 
   // Loading state
@@ -374,7 +340,7 @@
     align-items: center;
     min-height: 200px;
 
-    .loading-spinner { border: 4px solid rgba(255, 255, 255, 0.08); border-radius: 50%; border-top: 4px solid $brand-primary; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    .loading-spinner { border: 4px solid rgba(255, 255, 255, 0.08); border-radius: 50%; border-top: 4px solid var(--brand-primary); width: 40px; height: 40px; animation: spin 1s linear infinite; }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -387,8 +353,8 @@
     text-align: center;
     padding: $space-6 0;
 
-    p { color: $error; margin-bottom: $space-4; }
-    button { background: transparent; color: $text-primary; border: 1px solid $border-primary; padding: $space-2 $space-3; border-radius: $radius-base; cursor: pointer; transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out; &:hover { border-color: $brand-primary; color: $brand-primary; background-color: rgba($brand-primary, 0.06); } }
+    p { color: var(--error); margin-bottom: $space-4; }
+    button { background: transparent; color: var(--text-primary); border: 1px solid var(--border-primary); padding: $space-2 $space-3; border-radius: $radius-base; cursor: pointer; transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out; &:hover { border-color: var(--brand-primary); color: var(--brand-primary); background-color: rgba(var(--brand-primary-rgb), 0.06); } }
   }
 
   // Responsive styles
