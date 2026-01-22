@@ -85,29 +85,31 @@
 
 // Light Theme
 html.light-mode {
-  // Primary Brand Colors - more saturated for light mode
-  --brand-primary: #00DB99; /* Deeper, more saturated green */
-  --brand-primary-hover: #00C488; /* Even deeper on hover */
-  --brand-primary-muted: #33E0B0; /* Brighter but still saturated */
-  --brand-primary-dark: #00A876; /* Very deep for pressed state */
-  --brand-primary-rgb: 0 219 153;
+  // Primary Brand Colors - slightly more saturated on light to anchor UI
+  --brand-primary: #00D191; /* boosted saturation vs dark */
+  --brand-primary-hover: #00BD84;
+  --brand-primary-muted: #33E0B0;
+  --brand-primary-dark: #00A876;
+  --brand-primary-rgb: 0 209 145;
 
   // Background Colors
-  --bg-primary: #f8f8f8;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f2f2f2;
-  --bg-quaternary: #e8e8e8;
+  // Off-white base for better ink contrast; reserve pure white sparingly
+  --bg-primary: #F6F7F9;        /* page background (tinted off-white) */
+  --bg-secondary: #FAFDFC;      /* elevated surfaces (light mint tint) */
+  --bg-tertiary: #F1F5F4;       /* controls, tab bars */
+  --bg-quaternary: #E9F1EF;     /* subtle fills */
   --bg-overlay: rgba(255, 255, 255, 0.8);
   
   // Text Colors
-  --text-primary: #111111;
-  --text-secondary: #444444;
+  // Firmer ink for better hierarchy
+  --text-primary: #0F172A;      /* slate-900 */
+  --text-secondary: #475569;    /* slate-600 */
   --text-muted: #666666;
   --text-inverse: #ffffff;
 
   // Border Colors
-  --border-primary: #d0d0d0;
-  --border-secondary: #bbbbbb;
+  --border-primary: #D0D5DD;    /* stronger neutral divider */
+  --border-secondary: #E4E7EC;
   
   // Component-Specific Colors
   --wager-pending-bg: rgba(255, 196, 48, 0.15);
@@ -120,14 +122,14 @@ html.light-mode {
   --wager-cancelled-border: rgba(149, 165, 166, 0.7);
   
   // Card/Panel
-  --card-bg: var(--bg-secondary);
+  --card-bg: var(--bg-secondary); /* tinted card fill (not pure white) */
   --card-border: var(--border-primary);
 
-  // Shadow system
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-base: 0 4px 6px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.16);
-  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+  // Shadow system — tighter and darker than before for elevation clarity
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-base: 0 1px 2px rgba(16, 24, 40, 0.06), 0 2px 8px rgba(16, 24, 40, 0.10);
+  --shadow-lg: 0 2px 8px rgba(16, 24, 40, 0.14), 0 8px 16px rgba(16, 24, 40, 0.12);
+  --shadow-xl: 0 8px 20px rgba(16, 24, 40, 0.20);
   
   // Navigation
   --nav-bg: var(--bg-secondary);
