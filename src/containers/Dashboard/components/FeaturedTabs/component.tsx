@@ -65,3 +65,5 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
 };
 
 export default FeaturedTabs;
+
+export {};
