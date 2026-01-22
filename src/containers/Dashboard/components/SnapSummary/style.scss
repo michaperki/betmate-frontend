@@ -131,3 +131,10 @@ html.light-mode {
     }
   }
 }
+
+// Desktop spacing: add margin below SnapSummary to create room before tabs
+@media (min-width: 1024px) {
+  .snap-summary {
+    margin-bottom: 10px;
+  }
+}
