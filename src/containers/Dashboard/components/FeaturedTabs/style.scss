@@ -1,14 +1,8 @@
 @import '../../../../styles/tokens.scss';
 
 .featured-tabs {
-  // Constrain the whole tab panel to the featured area height
-  > .tab-panel {
-    display: flex;
-    flex-direction: column;
-    height: var(--panel-height, 341px); // desktop fallback ~ featured card height
-  }
-  .tab-header { flex: 0 0 auto; }
-  .tab-content { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  // Do NOT constrain the featured tab; only panel tabs get capped
+  .tab-content { overflow: visible; }
 
   // Ensure panels are flex columns so their lists can scroll
   .active-bets-panel,
@@ -20,7 +14,9 @@
     min-height: 0; // allow children to calculate height correctly
   }
 
-  // Make the list areas scroll instead of growing layout
+  // Cap the two panel tabs to match featured visual space; make list areas scroll
+  .active-bets-panel,
+  .betting-history-panel { max-height: 341px; overflow: hidden; }
   .active-bets-panel .bets-container,
   .betting-history-panel .history-container {
     flex: 1 1 auto;
@@ -35,8 +31,9 @@
     margin-bottom: $space-3;
   }
 
-  // Mobile: slightly shorter to reduce scroll friction
+  // Mobile: slightly shorter caps to reduce scroll friction
   @media (max-width: 768px) {
-    > .tab-panel { height: var(--panel-height, 360px); }
+    .active-bets-panel,
+    .betting-history-panel { max-height: 360px; }
   }
 }

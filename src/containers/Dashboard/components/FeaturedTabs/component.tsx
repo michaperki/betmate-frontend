@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import TabPanel from 'components/TabPanel';
@@ -28,9 +28,7 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
   const location = useLocation();
   const history = useHistory();
   const defaultTab = useMemo(() => parsePanelParam(location.search), [location.search]);
-  const [activeTab, setActiveTab] = useState<'featured' | 'active' | 'history'>(defaultTab);
-  const [panelHeight, setPanelHeight] = useState<number | null>(null);
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  
 
   const activeCount = useSelector((s: RootState) => s.wager.activeWagers.length);
   const totalWagers = useSelector((s: RootState) => s.wager.stats.totalWagers);
@@ -49,44 +47,22 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
     </div>
   );
 
-  // Measure featured card height when visible (or on demand)
-  useEffect(() => {
-    const measure = () => {
-      const root = wrapperRef.current;
-      if (!root) return;
-      const el = root.querySelector('.tab-panel') as HTMLElement | null;
-      if (el) {
-        const h = Math.round(el.getBoundingClientRect().height);
-        if (Number.isFinite(h) && h > 0) setPanelHeight(h);
-      }
-    };
-    if (activeTab === 'featured') {
-      // next tick to allow layout
-      const id = requestAnimationFrame(measure);
-      window.addEventListener('resize', measure);
-      return () => { cancelAnimationFrame(id); window.removeEventListener('resize', measure); };
-    }
-    return;
-  }, [activeTab, featuredMatchDTO, featuredGame]);
-
   return (
-    <div className="featured-tabs" ref={wrapperRef} style={{ ['--panel-height' as any]: panelHeight ? `${panelHeight}px` : undefined }}>
-      <TabPanel
-        key={defaultTab}
-        defaultTabId={defaultTab}
-        onTabChange={(tabId) => {
-          setActiveTab(tabId as any);
-          const params = new URLSearchParams(location.search);
-          params.set('panel', tabId);
-          history.replace({ pathname: location.pathname, search: params.toString() });
-        }}
-        tabs={[
-          { id: 'featured', label: 'Featured', content: featuredContent },
-          { id: 'active', label: 'Active Bets', badgeCount: activeCount, content: <ActiveBetsPanel /> },
-          { id: 'history', label: 'Betting History', badgeCount: totalWagers, content: <BettingHistoryPanel /> },
-        ]}
-      />
-    </div>
+    <TabPanel
+      key={defaultTab}
+      defaultTabId={defaultTab}
+      className="featured-tabs"
+      onTabChange={(tabId) => {
+        const params = new URLSearchParams(location.search);
+        params.set('panel', tabId);
+        history.replace({ pathname: location.pathname, search: params.toString() });
+      }}
+      tabs={[
+        { id: 'featured', label: 'Featured', content: featuredContent },
+        { id: 'active', label: 'Active Bets', badgeCount: activeCount, content: <ActiveBetsPanel /> },
+        { id: 'history', label: 'Betting History', badgeCount: totalWagers, content: <BettingHistoryPanel /> },
+      ]}
+    />
   );
 };
 
