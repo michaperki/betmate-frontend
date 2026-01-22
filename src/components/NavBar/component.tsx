@@ -6,6 +6,7 @@ import SignOutPanel from 'containers/authentication/signOutPanel';
 import './unified-navbar.scss';
 import VersionTag from '../VersionTag';
 import { useMode } from 'context/ModeContext';
+import ThemeToggle from '../ThemeToggle';
 
 export interface NavBarProps {
   isAuthenticated: boolean;
@@ -105,6 +106,9 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
           )}
 
           {/* Raffles removed */}
+
+          {/* Theme toggle (always visible) */}
+          <ThemeToggle />
 
           {isAuthenticated ? (
             !isGameRoute ? <SignOutPanel /> : null

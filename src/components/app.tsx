@@ -21,6 +21,7 @@ import RequireAuthHOC from 'hocs/requireAuth';
 import VersionFooter from './VersionFooter';
 import OnboardingTour from './OnboardingTour';
 import { ModeProvider } from 'context/ModeContext';
+import { ThemeProvider } from 'context/ThemeContext';
 import Wallet from './Wallet/component';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
@@ -61,12 +62,13 @@ const App: React.FC<AppProps> = (props) => {
   }, []);
 
   return (
-    <ModeProvider>
-      <Router>
-        <div>
-          {/* Global, non-invasive onboarding tour overlay */}
-          <OnboardingTour />
-          <Switch>
+    <ThemeProvider>
+      <ModeProvider>
+        <Router>
+          <div>
+            {/* Global, non-invasive onboarding tour overlay */}
+            <OnboardingTour />
+            <Switch>
             <Route exact path="/" component={Welcome} />
             <Route exact path="/matches/:id" component={Welcome} />
             <Route exact path="/chess/:id" component={ChessMatch} />
@@ -131,9 +133,10 @@ const App: React.FC<AppProps> = (props) => {
             )} />
             <Route component={FallBack} />
           </Switch>
-        </div>
-      </Router>
-    </ModeProvider>
+          </div>
+        </Router>
+      </ModeProvider>
+    </ThemeProvider>
   );
 };
 

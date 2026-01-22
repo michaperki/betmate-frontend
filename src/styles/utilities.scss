@@ -201,37 +201,37 @@
 // COLOR UTILITIES
 // =============================================================================
 
-// Background colors
-.bg-primary { background-color: $bg-primary; }
-.bg-secondary { background-color: $bg-secondary; }
-.bg-tertiary { background-color: $bg-tertiary; }
-.bg-quaternary { background-color: $bg-quaternary; }
+// Background colors (theme-aware via CSS variables)
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.bg-quaternary { background-color: var(--bg-quaternary); }
 
-.bg-brand { background-color: $brand-primary; }
-.bg-success { background-color: $success; }
-.bg-warning { background-color: $warning; }
-.bg-error { background-color: $error; }
-.bg-info { background-color: $info; }
+.bg-brand { background-color: var(--brand-primary); }
+.bg-success { background-color: var(--success); }
+.bg-warning { background-color: var(--warning); }
+.bg-error { background-color: var(--error); }
+.bg-info { background-color: var(--info); }
 
-// Text colors
-.text-primary { color: $text-primary; }
-.text-secondary { color: $text-secondary; }
-.text-muted { color: $text-muted; }
-.text-inverse { color: $text-inverse; }
+// Text colors (theme-aware via CSS variables)
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-inverse { color: var(--text-inverse); }
 
-.text-brand { color: $brand-primary; }
-.text-success { color: $success; }
-.text-warning { color: $warning; }
-.text-error { color: $error; }
-.text-info { color: $info; }
+.text-brand { color: var(--brand-primary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--error); }
+.text-info { color: var(--info); }
 
-// Border colors
-.border-primary { border-color: $border-primary; }
-.border-secondary { border-color: $border-secondary; }
-.border-accent { border-color: $border-accent; }
-.border-error { border-color: $border-error; }
-.border-brand { border-color: $brand-primary; }
-.border-warning { border-color: $warning; }
+// Border colors (theme-aware via CSS variables)
+.border-primary { border-color: var(--border-primary); }
+.border-secondary { border-color: var(--border-secondary); }
+.border-accent { border-color: var(--border-accent); }
+.border-error { border-color: var(--border-error); }
+.border-brand { border-color: var(--brand-primary); }
+.border-warning { border-color: var(--warning); }
 .border-pink-500 { border-color: #FF00B7; }
 
 // =============================================================================

@@ -1,11 +1,12 @@
 @import '../../styles/tokens.scss';
 @import '../../styles/mixins.scss';
+@import '../../styles/themes.scss';
 
 // Mobile-first navigation component
 .navbar {
   width: 100%;
-  background-color: $bg-secondary;
-  box-shadow: $shadow-lg;
+  background-color: var(--nav-bg);
+  box-shadow: var(--shadow-lg);
   position: relative;
   z-index: $z-fixed;
   padding: $space-1 0;
@@ -25,8 +26,9 @@
   &--compact {
     height: 48px;
     padding: $space-1 0;
-    background-color: rgba($bg-secondary, 0.95);
-    box-shadow: $shadow-base;
+    background-color: var(--bg-secondary);
+    opacity: 0.95;
+    box-shadow: var(--shadow-base);
   }
   
   // Container for content with max width
@@ -58,7 +60,7 @@
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: $brand-primary;
+    color: var(--brand-primary);
     transition: all $duration-base $ease-out;
     padding: $space-2 0;
     
@@ -90,7 +92,7 @@
       font-size: $text-lg;
       font-weight: $font-semibold;
       margin-left: $space-3;
-      color: $brand-primary;
+      color: var(--brand-primary);
       
       @include mobile {
         display: none;
@@ -125,8 +127,8 @@
       top: 100%;
       left: 0;
       right: 0;
-      background-color: $bg-secondary;
-      box-shadow: $shadow-lg;
+      background-color: var(--bg-secondary);
+      box-shadow: var(--shadow-lg);
       padding: $space-4 $space-3;
       z-index: $z-dropdown;
 
@@ -138,7 +140,7 @@
         border-radius: $radius-base;
 
         &.active {
-          background-color: rgba($brand-primary, 0.1);
+          background-color: rgba(0, 239, 178, 0.1); // Using hardcoded value for brand-primary
         }
       }
 
@@ -146,7 +148,7 @@
       .navbar__version {
         display: block;
         margin-top: $space-3;
-        color: $text-muted;
+        color: var(--text-muted);
         font-size: $text-xs;
         text-align: center;
         opacity: 0.8;
@@ -173,7 +175,7 @@
     .bar {
       width: 100%;
       height: 2px;
-      background-color: $text-primary;
+      background-color: var(--text-primary);
       transition: all 0.3s $ease-out;
       
       &:nth-child(1) {
@@ -202,7 +204,7 @@
   
   // Navigation item (link or button)
   &__item {
-    color: $text-secondary;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: $text-sm;
     font-weight: $font-medium;
@@ -211,30 +213,30 @@
     transition: all $duration-base $ease-out;
     margin-left: $space-2;
     text-transform: capitalize;
-    
+
     &:hover {
-      color: $text-primary;
-      background-color: rgba($brand-primary, 0.05);
+      color: var(--text-primary);
+      background-color: rgba(0, 239, 178, 0.05); // Using hardcoded value for brand-primary
     }
-    
+
     &.active {
-      color: $brand-primary;
+      color: var(--brand-primary);
       font-weight: $font-semibold;
     }
     
     &--button {
       background-color: transparent;
-      border: 1px solid $brand-primary;
-      color: $brand-primary;
-      
+      border: 1px solid var(--brand-primary);
+      color: var(--brand-primary);
+
       &:hover {
-        background-color: rgba($brand-primary, 0.1);
-        box-shadow: 0 0 0 3px rgba($brand-primary, 0.1);
+        background-color: rgba(0, 239, 178, 0.1); // Using hardcoded value for brand-primary
+        box-shadow: 0 0 0 3px rgba(0, 239, 178, 0.1);
       }
-      
+
       &.active {
-        background-color: $brand-primary;
-        color: $text-inverse;
+        background-color: var(--brand-primary);
+        color: var(--text-inverse);
       }
     }
     
@@ -298,6 +300,35 @@
     // No own background/border — avoid bubble in bubble
   }
 
+  // Light mode: increase base contrast for items on white nav
+  html.light-mode & {
+    &__item {
+      color: var(--text-primary);
+
+      &:hover {
+        color: var(--text-primary);
+        background-color: rgba(15, 23, 42, 0.04);
+      }
+    }
+  }
+
+  // -----------------------------
+  // Light-mode header contrast fixes
+  // -----------------------------
+  html.light-mode & {
+    // Ensure avatar initials remain visible
+    &__account-avatar {
+      color: #0f172a;
+    }
+
+    // Theme toggle / icon buttons must not sit directly on white
+    &__mode-only .mode-chip {
+      color: #0f172a;
+      background: #f9fafb;
+      border-color: #cbd5e1;
+    }
+  }
+
   &__account-balance {
     display: inline-flex;
     align-items: center;
@@ -312,10 +343,16 @@
       font-size: $text-xs;
       line-height: 18px;
       border-radius: $radius-full;
-      color: $text-secondary;
+      color: var(--text-secondary);
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.04);
       user-select: none;
+
+      // Light mode adjustment
+      html.light-mode & {
+        border: 1px solid rgba(0,0,0,0.12);
+        background: rgba(0,0,0,0.04);
+      }
     }
   }
 }

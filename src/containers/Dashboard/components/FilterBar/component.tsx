@@ -40,6 +40,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <div className="filter-bar" data-tour-id="filters">
+      <div className="filter-header">
+        <h3 className="filter-title">Filters</h3>
+      </div>
       <div className="filter-controls">
         <div className="filter-group">
           <label className="filter-label">Time</label>
@@ -82,9 +85,15 @@ const FilterBar: React.FC<FilterBarProps> = ({
       </div>
 
       <div className="filter-results">
-        <span className="results-text">
-          Showing {filteredCount} of {totalCount} matches
-        </span>
+        {totalCount > 0 ? (
+          <span className="results-text">
+            Showing {filteredCount} of {totalCount} matches
+          </span>
+        ) : (
+          <span className="results-text empty">
+            No matches currently available
+          </span>
+        )}
         {hasActiveFilters && (
           <span className="filter-indicator">
             <span className="indicator-dot"></span>

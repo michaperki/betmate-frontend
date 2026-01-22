@@ -47,6 +47,12 @@
     border-radius: $radius-lg;
     padding: $space-6;
     border: 1px solid $border-primary;
+
+    html.light-mode & {
+      background-color: #ffffff;
+      border-color: #e4e7eb;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
   }
 
   .empty-state {
@@ -86,6 +92,10 @@
     border-bottom: 1px solid $border-primary;
     padding: $space-4 0;
 
+    html.light-mode & {
+      border-bottom-color: #edf2f7;
+    }
+
     &:last-child {
       border-bottom: none;
     }
@@ -97,26 +107,88 @@
       margin-bottom: $space-1;
       .player { white-space: nowrap; }
       .vs { margin: 0 $space-2; color: $text-secondary; }
+
+      html.light-mode & {
+        color: #1a202c;
+      }
     }
-    .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
+    .meta {
+      color: $text-secondary;
+      font-size: $text-sm;
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
     .meta .dot { opacity: 0.5; }
-    .view-link { color: $text-secondary; text-decoration: none; }
-    .view-link:hover { color: $text-primary; }
+    .view-link {
+      color: $text-secondary;
+      text-decoration: none;
+      transition: color $duration-base $ease-out;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
+    .view-link:hover {
+      color: $text-primary;
+
+      html.light-mode & {
+        color: var(--brand-primary);
+      }
+    }
 
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
 
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .odds { font-size: $text-sm; color: $text-secondary; }
+      .bet-type {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: $text-primary;
+
+        html.light-mode & {
+          color: #1a202c;
+          font-weight: 600;
+        }
+      }
+      .odds {
+        font-size: $text-sm;
+        color: $text-secondary;
+
+        html.light-mode & {
+          color: #4a5568;
+          font-weight: 500;
+        }
+      }
     }
 
     .bet-amount {
       flex: 1;
       text-align: right;
 
-      .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .potential-win { font-size: $text-sm; color: $success; }
+      .amount {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: $text-primary;
+
+        html.light-mode & {
+          color: #1a202c;
+          font-weight: 600;
+        }
+      }
+      .potential-win {
+        font-size: $text-sm;
+        color: $success;
+
+        html.light-mode & {
+          color: #00b876; // Slightly darker success color for better contrast in light mode
+          font-weight: 600;
+        }
+      }
     }
   }
 

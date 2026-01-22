@@ -4,6 +4,7 @@ import { FeaturedMatchDTO, MatchDetailsDTO } from 'types/matches';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { getMatchDetails } from 'store/requests/matchesRequests';
 import { fetchGameById } from 'store/requests/gameRequests';
+import Card from 'components/Card/component';
 import './style.scss';
 import { useMode } from 'context/ModeContext';
 import { realWdlMultiplier } from 'utils/realOdds';
@@ -158,7 +159,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
   };
 
   return (
-    <section className={`featured-match-card ${flipped ? 'is-flipped' : ''}`} data-tour-id="featured-match">
+    <Card className={`featured-match-card ${flipped ? 'is-flipped' : ''}`} interactive>
       <div className="fmc-header">
         <div className="title-row">
           <h3 className="title">Featured Match</h3>
@@ -278,7 +279,7 @@ const FeaturedMatchCard: React.FC<FeaturedMatchCardProps> = ({ match }) => {
           <button className="btn link" onClick={() => window.open(match.source!.url!, '_blank')}>Open in Source</button>
         )}
       </div>
-    </section>
+    </Card>
   );
 };
 

@@ -10,6 +10,12 @@
   position: relative;
   overflow: hidden;
 
+  html.light-mode & {
+    background: linear-gradient(to bottom right, #ffffff, #f7fcfa);
+    border: 1px solid #d8e8e4;
+    box-shadow: 0 6px 20px rgba(0, 219, 153, 0.08);
+  }
+
   @include mobile {
     padding: $space-3; // Reduce padding further on mobile
     margin-bottom: $space-4;
@@ -61,12 +67,29 @@
       padding: $space-1 $space-3;
       border-radius: $radius-pill;
 
+      html.light-mode & {
+        background: linear-gradient(to right, #00DB99, #00c488);
+        box-shadow: 0 2px 8px rgba(0, 219, 153, 0.3);
+        animation: pulse-light 1.5s infinite;
+      }
+
+      @keyframes pulse-light {
+        0% { box-shadow: 0 2px 8px rgba(0, 219, 153, 0.3); }
+        50% { box-shadow: 0 2px 12px rgba(0, 219, 153, 0.5); }
+        100% { box-shadow: 0 2px 8px rgba(0, 219, 153, 0.3); }
+      }
+
       .badge-text {
         @include text-caption;
         color: $text-inverse;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+
+        html.light-mode & {
+          font-weight: 700;
+          text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+        }
       }
     }
   }
@@ -86,6 +109,12 @@
       border-radius: $radius-lg;
       padding: $space-4;
       border: 1px solid $border-primary;
+
+      html.light-mode & {
+        background: linear-gradient(to bottom, #ffffff, #f8fcfb);
+        border: 1px solid #e0ede9;
+        box-shadow: inset 0 1px 0 #ffffff, 0 4px 10px rgba(0, 219, 153, 0.05);
+      }
     }
 
     .players-with-pawns {
@@ -133,6 +162,10 @@
         .player-rating {
           @include text-body;
           color: $text-secondary;
+
+          html.light-mode & {
+            font-weight: 600;
+          }
         }
       }
 
@@ -159,6 +192,12 @@
       border-radius: $radius-lg;
       padding: $space-6;
       border: 1px solid $border-primary;
+
+      html.light-mode & {
+        background: linear-gradient(to bottom, #ffffff, #f8fcfb);
+        border: 1px solid #e0ede9;
+        box-shadow: inset 0 1px 0 #ffffff, 0 4px 16px rgba(0, 219, 153, 0.05);
+      }
 
       .players-with-pawns {
         display: flex;
@@ -260,6 +299,17 @@
       &:hover {
         transform: translateY(-1px);
         background: $brand-primary-hover;
+      }
+
+      html.light-mode & {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 10px rgba(0, 219, 153, 0.3);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(0, 219, 153, 0.4);
+        }
       }
     }
   }

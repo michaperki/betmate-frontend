@@ -7,11 +7,34 @@
   padding: $space-4;
   margin-bottom: $space-4;
   border: 1px solid $border-secondary;
-  
+  border-radius: $radius-lg;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: $space-4;
+  flex-direction: column;
+  gap: $space-3;
+
+  html.light-mode & {
+    background: #ffffff;
+    border-color: #e4e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-2;
+
+    .filter-title {
+      @include text-heading-4;
+      color: $text-primary;
+      margin: 0;
+      font-weight: 600;
+
+      html.light-mode & {
+        color: #333333;
+      }
+    }
+  }
 
   @include mobile {
     flex-direction: column;
@@ -24,6 +47,15 @@
     display: flex;
     align-items: center;
     gap: $space-4;
+    background: $bg-tertiary;
+    padding: $space-3;
+    border-radius: $radius-md;
+    border: 1px solid $border-primary;
+
+    html.light-mode & {
+      background: #f7f9fc;
+      border-color: #edf2f7;
+    }
 
     @include mobile {
       width: 100%;
@@ -57,7 +89,7 @@
         color: $text-primary;
         font-size: $text-sm;
         min-width: 160px;
-        
+
         transition: all 0.2s ease;
 
         @include mobile {
@@ -78,6 +110,22 @@
         option {
           background: $bg-tertiary;
           color: $text-primary;
+        }
+
+        html.light-mode & {
+          background: #ffffff;
+          border-color: #e0e0e0;
+          color: #333333;
+
+          &:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 2px rgba(0, 219, 153, 0.2);
+          }
+
+          option {
+            background: #ffffff;
+            color: #333333;
+          }
         }
       }
     }
@@ -101,20 +149,41 @@
 
   .filter-results {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: $space-1;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: $space-2 $space-3;
+
+    html.light-mode & {
+      border-top: 1px solid #f0f0f0;
+    }
 
     @include mobile {
       width: 100%;
       align-items: center;
+      flex-direction: column;
       text-align: center;
+      gap: $space-1;
     }
 
     .results-text {
       @include text-body;
       color: $text-secondary;
       font-weight: 500;
+
+      html.light-mode & {
+        color: #4b5563;
+        font-weight: 600;
+      }
+
+      &.empty {
+        font-style: italic;
+        opacity: 0.8;
+
+        html.light-mode & {
+          opacity: 0.7;
+        }
+      }
     }
 
     .filter-indicator {
@@ -124,6 +193,14 @@
       align-items: center;
       gap: $space-1;
       font-weight: 500;
+
+      html.light-mode & {
+        background-color: rgba(0, 219, 153, 0.1);
+        color: #00a876;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+      }
 
       .indicator-dot {
         width: 6px;

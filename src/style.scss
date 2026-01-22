@@ -7,6 +7,8 @@
 // Import design system foundation
 @import './styles/tokens.scss';
 @import './styles/mixins.scss';
+// Ensure CSS variables for theming are globally available
+@import './styles/themes.scss';
 @import './styles/utilities.scss';
 @import './styles/components.scss';
 

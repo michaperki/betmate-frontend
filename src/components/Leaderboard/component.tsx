@@ -13,7 +13,6 @@ import {
 } from 'store/actionCreators/leaderboardActionCreators';
 import { User } from 'types/resources/auth';
 import { Rank } from 'types/leaderboard';
-import resetIcon from 'assets/dashboard/reset.svg';
 import { LeaderboardRow } from './helpers';
 
 import './styles.scss';
@@ -62,13 +61,20 @@ const Leaderboard: React.FC<LeaderboardProps> = (props) => {
   return (
     <div className="leaderboard-container">
       <div className="leaderboard-header">
-        <h2>Leaderboard 🏅</h2>
-        <div
+        <div className="title-area">
+          <h2>Leaderboard 🏅</h2>
+          <div className="leaderboard-subtitle">Ranked by net winnings</div>
+        </div>
+        <button
           className={`reset-button ${props.atUser ? 'active' : ''}`}
           onClick={handleReset}
+          title="Reset leaderboard view"
+          aria-label="Reset leaderboard view"
         >
-          <img src={resetIcon}/>
-        </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="reset-icon">
+            <path d="M18 5C16.597 2.04 13.537 0 10 0C8.8181 0 7.64778 0.23279 6.55585 0.68508C5.46392 1.13738 4.47177 1.80031 3.63604 2.63604C2.80031 3.47177 2.13738 4.46392 1.68508 5.55585C1.23279 6.64778 1 7.8181 1 9C1 10.1819 1.23279 11.3522 1.68508 12.4442C2.13738 13.5361 2.80031 14.5282 3.63604 15.364C4.47177 16.1997 5.46392 16.8626 6.55585 17.3149C7.64778 17.7672 8.8181 18 10 18C14 18.5 18 15.364 18.5 11M18 5L19 0M18 5L13 6" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+        </button>
       </div>
       <div className="leaderboard-card" >
         <BidirectionalScroll

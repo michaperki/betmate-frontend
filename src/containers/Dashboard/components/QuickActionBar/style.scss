@@ -11,11 +11,77 @@
     text-align: center;
     border-radius: $radius-lg;
     white-space: nowrap;
+    transition: all $duration-base $ease-out;
+    font-weight: $font-medium;
+    padding: $space-2 $space-4;
+    box-shadow: none;
   }
 
   .qa-btn.disabled {
     opacity: 0.5;
     pointer-events: none;
+  }
+
+  .qa-btn.primary {
+    background: $brand-primary;
+    color: $text-inverse;
+    border: none;
+
+    &:hover:not(.disabled) {
+      background: $brand-primary-hover;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 239, 178, 0.3);
+    }
+
+    &:active:not(.disabled) {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 239, 178, 0.2);
+    }
+  }
+
+  .qa-btn.secondary {
+    background: $bg-tertiary;
+    color: $text-primary;
+    border: 1px solid $border-secondary;
+
+    &:hover:not(.disabled) {
+      border-color: $brand-primary;
+      color: $brand-primary;
+      background: rgba($brand-primary, 0.05);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(.disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  // Light-mode CTA hierarchy and contrast
+  html.light-mode & {
+    .qa-btn.primary {
+      background: $brand-primary;
+      color: $text-inverse;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 219, 153, 0.2);
+      font-weight: 600;
+
+      &:hover:not(.disabled) {
+        background: var(--brand-primary-hover);
+        box-shadow: 0 4px 12px rgba(0, 219, 153, 0.3);
+      }
+    }
+
+    .qa-btn.secondary {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+
+      &:hover:not(.disabled) {
+        background: #f0f9f6;
+        border-color: rgba(0, 219, 153, 0.6);
+        color: var(--brand-primary);
+      }
+    }
   }
 
   // Grow buttons evenly on larger screens
@@ -31,4 +97,3 @@
     &::-webkit-scrollbar { display: none; }
   }
 }
-

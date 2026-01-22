@@ -1,15 +1,17 @@
 import React from 'react';
 import { Game } from 'types/resources/game';
 import GameCard from 'components/GameCard/component';
+import Card from 'components/Card/component';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import './style.scss';
 
 export interface LiveMatchesGridProps {
   games: Game[];
   isLoading?: boolean;
+  featuredGame?: Game;
 }
 
-const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = false }) => {
+const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = false, featuredGame }) => {
   const { isMobile, isTablet } = useResponsiveLayout();
 
   const getGridColumns = () => {
@@ -52,6 +54,20 @@ const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = fa
           <p className="empty-description">
             Check back soon for new matches to bet on!
           </p>
+          <div className="empty-actions">
+            <button
+              className="primary-action"
+              onClick={() => window.location.href = featuredGame ? `/chess/${featuredGame._id}` : '/'}
+            >
+              {featuredGame ? 'Join Featured Match' : 'Refresh Dashboard'}
+            </button>
+            <button
+              className="secondary-action"
+              onClick={() => window.location.href = '/bets/history'}
+            >
+              View Bet History
+            </button>
+          </div>
         </div>
       </section>
     );
@@ -65,11 +81,15 @@ const LiveMatchesGrid: React.FC<LiveMatchesGridProps> = ({ games, isLoading = fa
       </div>
       
       <div className="matches-grid" style={{ gridTemplateColumns: `repeat(${getGridColumns()}, 1fr)` }}>
-        {games.map((game, index) => (
-          <div key={game._id} className={`match-card-wrapper match-card--${getCardColorClass(index)}`}>
-            <GameCard game={game} />
-          </div>
-        ))}
+         {games.map((game, index) => (
+           <Card
+             key={game._id}
+             className={`match-card-wrapper match-card--${getCardColorClass(index)}`}
+             interactive
+           >
+             <GameCard game={game} />
+           </Card>
+         ))}
       </div>
     </section>
   );

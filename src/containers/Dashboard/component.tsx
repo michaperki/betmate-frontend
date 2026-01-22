@@ -3,6 +3,9 @@ import { fetchGamesByStatus, clearGames } from 'store/actionCreators/gameActionC
 import { Game, GameStatus } from 'types/resources/game';
 import { User } from 'types/resources/auth';
 import Leaderboard from 'components/Leaderboard';
+import { useTheme } from 'context/ThemeContext';
+import Button from 'components/Button';
+import Card from 'components/Card/component';
 
 // New mobile-first dashboard components
 // Option A components
@@ -33,6 +36,7 @@ export interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
+  const { theme } = useTheme();
   const { isMobile, isTablet, isDesktop } = useResponsiveLayout();
   const { stats, featuredGame, regularGames } = useDashboardData(props.games, props.user);
   const [featuredMatchDTO, setFeaturedMatchDTO] = React.useState<FeaturedMatchDTO | null>(null);
@@ -168,7 +172,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
           {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
           {/* Stats Tiles */}
-          <StatsTiles />
+          <Card>
+            <StatsTiles />
+          </Card>
 
           {/* Leaderboard (condensed) */}
           <div className="leaderboard-container">
@@ -177,23 +183,27 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
           {/* Live Matches Section */}
           <div className="dashboard-matches-section">
-            
+
             {/* Filter Bar */}
-            <FilterBar
-              filters={filters}
-              onTimeFilterChange={setTimeFilter}
-              onRatingFilterChange={setRatingFilter}
-              onClearFilters={clearFilters}
-              totalCount={regularGames.length}
-              filteredCount={sortedFilteredGames.length}
-            />
+            <div className="filter-section">
+              <FilterBar
+                filters={filters}
+                onTimeFilterChange={setTimeFilter}
+                onRatingFilterChange={setRatingFilter}
+                onClearFilters={clearFilters}
+                totalCount={regularGames.length}
+                filteredCount={sortedFilteredGames.length}
+              />
+            </div>
 
             {/* Live Matches Grid */}
-            <LiveMatchesGrid 
+            <LiveMatchesGrid
               games={sortedFilteredGames}
               isLoading={false}
+              featuredGame={featuredGame || undefined}
             />
           </div>
+
         </div>
       </div>
       {matchRoute && <MatchDetailsDrawer />}

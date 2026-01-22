@@ -1,0 +1,71 @@
+@import '../../styles/mixins.scss';
+@import '../../styles/tokens.scss';
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  
+  .theme-toggle-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: $space-1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-primary;
+    transition: all $duration-base $ease-out;
+    
+    &:hover {
+      background-color: rgba($brand-primary, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(1px);
+    }
+    
+    .sun-icon, .moon-icon {
+      width: 24px;
+      height: 24px;
+      transition: transform 0.3s ease;
+    }
+    
+    .sun-icon {
+      color: $warning;
+      
+      &:hover {
+        transform: rotate(45deg);
+      }
+    }
+    
+    .moon-icon {
+      color: $accent-blue;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  // Focus state for accessibility
+  @include focus-ring;
+}
+
+// Responsive adjustments
+@include mobile-only {
+  .theme-toggle-button {
+    width: 36px;
+    height: 36px;
+    
+    .sun-icon, .moon-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

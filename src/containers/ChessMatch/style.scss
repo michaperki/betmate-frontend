@@ -941,6 +941,117 @@ button.bt-live { cursor: pointer; }
   text-shadow: 0 1px 0 rgba(0,0,0,0.35);
 }
 
+/* ------------------------------------------------------------
+   Light mode overrides for game UI
+   These adapt dark hardcoded styles for light theme without
+   refactoring all selectors to CSS variables.
+------------------------------------------------------------- */
+html.light-mode {
+  .match-page {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .frame--bar {
+    border-color: #e5e7eb;
+    background: #ffffff;
+  }
+
+  .match-bottom-bar .bt-right { border-left-color: rgba(0,0,0,0.08); }
+
+  .match-bottom-bar .bt-live,
+  .match-bottom-bar .bt-mode,
+  .match-bottom-bar .bt-chip,
+  .match-bottom-bar .bt-stake,
+  .match-bottom-bar .bt-icon {
+    border-color: #e5e7eb;
+    background: #f9fafb;
+    color: #0f172a;
+  }
+  .match-bottom-bar .bt-draw {
+    border-color: rgba(59,130,246,0.35);
+    background: rgba(59,130,246,0.10);
+    color: #0f172a;
+  }
+  .match-bottom-bar .bt-chip.is-active {
+    border-color: #93c5fd;
+    background: #eaf2ff;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .frame--board .board-header {
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+  .frame--board .board-header.outcome-action {
+    border-color: rgba(0, 219, 153, 0.25);
+    box-shadow: 0 0 0 1px rgba(15,23,42,0.02) inset, 0 6px 16px rgba(0,0,0,0.06);
+  }
+
+  /* Player header text and chips */
+  .frame--board .ph-name { color: #0f172a; }
+  .frame--board .ph-rating { color: #475569; }
+  .frame--board .board__label { color: #475569; }
+
+  .frame--board .ph-odds {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .frame--board .ph-clock {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+  }
+
+  /* Eval bar border for clarity on white */
+  .frame--board .eval-bar {
+    border: 1px solid #cbd5e1;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.08);
+  }
+
+  /* Notation controls */
+  .notation-controls .np-btn,
+  .notation-rail__controls .np-btn {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+  .notation-controls .np-btn:hover,
+  .notation-rail__controls .np-btn:hover { background: #e2e8f0; }
+  .notation-rail__controls .np-status { color: #475569; }
+
+  /* Notation list styling */
+  .notation-list { border-color: #e5e7eb; }
+  .notation-row__number { color: #475569; }
+  .notation-row__cell { color: #0f172a; }
+  .notation-row__cell:hover { background: rgba(15,23,42,0.05); }
+  .notation-row__cell.is-active { background: #eaf2ff; }
+  .notation-move .nm-index { color: #64748b; }
+  .notation-move .nm-san { color: #0f172a; }
+
+  /* Receipts grid header and rows */
+  .receipts-grid .rg-head .rg-cell { color: #475569; }
+  .receipts-grid .rg-row:hover .rg-cell { background: rgba(0,0,0,0.03); }
+  .receipts-grid .rg-row.is-empty .rg-col-bet { color: #64748b; }
+  .receipts-grid .rg-row .rg-cell { color: #0f172a; }
+
+  /* Left move cards */
+  .lp-tile {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+  }
+  .lp-card { color: #0f172a; }
+  .lp-h-move { color: #0f172a; }
+  .lp-f-score { color: #0b172a; }
+  .lp-f-odds { color: #0f172a; text-shadow: none; }
+  .lp-h-tag { border-color: #cbd5e1; color: #475569; background: #f8fafc; }
+  .lp-iz-glyph { opacity: 0.12; filter: saturate(0.5) contrast(0.9); }
+  .lp-iz-opening { color: #0f172a; }
+}
+
 /* Tile states */
 .lp-tile.is-active {
   border-color: rgba(59,130,246,0.55);

@@ -30,7 +30,7 @@ const LeaderboardRow: React.FC<RowProps> = (props) => {
       </div>
       <div className="player-stats">
         <div className="win-rate">
-          {props.data.winnings >= 0 ? '+' : ''}
+          <span className="metric-label">Net:</span> {props.data.winnings >= 0 ? '+' : ''}
         </div>
         <div className={`balance ${props.data.winnings >= 0 ? 'positive' : 'negative'}`}>
           {Math.abs(props.data.winnings).toFixed(0)} KBITZ

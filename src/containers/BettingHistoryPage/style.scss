@@ -33,9 +33,28 @@
         font-size: $text-sm;
         min-width: 140px;
         cursor: pointer;
-        transition: border-color $duration-base $ease-out;
+        transition: all $duration-base $ease-out;
 
-        &:focus { outline: none; border-color: $brand-primary; }
+        &:focus {
+          outline: none;
+          border-color: $brand-primary;
+          box-shadow: 0 0 0 3px rgba(0, 239, 178, 0.1);
+        }
+
+        html.light-mode & {
+          background-color: #ffffff;
+          border-color: #e2e8f0;
+          color: #2d3748;
+
+          &:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(0, 219, 153, 0.15);
+          }
+
+          &:hover {
+            border-color: #cbd5e0;
+          }
+        }
       }
     }
   }
@@ -53,21 +72,78 @@
       padding: $space-6;
       border: 1px solid $border-primary;
       text-align: center;
+      transition: transform $duration-base $ease-out, box-shadow $duration-base $ease-out;
 
-      .stat-value { font-size: $text-3xl; font-weight: $font-semibold; margin-bottom: $space-2; color: $text-primary; }
-      .stat-label { color: $text-secondary; font-size: $text-sm; }
+      html.light-mode & {
+        background-color: #ffffff;
+        border-color: #e4e7eb;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+        html.light-mode & {
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+      }
+
+      .stat-value {
+        font-size: $text-3xl;
+        font-weight: $font-semibold;
+        margin-bottom: $space-2;
+        color: $text-primary;
+
+        html.light-mode & {
+          color: #1a202c;
+        }
+      }
+
+      .stat-label {
+        color: $text-secondary;
+        font-size: $text-sm;
+
+        html.light-mode & {
+          color: #4a5568;
+          font-weight: 500;
+        }
+      }
 
       &--won {
-        .stat-value { color: $success; }
+        .stat-value {
+          color: $success;
+
+          html.light-mode & {
+            color: #00b876;
+          }
+        }
       }
 
       &--lost {
-        .stat-value { color: $error; }
+        .stat-value {
+          color: $error;
+
+          html.light-mode & {
+            color: #e53e3e;
+          }
+        }
     }
   }
   }
 
-  .history-container { background-color: $bg-secondary; border-radius: $radius-lg; padding: $space-6; border: 1px solid $border-primary; }
+  .history-container {
+    background-color: $bg-secondary;
+    border-radius: $radius-lg;
+    padding: $space-6;
+    border: 1px solid $border-primary;
+
+    html.light-mode & {
+      background-color: #ffffff;
+      border-color: #e4e7eb;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+  }
 
   .bet-history-item {
     display: flex;
@@ -75,34 +151,152 @@
     padding: $space-4 0;
     align-items: center;
     min-height: 56px; // consistent row height
+    transition: background-color $duration-base $ease-out;
+
+    html.light-mode & {
+      border-bottom-color: #edf2f7;
+    }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+
+      html.light-mode & {
+        background-color: rgba(0, 219, 153, 0.02);
+      }
+    }
 
     &:last-child {
       border-bottom: none;
     }
 
     .game-info { flex: 1; }
-    .match-title { font-weight: $font-semibold; color: $text-primary; margin-bottom: $space-1; }
-    .match-title .vs { margin: 0 $space-2; color: $text-secondary; }
-    .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
-    .view-link { color: $text-secondary; text-decoration: none; }
-    .view-link:hover { color: $text-primary; }
+
+    .match-title {
+      font-weight: $font-semibold;
+      color: $text-primary;
+      margin-bottom: $space-1;
+
+      html.light-mode & {
+        color: #1a202c;
+      }
+    }
+
+    .match-title .vs {
+      margin: 0 $space-2;
+      color: $text-secondary;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
+
+    .meta {
+      color: $text-secondary;
+      font-size: $text-sm;
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
+
+    .view-link {
+      color: $text-secondary;
+      text-decoration: none;
+      transition: color $duration-base $ease-out;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
+
+    .view-link:hover {
+      color: $text-primary;
+
+      html.light-mode & {
+        color: var(--brand-primary);
+      }
+    }
 
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; display: flex; align-items: center; gap: $space-2; }
-      .odds { font-size: $text-sm; color: $warning; font-weight: $font-semibold; }
+
+      .bet-type {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: $text-primary;
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+
+        html.light-mode & {
+          color: #1a202c;
+          font-weight: 600;
+        }
+      }
+
+      .odds {
+        font-size: $text-sm;
+        color: $warning;
+        font-weight: $font-semibold;
+
+        html.light-mode & {
+          color: #dd6b20;
+        }
+      }
     }
 
     .bet-result {
       flex: 1;
       text-align: right;
 
-      .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .net { font-size: $text-sm; color: $text-secondary; min-height: 1em; }
-      .net-positive { color: rgba($success, 0.8); }
-      .net-negative { color: rgba($error, 0.8); }
-      .net-refund { color: $info; }
+      .amount {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: $text-primary;
+
+        html.light-mode & {
+          color: #1a202c;
+          font-weight: 600;
+        }
+      }
+
+      .net {
+        font-size: $text-sm;
+        color: $text-secondary;
+        min-height: 1em;
+
+        html.light-mode & {
+          color: #4a5568;
+        }
+      }
+
+      .net-positive {
+        color: rgba($success, 0.8);
+
+        html.light-mode & {
+          color: #00b876;
+        }
+      }
+
+      .net-negative {
+        color: rgba($error, 0.8);
+
+        html.light-mode & {
+          color: #e53e3e;
+        }
+      }
+
+      .net-refund {
+        color: $info;
+
+        html.light-mode & {
+          color: #3182ce;
+        }
+      }
     }
   }
 
@@ -119,7 +313,12 @@
   .bh-type--outcome { background: rgba($accent-blue, 0.15); color: $accent-blue; }
   .bh-type--move    { background: rgba($accent-purple, 0.15); color: $accent-purple; }
 
-  .load-more { display: flex; justify-content: center; margin-top: $space-6; }
+  .load-more {
+    display: flex;
+    justify-content: center;
+    margin-top: $space-6;
+  }
+
   .load-more button {
     padding: $space-2 $space-4;
     border: 1px solid $border-primary;
@@ -127,9 +326,36 @@
     color: $text-primary;
     border-radius: $radius-base;
     cursor: pointer;
-    transition: background-color $duration-base $ease-out, color $duration-base $ease-out, border-color $duration-base $ease-out;
-    &:hover { background-color: $bg-tertiary; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    font-weight: $font-medium;
+    transition: all $duration-base $ease-out;
+
+    &:hover {
+      background-color: $bg-tertiary;
+      border-color: $border-accent;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    html.light-mode & {
+      background-color: #f7fafc;
+      border-color: #e2e8f0;
+      color: #2d3748;
+
+      &:hover {
+        background-color: #edf2f7;
+        border-color: var(--brand-primary);
+        color: var(--brand-primary);
+      }
+    }
   }
 
   .empty-state {

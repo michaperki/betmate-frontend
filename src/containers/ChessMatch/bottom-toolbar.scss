@@ -15,6 +15,12 @@
   border-top: 1px solid $border-secondary;
   z-index: 20;
 
+  html.light-mode & {
+    background: #ffffff;
+    border-top-color: #e0e0e0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  }
+
   @media (max-width: 640px) {
     height: 44px;
     padding: 4px 6px;
@@ -86,6 +92,12 @@
   color: $text-primary;
   background: rgba(255, 255, 255, 0.04);
 
+  html.light-mode & {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: #e0e0e0;
+    color: #333333;
+  }
+
   &__icon { font-size: 14px; line-height: 1; }
   &__count { font-weight: 600; font-size: 12px; }
 }
@@ -102,6 +114,12 @@
   background: rgba(255, 255, 255, 0.04);
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 
+  html.light-mode & {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #333333;
+  }
+
   @media (max-width: 640px) {
     width: 28px;
     height: 28px;
@@ -111,6 +129,13 @@
   &:focus-visible {
     border-color: rgba(0, 239, 178, 0.45);
     color: $brand-primary;
+  }
+
+  html.light-mode &:hover,
+  html.light-mode &:focus-visible {
+    border-color: rgba(0, 219, 153, 0.45);
+    color: var(--brand-primary);
+    background: #f0f9f6;
   }
 }
 
@@ -220,6 +245,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  html.light-mode & {
+    background: rgba(255, 255, 255, 0.85);
+  }
 }
 
 .cm-overlay-panel {
@@ -235,6 +264,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  html.light-mode & {
+    background: #ffffff;
+    color: #333333;
+    border-color: #e0e0e0;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
 
   @media (max-width: 640px) {
     width: 100vw;
