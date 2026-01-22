@@ -9,6 +9,7 @@ import BettingHistoryPanel from 'containers/BettingHistoryPage/Panel';
 import { RootState } from 'types/state';
 import { Game } from 'types/resources/game';
 import { FeaturedMatchDTO } from 'types/matches';
+import './style.scss';
 
 export interface FeaturedTabsProps {
   featuredMatchDTO: FeaturedMatchDTO | null;

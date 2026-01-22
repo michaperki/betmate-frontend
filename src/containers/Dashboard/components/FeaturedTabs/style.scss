@@ -1,0 +1,42 @@
+@import '../../../../styles/tokens.scss';
+
+.featured-tabs {
+  // Keep tab header fixed; constrain body
+  .tab-content {
+    max-height: 560px; // approximate Featured card height
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; // scrolling happens in inner containers
+  }
+
+  // Ensure panels are flex columns so their lists can scroll
+  .active-bets-panel,
+  .betting-history-panel,
+  .featured-match-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0; // allow children to calculate height correctly
+  }
+
+  // Make the list areas scroll instead of growing layout
+  .active-bets-panel .bets-container,
+  .betting-history-panel .history-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // Tighten headers inside panels for dashboard context
+  .active-bets-panel .header,
+  .betting-history-panel .header {
+    margin-bottom: $space-3;
+  }
+
+  // Mobile: slightly shorter to reduce scroll friction
+  @media (max-width: 768px) {
+    .tab-content { max-height: 420px; }
+  }
+}
+
