@@ -4,16 +4,12 @@ import { Game, GameStatus } from 'types/resources/game';
 import { User } from 'types/resources/auth';
 import Leaderboard from 'components/Leaderboard';
 import { useTheme } from 'context/ThemeContext';
-import Button from 'components/Button';
 import Card from 'components/Card/component';
 
 // New mobile-first dashboard components
 // Option A components
 import SnapSummary from './components/SnapSummary/component';
-import QuickActionBar from './components/QuickActionBar/component';
 import StatsTiles from './components/StatsTiles/component';
-import FeaturedMatch from './components/FeaturedMatch';
-import FeaturedMatchCard from './components/FeaturedMatchCard';
 import FeaturedTabs from './components/FeaturedTabs';
 import MatchDetailsDrawer from './components/MatchDetailsDrawer';
 import LiveMatchesGrid from './components/LiveMatchesGrid';
@@ -155,14 +151,12 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       <div className="dashboard-container">
         {/* Option A: Snap Summary + Quick Actions (mobile re-ordered below) */}
         <SnapSummary userName={props.user?.first_name || 'Player'} stats={stats} />
-        {!isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
         {/* Main Content Area */}
         <div className="dashboard-main">
           
           {/* Featured/Active/History Tabs (controls only this section) */}
           <FeaturedTabs featuredMatchDTO={featuredMatchDTO} featuredGame={featuredGame || null} />
-          {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
           {/* Stats Tiles */}
           <Card>
