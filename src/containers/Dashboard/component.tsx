@@ -14,6 +14,7 @@ import QuickActionBar from './components/QuickActionBar/component';
 import StatsTiles from './components/StatsTiles/component';
 import FeaturedMatch from './components/FeaturedMatch';
 import FeaturedMatchCard from './components/FeaturedMatchCard';
+import FeaturedTabs from './components/FeaturedTabs';
 import MatchDetailsDrawer from './components/MatchDetailsDrawer';
 import LiveMatchesGrid from './components/LiveMatchesGrid';
 import FilterBar from './components/FilterBar';
@@ -159,16 +160,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         {/* Main Content Area */}
         <div className="dashboard-main">
           
-          {/* Featured Match (full width) */}
-          {(featuredMatchDTO || featuredGame) && (
-            <div className="featured-match-container">
-              {featuredMatchDTO ? (
-                <FeaturedMatchCard match={featuredMatchDTO} />
-              ) : (
-                featuredGame && <FeaturedMatch game={featuredGame} />
-              )}
-            </div>
-          )}
+          {/* Featured/Active/History Tabs (controls only this section) */}
+          <FeaturedTabs featuredMatchDTO={featuredMatchDTO} featuredGame={featuredGame || null} />
           {isMobile && <QuickActionBar featuredGameId={featuredGame?._id} />}
 
           {/* Stats Tiles */}

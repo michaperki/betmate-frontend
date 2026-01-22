@@ -144,10 +144,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ userName = 'Player', stats })
       </div>
 
       <div className="hero-actions">
-        <Link to="/active-bets" className="btn btn-primary hero-btn">
+        <Link to="/?panel=active" className="btn btn-primary hero-btn">
           View Active Bets
         </Link>
-        <Link to="/betting-history" className="btn btn-secondary hero-btn">
+        <Link to="/?panel=history" className="btn btn-secondary hero-btn">
           Betting History
         </Link>
       </div>
