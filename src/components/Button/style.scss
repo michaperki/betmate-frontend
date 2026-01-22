@@ -138,7 +138,7 @@
     &:hover:not(:disabled):not(.btn--loading) {
       background-color: var(--brand-primary-hover);
       border-color: var(--brand-primary-hover);
-      box-shadow: 0 4px 8px rgba(0, 239, 178, 0.2);
+      box-shadow: 0 4px 8px rgb(var(--brand-primary-rgb) / 0.20);
       transform: translateY(-1px);
     }
     
@@ -161,10 +161,10 @@
     border-color: var(--brand-primary);
     
     &:hover:not(:disabled):not(.btn--loading) {
-      background-color: rgba(0, 239, 178, 0.1);
+      background-color: rgb(var(--brand-primary-rgb) / 0.10);
       color: var(--brand-primary-hover);
       border-color: var(--brand-primary-hover);
-      box-shadow: 0 4px 8px rgba(0, 239, 178, 0.15);
+      box-shadow: 0 4px 8px rgb(var(--brand-primary-rgb) / 0.15);
       transform: translateY(-1px);
     }
     
@@ -174,7 +174,7 @@
     }
     
     .btn__spinner {
-      border: 2px solid rgba(0, 239, 178, 0.2);
+      border: 2px solid rgb(var(--brand-primary-rgb) / 0.20);
       border-top-color: var(--brand-primary);
     }
   }

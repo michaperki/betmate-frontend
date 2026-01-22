@@ -11,6 +11,8 @@
   --brand-primary-hover: #34F5C5;
   --brand-primary-muted: #66FACD;
   --brand-primary-dark: #00D199;
+  /* RGB triplet to support alpha without hardcoding rgba values */
+  --brand-primary-rgb: 0 239 178;
   
   // Background Colors
   --bg-primary: #050505;
@@ -88,6 +90,7 @@ html.light-mode {
   --brand-primary-hover: #00C488; /* Even deeper on hover */
   --brand-primary-muted: #33E0B0; /* Brighter but still saturated */
   --brand-primary-dark: #00A876; /* Very deep for pressed state */
+  --brand-primary-rgb: 0 219 153;
 
   // Background Colors
   --bg-primary: #f8f8f8;

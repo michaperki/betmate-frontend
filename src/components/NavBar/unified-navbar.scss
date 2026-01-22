@@ -140,7 +140,7 @@
         border-radius: $radius-base;
 
         &.active {
-          background-color: rgba(0, 239, 178, 0.1); // Using hardcoded value for brand-primary
+          background-color: rgb(var(--brand-primary-rgb) / 0.10);
         }
       }
 
@@ -214,10 +214,10 @@
     margin-left: $space-2;
     text-transform: capitalize;
 
-    &:hover {
-      color: var(--text-primary);
-      background-color: rgba(0, 239, 178, 0.05); // Using hardcoded value for brand-primary
-    }
+      &:hover {
+        color: var(--text-primary);
+        background-color: rgb(var(--brand-primary-rgb) / 0.05);
+      }
 
     &.active {
       color: var(--brand-primary);
@@ -230,8 +230,8 @@
       color: var(--brand-primary);
 
       &:hover {
-        background-color: rgba(0, 239, 178, 0.1); // Using hardcoded value for brand-primary
-        box-shadow: 0 0 0 3px rgba(0, 239, 178, 0.1);
+        background-color: rgb(var(--brand-primary-rgb) / 0.10);
+        box-shadow: 0 0 0 3px rgb(var(--brand-primary-rgb) / 0.10);
       }
 
       &.active {

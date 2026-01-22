@@ -127,13 +127,13 @@
 
   &:hover,
   &:focus-visible {
-    border-color: rgba(0, 239, 178, 0.45);
+    border-color: rgb(var(--brand-primary-rgb) / 0.45);
     color: $brand-primary;
   }
 
   html.light-mode &:hover,
   html.light-mode &:focus-visible {
-    border-color: rgba(0, 219, 153, 0.45);
+    border-color: rgb(var(--brand-primary-rgb) / 0.45);
     color: var(--brand-primary);
     background: #f0f9f6;
   }
@@ -188,7 +188,7 @@
     height: 16px;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.35);
-    border-top-color: #60a5fa;
+    border-top-color: $info;
     animation: wagerSpin 0.75s linear infinite;
   }
 

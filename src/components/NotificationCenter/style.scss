@@ -1,3 +1,5 @@
+@import '../../styles/tokens.scss';
+
 .notification-stack {
   position: fixed;
   top: 20px;
@@ -39,7 +41,7 @@
     }
 
     &.info {
-      border-color: rgba(58, 136, 254, 0.5);
+      border-color: rgba($info, 0.5);
     }
   }
 }

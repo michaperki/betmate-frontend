@@ -50,7 +50,7 @@
   margin-top: 8px;
   padding: 8px 12px;
   background: #0f172a;
-  color: #93c5fd;
+  color: $info;
   border: 1px solid #334155;
   border-radius: $radius-md;
   font-size: $text-sm;
@@ -117,7 +117,7 @@
     padding: 4px 8px;
     font-size: $text-xs;
     border: 1px solid transparent;
-    background: #2563eb; /* blue-600 */
+    background: $info;
     color: #ffffff;
     border-radius: $radius-sm;
     cursor: pointer;

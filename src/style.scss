@@ -32,8 +32,9 @@ body {
   font-family: $font-primary;
   font-size: $text-base;
   line-height: $leading-normal;
-  color: $text-primary;
-  background-color: $bg-primary;
+  /* Use CSS variables so theme switching (light/dark) updates at runtime */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
@@ -55,7 +56,8 @@ body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-color: $bg-primary;
+  /* Follow active theme background */
+  background-color: var(--bg-primary);
   position: fixed;
   top: 0;
   left: 0;

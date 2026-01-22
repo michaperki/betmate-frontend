@@ -78,6 +78,12 @@ html.light-mode {
     }
   }
 
+  .balance-icon {
+    /* Ensure the icon is visible on white backgrounds */
+    filter: brightness(0) saturate(100%);
+    opacity: 0.9;
+  }
+
   .balance-text {
     color: #0f172a;
   }
