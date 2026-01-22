@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import TabPanel from 'components/TabPanel';
 import FeaturedMatch from '../FeaturedMatch';
@@ -25,6 +25,7 @@ const parsePanelParam = (search: string): 'featured' | 'active' | 'history' => {
 
 const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredGame }) => {
   const location = useLocation();
+  const history = useHistory();
   const defaultTab = useMemo(() => parsePanelParam(location.search), [location.search]);
 
   const activeCount = useSelector((s: RootState) => s.wager.activeWagers.length);
@@ -49,6 +50,11 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
       key={defaultTab}
       defaultTabId={defaultTab}
       className="featured-tabs"
+      onTabChange={(tabId) => {
+        const params = new URLSearchParams(location.search);
+        params.set('panel', tabId);
+        history.replace({ pathname: location.pathname, search: params.toString() });
+      }}
       tabs={[
         { id: 'featured', label: 'Featured', content: featuredContent },
         { id: 'active', label: 'Active Bets', badgeCount: activeCount, content: <ActiveBetsPanel /> },
@@ -59,4 +65,3 @@ const FeaturedTabs: React.FC<FeaturedTabsProps> = ({ featuredMatchDTO, featuredG
 };
 
 export default FeaturedTabs;
-
