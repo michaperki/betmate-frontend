@@ -320,7 +320,7 @@ button.bt-live { cursor: pointer; }
 .match-bottom-bar .bt-icon { height: 26px; width: 26px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--bg-tertiary); color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; }
 
 /* Separation: push right cluster and add subtle divider */
-.match-bottom-bar .bt-right { justify-content: flex-end; padding-left: 10px; border-left: 1px solid var(--border-primary); }
+.match-bottom-bar .bt-right { justify-content: flex-end; padding-left: 10px; border-left: 0; }
 
 /* Popovers */
 .match-bottom-bar .bt-right { position: relative; }
@@ -447,6 +447,8 @@ button.bt-live { cursor: pointer; }
   position: relative;
   z-index: 3; /* ensure above board center */
   pointer-events: auto;
+  /* Allow hover sweep overlay to clip to header pill */
+  overflow: hidden;
 }
 
 /* Outcome action affordance (player headers + Draw button)
@@ -464,6 +466,31 @@ button.bt-live { cursor: pointer; }
   outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
 }
+
+/* Subtle left→right sweep overlay on hover (desktop/hover-capable only) */
+@media (hover: hover) and (pointer: fine) {
+  .frame--board .board-header.outcome-action::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    transform: translateZ(0);
+    transition: width 180ms ease;
+    pointer-events: none;
+    /* Default (dark) tint; theme overrides below */
+    background: rgb(var(--brand-primary-rgb) / 0.14);
+  }
+  .frame--board .board-header.outcome-action:hover::before {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .board-header.outcome-action::before { transition: none; }
+}
+
+/* Theme-specific tint strength for the sweep */
+html.light-mode .frame--board .board-header.outcome-action::before { background: rgb(var(--brand-primary-rgb) / 0.10); }
+html.dark-mode  .frame--board .board-header.outcome-action::before { background: rgb(var(--brand-primary-rgb) / 0.14); }
 
 /* Player headers: subtle green accent for outcome affordance (keeps existing blues) */
 .frame--board .board-header.outcome-action {
@@ -972,7 +999,8 @@ html.light-mode {
     background: #ffffff;
   }
 
-  .match-bottom-bar .bt-right { border-left-color: rgba(0,0,0,0.08); }
+  /* No divider between center and right clusters */
+  .match-bottom-bar .bt-right { border-left: 0; }
 
   .match-bottom-bar .bt-live,
   .match-bottom-bar .bt-mode,

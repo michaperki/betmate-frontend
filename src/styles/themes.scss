@@ -21,11 +21,23 @@
   --bg-quaternary: #1e1e1e;
   --bg-overlay: rgba(0, 0, 0, 0.8);
   
+  /* RGB triplets for backgrounds */
+  --bg-primary-rgb: 5 5 5;
+  --bg-secondary-rgb: 17 17 17;
+  --bg-tertiary-rgb: 26 26 26;
+  --bg-quaternary-rgb: 30 30 30;
+  
   // Semantic Colors
   --success: #00EFB2;
   --warning: #FFC430;
   --error: #FF4757;
   --info: #3a88fe;
+  
+  /* RGB triplets for semantic colors */
+  --success-rgb: 0 239 178;
+  --warning-rgb: 255 196 48;
+  --error-rgb: 255 71 87;
+  --info-rgb: 58 136 254;
   
   // Accent Colors
   --accent-blue: #00B6FF;
@@ -38,6 +50,12 @@
   --text-secondary: #BDBDBD;
   --text-muted: #666666;
   --text-inverse: #111111;
+  
+  /* RGB triplet for text */
+  --text-primary-rgb: 255 255 255;
+  --text-secondary-rgb: 189 189 189;
+  --text-muted-rgb: 102 102 102;
+  --text-inverse-rgb: 17 17 17;
   
   // Border Colors
   --border-primary: #333333;
@@ -100,12 +118,24 @@ html.light-mode {
   --bg-quaternary: #E9F1EF;     /* subtle fills */
   --bg-overlay: rgba(255, 255, 255, 0.8);
   
+  /* RGB triplets for light backgrounds */
+  --bg-primary-rgb: 246 247 249;
+  --bg-secondary-rgb: 250 253 252;
+  --bg-tertiary-rgb: 241 245 244;
+  --bg-quaternary-rgb: 233 241 239;
+  
   // Text Colors
   // Firmer ink for better hierarchy
   --text-primary: #0F172A;      /* slate-900 */
   --text-secondary: #475569;    /* slate-600 */
   --text-muted: #666666;
   --text-inverse: #ffffff;
+  
+  /* RGB triplet for text */
+  --text-primary-rgb: 15 23 42;
+  --text-secondary-rgb: 71 85 105;
+  --text-muted-rgb: 102 102 102;
+  --text-inverse-rgb: 255 255 255;
 
   // Border Colors
   --border-primary: #D0D5DD;    /* stronger neutral divider */
