@@ -191,3 +191,9 @@ body {
   padding-right: 4px;
   @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
 }
+
+// Taller variant for full-page lists that should fill
+// the viewport but not grow infinitely
+.scroll-panel--tall {
+  max-height: calc(100vh - 260px);
+}
