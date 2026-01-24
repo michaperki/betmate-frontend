@@ -102,49 +102,53 @@ const NewMyBets: React.FC = () => {
         )}
 
         {activeTab === 'active' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {activeBets.map((b) => (
-              <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 36, height: 36, background: '#e8e8e8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a24' }}>♔</div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{b.match.white} vs {b.match.black}</div>
-                      <div style={{ fontSize: 11, opacity: 0.5 }}>Move {b.move} • {b.phase}</div>
+          <div className="scroll-panel">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {activeBets.map((b) => (
+                <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 36, height: 36, background: '#e8e8e8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a24' }}>♔</div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600 }}>{b.match.white} vs {b.match.black}</div>
+                        <div style={{ fontSize: 11, opacity: 0.5 }}>Move {b.move} • {b.phase}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
+                      <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
+                      <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
-                  </div>
                 </div>
-              </div>
-            ))}
-            {activeBets.length === 0 && (
-              <div style={{ opacity: 0.7, fontSize: 13 }}>No active bets.</div>
-            )}
+              ))}
+              {activeBets.length === 0 && (
+                <div style={{ opacity: 0.7, fontSize: 13 }}>No active bets.</div>
+              )}
+            </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {filteredHistory.map((h: any) => (
-              <div key={h.id} onClick={() => history.push(`/new-game/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
-                  <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+          <div className="scroll-panel">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {filteredHistory.map((h: any) => (
+                <div key={h.id} onClick={() => history.push(`/new-game/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
+                    <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
-              </div>
-            ))}
-            {filteredHistory.length === 0 && (
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '40px 28px', textAlign: 'center' }}>
-                <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'rgba(99,102,241,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📜</div>
-                <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Betting History</div>
-                <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>Your completed bets will appear here.</div>
-                <button onClick={() => history.push('/chess/featured?newUI=1')} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#22c55e 0%, #16a34a 100%)', color: '#000', fontWeight: 800, cursor: 'pointer', fontSize: 12 }}>Start Betting</button>
-              </div>
-            )}
+              ))}
+              {filteredHistory.length === 0 && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '40px 28px', textAlign: 'center' }}>
+                  <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'rgba(99,102,241,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📜</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Betting History</div>
+                  <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>Your completed bets will appear here.</div>
+                  <button onClick={() => history.push('/chess/featured?newUI=1')} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#22c55e 0%, #16a34a 100%)', color: '#000', fontWeight: 800, cursor: 'pointer', fontSize: 12 }}>Start Betting</button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </main>
