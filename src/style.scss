@@ -195,5 +195,6 @@ body {
 // Taller variant for full-page lists that should fill
 // the viewport but not grow infinitely
 .scroll-panel--tall {
-  max-height: calc(100vh - 260px);
+  /* Keep within viewport to avoid page scroll while allowing breathing room */
+  max-height: min(70vh, calc(100dvh - 320px));
 }
