@@ -180,3 +180,14 @@ body {
     display: none !important;
   }
 }
+
+// =============================================================================
+// GLOBAL SCROLL PANEL STYLING
+// =============================================================================
+
+.scroll-panel {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+  @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
+}

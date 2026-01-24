@@ -17,6 +17,10 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     overflow: hidden;
+    max-height: 320px; // cap height to keep layout tidy
+    overflow-y: auto;
+    padding-right: 2px; // room for scrollbar
+    @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
   }
   
   &__bet {

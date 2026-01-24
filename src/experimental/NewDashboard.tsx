@@ -582,44 +582,48 @@ const NewDashboard: React.FC = () => {
                 ))}
               </div>
             ) : activeTab === 'active' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {(bets.activeBets || []).map((b) => (
-                  <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 36, height: 36, background: '#e8e8e8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a24' }}>♔</div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600 }}>{b.match.white} vs {b.match.black}</div>
-                          <div style={{ fontSize: 11, opacity: 0.5 }}>Move {b.move} • {b.phase}</div>
+              <div className="scroll-panel">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {(bets.activeBets || []).map((b) => (
+                    <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 36, height: 36, background: '#e8e8e8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a24' }}>♔</div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{b.match.white} vs {b.match.black}</div>
+                            <div style={{ fontSize: 11, opacity: 0.5 }}>Move {b.move} • {b.phase}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
+                          <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
+                          <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
-                        <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
-                        <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
-                      </div>
                     </div>
-                  </div>
-                ))}
-                {(bets.activeBets || []).length === 0 && (
-                  <div style={{ opacity: 0.7, fontSize: 13 }}>No active bets.</div>
-                )}
+                  ))}
+                  {(bets.activeBets || []).length === 0 && (
+                    <div style={{ opacity: 0.7, fontSize: 13 }}>No active bets.</div>
+                  )}
+                </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {(bets.betHistory || []).map((h) => (
-                  <div key={h.id} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
-                      <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+              <div className="scroll-panel">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {(bets.betHistory || []).map((h) => (
+                    <div key={h.id} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
+                        <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
-                  </div>
-                ))}
-                {(bets.betHistory || []).length === 0 && (
-                  <div style={{ opacity: 0.7, fontSize: 13 }}>No history.</div>
-                )}
+                  ))}
+                  {(bets.betHistory || []).length === 0 && (
+                    <div style={{ opacity: 0.7, fontSize: 13 }}>No history.</div>
+                  )}
+                </div>
               </div>
             )}
           </div>
