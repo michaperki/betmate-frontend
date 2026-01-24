@@ -102,7 +102,7 @@ const NewMyBets: React.FC = () => {
         )}
 
         {activeTab === 'active' ? (
-          <div className="scroll-panel scroll-panel--tall">
+          <div className="scroll-panel scroll-panel--tall scroll-panel--tall-active">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {activeBets.map((b) => (
                 <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
@@ -129,7 +129,7 @@ const NewMyBets: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="scroll-panel scroll-panel--tall">
+          <div className="scroll-panel scroll-panel--tall scroll-panel--tall-history">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {filteredHistory.map((h: any) => (
                 <div key={h.id} onClick={() => history.push(`/new-game/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>

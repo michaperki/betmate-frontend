@@ -198,3 +198,12 @@ body {
   /* Keep within viewport to avoid page scroll while allowing breathing room */
   max-height: min(70vh, calc(100dvh - 320px));
 }
+
+/* Slightly different caps for contexts with extra controls */
+.scroll-panel--tall-active {
+  max-height: min(66vh, calc(100dvh - 340px));
+}
+
+.scroll-panel--tall-history {
+  max-height: min(62vh, calc(100dvh - 380px));
+}
