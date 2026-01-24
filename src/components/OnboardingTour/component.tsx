@@ -316,7 +316,8 @@ const OnboardingTour: React.FC = () => {
     return () => { el.removeEventListener('click', onClick as any); };
   }, [visible, steps, activeIndex]);
 
-  if (onboardingEnabled === false) return null;
+  // Always allow guest onboarding even if flag is off; gate only for signed-in users
+  if (onboardingEnabled === false && isAuthenticated) return null;
   if (!visible || loading || !status) return null;
 
   const step = steps[activeIndex];

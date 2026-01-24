@@ -22,7 +22,8 @@ export const WagerSchema = joi.object({
   move_number: joi.number().min(0).required(),
   resolved: joi.boolean().required(),
   status: joi.string().custom(wagerStatusValidator).required(),
-  winning_pool_share: joi.number().min(1).required(),
+  // Real-mode move pool share can legitimately be < 1 when most of the pool is on the winning side
+  winning_pool_share: joi.number().min(0).required(),
   created_at: joi.string().required(), // verify is date
   updated_at: joi.string().required(), // verify is date
   is_bot: joi.boolean().optional(),

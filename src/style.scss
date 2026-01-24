@@ -180,3 +180,30 @@ body {
     display: none !important;
   }
 }
+
+// =============================================================================
+// GLOBAL SCROLL PANEL STYLING
+// =============================================================================
+
+.scroll-panel {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+  @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
+}
+
+// Taller variant for full-page lists that should fill
+// the viewport but not grow infinitely
+.scroll-panel--tall {
+  /* Keep within viewport to avoid page scroll while allowing breathing room */
+  max-height: min(70vh, calc(100dvh - 320px));
+}
+
+/* Slightly different caps for contexts with extra controls */
+.scroll-panel--tall-active {
+  max-height: min(66vh, calc(100dvh - 340px));
+}
+
+.scroll-panel--tall-history {
+  max-height: min(62vh, calc(100dvh - 380px));
+}

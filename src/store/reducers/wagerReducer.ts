@@ -1,4 +1,4 @@
-import { WagerState } from 'types/resources/wager';
+import { WagerState, WagerStatus, Wager } from 'types/resources/wager';
 import { Actions } from 'types/state';
 
 const initialState: WagerState = {
@@ -76,14 +76,70 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
           errorCode: undefined,
         };
 
-      case 'FETCH_WAGERS':
+      case 'FETCH_WAGERS': {
+        // Merge into dictionary for quick lookups
+        const mergedDict = action.payload.reduce((accum, wager) => ({
+          ...accum,
+          [wager._id]: wager,
+        }), state.wagers);
+
+        // Also reconcile list views (active vs history) so UIs that rely on them update in realtime
+        const incomingById = new Map<string, Wager>(action.payload.map(w => [w._id, w]));
+
+        // Active: keep pending only; update existing; add new pending from incoming
+        const nextActive: Wager[] = [];
+        const seenActive = new Set<string>();
+        // Update current actives first
+        for (const w of state.activeWagers) {
+          const upd = incomingById.get(w._id);
+          if (upd) {
+            if (upd.status === WagerStatus.PENDING) {
+              nextActive.push(upd);
+              seenActive.add(upd._id);
+            }
+            // if not pending, drop from active
+          } else {
+            // no update for this one; keep as-is
+            if (w.status === WagerStatus.PENDING) {
+              nextActive.push(w);
+              seenActive.add(w._id);
+            }
+          }
+        }
+        // Add any new pending not in current list
+        for (const w of action.payload) {
+          if (w.status === WagerStatus.PENDING && !seenActive.has(w._id)) {
+            nextActive.push(w);
+          }
+        }
+
+        // History: keep non-pending; update existing; add new resolved from incoming
+        const nextHistoryById = new Map<string, Wager>();
+        // Seed with existing history
+        for (const w of state.wagerHistory) nextHistoryById.set(w._id, w);
+        // Apply updates
+        for (const w of action.payload) {
+          if (w.status !== WagerStatus.PENDING) {
+            nextHistoryById.set(w._id, w);
+          } else {
+            // ensure pending ones are not kept in history map
+            nextHistoryById.delete(w._id);
+          }
+        }
+        // Preserve order: most recent first by updated_at/created_at if present, else as-is
+        const nextHistory = Array.from(nextHistoryById.values()).sort((a, b) => {
+          const ta = Date.parse(a.updated_at || a.created_at || '');
+          const tb = Date.parse(b.updated_at || b.created_at || '');
+          return isNaN(tb - ta) ? 0 : (tb - ta);
+        });
+
         return {
           ...state,
-          wagers: action.payload.reduce((accum, wager) => ({
-            ...accum,
-            [wager._id]: wager,
-          }), state.wagers),
+          wagers: mergedDict,
+          activeWagers: nextActive,
+          wagerHistory: nextHistory,
         };
+      }
 
       case 'FETCH_USER_BETTING_STATS':
         return {
