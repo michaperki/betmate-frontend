@@ -1,4 +1,8 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+
 .player-header {
+  font-family: $font-primary;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,24 +18,35 @@
   // Interactive state - clickable for betting
   &--interactive {
     cursor: pointer;
-    
+
+    // Improve contrast on hover
     &:hover {
       background: rgba(255, 255, 255, 0.06);
-      
-      .player-header__name::after {
-        content: 'Bet on Win';
+    }
+
+    // Only show hover hint on devices that actually support hover
+    @media (hover: hover) and (pointer: fine) {
+      // Centered hover hint at the bottom for better readability
+      &:hover::after {
+        content: attr(data-bet-label);
         position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
+        left: 50%;
+        bottom: 6px;
+        transform: translateX(-50%);
         font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 4px;
-        background: rgba(255, 255, 255, 0.1);
-        opacity: 0.7;
+        padding: 4px 10px;
+        border-radius: 6px;
+        background: rgba(34, 197, 94, 0.18);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        color: #e8e8e8;
+        letter-spacing: 0.2px;
+        opacity: 0.95;
+        pointer-events: none;
+        z-index: 2;
+        white-space: nowrap;
       }
     }
-    
+
     &:focus-visible {
       outline: 2px solid rgba(34, 197, 94, 0.5);
     }
@@ -87,6 +102,7 @@
   }
   
   &__name {
+    font-family: inherit;
     font-size: 14px;
     font-weight: 600;
     display: flex;
@@ -96,6 +112,7 @@
   }
   
   &__rating {
+    font-family: inherit;
     font-size: 11px;
     opacity: 0.5;
   }
@@ -110,6 +127,7 @@
   }
   
   &__clock {
+    font-family: inherit;
     background: rgba(255, 255, 255, 0.1);
     padding: 6px 14px;
     border-radius: 6px;
@@ -175,6 +193,7 @@
   }
   
   &__message {
+    font-family: inherit;
     position: absolute;
     bottom: -22px;
     right: 10px;

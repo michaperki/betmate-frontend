@@ -32,9 +32,12 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   
   const isInteractive = !!onOutcomeClick;
 
+  const betLabel = `Bet on ${side === 'white' ? 'White' : 'Black'}`;
+
   return (
     <div 
       className={`player-header player-header--${side} ${isActive ? 'player-header--active' : ''} player-header--${status} ${isInteractive ? 'player-header--interactive' : ''}`}
+      data-bet-label={betLabel}
       onClick={isInteractive ? handleClick : undefined}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
