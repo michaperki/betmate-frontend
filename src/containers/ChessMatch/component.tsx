@@ -1078,8 +1078,15 @@ const ChessMatch: React.FC = () => {
                       const type = w.wdl ? 'outcome' : 'move';
                       const label = w.wdl ? String(w.data) : String(w.data);
                       const oddsText = (() => {
-                        if (w.wdl && w.mode === 'real' && w.status === 'won') return `x${(w.odds || 1).toFixed(2)}`;
+                        // WDL (game outcome): both Arcade and Real use fixed odds at bet-time — always show
+                        if (w.wdl) return `x${(w.odds || 1).toFixed(2)}`;
+                        // Move — Arcade: fixed odds available at bet time
                         if (!w.wdl && w.mode !== 'real') return `x${(w.odds || 1).toFixed(2)}`;
+                        // Move — Real: parimutuel share only known after settlement (when won)
+                        if (!w.wdl && w.mode === 'real' && String(w.status).toLowerCase() === 'won') {
+                          const share = Number((w as any).winning_pool_share || 0);
+                          if (Number.isFinite(share) && share > 0) return `x${share.toFixed(2)}`;
+                        }
                         return '—';
                       })();
                       const id = String(w._id);

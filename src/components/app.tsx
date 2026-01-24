@@ -31,6 +31,15 @@ import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
 // TestLayoutPage has replaced ChessMatch; route uses ChessMatch wrapper
+import NewDashboard from '../experimental/NewDashboard';
+import NewGame from '../experimental/NewGame';
+import NewGameContainer from '../containers/NewGameContainer';
+import { isNewGameUiEnabled } from 'utils/config';
+import NewStats from '../experimental/NewStats';
+import NewMyBets from '../experimental/NewMyBets';
+import NewSettings from '../experimental/NewSettings';
+import NewOnboarding from '../experimental/NewOnboarding';
+import MockLogin from '../experimental/MockLogin';
 
 const Welcome = () => {
   return (
@@ -69,9 +78,23 @@ const App: React.FC<AppProps> = (props) => {
             {/* Global, non-invasive onboarding tour overlay */}
             <OnboardingTour />
             <Switch>
+            {/* Experimental new dashboard mockup — full-bleed standalone page */}
+            <Route exact path="/new-dashboard" component={NewDashboard} />
+            <Route exact path="/newDashboard" component={NewDashboard} />
+            <Route exact path="/new-game/:id" component={NewGameContainer} />
+            <Route exact path="/new-stats" component={NewStats} />
+            <Route exact path="/new-my-bets" component={NewMyBets} />
+            <Route exact path="/new-settings" component={NewSettings} />
+            <Route exact path="/new-onboarding" component={NewOnboarding} />
+            <Route exact path="/new-login" component={MockLogin} />
             <Route exact path="/" component={Welcome} />
             <Route exact path="/matches/:id" component={Welcome} />
-            <Route exact path="/chess/:id" component={ChessMatch} />
+            <Route exact path="/chess/featured" render={() => <NewGameContainer />} />
+            <Route
+              exact
+              path="/chess/:id"
+              render={() => (isNewGameUiEnabled() ? <NewGameContainer /> : <ChessMatch />)}
+            />
             {/* Raffles route removed */}
             <ProtectedRoute exact path="/active-bets" render={() => (
                 <div className="dashboard-page">
