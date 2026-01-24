@@ -7,6 +7,8 @@
 // Import design system foundation
 @import './styles/tokens.scss';
 @import './styles/mixins.scss';
+// Ensure CSS variables for theming are globally available
+@import './styles/themes.scss';
 @import './styles/utilities.scss';
 @import './styles/components.scss';
 
@@ -30,8 +32,9 @@ body {
   font-family: $font-primary;
   font-size: $text-base;
   line-height: $leading-normal;
-  color: $text-primary;
-  background-color: $bg-primary;
+  /* Use CSS variables so theme switching (light/dark) updates at runtime */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
@@ -53,7 +56,8 @@ body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background-color: $bg-primary;
+  /* Follow active theme background */
+  background-color: var(--bg-primary);
   position: fixed;
   top: 0;
   left: 0;
@@ -175,4 +179,31 @@ body {
   .sidebar {
     display: none !important;
   }
+}
+
+// =============================================================================
+// GLOBAL SCROLL PANEL STYLING
+// =============================================================================
+
+.scroll-panel {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+  @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
+}
+
+// Taller variant for full-page lists that should fill
+// the viewport but not grow infinitely
+.scroll-panel--tall {
+  /* Keep within viewport to avoid page scroll while allowing breathing room */
+  max-height: min(70vh, calc(100dvh - 320px));
+}
+
+/* Slightly different caps for contexts with extra controls */
+.scroll-panel--tall-active {
+  max-height: min(66vh, calc(100dvh - 340px));
+}
+
+.scroll-panel--tall-history {
+  max-height: min(62vh, calc(100dvh - 380px));
 }

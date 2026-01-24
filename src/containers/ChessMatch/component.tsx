@@ -760,7 +760,8 @@ const ChessMatch: React.FC = () => {
   }, [wagersCount, wagersMap, wagerError, pendingMove, game?._id]);
 
   return (
-    <div className="match-page">
+    // Add 'mobile-fixed-bar' for mobile-only fixed bottom toolbar (easy rollback: remove class)
+    <div className="match-page mobile-fixed-bar">
       <NavBar compact={true} />
       <main className="match-page__content">
         {/* Visually hidden aria-live region for accept/reject announcements */}
@@ -863,18 +864,20 @@ const ChessMatch: React.FC = () => {
                 </AnimatePresence>
               );
               return (
-                <div className="left-panel" ref={leftPanelRef} style={styleVars}>
+                <div className="left-panel" ref={leftPanelRef} style={styleVars} data-tour-id="move-tiles">
                   {list}
                 </div>
               );
             })()}
           </div>
-          <div className="frame frame--board" aria-label="board">
+          <div className="frame frame--board" aria-label="board" data-tour-id="board">
             <div className="board-inner">
               <div
+                data-tour-id="player-header"
                 className={[
                   'board-header',
                   'board-header--top',
+                  'outcome-action',
                   (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'b'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                   (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'b'; } catch { return false; } })()) ? 'is-ticking' : '',
                   topHeaderStatus === 'loading' ? 'is-loading' : '',
@@ -898,7 +901,10 @@ const ChessMatch: React.FC = () => {
                   <div className="ph-rating">{liveMode ? (game?.player_black?.elo || '') : '2420'}</div>
                 </div>
                 <div className="ph-right">
-                  <div className="ph-clock">
+                  <div className={[
+                    'ph-clock',
+                    (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'b'; } catch { return false; } })()) ? 'is-ticking' : ''
+                  ].filter(Boolean).join(' ')}>
                     <span>{liveMode ? formatClockSafe(displayBlackSecs, game?.time_format) : '05:00'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
@@ -928,14 +934,14 @@ const ChessMatch: React.FC = () => {
                   // Ensure total = 100 by assigning remainder to black
                   const blackPct = Math.max(0, Math.min(100, 100 - whitePct - drawPct));
                   return (
-                    <div className="eval-bar" role="meter" aria-label="Evaluation bar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={whitePct}>
-                      <div className="eval-bar__seg eval-bar__seg--black" style={{ height: `${blackPct}%` }}>
+                    <div className="eval-bar" role="meter" aria-label="Win/Draw/Loss odds" aria-valuemin={0} aria-valuemax={100} aria-valuenow={whitePct}>
+                      <div className="eval-bar__seg eval-bar__seg--black" style={{ height: `${blackPct}%` }} title={`Black win ${blackPct}%`} aria-label={`Black win ${blackPct}%`}>
                         <span className="eval-bar__pct">{blackPct}%</span>
                       </div>
-                      <div className="eval-bar__seg eval-bar__seg--draw" style={{ height: `${drawPct}%` }}>
+                      <div className="eval-bar__seg eval-bar__seg--draw" style={{ height: `${drawPct}%` }} title={`Draw ${drawPct}%`} aria-label={`Draw ${drawPct}%`}>
                         <span className="eval-bar__pct">{drawPct}%</span>
                       </div>
-                      <div className="eval-bar__seg eval-bar__seg--white" style={{ height: `${whitePct}%` }}>
+                      <div className="eval-bar__seg eval-bar__seg--white" style={{ height: `${whitePct}%` }} title={`White win ${whitePct}%`} aria-label={`White win ${whitePct}%`}>
                         <span className="eval-bar__pct eval-bar__pct--dark">{whitePct}%</span>
                       </div>
                     </div>
@@ -946,6 +952,7 @@ const ChessMatch: React.FC = () => {
                 className={[
                   'board-header',
                   'board-header--bottom',
+                  'outcome-action',
                   (liveMode && game && (() => { try { const c = new Chess(game.state); return c.turn() === 'w'; } catch { return false; } })()) ? 'is-active' : 'is-inactive',
                   (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'w'; } catch { return false; } })()) ? 'is-ticking' : '',
                   bottomHeaderStatus === 'loading' ? 'is-loading' : '',
@@ -969,7 +976,10 @@ const ChessMatch: React.FC = () => {
                   <div className="ph-rating">{liveMode ? (game?.player_white?.elo || '') : '2510'}</div>
                 </div>
                 <div className="ph-right">
-                  <div className="ph-clock">
+                  <div className={[
+                    'ph-clock',
+                    (isAtLatestSnapshot && isGameInProgress && (() => { try { return new Chess(game.state).turn() === 'w'; } catch { return false; } })()) ? 'is-ticking' : ''
+                  ].filter(Boolean).join(' ')}>
                     <span>{liveMode ? formatClockSafe(displayWhiteSecs, game?.time_format) : '04:32'}</span>
                     <span className="tick-dot" aria-hidden />
                   </div>
@@ -1053,7 +1063,7 @@ const ChessMatch: React.FC = () => {
               );
             })()}
           </div>
-          <div className="frame frame--right-bottom" aria-label="right-bottom">
+          <div className="frame frame--right-bottom" aria-label="right-bottom" data-tour-id="receipts">
             {(() => {
               return (
                 <div className="receipts-grid" role="table" aria-label="Wager receipts">
@@ -1068,8 +1078,15 @@ const ChessMatch: React.FC = () => {
                       const type = w.wdl ? 'outcome' : 'move';
                       const label = w.wdl ? String(w.data) : String(w.data);
                       const oddsText = (() => {
-                        if (w.wdl && w.mode === 'real' && w.status === 'won') return `x${(w.odds || 1).toFixed(2)}`;
+                        // WDL (game outcome): both Arcade and Real use fixed odds at bet-time — always show
+                        if (w.wdl) return `x${(w.odds || 1).toFixed(2)}`;
+                        // Move — Arcade: fixed odds available at bet time
                         if (!w.wdl && w.mode !== 'real') return `x${(w.odds || 1).toFixed(2)}`;
+                        // Move — Real: parimutuel share only known after settlement (when won)
+                        if (!w.wdl && w.mode === 'real' && String(w.status).toLowerCase() === 'won') {
+                          const share = Number((w as any).winning_pool_share || 0);
+                          if (Number.isFinite(share) && share > 0) return `x${share.toFixed(2)}`;
+                        }
                         return '—';
                       })();
                       const id = String(w._id);
@@ -1088,7 +1105,9 @@ const ChessMatch: React.FC = () => {
                     })}
                     {(!liveMode || !displayReceipts.length) && (
                       <div className="rg-row is-empty" role="row">
-                        <div className="rg-cell rg-col-bet" role="cell">No wagers</div>
+                        <div className="rg-cell rg-col-bet" role="cell" title="Place a WDL or move bet to see a receipt">
+                          No wagers yet — place a WDL or move bet to see a receipt
+                        </div>
                         <div className="rg-cell rg-col-stake" role="cell">—</div>
                         <div className="rg-cell rg-col-odds" role="cell">—</div>
                         <div className="rg-cell rg-col-status" role="cell">—</div>
@@ -1128,6 +1147,21 @@ const ChessMatch: React.FC = () => {
                     <div className="bt-mode" title="Current mode" aria-label="Current mode">
                       {modeLabel}
                     </div>
+                    {/* Mobile-friendly stake toggle; hidden on desktop via CSS */}
+                    <button
+                      className="bt-stake"
+                      aria-label="Change stake"
+                      title="Change stake"
+                      onClick={() => {
+                        try {
+                          const idx = presets.indexOf(stake);
+                          const next = presets[(idx + 1 + presets.length) % presets.length] ?? presets[0];
+                          setStake(next);
+                        } catch { setStake(presets[0]); }
+                      }}
+                    >
+                      ${stake}
+                    </button>
                     {presets.map((v) => (
                       <button
                         key={`stake-${v}`}
@@ -1171,7 +1205,8 @@ const ChessMatch: React.FC = () => {
                       </div>
                     )}
                     <button
-                      className="bt-draw"
+                      className="bt-draw outcome-action"
+                      data-tour-id="draw-button"
                       disabled={!(pDraw > 0) || !bettingEnabled}
                       onClick={() => { if (bettingEnabled) handlePlaceWdlBet('draw', 'toolbar'); }}
                       title={bettingEnabled ? (drawX ? `Draw x${drawX.toFixed(2)}` : 'Draw') : 'Go Live to place bets'}

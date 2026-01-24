@@ -241,9 +241,9 @@
         }
 
         &.selected-bet {
-          background-color: rgba(58, 136, 254, 0.15);
+          background-color: rgba($info, 0.15);
           border-width: 2px;
-          border-color: #3a88fe;
+          border-color: $info;
         }
         
         p {
@@ -413,15 +413,15 @@
       }
     }
 
-    .bet-confirmation-section {
-      margin-top: 8px; /* Reduced from 16px */
-      padding: 8px; /* Reduced from 12px */
-      background-color: rgba(58, 136, 254, 0.1);
-      border-radius: 6px;
-      border: 1px solid rgba(58, 136, 254, 0.3);
-      z-index: 10; /* Ensure it's above other content */
-      opacity: 1;
-      transform: translateY(0);
+      .bet-confirmation-section {
+        margin-top: 8px; /* Reduced from 16px */
+        padding: 8px; /* Reduced from 12px */
+        background-color: rgba($info, 0.1);
+        border-radius: 6px;
+        border: 1px solid rgba($info, 0.3);
+        z-index: 10; /* Ensure it's above other content */
+        opacity: 1;
+        transform: translateY(0);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       animation: slideInUp 0.3s ease-out;
 
@@ -473,11 +473,11 @@
           }
 
           &.confirm-button {
-            background-color: #3a88fe;
+            background-color: $info;
             color: #fff;
 
             &:hover {
-              background-color: #4a98ff;
+              background-color: lighten($info, 6%);
             }
           }
         }

@@ -15,6 +15,18 @@ const backendAxios = axios.create({
   timeout: requestTimeout,
 });
 
+// Attach a lightweight X-Request-Id to every request (backend will echo it and propagate downstream)
+backendAxios.interceptors.request.use((config) => {
+  try {
+    const headers = config.headers || {};
+    const existing = (headers as any)['X-Request-Id'] || (headers as any)['x-request-id'];
+    const rid = existing || `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
+    (headers as any)['X-Request-Id'] = String(rid);
+    config.headers = headers;
+  } catch {}
+  return config;
+});
+
 // Response interceptor to honor 429s with short cooldowns
 backendAxios.interceptors.response.use(
   (res: AxiosResponse) => res,

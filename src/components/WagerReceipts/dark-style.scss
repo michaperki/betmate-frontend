@@ -28,6 +28,13 @@
     }
   }
 
+  // Light mode scroll/contrast adjustments
+  html.light-mode & {
+    .receipts-list {
+      @include custom-scrollbar(4px, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.2));
+    }
+  }
+
   // Individual wager receipt card
   .wager-receipt-card {
     border-radius: $radius-md;
@@ -51,6 +58,19 @@
       background-color: rgba(40, 40, 56, 0.9);
     }
 
+    // Light mode base
+    html.light-mode & {
+      background-color: #ffffff;
+      border: 1px solid #e4e7eb;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+      @include tablet-up {
+        &:hover { background-color: #f9fafb; }
+      }
+
+      &:active { background-color: #f3f4f6; }
+    }
+
     // Status-based styling with left border indicator
     &.status-pending {
       border-left: 3px solid $brand-primary;
@@ -72,6 +92,12 @@
     &.status-cancelled {
       border-left: 3px solid $warning;
     }
+
+    // Light mode status emphasis: keep colors but increase clarity
+    html.light-mode &.status-pending { border-left-color: var(--brand-primary); }
+    html.light-mode &.status-won     { border-left-color: #00a876; }
+    html.light-mode &.status-lost    { border-left-color: #e53e3e; }
+    html.light-mode &.status-cancelled { border-left-color: #f59e0b; }
 
     // Main content area with responsive layout
     .receipt-content {
@@ -155,6 +181,12 @@
           border: 1px solid rgba($brand-primary, 0.2);
         }
 
+        html.light-mode & .pool-indicator .value {
+          color: var(--brand-primary);
+          background-color: rgba(0, 219, 153, 0.10);
+          border-color: rgba(0, 219, 153, 0.25);
+        }
+
         // Net result (compact)
         .net .value { font-size: $text-sm; }
         .net-positive .value { color: rgba($success, 0.75); }
@@ -173,6 +205,17 @@
         .status-badge--won     { border-color: rgba($success, 0.35); color: $success; }
         .status-badge--lost    { border-color: rgba($error, 0.35); color: $error; }
         .status-badge--cancelled { border-color: rgba($warning, 0.35); color: $warning; }
+
+        // Light mode badge surfaces
+        html.light-mode & .status-badge {
+          border-color: #e5e7eb;
+          background: #f9fafb;
+          color: #64748b;
+        }
+        html.light-mode & .status-badge--pending { border-color: rgba(0, 219, 153, 0.35); color: var(--brand-primary); }
+        html.light-mode & .status-badge--won     { border-color: rgba(0, 168, 118, 0.35); color: #00a876; }
+        html.light-mode & .status-badge--lost    { border-color: rgba(229, 62, 62, 0.35); color: #e53e3e; }
+        html.light-mode & .status-badge--cancelled { border-color: rgba(245, 158, 11, 0.35); color: #b45309; }
       }
     }
   }
@@ -247,5 +290,12 @@
       font-weight: $font-semibold;
       color: $brand-primary;
     }
+  }
+
+  // Light mode tone for empty state
+  html.light-mode & .empty-receipts {
+    color: #64748b;
+    .empty-title { color: #0f172a; }
+    .place-bet-hint { color: var(--brand-primary); }
   }
 }

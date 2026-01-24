@@ -3,23 +3,47 @@
 
 .live-matches-grid {
   margin-bottom: $space-6;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    background: $brand-primary;
+    top: 0;
+    left: $space-2;
+    border-radius: 2px;
+
+    html.light-mode & {
+      background: linear-gradient(to right, #00DB99, #00a876);
+      box-shadow: 0 2px 4px rgba(0, 219, 153, 0.2);
+    }
+  }
 
   .matches-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: $space-4;
-    padding: 0 $space-2;
+    padding: $space-2 $space-2 0;
 
     @include mobile {
       margin-bottom: $space-3;
-      padding: 0 $space-1;
+      padding: $space-2 $space-1 0;
     }
 
     .matches-title {
       @include text-heading-2;
       color: $text-primary;
       margin: 0;
+      font-weight: 700;
+
+      html.light-mode & {
+        color: #1a202c;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.02em;
+      }
 
       @include mobile {
         @include text-heading-3;
@@ -33,6 +57,13 @@
       padding: $space-1 $space-2;
       border-radius: $radius-md;
       border: 1px solid $border-secondary;
+      font-weight: 600;
+
+      html.light-mode & {
+        background: rgba(0, 219, 153, 0.1);
+        color: #2d3748;
+        border-color: rgba(0, 219, 153, 0.3);
+      }
     }
   }
 
@@ -134,22 +165,30 @@
   // Empty state
   .empty-state {
     text-align: center;
-    padding: $space-8 $space-4;
+    padding: $space-6 $space-4;
     background: $bg-secondary;
     border-radius: $radius-lg;
-    border: 2px dashed $border-secondary;
+    border: 1px dashed $border-secondary;
+    max-width: 800px;
+    margin: 0 auto;
 
     @include mobile {
-      padding: $space-6 $space-3;
+      padding: $space-5 $space-3;
+    }
+
+    html.light-mode & {
+      background: rgba(247, 250, 252, 0.8);
+      border-color: #e2e8f0;
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .empty-icon {
-      font-size: 4rem;
+      font-size: 3rem;
       margin-bottom: $space-3;
       opacity: 0.7;
 
       @include mobile {
-        font-size: 3rem;
+        font-size: 2.5rem;
         margin-bottom: $space-2;
       }
     }
@@ -171,6 +210,78 @@
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
+      margin-bottom: $space-4;
+
+      html.light-mode & {
+        color: #4b5563;
+      }
+    }
+
+    .empty-actions {
+      display: flex;
+      justify-content: center;
+      gap: $space-3;
+      margin-top: $space-4;
+
+      @include mobile {
+        flex-direction: column;
+        align-items: center;
+        gap: $space-2;
+      }
+
+      .primary-action, .secondary-action {
+        padding: $space-2 $space-4;
+        border-radius: $radius-md;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        @include mobile {
+          width: 100%;
+          max-width: 240px;
+        }
+      }
+
+      .primary-action {
+        background-color: $brand-primary;
+        color: $text-inverse;
+        border: none;
+
+        &:hover {
+          background-color: darken($brand-primary, 5%);
+          transform: translateY(-1px);
+        }
+
+        html.light-mode & {
+          background-color: var(--brand-primary);
+          box-shadow: 0 2px 4px rgba(0, 219, 153, 0.2);
+
+          &:hover {
+            box-shadow: 0 4px 8px rgba(0, 219, 153, 0.3);
+          }
+        }
+      }
+
+      .secondary-action {
+        background-color: transparent;
+        color: $text-primary;
+        border: 1px solid $border-primary;
+
+        &:hover {
+          background-color: $bg-tertiary;
+          border-color: $border-secondary;
+        }
+
+        html.light-mode & {
+          border-color: #e2e8f0;
+          color: #4a5568;
+
+          &:hover {
+            background-color: #f7fafc;
+            border-color: #cbd5e0;
+          }
+        }
+      }
     }
   }
 }

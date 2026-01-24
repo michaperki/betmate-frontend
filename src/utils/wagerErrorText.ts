@@ -21,6 +21,8 @@ export function shortWagerReason(code: Code, message?: string): string {
       return 'Sign in required';
     case '429':
       return 'Please slow down';
+    case '500':
+      return 'Temporarily unavailable';
     default:
       break;
   }
@@ -36,4 +38,3 @@ export function shortWagerReason(code: Code, message?: string): string {
   // Fallback to the original (brief) message
   return message || 'Wager rejected';
 }
-

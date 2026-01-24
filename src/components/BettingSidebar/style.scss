@@ -1,3 +1,5 @@
+@import '../../styles/tokens.scss';
+
 .betting-sidebar-container {
   background-color: #111111;
   border-radius: 12px;
@@ -126,15 +128,15 @@
   }
 
   /* Using standard consistent colors for all betting options */
-  &.outcome-white_win,
-  &.outcome-black_win,
-  &.outcome-draw,
-  &.outcome-white,
-  &.outcome-black {
-    background-color: #1E1E1E;
-    color: #F2F2F2;
-    border-left-color: #00EFB2;
-  }
+          &.outcome-white_win,
+          &.outcome-black_win,
+          &.outcome-draw,
+          &.outcome-white,
+          &.outcome-black {
+            background-color: #1E1E1E;
+            color: #F2F2F2;
+            border-left-color: #00EFB2;
+          }
 
   &:hover {
     background-color: #2D2D2D;
@@ -147,18 +149,18 @@
   text-transform: capitalize;
 }
 
-.option-payout {
-  color: #00EFB2;
-  font-weight: 500;
-  font-size: 13px;
-  min-width: 40px;
-  text-align: right;
+  .option-payout {
+    color: #00EFB2;
+    font-weight: 500;
+    font-size: 13px;
+    min-width: 40px;
+    text-align: right;
 
-  /* Since all backgrounds are now dark, we don't need a dark variation */
-  /* &.dark {
-    color: #111111;
-  } */
-}
+    /* Since all backgrounds are now dark, we don't need a dark variation */
+    /* &.dark {
+      color: #111111;
+    } */
+  }
 
 .stake-buttons {
   display: inline-flex;
@@ -209,7 +211,7 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 10px 0;
-  color: #3A88FE;
+  color: $info;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -267,8 +269,8 @@
   }
 
   &.first-place {
-    background-color: rgba(58, 136, 254, 0.15);
-    border-left: 2px solid #3A88FE;
+    background-color: rgba($info, 0.15);
+    border-left: 2px solid $info;
   }
 }
 
@@ -294,7 +296,7 @@
 }
 
 .rank-1 {
-  background-color: #3A88FE;
+  background-color: $info;
   color: #FFFFFF;
 }
 
@@ -324,10 +326,10 @@
 }
 
 .player-score {
-  color: #3A88FE;
+  color: $info;
   font-weight: 600;
   font-size: 13px;
-  background-color: rgba(58, 136, 254, 0.1);
+  background-color: rgba($info, 0.1);
   padding: 3px 8px;
   border-radius: 4px;
   min-width: 40px;

@@ -1,0 +1,44 @@
+@import '../../../../styles/tokens.scss';
+
+.featured-tabs {
+  // Do NOT constrain the featured tab; only panel tabs get capped
+  .tab-content { overflow: visible; }
+
+  // Desktop: add 10px margin above tab header for breathing room
+  @media (min-width: 1024px) {
+    .tab-header { margin-top: 10px; }
+  }
+
+  // Ensure panels are flex columns so their lists can scroll
+  .active-bets-panel,
+  .betting-history-panel,
+  .featured-match-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0; // allow children to calculate height correctly
+  }
+
+  // Cap the two panel tabs to match featured visual space; make list areas scroll
+  .active-bets-panel,
+  .betting-history-panel { max-height: 341px; overflow: hidden; }
+  .active-bets-panel .bets-container,
+  .betting-history-panel .history-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // Tighten headers inside panels for dashboard context
+  .active-bets-panel .header,
+  .betting-history-panel .header {
+    margin-bottom: $space-3;
+  }
+
+  // Mobile: slightly shorter caps to reduce scroll friction
+  @media (max-width: 768px) {
+    .active-bets-panel,
+    .betting-history-panel { max-height: 360px; }
+  }
+}

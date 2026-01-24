@@ -3,8 +3,8 @@
 
 .featured-match-card {
   @include card-elevated;
-  background: $bg-secondary;
-  border: 1px solid $border-primary;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   padding: $space-5;
   margin-bottom: $space-5;
   perspective: 1200px;
@@ -31,10 +31,10 @@
     .meta-strip {
       display: flex;
       justify-content: space-between;
-      color: $text-secondary;
+      color: var(--text-secondary);
       .meta-text { @include text-body; }
       .meta-right { display: flex; align-items: center; gap: $space-2; }
-      .stakes-pill { @include text-caption; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba($brand-primary, 0.12); color: $brand-primary; border: 1px solid rgba($brand-primary, 0.3); }
+      .stakes-pill { @include text-caption; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(var(--brand-primary-rgb), 0.12); color: var(--brand-primary); border: 1px solid rgba(var(--brand-primary-rgb), 0.3); }
     }
   }
 
@@ -77,17 +77,17 @@
       align-items: center;
       justify-content: flex-start;
       gap: $space-3;
-      .game-state { @include text-caption; color: $text-secondary; margin-bottom: $space-2; }
-      .instrument { display: flex; align-items: center; gap: $space-4; background: $bg-tertiary; padding: $space-3; border-radius: $radius-lg; border: 1px solid $border-primary; }
+      .game-state { @include text-caption; color: var(--text-secondary); margin-bottom: $space-2; }
+      .instrument { display: flex; align-items: center; gap: $space-4; background: var(--bg-tertiary); padding: $space-3; border-radius: $radius-lg; border: 1px solid var(--border-primary); }
       .clock { @include text-heading-4; padding: $space-2 $space-3; border-radius: $radius-md; border: 1px solid $border-primary; background: rgba(255,255,255,0.03); }
       .clock.warn { color: #ffb74d; border-color: rgba(255,183,77,0.6); }
       .clock.critical { color: #ef5350; border-color: rgba(239,83,80,0.7); animation: criticalPulse 1.2s ease-in-out infinite; }
-      .vs { @include text-heading-4; color: $brand-primary; font-weight: 800; }
-      .scheduled { @include text-body-lg; color: $text-secondary; }
+      .vs { @include text-heading-4; color: var(--brand-primary); font-weight: 800; }
+      .scheduled { @include text-body-lg; color: var(--text-secondary); }
       .stakes { text-align: center; display: flex; flex-direction: column; gap: 2px; }
       .tier-badge { @include text-body; font-weight: 700; }
-      .limits { @include text-body; color: $text-primary; }
-      .market-line { @include text-caption; color: $text-secondary; }
+      .limits { @include text-body; color: var(--text-primary); }
+      .market-line { @include text-caption; color: var(--text-secondary); }
       .market-line.muted { opacity: 0.7; }
       @include mobile {
         .instrument { gap: $space-3; padding: $space-2; }
@@ -100,15 +100,58 @@
   }
 
   .fmc-front { position: relative; }
-  .fmc-back { position: absolute; inset: 0; padding: $space-4; transform: rotateY(180deg); backface-visibility: hidden; overflow: hidden; background: linear-gradient(180deg, rgba($accent-purple, 0.10), rgba($accent-blue, 0.06)); }
-  .market { display: flex; flex-direction: column; gap: $space-3; }
+  // Back face now has a centered content wrapper and inner panel
+  .fmc-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    overflow: hidden;
+    // background moved to inner panel to avoid a full-width gradient strip
+    background: transparent;
+    padding: 0; // padding handled by inner wrapper/panel
+  }
+  .fmc-back__center {
+    width: 100%;
+    max-width: 1000px; // centered content width; aligns visually with front
+    margin: 0 auto;
+    padding: $space-4; // top padding so headings don’t sit too high
+    @include mobile { padding: $space-3; }
+  }
+  .fmc-back__panel {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: $radius-lg;
+    box-shadow: var(--shadow-base);
+    padding: $space-4;
+    @include mobile { padding: $space-3; }
+  }
+
+  // Back content layout: 1-column by default; 2-columns on wide screens
+  .market {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 1024px) {
+    .fmc-back__panel .market {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      column-gap: $space-5;
+      row-gap: $space-4;
+      align-items: start;
+    }
+    .fmc-back__panel .market .section { margin: 0; }
+  }
   .section { display: flex; flex-direction: column; gap: $space-1; }
-  .section-title { @include text-heading-4; }
+  .section-title { @include text-heading-4; color: var(--text-primary); }
   .odds-chips { display: flex; gap: $space-2; flex-wrap: wrap; }
-  .chip { padding: $space-2 $space-2; border: 1px solid $border-primary; border-radius: $radius-md; background: $bg-tertiary; font-weight: 700; }
-  .pool-line { @include text-caption; color: $text-secondary; }
+  .chip { padding: $space-2 $space-2; border: 1px solid var(--card-border); border-radius: $radius-md; background: var(--bg-tertiary); font-weight: 700; color: var(--text-primary); }
+  .pool-line { @include text-caption; color: var(--text-secondary); }
   .pool-line.muted { opacity: 0.7; }
-  .limits-line { @include text-body; color: $text-primary; }
+  .limits-line { @include text-body; color: var(--text-primary); }
   .section.actions { display: flex; flex-direction: row; gap: $space-3; }
 
   &.is-flipped .fmc-front { transform: rotateY(180deg); }
@@ -128,9 +171,9 @@
     gap: $space-3;
     flex-wrap: wrap;
     .btn { padding: $space-2 $space-3; border-radius: $radius-sm; cursor: pointer; }
-    .primary { background: $brand-primary; color: $text-inverse; border: none; }
-    .secondary { background: transparent; color: $text-primary; border: 1px solid $border-primary; }
-    .link { background: transparent; color: $accent-blue; border: none; text-decoration: underline; }
+    .primary { background: var(--brand-primary); color: var(--text-inverse); border: none; }
+    .secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-primary); }
+    .link { background: transparent; color: var(--accent-blue); border: none; text-decoration: underline; }
 
     // Keep actions in view on mobile by reducing margins and padding
     @include mobile {
@@ -144,6 +187,86 @@
   .live-badge { padding-left: 0; }
   .vs { animation: vsPulse 1.6s ease-in-out infinite; transform-origin: center; }
   .clock.active { animation: tick 1.0s steps(2, end) infinite; color: $brand-primary; border-color: rgba($brand-primary, 0.6); box-shadow: 0 0 0 1px rgba($brand-primary, 0.2) inset; }
+}
+
+// -----------------------------
+// Light-mode corrections
+// -----------------------------
+html.light-mode {
+  .featured-match-card {
+    .clock.active {
+      border-color: var(--brand-primary);
+      border-width: 2px;
+      background: #f0fff9;
+      color: #0a8263;
+      font-weight: 700;
+      box-shadow: 0 0 0 1px rgba(0, 219, 153, 0.3);
+    }
+
+    .clock.warn {
+      border-color: #f59e0b;
+      border-width: 2px;
+      color: #b45309;
+      font-weight: 700;
+    }
+
+    .clock.critical {
+      border-color: #ef4444;
+      border-width: 2px;
+      color: #b91c1c;
+      font-weight: 700;
+      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+    }
+    background: var(--card-bg);
+    border-color: var(--card-border);
+
+    .fmc-header {
+      .meta-strip { color: #475569; }
+    }
+
+    .player-block {
+      .username { color: #0f172a; }
+      .rating { color: #475569; }
+      .title-badge { color: #64748b; }
+    }
+
+    .center-block {
+      .game-state { color: #64748b; }
+      .instrument {
+        background: #f9fafb;
+        border-color: #e0e0e0;
+        border-width: 2px;
+      }
+
+      .vs {
+        color: var(--brand-primary);
+        font-weight: 800;
+        background-color: rgba(0, 219, 153, 0.1);
+        padding: 2px 10px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 219, 153, 0.2);
+      }
+      .clock {
+        background: #ffffff;
+        border-color: #cbd5e1;
+        border-width: 2px;
+        color: #0f172a;
+        font-weight: 700;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .scheduled { color: #475569; }
+      .market-line { color: var(--text-secondary); }
+      .market-line.muted { opacity: 1; color: #64748b; }
+    }
+
+    .fmc-back__panel { background: var(--card-bg); border-color: var(--card-border); box-shadow: var(--shadow-base); }
+    .chip { background: var(--bg-tertiary); border-color: var(--card-border); color: var(--text-primary); }
+
+    .fmc-actions {
+      .secondary { border-color: var(--border-primary); color: var(--text-primary); }
+      .secondary:hover { border-color: var(--border-accent); }
+    }
+  }
 }
 
 @keyframes blink {

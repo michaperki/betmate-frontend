@@ -57,6 +57,14 @@
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
+
+  // Light mode base adjustments
+  html.light-mode & {
+    background: #ffffff;
+    border-color: #e4e7eb;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  }
   
   // Size variants based on total wagered
   &.small {
@@ -100,21 +108,41 @@
   &.best-move {
     border-color: $brand-primary;
     background: rgba($brand-primary, 0.12);
+
+    html.light-mode & {
+      border-color: var(--brand-primary);
+      background: rgba(0, 219, 153, 0.10);
+    }
   }
 
   &.good-move {
     border-color: $success;
     background: rgba($success, 0.1);
+
+    html.light-mode & {
+      border-color: #00a876;
+      background: rgba(0, 209, 153, 0.10);
+    }
   }
 
   &.decent-move {
     border-color: $warning;
     background: rgba($warning, 0.1);
+
+    html.light-mode & {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.10);
+    }
   }
 
   &.poor-move {
     border-color: $error;
     background: rgba($error, 0.1);
+
+    html.light-mode & {
+      border-color: #e53e3e;
+      background: rgba(229, 62, 62, 0.10);
+    }
   }
   
   // State modifiers
@@ -122,6 +150,11 @@
     transform: scale(1.06);
     border-color: $brand-primary;
     background: rgba($brand-primary, 0.15);
+
+    html.light-mode & {
+      border-color: var(--brand-primary);
+      background: #f0f9f6;
+    }
   }
   
   &.pending {
@@ -178,6 +211,12 @@
   border-radius: 4px;
   line-height: 1;
   letter-spacing: 0.5px;
+
+  html.light-mode & {
+    background: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+  }
   
   @media (max-width: 768px) {
     font-size: 7px;
@@ -261,6 +300,10 @@
   padding: 20px;
   color: #BDBDBD;
   font-size: 14px;
+
+  html.light-mode & {
+    color: #64748b;
+  }
 }
 
 .loading-spinner {
@@ -270,6 +313,11 @@
   border-top: 2px solid #00EFB2;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+
+  html.light-mode & {
+    border-color: #cbd5e1;
+    border-top-color: var(--brand-primary);
+  }
 }
 
 .no-moves {

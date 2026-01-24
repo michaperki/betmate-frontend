@@ -5,7 +5,7 @@
   margin: $space-8 auto;
   padding: 0 $space-4;
   font-family: $font-primary;
-  color: $text-primary;
+  color: var(--text-primary);
 
   .header {
     display: flex;
@@ -17,7 +17,7 @@
       font-size: $text-2xl;
       font-weight: $font-semibold;
       margin: 0;
-      color: $text-primary;
+      color: var(--text-primary);
     }
 
     .filter-controls {
@@ -26,27 +26,33 @@
 
       .refresh-button {
         background: transparent;
-        color: $text-primary;
+        color: var(--text-primary);
         padding: $space-2 $space-3;
-        border: 1px solid $border-primary;
+        border: 1px solid var(--border-primary);
         border-radius: $radius-base;
         cursor: pointer;
         transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out;
 
         &:hover {
-          border-color: $brand-primary;
-          color: $brand-primary;
-          background-color: rgba($brand-primary, 0.06);
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          background-color: rgba(var(--brand-primary-rgb), 0.06);
         }
       }
     }
   }
 
   .bets-container {
-    background-color: $bg-secondary;
+    background-color: var(--card-bg);
     border-radius: $radius-lg;
     padding: $space-6;
-    border: 1px solid $border-primary;
+    border: 1px solid var(--card-border);
+
+    html.light-mode & {
+      background-color: var(--card-bg);
+      border-color: var(--card-border);
+      box-shadow: var(--shadow-base);
+    }
   }
 
   .empty-state {
@@ -56,18 +62,18 @@
     h3 {
       font-size: $text-xl;
       margin-bottom: $space-3;
-      color: $text-primary;
+      color: var(--text-primary);
     }
 
     p {
-      color: $text-secondary;
+      color: var(--text-secondary);
       margin-bottom: $space-4;
     }
 
     .cta-button {
       padding: $space-3 $space-6;
-      background-color: $brand-primary;
-      color: $text-inverse;
+      background-color: var(--brand-primary);
+      color: var(--text-inverse);
       border-radius: $radius-base;
       font-weight: $font-medium;
       text-decoration: none;
@@ -75,16 +81,20 @@
       transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out;
 
       &:hover {
-        background-color: $brand-primary-hover;
-        box-shadow: $shadow-glow-green;
+        background-color: var(--brand-primary-hover);
+        box-shadow: var(--shadow-base);
       }
     }
   }
 
   .bet-card {
     display: flex;
-    border-bottom: 1px solid $border-primary;
+    border-bottom: 1px solid var(--border-primary);
     padding: $space-4 0;
+
+    html.light-mode & {
+      border-bottom-color: var(--border-primary);
+    }
 
     &:last-child {
       border-bottom: none;
@@ -93,30 +103,74 @@
     .game-info { flex: 1; }
     .match-title {
       font-weight: $font-semibold;
-      color: $text-primary;
+      color: var(--text-primary);
       margin-bottom: $space-1;
       .player { white-space: nowrap; }
-      .vs { margin: 0 $space-2; color: $text-secondary; }
+      .vs { margin: 0 $space-2; color: var(--text-secondary); }
+
+      html.light-mode & { color: var(--text-primary); }
     }
-    .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
+    .meta {
+      color: var(--text-secondary);
+      font-size: $text-sm;
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+
+      html.light-mode & { color: var(--text-secondary); }
+    }
     .meta .dot { opacity: 0.5; }
-    .view-link { color: $text-secondary; text-decoration: none; }
-    .view-link:hover { color: $text-primary; }
+    .view-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color $duration-base $ease-out;
+
+      html.light-mode & { color: var(--text-secondary); }
+    }
+    .view-link:hover {
+      color: var(--text-primary);
+
+      html.light-mode & {
+        color: var(--brand-primary);
+      }
+    }
 
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
 
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .odds { font-size: $text-sm; color: $text-secondary; }
+      .bet-type {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: var(--text-primary);
+
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
+      }
+      .odds {
+        font-size: $text-sm;
+        color: var(--text-secondary);
+
+        html.light-mode & { color: var(--text-secondary); font-weight: 500; }
+      }
     }
 
     .bet-amount {
       flex: 1;
       text-align: right;
 
-      .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .potential-win { font-size: $text-sm; color: $success; }
+      .amount {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: var(--text-primary);
+
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
+      }
+      .potential-win {
+        font-size: $text-sm;
+        color: var(--success);
+
+        html.light-mode & { color: var(--success); font-weight: 600; }
+      }
     }
   }
 
@@ -147,17 +201,17 @@
     text-align: center;
     padding: 2rem 0;
 
-    p { color: $error; margin-bottom: $space-4; }
+    p { color: var(--error); margin-bottom: $space-4; }
 
     button {
       background: transparent;
-      color: $text-primary;
-      border: 1px solid $border-primary;
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
       padding: $space-2 $space-3;
       border-radius: $radius-base;
       cursor: pointer;
       transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out;
-      &:hover { border-color: $brand-primary; color: $brand-primary; background-color: rgba($brand-primary, 0.06); }
+      &:hover { border-color: var(--brand-primary); color: var(--brand-primary); background-color: rgba(var(--brand-primary-rgb), 0.06); }
     }
   }
 

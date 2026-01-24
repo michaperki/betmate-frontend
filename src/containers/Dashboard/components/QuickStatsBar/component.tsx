@@ -41,10 +41,18 @@ const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
       <div className="stats-container">
         {statsData.map((stat, index) => (
           <div key={stat.label} className={`stat-card stat-card--${stat.color}`}>
-            <div className="stat-value">
-              {stat.value}{stat.suffix}
+            <div className="stat-icon">
+              {stat.color === 'blue' && <span>🎮</span>}
+              {stat.color === 'green' && <span>🏆</span>}
+              {stat.color === 'yellow' && <span>💰</span>}
+              {stat.color === 'purple' && <span>♟️</span>}
             </div>
-            <div className="stat-label">{stat.label}</div>
+            <div className="stat-content">
+              <div className="stat-value">
+                {stat.value}{stat.suffix}
+              </div>
+              <div className="stat-label">{stat.label}</div>
+            </div>
           </div>
         ))}
       </div>

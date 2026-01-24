@@ -1,0 +1,243 @@
+@import '../../styles/mixins.scss';
+
+.betting-panel {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  &__header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.5;
+    margin-bottom: -8px;
+  }
+  
+  &__bets {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 320px; // cap height to keep layout tidy
+    overflow-y: auto;
+    padding-right: 2px; // room for scrollbar
+    @include custom-scrollbar(6px, rgba(255,255,255,0.05), rgba(255,255,255,0.2));
+  }
+  
+  &__bet {
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    
+    // Result-based styling
+    &--won {
+      background-color: rgba(34, 197, 94, 0.06);
+      border-color: rgba(34, 197, 94, 0.15);
+    }
+    
+    &--lost {
+      background-color: rgba(239, 68, 68, 0.04);
+      border-color: rgba(239, 68, 68, 0.1);
+    }
+    
+    &--pending {
+      background-color: rgba(251, 191, 36, 0.05);
+      border-color: rgba(251, 191, 36, 0.1);
+    }
+    
+    &--cancelled {
+      background-color: rgba(148, 163, 184, 0.06); // slate-400-ish
+      border-color: rgba(148, 163, 184, 0.15);
+    }
+  }
+  
+  &__bet-info {
+    width: 100%;
+  }
+  
+  &__bet-type {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+  }
+  
+  &__bet-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: none;
+    
+    &[data-type="black"] {
+      background: #1a1a24;
+      border: 1px solid #444;
+    }
+    
+    &[data-type="white"] {
+      background: #e8e8e8;
+    }
+  }
+  
+  &__bet-label {
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.5s ease;
+    font-family: inherit;
+    
+    &--lost {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+  }
+  
+  &__bet-details {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+  }
+  
+  &__bet-stake, &__bet-odds {
+    font-size: 12px;
+    opacity: 0.6;
+    font-family: inherit;
+  }
+  
+  &__bet-result {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    min-width: 60px;
+    text-align: center;
+    transition: all 0.4s ease;
+    
+    &--won {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+    
+    &--lost {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    
+    &--pending {
+      background: rgba(251, 191, 36, 0.15);
+      color: #fbbf24;
+    }
+    
+    &--cancelled {
+      background: rgba(148, 163, 184, 0.18); // neutral
+      color: #cbd5e1;
+    }
+  }
+  
+  // Summary section
+  &__summary {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(34, 197, 94, 0.04) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 12px;
+    padding: 20px;
+    animation: slideUp 0.4s ease;
+    
+    &-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.6;
+      margin-bottom: 16px;
+    }
+    
+    &-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    &-row {
+      display: flex;
+      justify-content: space-between;
+      
+      &--total {
+        margin-top: 4px;
+      }
+    }
+    
+    &-label {
+      opacity: 0.7;
+      font-size: 13px;
+      
+      &--bold {
+        font-weight: 600;
+        opacity: 1;
+      }
+    }
+    
+    &-value {
+      font-weight: 600;
+      font-size: 13px;
+      
+      &--won {
+        color: #22c55e;
+      }
+      
+      &--positive {
+        color: #22c55e;
+      }
+      
+      &--negative {
+        color: #ef4444;
+      }
+      
+      &--large {
+        font-size: 18px;
+        font-weight: 700;
+      }
+    }
+    
+    &-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 4px 0;
+    }
+  }
+  
+  &__streak {
+    margin-top: 16px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    
+    &-emoji {
+      font-size: 16px;
+    }
+    
+    &-text {
+      opacity: 0.8;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

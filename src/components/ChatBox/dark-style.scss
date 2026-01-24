@@ -113,7 +113,7 @@
     align-items: center;
     padding: $space-2 $space-3;
     gap: $space-2;
-    border-top: 1px solid rgba(58, 136, 254, 0.1);
+    border-top: 1px solid rgba($info, 0.1);
     background-color: rgba(20, 20, 36, 0.8);
     width: 100%;
     z-index: 5; // Ensure it stays above content

@@ -5,7 +5,7 @@
   margin: $space-8 auto;
   padding: 0 $space-4;
   font-family: $font-primary;
-  color: $text-primary;
+  color: var(--text-primary);
 
   .header {
     display: flex;
@@ -17,7 +17,7 @@
       font-size: $text-2xl;
       font-weight: $font-semibold;
       margin: 0;
-      color: $text-primary;
+      color: var(--text-primary);
     }
 
     .filter-controls {
@@ -27,15 +27,34 @@
       select {
         padding: $space-2 $space-3;
         border-radius: $radius-base;
-        border: 1px solid $border-primary;
-        background-color: $bg-secondary;
-        color: $text-primary;
+        border: 1px solid var(--border-primary);
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
         font-size: $text-sm;
         min-width: 140px;
         cursor: pointer;
-        transition: border-color $duration-base $ease-out;
+        transition: all $duration-base $ease-out;
 
-        &:focus { outline: none; border-color: $brand-primary; }
+        &:focus {
+          outline: none;
+          border-color: var(--brand-primary);
+          box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
+        }
+
+        html.light-mode & {
+          background-color: var(--bg-secondary);
+          border-color: var(--border-primary);
+          color: var(--text-primary);
+
+          &:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.15);
+          }
+
+          &:hover {
+            border-color: var(--brand-primary);
+          }
+        }
       }
     }
   }
@@ -48,61 +67,212 @@
 
     .stat-card {
       flex: 1;
-      background-color: $bg-secondary;
+      background-color: var(--card-bg);
       border-radius: $radius-lg;
       padding: $space-6;
-      border: 1px solid $border-primary;
+      border: 1px solid var(--card-border);
       text-align: center;
+      transition: transform $duration-base $ease-out, box-shadow $duration-base $ease-out;
 
-      .stat-value { font-size: $text-3xl; font-weight: $font-semibold; margin-bottom: $space-2; color: $text-primary; }
-      .stat-label { color: $text-secondary; font-size: $text-sm; }
+      html.light-mode & {
+        background-color: var(--card-bg);
+        border-color: var(--card-border);
+        box-shadow: var(--shadow-sm);
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+        html.light-mode & {
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+        }
+      }
+
+      .stat-value {
+        font-size: $text-3xl;
+        font-weight: $font-semibold;
+        margin-bottom: $space-2;
+        color: var(--text-primary);
+
+        html.light-mode & {
+          color: var(--text-primary);
+        }
+      }
+
+      .stat-label {
+        color: var(--text-secondary);
+        font-size: $text-sm;
+
+        html.light-mode & {
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+      }
 
       &--won {
-        .stat-value { color: $success; }
+        .stat-value {
+          color: var(--success);
+
+          html.light-mode & {
+            color: var(--success);
+          }
+        }
       }
 
       &--lost {
-        .stat-value { color: $error; }
+        .stat-value {
+          color: var(--error);
+
+          html.light-mode & {
+            color: var(--error);
+          }
+        }
     }
   }
   }
 
-  .history-container { background-color: $bg-secondary; border-radius: $radius-lg; padding: $space-6; border: 1px solid $border-primary; }
+  .history-container {
+    background-color: var(--card-bg);
+    border-radius: $radius-lg;
+    padding: $space-6;
+    border: 1px solid var(--card-border);
+
+    html.light-mode & {
+      background-color: var(--card-bg);
+      border-color: var(--card-border);
+      box-shadow: var(--shadow-base);
+    }
+  }
 
   .bet-history-item {
     display: flex;
-    border-bottom: 1px solid $border-primary;
+    border-bottom: 1px solid var(--border-primary);
     padding: $space-4 0;
     align-items: center;
     min-height: 56px; // consistent row height
+    transition: background-color $duration-base $ease-out;
+
+    html.light-mode & { border-bottom-color: var(--border-primary); }
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+
+      html.light-mode & {
+        background-color: rgba(0, 219, 153, 0.02);
+      }
+    }
 
     &:last-child {
       border-bottom: none;
     }
 
     .game-info { flex: 1; }
-    .match-title { font-weight: $font-semibold; color: $text-primary; margin-bottom: $space-1; }
-    .match-title .vs { margin: 0 $space-2; color: $text-secondary; }
-    .meta { color: $text-secondary; font-size: $text-sm; display: flex; align-items: center; gap: $space-2; }
-    .view-link { color: $text-secondary; text-decoration: none; }
-    .view-link:hover { color: $text-primary; }
+
+    .match-title {
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+      margin-bottom: $space-1;
+
+      html.light-mode & { color: var(--text-primary); }
+    }
+
+    .match-title .vs {
+      margin: 0 $space-2;
+      color: var(--text-secondary);
+
+      html.light-mode & { color: var(--text-secondary); }
+    }
+
+    .meta {
+      color: var(--text-secondary);
+      font-size: $text-sm;
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+
+      html.light-mode & { color: var(--text-secondary); }
+    }
+
+    .view-link {
+      color: $text-secondary;
+      text-decoration: none;
+      transition: color $duration-base $ease-out;
+
+      html.light-mode & {
+        color: #4a5568;
+      }
+    }
+
+    .view-link:hover {
+      color: var(--text-primary);
+
+      html.light-mode & {
+        color: var(--brand-primary);
+      }
+    }
 
     .bet-details {
       flex: 2;
       padding: 0 $space-4;
-      .bet-type { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; display: flex; align-items: center; gap: $space-2; }
-      .odds { font-size: $text-sm; color: $warning; font-weight: $font-semibold; }
+
+      .bet-type {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: $space-2;
+
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
+      }
+
+      .odds {
+        font-size: $text-sm;
+        color: var(--warning);
+        font-weight: $font-semibold;
+
+        html.light-mode & { color: var(--warning); }
+      }
     }
 
     .bet-result {
       flex: 1;
       text-align: right;
 
-      .amount { font-weight: $font-medium; margin-bottom: $space-1; color: $text-primary; }
-      .net { font-size: $text-sm; color: $text-secondary; min-height: 1em; }
-      .net-positive { color: rgba($success, 0.8); }
-      .net-negative { color: rgba($error, 0.8); }
-      .net-refund { color: $info; }
+      .amount {
+        font-weight: $font-medium;
+        margin-bottom: $space-1;
+        color: var(--text-primary);
+
+        html.light-mode & { color: var(--text-primary); font-weight: 600; }
+      }
+
+      .net {
+        font-size: $text-sm;
+        color: var(--text-secondary);
+        min-height: 1em;
+
+        html.light-mode & { color: var(--text-secondary); }
+      }
+
+      .net-positive {
+        color: var(--success);
+
+        html.light-mode & { color: var(--success); }
+      }
+
+      .net-negative {
+        color: var(--error);
+
+        html.light-mode & { color: var(--error); }
+      }
+
+      .net-refund {
+        color: var(--info);
+
+        html.light-mode & { color: var(--info); }
+      }
     }
   }
 
@@ -116,29 +286,51 @@
     border-radius: $radius-full;
     font-size: 12px;
   }
-  .bh-type--outcome { background: rgba($accent-blue, 0.15); color: $accent-blue; }
-  .bh-type--move    { background: rgba($accent-purple, 0.15); color: $accent-purple; }
+  .bh-type--outcome { background: color-mix(in oklab, var(--accent-blue) 15%, transparent); color: var(--accent-blue); }
+  .bh-type--move    { background: color-mix(in oklab, var(--accent-purple) 15%, transparent); color: var(--accent-purple); }
 
-  .load-more { display: flex; justify-content: center; margin-top: $space-6; }
+  .load-more {
+    display: flex;
+    justify-content: center;
+    margin-top: $space-6;
+  }
+
   .load-more button {
     padding: $space-2 $space-4;
-    border: 1px solid $border-primary;
-    background-color: $bg-secondary;
-    color: $text-primary;
+    border: 1px solid var(--border-primary);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: $radius-base;
     cursor: pointer;
-    transition: background-color $duration-base $ease-out, color $duration-base $ease-out, border-color $duration-base $ease-out;
-    &:hover { background-color: $bg-tertiary; }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    font-weight: $font-medium;
+    transition: all $duration-base $ease-out;
+
+    &:hover {
+      background-color: var(--bg-tertiary);
+      border-color: var(--border-accent);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    html.light-mode & { background-color: var(--bg-secondary); border-color: var(--border-primary); color: var(--text-primary); }
   }
 
   .empty-state {
     text-align: center;
     padding: $space-8 0;
 
-    h3 { font-size: $text-xl; margin-bottom: $space-3; color: $text-primary; }
-    p { color: $text-secondary; margin-bottom: $space-4; }
-    .cta-button { padding: $space-3 $space-6; background-color: $brand-primary; color: $text-inverse; border-radius: $radius-base; font-weight: $font-medium; text-decoration: none; display: inline-block; transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out; &:hover { background-color: $brand-primary-hover; box-shadow: $shadow-glow-green; } }
+    h3 { font-size: $text-xl; margin-bottom: $space-3; color: var(--text-primary); }
+    p { color: var(--text-secondary); margin-bottom: $space-4; }
+    .cta-button { padding: $space-3 $space-6; background-color: var(--brand-primary); color: var(--text-inverse); border-radius: $radius-base; font-weight: $font-medium; text-decoration: none; display: inline-block; transition: background-color $duration-base $ease-out, box-shadow $duration-base $ease-out; &:hover { background-color: var(--brand-primary-hover); box-shadow: var(--shadow-base); } }
   }
 
   // Loading state
@@ -148,7 +340,7 @@
     align-items: center;
     min-height: 200px;
 
-    .loading-spinner { border: 4px solid rgba(255, 255, 255, 0.08); border-radius: 50%; border-top: 4px solid $brand-primary; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    .loading-spinner { border: 4px solid rgba(255, 255, 255, 0.08); border-radius: 50%; border-top: 4px solid var(--brand-primary); width: 40px; height: 40px; animation: spin 1s linear infinite; }
 
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -161,8 +353,8 @@
     text-align: center;
     padding: $space-6 0;
 
-    p { color: $error; margin-bottom: $space-4; }
-    button { background: transparent; color: $text-primary; border: 1px solid $border-primary; padding: $space-2 $space-3; border-radius: $radius-base; cursor: pointer; transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out; &:hover { border-color: $brand-primary; color: $brand-primary; background-color: rgba($brand-primary, 0.06); } }
+    p { color: var(--error); margin-bottom: $space-4; }
+    button { background: transparent; color: var(--text-primary); border: 1px solid var(--border-primary); padding: $space-2 $space-3; border-radius: $radius-base; cursor: pointer; transition: border-color $duration-base $ease-out, color $duration-base $ease-out, background-color $duration-base $ease-out; &:hover { border-color: var(--brand-primary); color: var(--brand-primary); background-color: rgba(var(--brand-primary-rgb), 0.06); } }
   }
 
   // Responsive styles

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import CSS Variables for theming */
+@import './styles/themes.scss';
+
 @layer base {
   body {
     @apply bg-bet-dark-950 text-bet-gray-100 font-sans;

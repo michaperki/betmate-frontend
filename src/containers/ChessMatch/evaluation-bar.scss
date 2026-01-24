@@ -39,14 +39,14 @@
 
 .vertical-evaluation-bar .black-section .section-percent,
 .vertical-evaluation-bar .draw-section  .section-percent {
-  color: #ffffff;
+  color: $text-primary;
   font-size: $text-xs;
   font-weight: $font-semibold;
   line-height: 1;
 }
 
 .vertical-evaluation-bar .white-section .section-percent {
-  color: #0b0b0b;
+  color: $text-inverse;
   font-size: $text-xs;
   font-weight: $font-semibold;
   line-height: 1;

@@ -1,0 +1,200 @@
+// =============================================================================
+// THEME SYSTEM
+// =============================================================================
+// This file contains CSS variables for both light and dark themes
+
+:root {
+  // Default to dark theme variables
+
+  // Primary Brand Colors
+  --brand-primary: #00EFB2;
+  --brand-primary-hover: #34F5C5;
+  --brand-primary-muted: #66FACD;
+  --brand-primary-dark: #00D199;
+  /* RGB triplet to support alpha without hardcoding rgba values */
+  --brand-primary-rgb: 0 239 178;
+  
+  // Background Colors
+  --bg-primary: #050505;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1a1a1a;
+  --bg-quaternary: #1e1e1e;
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  
+  /* RGB triplets for backgrounds */
+  --bg-primary-rgb: 5 5 5;
+  --bg-secondary-rgb: 17 17 17;
+  --bg-tertiary-rgb: 26 26 26;
+  --bg-quaternary-rgb: 30 30 30;
+  
+  // Semantic Colors
+  --success: #00EFB2;
+  --warning: #FFC430;
+  --error: #FF4757;
+  --info: #3a88fe;
+  
+  /* RGB triplets for semantic colors */
+  --success-rgb: 0 239 178;
+  --warning-rgb: 255 196 48;
+  --error-rgb: 255 71 87;
+  --info-rgb: 58 136 254;
+  
+  // Accent Colors
+  --accent-blue: #00B6FF;
+  --accent-pink: #FF00B7;
+  --accent-purple: #9C88FF;
+  --accent-orange: #FFC702;
+  
+  // Text Colors
+  --text-primary: #FFFFFF;
+  --text-secondary: #BDBDBD;
+  --text-muted: #666666;
+  --text-inverse: #111111;
+  
+  /* RGB triplet for text */
+  --text-primary-rgb: 255 255 255;
+  --text-secondary-rgb: 189 189 189;
+  --text-muted-rgb: 102 102 102;
+  --text-inverse-rgb: 17 17 17;
+  
+  // Border Colors
+  --border-primary: #333333;
+  --border-secondary: #444444;
+  --border-accent: var(--brand-primary);
+  --border-error: var(--error);
+  
+  // Component-Specific Colors
+  --wager-pending-bg: rgba(255, 231, 94, 0.15);
+  --wager-pending-border: rgba(255, 231, 94, 0.7);
+  --wager-won-bg: rgba(0, 239, 178, 0.15);
+  --wager-won-border: rgba(0, 239, 178, 0.7);
+  --wager-lost-bg: rgba(255, 71, 87, 0.15);
+  --wager-lost-border: rgba(255, 71, 87, 0.7);
+  --wager-cancelled-bg: rgba(149, 165, 166, 0.15);
+  --wager-cancelled-border: rgba(149, 165, 166, 0.7);
+  
+  // Card/Panel
+  --card-bg: var(--bg-secondary);
+  --card-border: var(--border-primary);
+  
+  // Shadow system
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-base: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4);
+  
+  // Navigation
+  --nav-bg: var(--bg-primary);
+  --nav-text: var(--text-primary);
+  --nav-active: var(--brand-primary);
+
+  // Form Controls
+  --input-bg: var(--bg-tertiary);
+  --input-border: var(--border-primary);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-muted);
+  --input-focus-border: var(--brand-primary);
+  --input-focus-shadow: rgba(0, 239, 178, 0.1);
+  
+  // Transitions
+  --transition-base: 0.2s;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Light Theme
+html.light-mode {
+  // Primary Brand Colors - slightly more saturated on light to anchor UI
+  --brand-primary: #00D191; /* boosted saturation vs dark */
+  --brand-primary-hover: #00BD84;
+  --brand-primary-muted: #33E0B0;
+  --brand-primary-dark: #00A876;
+  --brand-primary-rgb: 0 209 145;
+
+  // Background Colors
+  // Off-white base for better ink contrast; reserve pure white sparingly
+  --bg-primary: #F6F7F9;        /* page background (tinted off-white) */
+  --bg-secondary: #FAFDFC;      /* elevated surfaces (light mint tint) */
+  --bg-tertiary: #F1F5F4;       /* controls, tab bars */
+  --bg-quaternary: #E9F1EF;     /* subtle fills */
+  --bg-overlay: rgba(255, 255, 255, 0.8);
+  
+  /* RGB triplets for light backgrounds */
+  --bg-primary-rgb: 246 247 249;
+  --bg-secondary-rgb: 250 253 252;
+  --bg-tertiary-rgb: 241 245 244;
+  --bg-quaternary-rgb: 233 241 239;
+  
+  // Text Colors
+  // Firmer ink for better hierarchy
+  --text-primary: #0F172A;      /* slate-900 */
+  --text-secondary: #475569;    /* slate-600 */
+  --text-muted: #666666;
+  --text-inverse: #ffffff;
+  
+  /* RGB triplet for text */
+  --text-primary-rgb: 15 23 42;
+  --text-secondary-rgb: 71 85 105;
+  --text-muted-rgb: 102 102 102;
+  --text-inverse-rgb: 255 255 255;
+
+  // Border Colors
+  --border-primary: #D0D5DD;    /* stronger neutral divider */
+  --border-secondary: #E4E7EC;
+  
+  // Component-Specific Colors
+  --wager-pending-bg: rgba(255, 196, 48, 0.15);
+  --wager-pending-border: rgba(255, 196, 48, 0.7);
+  --wager-won-bg: rgba(0, 209, 153, 0.15);
+  --wager-won-border: rgba(0, 209, 153, 0.7);
+  --wager-lost-bg: rgba(255, 71, 87, 0.15);
+  --wager-lost-border: rgba(255, 71, 87, 0.7);
+  --wager-cancelled-bg: rgba(149, 165, 166, 0.15);
+  --wager-cancelled-border: rgba(149, 165, 166, 0.7);
+  
+  // Card/Panel
+  --card-bg: var(--bg-secondary); /* tinted card fill (not pure white) */
+  --card-border: var(--border-primary);
+
+  // Shadow system — tighter and darker than before for elevation clarity
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-base: 0 1px 2px rgba(16, 24, 40, 0.06), 0 2px 8px rgba(16, 24, 40, 0.10);
+  --shadow-lg: 0 2px 8px rgba(16, 24, 40, 0.14), 0 8px 16px rgba(16, 24, 40, 0.12);
+  --shadow-xl: 0 8px 20px rgba(16, 24, 40, 0.20);
+  
+  // Navigation
+  --nav-bg: var(--bg-secondary);
+  --nav-text: var(--text-primary);
+  --nav-active: var(--brand-primary);
+
+  // Form Controls
+  --input-bg: var(--bg-tertiary);
+  --input-border: var(--border-primary);
+  --input-text: var(--text-primary);
+  --input-placeholder: var(--text-muted);
+  --input-focus-border: var(--brand-primary);
+  --input-focus-shadow: rgba(0, 239, 178, 0.1);
+}
+
+// Apply transition to theme changes
+html {
+  transition: background-color var(--transition-base) var(--ease-out),
+              color var(--transition-base) var(--ease-out);
+}
+
+// Empty state styles by theme
+html.dark-mode .empty-state {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+html.light-mode .empty-state {
+  color: var(--text-secondary);
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+// Apply default background and text colors to main elements
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}

@@ -21,7 +21,18 @@ const SignInPanel: React.FC<SignInPanelProps> = (props) => {
 
   useEffect(() => {
     if (props.isAuthenticated) {
-      history.push('/');
+      try {
+        const q = new URLSearchParams((props.location && props.location.search) || '');
+        const from = q.get('from');
+        if (from) {
+          const decoded = decodeURIComponent(from);
+          history.push(decoded);
+        } else {
+          history.push('/');
+        }
+      } catch {
+        history.push('/');
+      }
     }
   }, [props.isAuthenticated]);
 

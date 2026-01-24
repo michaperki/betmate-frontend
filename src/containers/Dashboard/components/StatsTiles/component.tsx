@@ -7,6 +7,7 @@ import { WagerStatus } from 'types/resources/wager';
 import './style.scss';
 import { formatAmount, formatNet } from 'utils/currency';
 import { useMode } from 'context/ModeContext';
+import Card from 'components/Card/component';
 
 // Tiny sparkline based on balance history
 const MiniSparkline: React.FC = () => {
@@ -58,18 +59,24 @@ const StatsTiles: React.FC = () => {
 
   return (
     <section className="stats-tiles">
-      <div className="tile">
+      <Card className="tile analytics-tile">
         <div className="tile-header">
-          <span className="tile-title">Wager Analytics</span>
+          <span className="tile-title">
+            <span className="tile-icon icon-analytics">📈</span>
+            Wager Analytics
+          </span>
         </div>
         <div className="tile-body">
           <MiniSparkline />
         </div>
-      </div>
+      </Card>
 
-      <div className="tile">
+      <Card className="tile activity-tile">
         <div className="tile-header">
-          <span className="tile-title">Recent Activity</span>
+          <span className="tile-title">
+            <span className="tile-icon icon-activity">🔄</span>
+            Recent Activity
+          </span>
         </div>
         <div className="tile-body">
           {recent.length === 0 ? (
@@ -115,17 +122,20 @@ const StatsTiles: React.FC = () => {
             </ul>
           )}
         </div>
-      </div>
+      </Card>
 
-      <div className="tile">
+      <Card className="tile streak-tile">
         <div className="tile-header">
-          <span className="tile-title">Current Streak</span>
+          <span className="tile-title">
+            <span className="tile-icon icon-streak">🔥</span>
+            Current Streak
+          </span>
         </div>
         <div className="tile-body streak">
           <div className="streak-value">{streak}</div>
           <div className="streak-label">wins in a row</div>
         </div>
-      </div>
+      </Card>
     </section>
   );
 };

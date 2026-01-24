@@ -1,5 +1,6 @@
 @import '../../../../styles/tokens.scss';
 @import '../../../../styles/mixins.scss';
+@import '../../../../styles/themes.scss';
 
 .quick-stats-bar {
   margin-bottom: $space-6;
@@ -25,25 +26,68 @@
 
     .stat-card {
       @include card-elevated;
-      background: $bg-secondary;
+      background: var(--card-bg);
       padding: $space-4 $space-3;
-      text-align: center;
-      border: 1px solid $border-primary;
+      display: flex;
+      align-items: center;
+      border-left: 4px solid var(--border-primary);
+      border-radius: $radius-lg;
       transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+
+      html.light-mode & {
+        box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+        background: linear-gradient(to bottom, #ffffff, #fafbfc);
+      }
 
       @include mobile {
-        padding: $space-2 $space-1; // More compact padding on mobile
+        padding: $space-3 $space-2; // More compact padding on mobile
       }
 
       &:hover {
-        transform: translateY(-1px);
-        box-shadow: $shadow-lg;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 30%;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03));
+        z-index: 1;
+        pointer-events: none;
+
+        html.light-mode & {
+          background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.02));
+        }
+      }
+
+      .stat-icon {
+        font-size: 28px;
+        margin-right: $space-3;
+
+        @include mobile {
+          font-size: 22px;
+          margin-right: $space-2;
+        }
+      }
+
+      .stat-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
       }
 
       .stat-value {
         @include text-heading-3;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: $space-1;
+        line-height: 1.1;
 
         @include mobile {
           @include text-heading-4;
@@ -52,34 +96,70 @@
 
       .stat-label {
         @include text-caption;
-        color: $text-secondary;
-        text-transform: uppercase;
+        color: var(--text-secondary);
+        font-weight: $font-medium;
         letter-spacing: 0.5px;
 
         @include mobile {
           font-size: $text-xs; // Smaller label text on mobile
         }
+
+        html.light-mode & {
+          font-weight: $font-bold;
+        }
       }
 
       // Color variants
       &--blue {
-        border-color: $accent-blue;
-        .stat-value { color: $accent-blue; }
+        border-left-color: var(--accent-blue);
+        .stat-value { color: var(--accent-blue); }
+        box-shadow: 0 4px 12px rgba(0, 182, 255, 0.15);
+
+        .stat-icon {
+          color: var(--accent-blue);
+          background: rgba(0, 182, 255, 0.1);
+          padding: $space-2;
+          border-radius: $radius-base;
+        }
       }
 
       &--green {
-        border-color: $brand-primary;
-        .stat-value { color: $brand-primary; }
+        border-left-color: var(--brand-primary);
+        .stat-value { color: var(--brand-primary); }
+        box-shadow: 0 4px 12px rgba(0, 239, 178, 0.15);
+
+        .stat-icon {
+          color: var(--brand-primary);
+          background: rgba(0, 239, 178, 0.1);
+          padding: $space-2;
+          border-radius: $radius-base;
+        }
       }
 
       &--yellow {
-        border-color: $warning;
-        .stat-value { color: $warning; }
+        border-left-color: var(--warning);
+        .stat-value { color: var(--warning); }
+        box-shadow: 0 4px 12px rgba(255, 196, 48, 0.15);
+
+        .stat-icon {
+          color: var(--warning);
+          background: rgba(255, 196, 48, 0.1);
+          padding: $space-2;
+          border-radius: $radius-base;
+        }
       }
 
       &--purple {
-        border-color: $accent-purple;
-        .stat-value { color: $accent-purple; }
+        border-left-color: var(--accent-purple);
+        .stat-value { color: var(--accent-purple); }
+        box-shadow: 0 4px 12px rgba(156, 136, 255, 0.15);
+
+        .stat-icon {
+          color: var(--accent-purple);
+          background: rgba(156, 136, 255, 0.1);
+          padding: $space-2;
+          border-radius: $radius-base;
+        }
       }
     }
   }

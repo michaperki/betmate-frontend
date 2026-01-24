@@ -179,10 +179,12 @@
 }
 
 // Dark theme styles for wager message panel
+@import '../../styles/tokens.scss';
+
 .dark-wager-message-panel {
   margin-top: 20px;
   padding: 12px;
-  background-color: rgba(58, 136, 254, 0.1);
+  background-color: rgba($info, 0.1);
   border-radius: 8px;
   
   p {

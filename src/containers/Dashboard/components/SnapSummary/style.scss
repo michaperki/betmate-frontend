@@ -9,6 +9,8 @@
   align-items: center;
   background: $bg-secondary;
   border: 1px solid $border-primary;
+  // Provide breathing room below the quick stats block on all viewports
+  margin-bottom: 8px;
 
   @include mobile {
     grid-template-columns: 1fr;
@@ -60,9 +62,7 @@
     }
 
     .metric {
-      background: $bg-tertiary;
-      border: 1px solid $border-primary;
-      border-radius: $radius-md;
+      // Surface (background, border, radius) is owned by Card component
       padding: $space-3;
       display: grid;
       grid-template-rows: auto auto auto;
@@ -86,7 +86,7 @@
 
       .metric-suffix {
         font-size: $text-xs;
-        color: $text-muted;
+        color: $text-secondary;
       }
 
       .metric-suffix.placeholder { visibility: hidden; }
@@ -94,3 +94,49 @@
   }
 }
 
+// Light-mode specific contrast tuning
+html.light-mode {
+  .snap-summary {
+    // Greeting (user id) text must be explicit in light mode
+    .user-meta {
+      .label {
+        color: #475569;
+      }
+
+      .name {
+        color: #0f172a;
+      }
+    }
+
+    // Force text colors explicitly in light mode (do NOT rely on inheritance)
+    .summary-metrics {
+      .metric {
+        color: #0f172a; // base text color
+
+        .metric-label {
+          color: #475569;
+        }
+
+        .metric-value {
+          color: #0f172a;
+        }
+
+        .metric-suffix {
+          color: #475569;
+        }
+      }
+
+      // Emphasize Active Matches
+      .metric:last-child .metric-value {
+        color: #0f766e;
+      }
+    }
+  }
+}
+
+// Desktop spacing: add margin below SnapSummary to create room before tabs
+@media (min-width: 1024px) {
+  .snap-summary {
+    margin-bottom: 10px;
+  }
+}

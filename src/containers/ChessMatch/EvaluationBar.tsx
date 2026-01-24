@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// NOTE: Do not re-use this legacy component in new mock pages.
 import { GameOdds } from 'types/resources/game';
 
 interface EvaluationBarProps {

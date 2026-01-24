@@ -45,13 +45,13 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
   const { mode } = useMode();
   const sym = currencySymbol(modeCurrency(mode));
   return (
-    <div className="bottom-toolbar" role="region" aria-label="Match quick controls">
+    <div className="bottom-toolbar" role="region" aria-label="Match quick controls" data-tour-id="bottom-toolbar">
       <div className="bottom-toolbar__left">
         <span className={`live-pill ${isLive ? 'is-live' : 'is-paused'}`}>
           {isLive ? 'Live' : 'Not Live'}
         </span>
         {/* Desktop-only version tag (hidden on small screens) */}
-        <span className="bt-version">
+        <span className="bottom-toolbar__version">
           <VersionTag ariaLabelPrefix="Frontend build" />
           {pricingVersion ? (
             <span style={{ marginLeft: 8, opacity: 0.7 }} title="Pricing model version">Pricing {pricingVersion}</span>
@@ -59,12 +59,12 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         </span>
       </div>
       <div className="bottom-toolbar__center">
-        <div className="stake-chip-row">
+        <div className="bottom-toolbar__stake-row">
           {stakePresets.map((value) => (
             <button
               key={`bt-stake-${value}`}
               type="button"
-              className={`stake-chip ${selectedStake === value ? 'is-active' : ''}`}
+              className={`bottom-toolbar__stake-chip ${selectedStake === value ? 'is-active' : ''}`}
               onClick={() => onSelectStake(value)}
               aria-pressed={selectedStake === value}
               aria-label={`Set bet amount to ${sym}${value}`}
@@ -76,8 +76,9 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
       </div>
       <div className="bottom-toolbar__right">
         <button
+          data-tour-id="draw-button"
           type="button"
-          className={`bt-draw-btn state-${drawState}`}
+          className={`bottom-toolbar__draw-btn state-${drawState}`}
           onClick={onDraw}
           disabled={!canDraw || drawState === 'loading'}
           aria-label="Bet on Draw"
@@ -86,21 +87,21 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
             ? `Real odds • Draw ${getMultiplier(drawMult)}x`
             : 'Bet Draw'}
         >
-          <span className="bt-draw-btn__label">
+          <span className="bottom-toolbar__draw-btn__label">
             {isRealMode && typeof drawMult === 'number' && isFinite(drawMult)
               ? `Draw • ${getMultiplier(drawMult)}x`
               : 'Draw'}
           </span>
-          <span className="bt-draw-btn__spinner" aria-hidden />
-          <span className="bt-draw-btn__check" aria-hidden>✓</span>
+          <span className="bottom-toolbar__draw-btn__spinner" aria-hidden />
+          <span className="bottom-toolbar__draw-btn__check" aria-hidden>✓</span>
         </button>
-        <div className="bt-viewers" title="Viewers" aria-label="Viewers">
-          <span className="bt-viewers__icon" aria-hidden>👁</span>
-          <span className="bt-viewers__count">{viewerCount || 0}</span>
+        <div className="bottom-toolbar__viewers" title="Viewers" aria-label="Viewers">
+          <span className="bottom-toolbar__viewers-icon" aria-hidden>👁</span>
+          <span className="bottom-toolbar__viewers-count">{viewerCount || 0}</span>
         </div>
         <button
           type="button"
-          className="bt-icon-btn"
+          className="bottom-toolbar__icon-btn"
           onClick={onOpenChat}
           aria-label="Open chat"
           title="Open chat"
@@ -109,7 +110,7 @@ const BottomToolbar: React.FC<BottomToolbarProps> = ({
         </button>
         <button
           type="button"
-          className="bt-icon-btn"
+          className="bottom-toolbar__icon-btn"
           onClick={onOpenLeaderboard}
           aria-label="Open leaderboard"
           title="Open leaderboard"

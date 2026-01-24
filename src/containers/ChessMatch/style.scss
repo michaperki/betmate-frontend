@@ -1,9 +1,13 @@
+@import '../../styles/tokens.scss';
+@import '../../styles/mixins.scss';
+@import '../../styles/themes.scss';
+
 .match-page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #0a0a0a; /* match existing dark theme backdrop */
-  color: #e5e7eb;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .match-page__content {
@@ -64,15 +68,54 @@
 
 /* Make explicit widths on mobile to preserve proportions */
 @media (max-width: 767px) {
+  /* Let the grid grow naturally on mobile to prevent row overlap */
+  .match-layout-grid { height: auto; --bar: 44px; grid-template-rows: auto auto auto auto var(--bar); }
   .match-layout-grid .frame--board { width: min(var(--s), 100%); }
   /* Ensure the Left Rail matches the board width on mobile to avoid horizontal scroll */
   .match-layout-grid .frame--left { width: min(var(--s), 100%); }
   /* Right frames should also match board width and stretch contents */
   .match-layout-grid .frame--right-top,
-  .match-layout-grid .frame--right-bottom { width: min(var(--s), 100%); align-items: stretch; justify-content: stretch; aspect-ratio: auto; height: auto; }
-  .match-layout-grid .frame--right-top { width: min(var(--s), 100%); align-items: stretch; justify-content: stretch; aspect-ratio: auto; height: auto; }
+  .match-layout-grid .frame--right-bottom { width: min(var(--s), 100%); align-items: stretch; justify-content: stretch; }
+  /* Mobile: make right panels auto-height instead of square; cap their height */
+  /* Notation panel: fixed height on mobile so receipts growth doesn't shrink it */
+  .match-layout-grid .frame--right-top {
+    aspect-ratio: auto;
+    height: clamp(120px, 22vh, 200px);
+    overflow: hidden;
+  }
+  /* Receipts panel: allow growth with an upper bound; scroll internally */
+  .match-layout-grid .frame--right-bottom {
+    aspect-ratio: auto;
+    height: auto;
+    max-height: clamp(140px, 32vh, 320px);
+    overflow: hidden;
+  }
   /* Other frames may keep the default side width */
   .match-layout-grid .frame:not(.frame--board):not(.frame--left):not(.frame--right-top):not(.frame--right-bottom) { width: min(var(--p), 100%); }
+
+  /* Ensure notation uses its fixed height and scrolls internally */
+  .match-page .frame--right-top .notation-rail { height: 100%; display: flex; flex-direction: column; }
+  .match-page .frame--right-top .notation-rail__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+
+  /* EXPERIMENT: Fix bottom toolbar to viewport bottom on mobile (easy rollback)
+     - Controlled by 'mobile-fixed-bar' class on .match-page
+     - Remove the class to revert to in-flow bar */
+  .match-page.mobile-fixed-bar .frame--bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46px;
+    z-index: 30;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+  }
+  .match-page.mobile-fixed-bar .match-page__content {
+    padding-bottom: 62px; /* reserve space so content isn't hidden under fixed bar */
+  }
 }
 
 /* Tablet: Board spans full row; three panels in a single row below */
@@ -174,9 +217,9 @@
   aspect-ratio: auto;
   height: 100%;
   width: 100%;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
-  background: rgba(20,22,28,0.6);
+  background: var(--bg-secondary);
 }
 
 .match-bottom-bar {
@@ -203,9 +246,9 @@
   height: 26px;
   padding: 0 8px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: #e5e7eb;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: 700;
 }
@@ -216,18 +259,18 @@ button.bt-live { cursor: pointer; }
   border-radius: 50%;
   display: inline-block;
 }
-.bt-live.is-live .dot { background: #ef4444; /* red */ }
-.bt-live.is-paused .dot { background: #9ca3af; /* gray */ }
-.bt-live.is-final .dot { background: #22c55e; /* green */ }
+.bt-live.is-live .dot { background: $error; }
+.bt-live.is-paused .dot { background: $text-secondary; }
+.bt-live.is-final .dot { background: $success; }
 .match-bottom-bar .bt-center { display: flex; justify-content: center; }
 
 .match-bottom-bar .bt-mode {
   padding: 2px 8px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
   font-size: 11px;
-  color: #e5e7eb;
+  color: var(--text-primary);
 }
 
 .match-bottom-bar .bt-chip {
@@ -235,31 +278,49 @@ button.bt-live { cursor: pointer; }
   min-width: 42px;
   padding: 0 8px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: #e5e7eb;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: 12px;
   cursor: pointer;
 }
+.match-bottom-bar .bt-stake {
+  display: none; /* shown only on mobile */
+  height: 26px;
+  min-width: 50px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 1px solid var(--border-secondary);
+  background: rgba($info, 0.12);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
 .match-bottom-bar .bt-chip.is-active {
-  border-color: rgba(59,130,246,0.45);
-  background: rgba(59,130,246,0.12);
+  border-color: rgba($info, 0.45);
+  background: rgba($info, 0.12);
 }
 .match-bottom-bar .bt-draw {
   height: 28px;
   padding: 0 12px;
   border-radius: 6px;
-  border: 1px solid rgba(59,130,246,0.45);
-  background: rgba(59,130,246,0.12);
-  color: #e5e7eb;
+  border: 1px solid rgba($info, 0.45);
+  background: rgba($info, 0.12);
+  color: var(--text-primary);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+.match-bottom-bar .bt-draw:disabled {
+  opacity: 0.5;
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+  cursor: not-allowed;
+}
 .match-bottom-bar .bt-viewers { display: inline-flex; align-items: center; gap: 4px; opacity: 0.9; }
-.match-bottom-bar .bt-icon { height: 26px; width: 26px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; display: inline-flex; align-items: center; justify-content: center; }
+.match-bottom-bar .bt-icon { height: 26px; width: 26px; border-radius: 6px; border: 1px solid var(--border-secondary); background: var(--bg-tertiary); color: var(--text-primary); display: inline-flex; align-items: center; justify-content: center; }
 
 /* Separation: push right cluster and add subtle divider */
-.match-bottom-bar .bt-right { justify-content: flex-end; padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.08); }
+.match-bottom-bar .bt-right { justify-content: flex-end; padding-left: 10px; border-left: 0; }
 
 /* Popovers */
 .match-bottom-bar .bt-right { position: relative; }
@@ -268,12 +329,12 @@ button.bt-live { cursor: pointer; }
   bottom: calc(100% + 8px);
   right: 6px;
   width: min(260px, 80vw);
-  background: rgba(16,16,24,0.96);
-  border: 1px solid rgba(229,231,235,0.14);
+  background: $bg-secondary;
+  border: 1px solid $border-primary;
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-  color: #e5e7eb;
+  color: $text-primary;
   z-index: 10;
 }
 .bt-popover.chat { right: 42px; }
@@ -287,6 +348,38 @@ button.bt-live { cursor: pointer; }
   .match-bottom-bar .bt-chip { min-width: 40px; height: 24px; font-size: 11px; }
   .match-bottom-bar .bt-draw { height: 26px; padding: 0 10px; font-size: 12px; }
   .match-bottom-bar .bt-mode { font-size: 10px; padding: 2px 6px; }
+}
+
+/* Mobile: condense bottom bar */
+@media (max-width: 767px) {
+  /* Ensure both edges stay visible: left/right auto, center sized to content */
+  .match-bottom-bar { grid-template-columns: auto max-content auto; gap: 4px; padding: 0 4px; }
+  .match-bottom-bar .bt-left,
+  .match-bottom-bar .bt-center,
+  .match-bottom-bar .bt-right { min-width: 0; }
+  .match-bottom-bar .bt-center { overflow: hidden; justify-content: center; }
+  /* Keep draw button to its content width on mobile */
+  .match-bottom-bar .bt-center .bt-draw { width: auto; text-align: center; padding-left: 8px; padding-right: 8px; }
+  .match-bottom-bar .bt-draw {
+    max-width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 0 8px; /* reduce horizontal padding on narrow screens */
+    font-size: 11px; /* slightly smaller label to fit */
+    min-width: 0; /* allow draw button to shrink */
+  }
+  /* Hide multiple chips; use compact stake toggle */
+  .match-bottom-bar .bt-chip { display: none; }
+  .match-bottom-bar .bt-stake { display: inline-flex; align-items: center; justify-content: center; }
+  /* Reduce viewers footprint */
+  .match-bottom-bar .bt-viewers { display: none; }
+  /* Hide auxiliary icons to save space */
+  .match-bottom-bar .bt-icon { display: none; }
+  /* Tighten left/right clusters */
+  .match-bottom-bar .bt-left { gap: 3px; }
+  .match-bottom-bar .bt-right { gap: 3px; padding-left: 0; border-left: 0; }
+  .match-bottom-bar .bt-live { margin-left: 0; padding: 0 6px; }
+  .match-bottom-bar .bt-mode { padding: 1px 5px; }
 }
 
 .frame__label {
@@ -334,8 +427,8 @@ button.bt-live { cursor: pointer; }
 
   /* derive inner metrics from outer size */
   --inner-gap: 8px;
-  /* Keep headers compact so board dominates */
-  --header-h: clamp(14px, calc(var(--s) * 0.05), 36px);
+  /* Slightly taller header to comfortably fit the clock */
+  --header-h: clamp(40px, calc(var(--s) * 0.055), 52px);
   /* Eval bar ~5% of board width, thin but visible */
   --eval-w: clamp(8px, calc(var(--s) * 0.05), 28px);
 }
@@ -344,16 +437,70 @@ button.bt-live { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(229, 231, 235, 0.12);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 5px 10px;
   gap: 8px;
   cursor: pointer;
   user-select: none;
   position: relative;
   z-index: 3; /* ensure above board center */
   pointer-events: auto;
+  /* Allow hover sweep overlay to clip to header pill */
+  overflow: hidden;
+}
+
+/* Outcome action affordance (player headers + Draw button)
+   Minimal, tactile feedback without changing layout/content */
+.outcome-action {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.outcome-action:hover {
+  box-shadow: 0 8px 22px rgba(0, 239, 178, 0.10);
+  transform: translateY(-1px);
+}
+.outcome-action:active { transform: translateY(0); }
+.outcome-action:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Subtle left→right sweep overlay on hover (desktop/hover-capable only) */
+@media (hover: hover) and (pointer: fine) {
+  .frame--board .board-header.outcome-action::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    transform: translateZ(0);
+    transition: width 180ms ease;
+    pointer-events: none;
+    /* Default (dark) tint; theme overrides below */
+    background: rgb(var(--brand-primary-rgb) / 0.14);
+  }
+  .frame--board .board-header.outcome-action:hover::before {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .board-header.outcome-action::before { transition: none; }
+}
+
+/* Theme-specific tint strength for the sweep */
+html.light-mode .frame--board .board-header.outcome-action::before { background: rgb(var(--brand-primary-rgb) / 0.10); }
+html.dark-mode  .frame--board .board-header.outcome-action::before { background: rgb(var(--brand-primary-rgb) / 0.14); }
+
+/* Player headers: subtle green accent for outcome affordance (keeps existing blues) */
+.frame--board .board-header.outcome-action {
+  border-color: rgb(var(--brand-primary-rgb) / 0.18);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset, 0 6px 16px rgb(var(--brand-primary-rgb) / 0.08);
+}
+
+/* Draw button (match bottom bar): add green halo without changing its blue identity */
+.match-bottom-bar .bt-draw.outcome-action {
+  box-shadow: 0 0 0 1px rgb(var(--brand-primary-rgb) / 0.16), 0 8px 18px rgb(var(--brand-primary-rgb) / 0.10);
 }
 
 .frame--board .board-header.is-disabled {
@@ -388,38 +535,49 @@ button.bt-live { cursor: pointer; }
   gap: 10px;
 }
 .frame--board .ph-odds {
-  padding: 2px 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+  padding: 1px 6px; /* smaller than clock */
+  border-radius: 6px; /* not a full pill */
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
   font-size: 12px;
-  font-weight: 700;
-  color: #e5e7eb;
+  font-weight: 600; /* less heavy than clock */
+  color: var(--text-primary);
 }
 .frame--board .ph-clock {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
+  padding: 4px 8px; /* vertical breathing room so pill doesn't touch borders */
   border-radius: 12px;
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-tertiary);
   font-variant-numeric: tabular-nums;
+  /* rely on header padding for the 5px border spacing */
+  margin: 0;
 }
-.frame--board .ph-clock .tick-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(34,197,94,0.9);
-  opacity: 0;
+/* Replace the blinking dot with a pill glow on the entire clock */
+.frame--board .ph-clock .tick-dot { display: none !important; }
+html.light-mode .frame--board .ph-clock .tick-dot { display: none !important; }
+html.dark-mode .frame--board .ph-clock .tick-dot { display: none !important; }
+/* Glow only when the pill itself has is-ticking */
+.frame--board .ph-clock.is-ticking {
+  background: rgb(var(--brand-primary-rgb) / 0.12);
+  border: 1px solid rgb(var(--brand-primary-rgb) / 0.35);
+  box-shadow: 0 0 0 2px rgb(var(--brand-primary-rgb) / 0.25);
+  animation: ph-clock-pulse 1.5s ease-in-out infinite;
 }
-.frame--board .board-header.is-ticking .ph-clock .tick-dot {
-  animation: dot-blink 1s infinite;
-  opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .ph-clock.is-ticking { animation: none; }
 }
-@keyframes dot-blink {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
+@keyframes ph-clock-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(var(--brand-primary-rgb) / 0.25); }
+  70% { box-shadow: 0 0 0 8px rgb(var(--brand-primary-rgb) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--brand-primary-rgb) / 0); }
 }
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .board-header.is-ticking .ph-clock { animation: none; }
+}
+
+/* removed enforced block; using .ph-clock.is-ticking instead */
 
 .frame--board .ph-state-chip {
   width: 10px;
@@ -428,22 +586,22 @@ button.bt-live { cursor: pointer; }
   background: rgba(255,255,255,0.25);
 }
 .frame--board .board-header.is-loading .ph-state-chip {
-  background: #f59e0b; /* amber */
-  box-shadow: 0 0 0 0 rgba(245,158,11,0.4);
+  background: $warning;
+  box-shadow: 0 0 0 0 rgba($warning, 0.4);
   animation: pulse-chip 1.2s infinite;
 }
-.frame--board .board-header.is-confirmed .ph-state-chip { background: #22c55e; }
-.frame--board .board-header.is-rejected .ph-state-chip { background: #ef4444; }
+.frame--board .board-header.is-confirmed .ph-state-chip { background: $success; }
+.frame--board .board-header.is-rejected .ph-state-chip { background: $error; }
 @keyframes pulse-chip {
-  0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.45); }
-  70% { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
-  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+  0% { box-shadow: 0 0 0 0 rgba($warning, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba($warning, 0); }
+  100% { box-shadow: 0 0 0 0 rgba($warning, 0); }
 }
 
 /* Active wager emphasis (used on smaller screens as wager button) */
 .frame--board .board-header.is-active {
-  border-color: rgba(59,130,246,0.45);
-  background: linear-gradient(0deg, rgba(59,130,246,0.08), rgba(255,255,255,0.02));
+  border-color: rgba($info, 0.45);
+  background: linear-gradient(0deg, rgba($info, 0.08), rgba(255,255,255,0.02));
 }
 .frame--board .board-header.is-inactive {
   opacity: 0.95;
@@ -452,15 +610,15 @@ button.bt-live { cursor: pointer; }
 /* Mobile-first clickable affordances so header reads as a button */
 @media (max-width: 899px) {
   .frame--board .board-header {
-    border-color: rgba(59,130,246,0.45);
-    background: linear-gradient(0deg, rgba(59,130,246,0.08), rgba(255,255,255,0.02));
-    box-shadow: 0 0 0 1px rgba(59,130,246,0.12) inset;
+    border-color: rgba($info, 0.45);
+    background: linear-gradient(0deg, rgba($info, 0.08), rgba(255,255,255,0.02));
+    box-shadow: 0 0 0 1px rgba($info, 0.12) inset;
   }
   .frame--board .board-header:active {
     transform: translateY(1px);
   }
   .frame--board .board-header:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid $info;
     outline-offset: 1px;
   }
 }
@@ -517,11 +675,11 @@ button.bt-live { cursor: pointer; }
   justify-content: center;
   transition: height 0.35s ease-in-out;
 }
-.frame--board .eval-bar__seg--black { background: rgba(26,30,38,0.96); }
-.frame--board .eval-bar__seg--draw { background: rgba(96,165,250,0.92); }
+.frame--board .eval-bar__seg--black { background: $bg-secondary; }
+.frame--board .eval-bar__seg--draw { background: $info; }
 .frame--board .eval-bar__seg--white { background: #ffffff; }
-.frame--board .eval-bar__pct { color: #ffffff; font-size: 11px; font-weight: 700; line-height: 1; mix-blend-mode: normal; }
-.frame--board .eval-bar__pct--dark { color: #0b0b0b; }
+.frame--board .eval-bar__pct { color: $text-primary; font-size: 11px; font-weight: 700; line-height: 1; mix-blend-mode: normal; }
+.frame--board .eval-bar__pct--dark { color: $text-inverse; }
 
 /* Notation Pad — minimal, lichess-inspired */
 .notation-pad {
@@ -658,8 +816,8 @@ button.bt-live { cursor: pointer; }
   outline: 0;
   appearance: none;
 }
-.notation-row__cell:hover { background: rgba(255,255,255,0.05); }
-.notation-row__cell.is-active { background: rgba(59,130,246,0.12); }
+.notation-row__cell:hover { background: rgba($text-primary, 0.05); }
+.notation-row__cell.is-active { background: rgba($info, 0.12); }
 .notation-row__cell--placeholder {
   opacity: 0.5;
   background: transparent;
@@ -673,8 +831,8 @@ button.bt-live { cursor: pointer; }
   border-radius: 4px;
   cursor: pointer;
 }
-.notation-move:hover { background: rgba(255,255,255,0.05); }
-.notation-move.is-active { background: rgba(59,130,246,0.12); }
+.notation-move:hover { background: rgba($text-primary, 0.05); }
+.notation-move.is-active { background: rgba($info, 0.12); }
 .notation-move .nm-index { font-size: 12px; opacity: 0.7; }
 .notation-move .nm-san { font-size: 13px; }
 
@@ -709,16 +867,9 @@ button.bt-live { cursor: pointer; }
     min-width: 0;
     box-sizing: border-box;
   }
-  /* Let receipts shrink when empty; cap height and allow scroll when long */
-  .match-page .frame--right-bottom .receipts-grid {
-    height: auto;
-    max-height: clamp(120px, 28vh, 320px);
-  }
-  /* Cap notation list height on small screens so actions remain visible */
-  .match-page .notation-rail__list {
-    /* Slightly taller (~15%) for readability while staying compact */
-    max-height: clamp(132px, 21vh, 276px);
-  }
+  /* Cap notation list height tighter on small screens so receipts and bar remain visible */
+  .match-page .notation-rail { height: 100%; display: flex; flex-direction: column; }
+  .match-page .notation-rail__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
   .left-panel {
     height: auto;
     padding: 10px 12px;
@@ -756,8 +907,8 @@ button.bt-live { cursor: pointer; }
 .lp-tile__chip {
   position: absolute;
   inset: 0;
-  background: radial-gradient(120% 120% at 20% 0%, rgba(59,130,246,0.08), transparent 60%),
-              radial-gradient(120% 120% at 100% 80%, rgba(16,185,129,0.06), transparent 60%);
+  background: radial-gradient(120% 120% at 20% 0%, rgba($info, 0.08), transparent 60%),
+              radial-gradient(120% 120% at 100% 80%, rgba($success, 0.06), transparent 60%);
   opacity: 1;
   pointer-events: none;
 }
@@ -779,13 +930,21 @@ button.bt-live { cursor: pointer; }
   padding: 6px 10px;
 }
 /* Footer: keep values readable and spaced, even when narrow */
-.lp-footer { align-items: baseline; gap: 6px; }
-.lp-header { gap: 8px; }
+.lp-footer { align-items: baseline; gap: 6px; min-height: 24px; }
+.lp-header { gap: 8px; min-height: 24px; }
 .lp-h-glyph { font-size: 13px; opacity: 0.75; min-width: 14px; text-align: center; }
 .lp-h-move { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lp-h-tag { margin-left: auto; font-size: 10px; letter-spacing: 0.06em; opacity: 0.75; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 1px 6px; }
 
-.lp-iconzone { display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; min-height: 0; overflow: hidden; }
+.lp-iconzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  position: relative;
+  min-height: 40px; /* reserve space to reduce layout jitter when tiles reorder */
+  overflow: hidden;
+}
 /* Make the background glyph not affect layout so footer never gets pushed out */
 .lp-iz-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 0; font-size: clamp(24px, 32%, 64px); opacity: 0.15; filter: saturate(0.6) contrast(0.9); pointer-events: none; }
 .lp-tile:hover .lp-iz-glyph { opacity: 0.25; }
@@ -810,13 +969,136 @@ button.bt-live { cursor: pointer; }
   .lp-f-odds { font-size: 11px; }
 }
 
-.lp-f-score { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.lp-f-odds { font-weight: 700; opacity: 0.95; white-space: nowrap; }
+.lp-f-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.lp-f-odds {
+  font-weight: 800;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #eaf2ff; /* slightly brighter for contrast */
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
+
+/* ------------------------------------------------------------
+   Light mode overrides for game UI
+   These adapt dark hardcoded styles for light theme without
+   refactoring all selectors to CSS variables.
+------------------------------------------------------------- */
+html.light-mode {
+  .match-page {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .frame--bar {
+    border-color: #e5e7eb;
+    background: #ffffff;
+  }
+
+  /* No divider between center and right clusters */
+  .match-bottom-bar .bt-right { border-left: 0; }
+
+  .match-bottom-bar .bt-live,
+  .match-bottom-bar .bt-mode,
+  .match-bottom-bar .bt-chip,
+  .match-bottom-bar .bt-stake,
+  .match-bottom-bar .bt-icon {
+    border-color: var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .match-bottom-bar .bt-draw {
+    border-color: rgba($info, 0.35);
+    background: rgba($info, 0.10);
+    color: #0f172a;
+  }
+  .match-bottom-bar .bt-chip.is-active {
+    border-color: rgba($info, 0.35);
+    background: rgba($info, 0.10);
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .frame--board .board-header {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+  }
+  .frame--board .board-header.outcome-action {
+    border-color: rgb(var(--brand-primary-rgb) / 0.25);
+    box-shadow: 0 0 0 1px rgba(15,23,42,0.02) inset, 0 6px 16px rgba(0,0,0,0.06);
+  }
+
+  /* Player header text and chips */
+  .frame--board .ph-name { color: var(--text-primary); }
+  .frame--board .ph-rating { color: var(--text-secondary); }
+  .frame--board .board__label { color: var(--text-secondary); }
+
+  .frame--board .ph-odds {
+    border-color: var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .frame--board .ph-clock {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+  }
+
+  /* Eval bar border for clarity on white */
+  .frame--board .eval-bar {
+    border: 1px solid var(--border-primary);
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.08);
+  }
+
+  /* Notation controls */
+  .notation-controls .np-btn,
+  .notation-rail__controls .np-btn {
+    border-color: var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+  .notation-controls .np-btn:hover,
+  .notation-rail__controls .np-btn:hover { background: var(--bg-tertiary); }
+  .notation-rail__controls .np-status { color: var(--text-secondary); }
+
+  /* Notation list styling */
+  .notation-list { border-color: var(--border-primary); }
+  .notation-row__number { color: var(--text-secondary); }
+  .notation-row__cell { color: var(--text-primary); }
+  .notation-row__cell:hover { background: rgba(0,0,0,0.05); }
+  .notation-row__cell.is-active { background: rgba($info, 0.10); }
+  .notation-move .nm-index { color: var(--text-secondary); }
+  .notation-move .nm-san { color: var(--text-primary); }
+
+  /* Receipts grid header and rows */
+  .receipts-grid .rg-head .rg-cell { color: var(--text-secondary); }
+  .receipts-grid .rg-row:hover .rg-cell { background: rgba(0,0,0,0.03); }
+  .receipts-grid .rg-row.is-empty .rg-col-bet { color: var(--text-secondary); }
+  .receipts-grid .rg-row .rg-cell { color: var(--text-primary); }
+
+  /* Left move cards */
+  .lp-tile {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+  }
+  .lp-card { color: var(--text-primary); }
+  .lp-h-move { color: var(--text-primary); }
+  .lp-f-score { color: var(--text-primary); }
+  .lp-f-odds { color: var(--text-primary); text-shadow: none; }
+  .lp-h-tag { border-color: var(--border-primary); color: var(--text-secondary); background: var(--bg-tertiary); }
+  .lp-iz-glyph { opacity: 0.12; filter: saturate(0.5) contrast(0.9); }
+  .lp-iz-opening { color: var(--text-primary); }
+}
 
 /* Tile states */
 .lp-tile.is-active {
-  border-color: rgba(59,130,246,0.55);
-  box-shadow: 0 0 0 2px rgba(59,130,246,0.25) inset, 0 6px 18px rgba(0,0,0,0.22);
+  border-color: rgba($info, 0.55);
+  box-shadow: 0 0 0 2px rgba($info, 0.25) inset, 0 6px 18px rgba(0,0,0,0.22);
 }
 .lp-tile.is-disabled {
   filter: grayscale(0.5) brightness(0.9);
@@ -839,7 +1121,7 @@ button.bt-live { cursor: pointer; }
   height: 22px;
   margin: -11px 0 0 -11px;
   border: 2px solid rgba(255,255,255,0.25);
-  border-top-color: rgba(59,130,246,0.9);
+  border-top-color: rgba($info, 0.9);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
   opacity: 0;
@@ -876,7 +1158,7 @@ button.bt-live { cursor: pointer; }
   width: 3px;
   border-top-left-radius: 12px;
   border-bottom-left-radius: 12px;
-  background: linear-gradient(180deg, rgba(34,197,94,0.9), rgba(59,130,246,0.9));
+  background: linear-gradient(180deg, rgba(34,197,94,0.9), rgba($info, 0.9));
   pointer-events: none;
 }
 
@@ -904,7 +1186,7 @@ button.bt-live { cursor: pointer; }
 .receipts-grid .rg-cell { white-space: nowrap; }
 .receipts-grid .rg-col-bet { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .receipts-grid .rg-head .rg-cell {
-  color: #aeb0b6;
+  color: $text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 11px;
@@ -916,7 +1198,7 @@ button.bt-live { cursor: pointer; }
 .receipts-grid .rg-row.is-updated .rg-cell { animation: rg-pulse 420ms ease-out both; }
 
 @keyframes rg-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-@keyframes rg-pulse { 0% { background: rgba(59,130,246,0.12); } 100% { background: transparent; } }
+@keyframes rg-pulse { 0% { background: rgba($info, 0.12); } 100% { background: transparent; } }
 .receipts-grid .rg-col-stake,
 .receipts-grid .rg-col-odds {
   text-align: right;
@@ -931,8 +1213,8 @@ button.bt-live { cursor: pointer; }
   margin-right: 6px;
   vertical-align: middle;
 }
-.receipts-grid .rg-col-bet .rg-type-dot.move { background: #60a5fa; }
-.receipts-grid .rg-col-bet .rg-type-dot.outcome { background: #8b5cf6; }
+.receipts-grid .rg-col-bet .rg-type-dot.move { background: $info; }
+.receipts-grid .rg-col-bet .rg-type-dot.outcome { background: $accent-purple; }
 .receipts-grid .rg-col-bet .rg-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 899px) {
@@ -940,8 +1222,38 @@ button.bt-live { cursor: pointer; }
   .receipts-grid .rg-head .rg-cell { font-size: 10px; }
 }
 
+/* Mobile: limit empty receipts height so it doesn't dominate */
+@media (max-width: 767px) {
+  .frame--right-bottom { align-self: start; }
+  .frame--right-bottom .receipts-grid { max-height: clamp(120px, 28vh, 260px); }
+}
+
+/* Friendlier empty state: allow wrapping and soften color */
+.receipts-grid .rg-row.is-empty .rg-col-bet {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  color: $text-secondary;
+}
+
 /* Status colors */
-.receipts-grid .rg-row.is-pending .rg-col-status   { color: #60a5fa; }
-.receipts-grid .rg-row.is-won .rg-col-status       { color: #22c55e; }
-.receipts-grid .rg-row.is-lost .rg-col-status      { color: #ef4444; }
-.receipts-grid .rg-row.is-cancelled .rg-col-status { color: #f59e0b; }
+.receipts-grid .rg-row.is-pending .rg-col-status   { color: $info; }
+.receipts-grid .rg-row.is-won .rg-col-status       { color: $success; }
+.receipts-grid .rg-row.is-lost .rg-col-status      { color: $error; }
+.receipts-grid .rg-row.is-cancelled .rg-col-status { color: $warning; }
+
+/* ------------------------------------------------------------
+   Player header clock (ph-clock) — cascade winners at EOF
+   Ensures glow and spacing override earlier light-mode rules
+------------------------------------------------------------- */
+.frame--board .ph-clock { margin-top: 0; margin-bottom: 0; }
+.frame--board .ph-clock .tick-dot { display: none; }
+.frame--board .ph-clock.is-ticking {
+  background: rgb(var(--brand-primary-rgb) / 0.12) !important;
+  border-color: rgb(var(--brand-primary-rgb) / 0.35) !important;
+  box-shadow: 0 0 0 2px rgb(var(--brand-primary-rgb) / 0.25) !important;
+  animation: ph-clock-pulse 1.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame--board .ph-clock.is-ticking { animation: none; }
+}
