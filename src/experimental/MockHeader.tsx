@@ -58,9 +58,9 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
         <span style={{ fontSize: '20px', fontWeight: '700', color: '#22c55e', letterSpacing: '1px' }}>BetMate</span>
       </div>
 
-      <nav style={{ display: 'flex', gap: '32px' }}>
+      <nav style={{ display: 'flex', gap: '32px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
         {navItems.map((item) => (
-          <a key={item} href="#" style={{
+          <a key={item} href="#" aria-current={item === activeTab ? 'page' : undefined} style={{
             color: item === activeTab ? '#22c55e' : 'rgba(255,255,255,0.5)',
             textDecoration: 'none',
             fontSize: '13px',
@@ -86,6 +86,7 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
           <>
             <button
               onClick={() => setShowDeposit(true)}
+              aria-label="Deposit funds"
               style={{
                 background: 'rgba(34, 197, 94, 0.1)',
                 border: '1px solid rgba(34, 197, 94, 0.3)',
@@ -129,6 +130,7 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
                   history.push('/new-login');
                 }
               }}
+              aria-label="Sign in"
               style={{
                 background: 'rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.12)',
@@ -143,6 +145,7 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
             >Sign In</button>
             <button
               onClick={() => { history.push('/new-onboarding'); }}
+              aria-label="Get started"
               style={{
                 background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                 border: 'none',

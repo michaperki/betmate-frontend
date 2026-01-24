@@ -30,7 +30,7 @@
     border-radius: 12px;
     backdrop-filter: blur(4px);
     animation: fadeIn 0.4s ease;
-    z-index: 10; /* ensure overlay sits above chessground pieces */
+    z-index: 20; /* ensure overlay sits above chessground pieces across breakpoints */
   }
   
   &__overlay-content {

@@ -32,22 +32,41 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
       <div className="move-predictions__header">Move Predictions</div>
       <div className="move-predictions__list">
         {loading && moves.length === 0 && (
-          <div className="move-predictions__empty">Loading…</div>
+          <>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} aria-busy className="move-predictions__item move-predictions__item--disabled" style={{ position: 'relative', overflow: 'hidden' }}>
+                <div style={{ height: 14, width: 120, background: 'rgba(255,255,255,0.06)', borderRadius: 7, marginBottom: 8 }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ height: 12, width: 60, background: 'rgba(255,255,255,0.05)', borderRadius: 6 }} />
+                  <div style={{ height: 12, width: 48, background: 'rgba(255,255,255,0.05)', borderRadius: 6 }} />
+                </div>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+              </div>
+            ))}
+          </>
         )}
         {!loading && moves.length === 0 && (
-          <div className="move-predictions__empty">No moves available</div>
+          <div className="move-predictions__empty" style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 12,
+            padding: 16,
+            textAlign: 'center',
+            fontSize: 12,
+            opacity: 0.7
+          }}>No move predictions available.</div>
         )}
         {moves.map((move, index) => (
           <div 
             key={`${move.move}-${index}`}
             className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
-            onClick={() => onMoveClick && onMoveClick(move.move, index)}
+            onClick={() => { if (!gameEnded && move.status !== 'disabled' && onMoveClick) onMoveClick(move.move, index); }}
             onMouseEnter={() => onMoveHover && onMoveHover(move.move, index)}
             onMouseLeave={() => onMoveHoverEnd && onMoveHoverEnd()}
             role={onMoveClick ? "button" : undefined}
             tabIndex={onMoveClick ? 0 : undefined}
             onKeyDown={(e) => { 
-              if (onMoveClick && (e.key === 'Enter' || e.key === ' ')) {
+              if (!gameEnded && move.status !== 'disabled' && onMoveClick && (e.key === 'Enter' || e.key === ' ')) {
                 onMoveClick(move.move, index);
                 e.preventDefault();
               }

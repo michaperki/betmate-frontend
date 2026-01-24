@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { authTokenName } from 'utils';
+import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import MockHeader from './MockHeader';
 
 const NewSettings: React.FC = () => {
@@ -10,15 +11,8 @@ const NewSettings: React.FC = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const history = useHistory();
   const location = useLocation();
-  useEffect(() => {
-    try {
-      const hasToken = (typeof window !== 'undefined') && !!window.localStorage.getItem(authTokenName);
-      if (!isAuthenticated && !hasToken) {
-        const from = encodeURIComponent(location.pathname + (location.search || ''));
-        history.replace(`/new-onboarding?from=${from}`);
-      }
-    } catch {}
-  }, [isAuthenticated, history, location.pathname, location.search]);
+  useRequireAuthForNew();
+  const STORAGE_KEY = 'betmate.newSettings';
   const [settings, setSettings] = useState({
     username: 'abc124',
     email: 'alex@example.com',
@@ -55,6 +49,24 @@ const NewSettings: React.FC = () => {
     loginAlerts: true,
   });
 
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') setSettings((p) => ({ ...p, ...parsed }));
+      }
+    } catch {}
+  }, []);
+
+  // Persist to localStorage when settings change
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    } catch {}
+  }, [settings]);
+
   const updateSetting = (key: string, value: any) => setSettings((p) => ({ ...p, [key]: value }));
 
   const sections = [
@@ -78,7 +90,8 @@ const NewSettings: React.FC = () => {
 
       <main style={{ display: 'grid', gridTemplateColumns: '280px 1fr', maxWidth: 1200, margin: '0 auto', padding: '32px 40px', gap: 32 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Settings</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px' }}>Settings</h1>
+          <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 16 }}>Saved locally • Server sync coming soon</div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {sections.map(s => (
               <button key={s.id} onClick={() => setActiveSection(s.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: activeSection === s.id ? 'rgba(34,197,94,0.1)' : 'transparent', border: activeSection === s.id ? '1px solid rgba(34,197,94,0.2)' : '1px solid transparent', borderRadius: 10, color: activeSection === s.id ? '#22c55e' : 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 14, fontWeight: 500, fontFamily: 'inherit', textAlign: 'left' }}>

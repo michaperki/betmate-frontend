@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useMemo, useState } from 'react';
+import { connect, useSelector } from 'react-redux';
 import {
   BrowserRouter as Router, Route, Switch,
 } from 'react-router-dom';
@@ -40,6 +40,7 @@ import NewMyBets from '../experimental/NewMyBets';
 import NewSettings from '../experimental/NewSettings';
 import NewOnboarding from '../experimental/NewOnboarding';
 import MockLogin from '../experimental/MockLogin';
+import { RootState } from 'types/state';
 
 const Welcome = () => {
   return (
@@ -61,6 +62,12 @@ interface AppProps {
 }
 
 const App: React.FC<AppProps> = (props) => {
+  const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const [hydrationTimedOut, setHydrationTimedOut] = useState(false);
+  const hasToken = useMemo(() => {
+    try { return !!localStorage.getItem(authTokenName); } catch { return false; }
+  }, []);
+
   useEffect(() => {
     return () => { props.closeSocket(); };
   }, []);
@@ -70,6 +77,17 @@ const App: React.FC<AppProps> = (props) => {
     if (token) props.jwtSignIn();
   }, []);
 
+  // Suppress guest header flicker while jwtSignIn hydrates
+  useEffect(() => {
+    if (hasToken && !isAuthenticated) {
+      const t = window.setTimeout(() => setHydrationTimedOut(true), 1500);
+      return () => window.clearTimeout(t);
+    }
+    setHydrationTimedOut(false);
+  }, [hasToken, isAuthenticated]);
+
+  const delayingForAuth = hasToken && !isAuthenticated && !hydrationTimedOut;
+
   return (
     <ThemeProvider>
       <ModeProvider>
@@ -77,6 +95,9 @@ const App: React.FC<AppProps> = (props) => {
           <div>
             {/* Global, non-invasive onboarding tour overlay */}
             <OnboardingTour />
+            {delayingForAuth ? (
+              <div aria-busy style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)' }} />
+            ) : (
             <Switch>
             {/* Experimental new dashboard mockup — full-bleed standalone page */}
             <Route exact path="/new-dashboard" component={NewDashboard} />
@@ -156,6 +177,7 @@ const App: React.FC<AppProps> = (props) => {
             )} />
             <Route component={FallBack} />
           </Switch>
+            )}
           </div>
         </Router>
       </ModeProvider>

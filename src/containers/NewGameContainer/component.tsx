@@ -283,10 +283,10 @@ const NewGameContainer: React.FC = () => {
         const atMove = Array.isArray(game?.move_hist) ? game!.move_hist.length : undefined;
         const response = await getTopMoves(currentFen, 12, { gameId: targetGameId || id, atMove });
         const arr = Array.isArray(response?.data) ? response.data : [];
-        // Sensible limitation: top 6 by percentile (>=70), fallback to top 6 by score
+        // Slightly loosened filter: percentile >= 60, up to 8 moves; fallback to top 8 by score
         const sorted = arr.slice().sort((a: any, b: any) => (Number(b.percentile || b.score || 0)) - (Number(a.percentile || a.score || 0)));
-        const filtered = sorted.filter((it: any) => Number(it.percentile || 0) >= 70).slice(0, 6);
-        const chosen = (filtered.length > 0 ? filtered : sorted.slice(0, 6));
+        const filtered = sorted.filter((it: any) => Number(it.percentile || 0) >= 60).slice(0, 8);
+        const chosen = (filtered.length > 0 ? filtered : sorted.slice(0, 8));
         const topMoves = chosen.map((item: any) => ({ move: String(item.move), score: Number(item.percentile ?? item.score ?? 0) }));
         const moveNames = topMoves.map((m: any) => m.move);
         const oddsMap = (typeof limits?.arcadeMoveMargin === 'number')
@@ -539,7 +539,7 @@ const NewGameContainer: React.FC = () => {
       <main style={{ padding: '32px 40px', maxWidth: '1400px', margin: '0 auto' }}>
         <div className={`new-game-container new-game-container--${gameState}`}>
           {errorBanner && (
-            <div className="new-game-container__error">
+            <div className="new-game-container__error" role="alert">
               {errorBanner}
             </div>
           )}
@@ -603,11 +603,13 @@ const NewGameContainer: React.FC = () => {
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 8 }}>Position Eval</div>
             {(() => {
-              let pWhite = Number((game as any)?.odds?.white_win ?? 0.33);
-              let pDraw  = Number((game as any)?.odds?.draw ?? 0.34);
-              let pBlack = Number((game as any)?.odds?.black_win ?? 0.33);
-              const sum = pWhite + pDraw + pBlack;
-              if (sum > 0) { pWhite /= sum; pDraw /= sum; pBlack /= sum; }
+              const clamp01 = (v: number) => Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
+              let pWhite = clamp01(Number((game as any)?.odds?.white_win ?? 0));
+              let pDraw  = clamp01(Number((game as any)?.odds?.draw ?? 0));
+              let pBlack = clamp01(Number((game as any)?.odds?.black_win ?? 0));
+              let sum = pWhite + pDraw + pBlack;
+              if (!(sum > 0)) { pWhite = 0.33; pDraw = 0.34; pBlack = 0.33; sum = 1; }
+              else { pWhite /= sum; pDraw /= sum; pBlack /= sum; }
               if (gameState === 'ended') {
                 const w = (viewModel?.winner || '').toLowerCase();
                 pWhite = w === 'white' ? 1 : 0;
@@ -638,6 +640,7 @@ const NewGameContainer: React.FC = () => {
               disabled={!isAuthenticated || gameState !== 'live'}
               odds={game?.odds as any}
               onPlace={(o, s) => handleOutcomeBet(o, s)}
+              disabledReason={!isAuthenticated ? 'Sign in to bet' : (gameState !== 'live' ? 'Betting disabled — game not live' : undefined)}
             />
           </div>
           {/* Receipts last */}

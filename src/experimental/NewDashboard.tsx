@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { useNewDashboardData } from './hooks/useNewDashboardData';
 import { authTokenName } from 'utils';
+import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import MockHeader from './MockHeader';
 import { useNewMyBetsData } from './hooks/useNewMyBetsData';
 
@@ -13,22 +14,26 @@ import { useNewMyBetsData } from './hooks/useNewMyBetsData';
 
 const NewDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'featured' | 'active' | 'history'>('featured');
+  const [showSkeletons, setShowSkeletons] = useState(true);
+  const [drawerMatch, setDrawerMatch] = useState<ReturnType<typeof useNewDashboardData>['liveMatches'][number] | null>(null);
   const history = useHistory();
   const location = useLocation();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const data = useNewDashboardData();
   const bets = useNewMyBetsData();
 
-  // Redirect guests to mock onboarding when visiting the new dashboard
+  // DRY guest redirect for new pages
+  useRequireAuthForNew();
+
+  // Turn off skeletons when data arrives or after a short delay
   useEffect(() => {
-    try {
-      const hasToken = (typeof window !== 'undefined') && !!window.localStorage.getItem(authTokenName);
-      if (!isAuthenticated && !hasToken) {
-        const from = encodeURIComponent(location.pathname + (location.search || ''));
-        history.replace(`/new-onboarding?from=${from}`);
-      }
-    } catch {}
-  }, [isAuthenticated, history, location.pathname, location.search]);
+    if ((data.liveMatches && data.liveMatches.length) || (data.leaderboardTop5 && data.leaderboardTop5.length) || (data.recentBets && data.recentBets.length)) {
+      setShowSkeletons(false);
+      return;
+    }
+    const t = window.setTimeout(() => setShowSkeletons(false), 1200);
+    return () => window.clearTimeout(t);
+  }, [data.liveMatches?.length, data.leaderboardTop5?.length, data.recentBets?.length]);
 
   // Fallback samples to preserve mock fidelity before data arrives
   const sampleRecent = useMemo(() => ([
@@ -350,7 +355,70 @@ const NewDashboard: React.FC = () => {
             {/* Main Content: switch by tab */}
             {activeTab === 'featured' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {(data.liveMatches?.length ? data.liveMatches : sampleMatches).map((match) => (
+                {/* Skeletons when loading */}
+                {showSkeletons && (
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} aria-busy style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 16,
+                        padding: 24,
+                        overflow: 'hidden',
+                        position: 'relative'
+                      }}>
+                        <div style={{ height: 12, width: 120, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 16 }} />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 24, alignItems: 'center' }}>
+                          <div>
+                            <div style={{ height: 44, width: 44, background: 'rgba(255,255,255,0.08)', borderRadius: 10, marginBottom: 8 }} />
+                            <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
+                            <div style={{ height: 10, width: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                          </div>
+                          <div style={{ height: 36, width: 160, background: 'rgba(255,255,255,0.06)', borderRadius: 10 }} />
+                          <div>
+                            <div style={{ height: 44, width: 44, background: 'rgba(255,255,255,0.08)', borderRadius: 10, marginBottom: 8, marginLeft: 'auto' }} />
+                            <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6, marginLeft: 'auto' }} />
+                            <div style={{ height: 10, width: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 5, marginLeft: 'auto' }} />
+                          </div>
+                        </div>
+                        <div style={{ height: 32, marginTop: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 10 }} />
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)',
+                          animation: 'shimmer 1.8s infinite'
+                        }} />
+                      </div>
+                    ))}
+                  </>
+                )}
+                {/* Empty state when no live matches */}
+                {!showSkeletons && (!data.liveMatches || data.liveMatches.length === 0) && (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 20,
+                    padding: '40px 28px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♟️</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Live Games Right Now</div>
+                    <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>There are no games available at the moment. Check back soon.</div>
+                    <button style={{
+                      padding: '10px 16px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 10,
+                      color: '#fff',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      fontFamily: 'inherit',
+                      cursor: 'pointer'
+                    }}>🔔 Notify Me</button>
+                  </div>
+                )}
+                {/* Live matches */}
+                {!showSkeletons && (data.liveMatches?.length ? data.liveMatches : sampleMatches).map((match) => (
                 <div 
                   key={match.id}
                   style={{
@@ -364,6 +432,10 @@ const NewDashboard: React.FC = () => {
                     transition: 'all 0.2s ease',
                     position: 'relative'
                   }}
+                  onClick={() => setDrawerMatch(match)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDrawerMatch(match); } }}
                 >
                   {/* Live pill and metadata */}
                   <div style={{
@@ -477,7 +549,7 @@ const NewDashboard: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button
-                        onClick={() => history.push(`/new-game/${match.id}`)}
+                        onClick={(e) => { e.stopPropagation(); history.push(`/new-game/${match.id}`); }}
                         style={{
                          background: 'rgba(255,255,255,0.05)',
                          border: '1px solid rgba(255,255,255,0.1)',
@@ -491,7 +563,7 @@ const NewDashboard: React.FC = () => {
                         }}
                       >View Game</button>
                       <button
-                        onClick={() => history.push(`/new-game/${match.id}`)}
+                        onClick={(e) => { e.stopPropagation(); history.push(`/new-game/${match.id}`); }}
                         style={{
                         background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                         border: 'none',
@@ -582,8 +654,22 @@ const NewDashboard: React.FC = () => {
                 <a onClick={() => history.push('/new-my-bets')} style={{ fontSize: '12px', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}>View all</a>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {(data.recentBets?.length ? data.recentBets : sampleRecent).map((bet, i) => (
+              <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {showSkeletons && (
+                  <>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} aria-busy style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', position: 'relative', overflow: 'hidden' }}>
+                        <div>
+                          <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
+                          <div style={{ height: 10, width: 120, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                        </div>
+                        <div style={{ height: 14, width: 60, background: 'rgba(255,255,255,0.06)', borderRadius: 7 }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+                      </div>
+                    ))}
+                  </>
+                )}
+                {!showSkeletons && (data.recentBets?.length ? data.recentBets : sampleRecent).map((bet, i) => (
                   <div key={i} style={{
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -643,8 +729,24 @@ const NewDashboard: React.FC = () => {
                 }}>This Week</div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {(data.leaderboardTop5?.length ? data.leaderboardTop5 : sampleLeaders).map((user, i) => (
+              <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {showSkeletons && (
+                  <>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} aria-busy style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ width: 24, height: 12, background: 'rgba(255,255,255,0.06)', borderRadius: 6 }} />
+                        <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.08)', borderRadius: 8 }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ height: 12, width: '60%', background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
+                          <div style={{ height: 10, width: 100, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                        </div>
+                        <div style={{ height: 14, width: 80, background: 'rgba(255,255,255,0.06)', borderRadius: 7 }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+                      </div>
+                    ))}
+                  </>
+                )}
+                {!showSkeletons && (data.leaderboardTop5?.length ? data.leaderboardTop5 : sampleLeaders).map((user, i) => (
                   <div key={i} style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -739,11 +841,54 @@ const NewDashboard: React.FC = () => {
         </div>
       </main>
 
+      {/* Match Details Drawer */}
+      {drawerMatch && (
+        <div role="dialog" aria-modal="true" aria-labelledby="match-details-title" style={{ position: 'fixed', inset: 0, zIndex: 2000 }}>
+          <div onClick={() => setDrawerMatch(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} />
+          <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 'min(420px, 92vw)', background: 'linear-gradient(180deg, #1a1a24 0%, #12121a 100%)', borderLeft: '1px solid rgba(255,255,255,0.08)', boxShadow: '-10px 0 30px rgba(0,0,0,0.4)', padding: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div id="match-details-title" style={{ fontSize: 16, fontWeight: 700 }}>Match Details</div>
+              <button onClick={() => setDrawerMatch(null)} aria-label="Close" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', width: 28, height: 28, borderRadius: 8, color: '#e8e8e8', cursor: 'pointer' }}>×</button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 16, padding: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{drawerMatch.white.name}</div>
+                <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.white.rating}</div>
+              </div>
+              <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 700 }}>VS</div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{drawerMatch.black.name}</div>
+                <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.black.rating}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12 }}>
+                <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4 }}>Time</div>
+                <div style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>{drawerMatch.timeWhite} • {drawerMatch.timeBlack}</div>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12 }}>
+                <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4 }}>Viewers</div>
+                <div style={{ fontWeight: 700 }}>{drawerMatch.viewers.toLocaleString()}</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 12, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 12 }}>
+              <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 6 }}>Summary</div>
+              <div style={{ fontSize: 13, opacity: 0.8 }}>Move {drawerMatch.move} • {drawerMatch.phase} • {drawerMatch.format}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button onClick={() => { setDrawerMatch(null); history.push(`/new-game/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
+              <button onClick={() => setDrawerMatch(null)} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', cursor: 'pointer' }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
         }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
       `}</style>
     </div>
   );

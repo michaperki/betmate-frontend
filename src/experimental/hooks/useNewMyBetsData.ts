@@ -34,6 +34,7 @@ export function useNewMyBetsData() {
       const phase = move < 12 ? 'Opening' : (move < 30 ? 'Midgame' : 'Endgame');
       return {
         id: w._id,
+        gameId: String(w.game_id),
         match: g ? { white: g.player_white?.name, black: g.player_black?.name, whiteRating: g.player_white?.elo, blackRating: g.player_black?.elo } : { white: '', black: '', whiteRating: 0, blackRating: 0 },
         betType,
         category,
@@ -63,6 +64,7 @@ export function useNewMyBetsData() {
       if (w.status === WagerStatus.LOST) profit = -stake;
       return {
         id: w._id,
+        gameId: String(w.game_id),
         match: matchName,
         betType,
         odds,
@@ -88,4 +90,3 @@ export function useNewMyBetsData() {
 }
 
 export type UseNewMyBetsData = ReturnType<typeof useNewMyBetsData>;
-

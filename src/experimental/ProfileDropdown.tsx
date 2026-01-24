@@ -4,6 +4,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { RootState } from 'types/state';
 import { useMode } from 'context/ModeContext';
 import { signOutUser } from 'store/actionCreators/authActionCreators';
+import MockDepositModal from './MockDepositModal';
+import MockWithdrawModal from './MockWithdrawModal';
 
 const ProfileDropdown: React.FC = () => {
   const dispatch = useDispatch();
@@ -16,14 +18,23 @@ const ProfileDropdown: React.FC = () => {
   const avatar = (user?.first_name?.[0] || user?.full_name?.[0] || 'A').toUpperCase();
 
   const [open, setOpen] = useState(false);
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
     document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   if (!isAuthenticated) return null;
@@ -82,10 +93,19 @@ const ProfileDropdown: React.FC = () => {
 
           {/* Actions */}
           <div style={{ padding: 8 }}>
-            <a onClick={() => go('/new-my-bets')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
-            <a onClick={() => go('/new-settings')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
-            <a onClick={() => go('/new-stats')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
-            <a onClick={() => go('/wallet')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#22c55e', textDecoration: 'none', cursor: 'pointer', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>💰 <span style={{ fontSize: 14, fontWeight: 600 }}>Deposit</span></a>
+            <a role="menuitem" onClick={() => go('/new-my-bets')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
+            <a role="menuitem" onClick={() => go('/new-settings')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
+            <a role="menuitem" onClick={() => go('/new-stats')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
+            <a
+              role="menuitem"
+              onClick={() => { setOpen(false); setShowDeposit(true); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#22c55e', textDecoration: 'none', cursor: 'pointer', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}
+            >💰 <span style={{ fontSize: 14, fontWeight: 600 }}>Deposit</span></a>
+            <a
+              role="menuitem"
+              onClick={() => { setOpen(false); setShowWithdraw(true); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#f87171', textDecoration: 'none', cursor: 'pointer', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', marginTop: 6 }}
+            >🏧 <span style={{ fontSize: 14, fontWeight: 600 }}>Withdraw</span></a>
           </div>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
@@ -100,9 +120,14 @@ const ProfileDropdown: React.FC = () => {
           </div>
         </div>
       )}
+      {showDeposit && (
+        <MockDepositModal isOpen={showDeposit} onClose={() => setShowDeposit(false)} />
+      )}
+      {showWithdraw && (
+        <MockWithdrawModal isOpen={showWithdraw} onClose={() => setShowWithdraw(false)} />
+      )}
     </div>
   );
 };
 
 export default ProfileDropdown;
-

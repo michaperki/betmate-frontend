@@ -9,6 +9,7 @@ import { getLeaderboardHead } from 'store/actionCreators/leaderboardActionCreato
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
 import { Game } from 'types/resources/game';
 import { useMode } from 'context/ModeContext';
+import { fetchGameStats } from 'store/actionCreators/gameActionCreators';
 
 type LiveMatchCard = {
   id: string;
@@ -63,6 +64,15 @@ export function useNewDashboardData() {
     try { dispatch(fetchGamesByStatus(['not_started', 'in_progress'])); } catch {}
     try { dispatch(getLeaderboardHead()); } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
+
+  // Periodically refresh live/in-progress games to keep list fresh
+  useEffect(() => {
+    const iv = window.setInterval(() => {
+      try { dispatch(fetchGamesByStatus(['not_started', 'in_progress'])); } catch {}
+      try { dispatch(getLeaderboardHead()); } catch {}
+    }, 15000);
+    return () => window.clearInterval(iv);
   }, [dispatch]);
 
   useEffect(() => {
@@ -167,6 +177,18 @@ export function useNewDashboardData() {
     items.sort((a, b) => (a.featured === b.featured) ? 0 : (a.featured ? -1 : 1));
     return items;
   }, [gamesMap, gameStats, featuredId, clocks]);
+
+  // Poll viewer counts for live matches (lightweight stats fetch)
+  useEffect(() => {
+    if (!liveMatches || liveMatches.length === 0) return;
+    const iv = window.setInterval(() => {
+      const ids = liveMatches.slice(0, 12).map(m => m.id); // cap to first 12
+      for (const id of ids) {
+        try { dispatch(fetchGameStats(id)); } catch {}
+      }
+    }, 8000);
+    return () => window.clearInterval(iv);
+  }, [dispatch, liveMatches.map(m => m.id).join(',')]);
 
   // Sync local clock state with store updates (initialize/reset)
   useEffect(() => {
