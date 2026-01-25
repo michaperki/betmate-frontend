@@ -106,9 +106,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             className={`notification-toast ${notification.type}`}
             role="status"
           >
-            {notification.icon && (
-              <div className="notification-icon" aria-hidden>{notification.icon}</div>
-            )}
+            {(() => {
+              const fallbackIcon = notification.type === 'success' ? '✓'
+                : notification.type === 'error' ? '⚠️'
+                : notification.type === 'win' ? '🎉'
+                : notification.type === 'loss' ? '😔'
+                : 'ℹ️';
+              const icon = notification.icon ?? fallbackIcon;
+              return <div className="notification-icon" aria-hidden>{icon}</div>;
+            })()}
             <div className="notification-content">
               <strong>{notification.title}</strong>
               {notification.message && <p>{notification.message}</p>}
@@ -116,6 +122,22 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             {notification.actionLabel && (
               <button className="notification-action" onClick={notification.onAction}>{notification.actionLabel}</button>
             )}
+            <button
+              className="notification-close"
+              aria-label="Dismiss notification"
+              onClick={() => removeNotification(notification.id)}
+            >
+              ×
+            </button>
+            <div
+              className="notification-progress"
+              style={{
+                animationDuration: `${notification.duration || 4000}ms`,
+                background: notification.type === 'success' || notification.type === 'win' ? '#22c55e'
+                  : notification.type === 'error' || notification.type === 'loss' ? '#ef4444'
+                  : '#818cf8'
+              }}
+            />
           </div>
         ))}
       </div>

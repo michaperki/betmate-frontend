@@ -38,16 +38,16 @@ export const getDepositQuote = async (amount: number, payCurrency: string) => (
   }) as unknown as RequestReturnType<any>
 );
 
-export const faucetCredit = async (amount: number) => (
-  createBackendAxiosRequest<{ ok: boolean; credited: number }>({
+export const faucetCredit = async (amount: number, currency?: 'BET' | 'USDT' | 'both') => (
+  createBackendAxiosRequest<{ ok: boolean; credited: number; tokens?: number }>({
     method: 'POST',
     url: '/billing/faucet',
-    data: { amount },
+    data: { amount, ...(currency ? { currency } : {}) },
     headers: {
       ...getBearerTokenHeader(),
       ...(FAUCET_ADMIN_KEY ? { 'X-Admin-Key': FAUCET_ADMIN_KEY } : {}),
     },
-  }) as unknown as RequestReturnType<{ ok: boolean; credited: number }>
+  }) as unknown as RequestReturnType<{ ok: boolean; credited: number; tokens?: number }>
 );
 
 export const listWithdrawals = async () => (

@@ -10,6 +10,7 @@ import Chessboard from 'components/Chessboard';
 import Header from 'components/Header';
 import PlayerHeader from 'components/PlayerHeader';
 import MovePredictions from 'components/MovePredictions';
+import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { MoveOption } from 'components/MovePredictions/component';
 import BettingPanel from 'components/BettingPanel';
 import DrawOutcomeCard from 'components/DrawOutcomeCard';
@@ -43,7 +44,10 @@ const GameContainer: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const { mode, limits } = useMode();
-  
+  const { screenWidth } = useResponsiveLayout();
+  const isCompact = screenWidth <= 900;
+  const ultraCompact = screenWidth <= 400;
+
   // Game state
   const [gameState, setGameState] = useState<'live' | 'ending' | 'ended'>('live');
   const [showSummary, setShowSummary] = useState(false);
@@ -530,7 +534,7 @@ const GameContainer: React.FC = () => {
   };
 
   return (
-    <div className="new-game-page">
+    <div className={`new-game-page mode-${mode}`}>
       <div style={{ position: 'fixed', top: '10%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
       <div style={{ position: 'fixed', bottom: '20%', right: '10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
 
@@ -554,6 +558,8 @@ const GameContainer: React.FC = () => {
             onMoveClick={isAuthenticated ? handleMoveBet : undefined}
             onMoveHover={handleMoveHover}
             onMoveHoverEnd={handleMoveHoverEnd}
+            compact={isCompact}
+            ultraCompact={ultraCompact}
           />
         </div>
         
@@ -600,8 +606,8 @@ const GameContainer: React.FC = () => {
         {/* Right column - Betting panel */}
         <div className="new-game-container__betting" data-tour-id="receipts">
           {/* Position Eval first */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 8 }}>Position Eval</div>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-secondary)', marginBottom: 8 }}>Position Eval</div>
             {(() => {
               const clamp01 = (v: number) => Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
               let pWhite = clamp01(Number((game as any)?.odds?.white_win ?? 0));
@@ -621,12 +627,12 @@ const GameContainer: React.FC = () => {
               const blackPct = Math.round(pBlack * 100);
               return (
                 <>
-                  <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex', background: '#1a1a24', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div style={{ width: `${blackPct}%`, background: '#1a1a24' }} />
-                    <div style={{ width: `${drawPct}%`, background: '#6b7280' }} />
-                    <div style={{ width: `${whitePct}%`, background: '#e8e8e8' }} />
+                  <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)' }}>
+                    <div style={{ width: `${blackPct}%`, background: 'rgba(0,0,0,0.6)' }} />
+                    <div style={{ width: `${drawPct}%`, background: 'var(--warning)' }} />
+                    <div style={{ width: `${whitePct}%`, background: 'var(--text-primary)' }} />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, opacity: 0.6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
                     <span>Black {blackPct}%</span>
                     <span>White {whitePct}%</span>
                   </div>

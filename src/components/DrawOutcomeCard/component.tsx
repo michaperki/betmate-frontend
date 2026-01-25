@@ -39,9 +39,11 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
   const minStake = 1;
   const maxStake = mode === 'arcade' ? (limits?.arcadeMaxStakeWdl ?? undefined) : undefined;
   const maxHint = typeof maxStake === 'number' ? `${maxStake} ${currencySymbol(c)}` : (mode === 'real' ? undefined : undefined);
+  const accent = mode === 'arcade' ? 'var(--warning)' : 'var(--success)';
+  const selectedBg = mode === 'arcade' ? 'rgba(var(--warning-rgb),0.18)' : 'rgba(var(--success-rgb),0.18)';
 
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16 }}>
+    <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: 16 }}>
       <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>Game Outcome</span>
         <span style={{ opacity: 0.4, fontSize: 10, letterSpacing: '1px' }}>Click to select</span>
@@ -53,8 +55,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           onClick={() => setSelected('white_win')}
           disabled={disabled}
           style={{
-            background: selected === 'white_win' ? 'rgba(34,197,94,0.18)' : 'linear-gradient(135deg,#f5f5f5 0%, #d4d4d4 100%)',
-            border: selected === 'white_win' ? '2px solid #22c55e' : '1px solid rgba(255,255,255,0.16)',
+            background: selected === 'white_win' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'white_win' ? `2px solid ${accent}` : '1px solid var(--card-border)',
             borderRadius: 10,
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
@@ -64,8 +66,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#1a1a24', textAlign: 'center' }}>White Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#1a1a24', marginTop: 'auto' }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>White Wins</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto' }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
           </div>
         </button>
 
@@ -74,8 +76,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           onClick={() => setSelected('draw')}
           disabled={disabled}
           style={{
-            background: selected === 'draw' ? 'rgba(34,197,94,0.18)' : 'linear-gradient(135deg,#3b3b4f 0%, #2a2a3a 100%)',
-            border: selected === 'draw' ? '2px solid #22c55e' : '1px solid rgba(255,255,255,0.16)',
+            background: selected === 'draw' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'draw' ? `2px solid ${accent}` : '1px solid var(--card-border)',
             borderRadius: 10,
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
@@ -85,8 +87,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#e8e8e8', textAlign: 'center' }}>Draw</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#fbbf24', marginTop: 'auto' }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Draw</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
           </div>
         </button>
 
@@ -95,8 +97,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           onClick={() => setSelected('black_win')}
           disabled={disabled}
           style={{
-            background: selected === 'black_win' ? 'rgba(34,197,94,0.18)' : 'linear-gradient(135deg,#2a2a3a 0%, #1a1a24 100%)',
-            border: selected === 'black_win' ? '2px solid #22c55e' : '1px solid rgba(255,255,255,0.2)',
+            background: selected === 'black_win' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'black_win' ? `2px solid ${accent}` : '1px solid var(--card-border)',
             borderRadius: 10,
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
@@ -106,8 +108,8 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#e8e8e8', textAlign: 'center' }}>Black Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#22c55e', marginTop: 'auto' }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Black Wins</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
           </div>
         </button>
       </div>
@@ -116,7 +118,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
       <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {chips.map((c) => (
           <button key={c} onClick={() => setStake(c)} disabled={disabled} style={{
-            padding: '6px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: '#e8e8e8', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
+            padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
           }}>
             ${c}
           </button>
@@ -124,10 +126,10 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, opacity: 0.6 }}>$</span>
           <input type="number" min={1} step={1} value={stake} onChange={(e) => setStake(Math.max(1, Number(e.target.value) || 0))} disabled={disabled} style={{
-            width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', color: '#e8e8e8', fontFamily: 'inherit', fontSize: 12
+            width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: 12
           }} />
           <button onClick={() => selected && onPlace?.(selected, stake)} disabled={!canAct} style={{
-            padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? 'linear-gradient(135deg,#22c55e 0%, #16a34a 100%)' : 'rgba(34,197,94,0.15)', color: canAct ? '#000' : '#7f7f7f', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12
+            padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? (mode === 'arcade' ? 'linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%)' : 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)') : (mode === 'arcade' ? 'rgba(var(--warning-rgb),0.15)' : 'rgba(var(--success-rgb),0.15)'), color: canAct ? '#000' : 'var(--text-secondary)', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12
           }}>
             Place
           </button>
@@ -150,4 +152,3 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
 };
 
 export default DrawOutcomeCard;
-

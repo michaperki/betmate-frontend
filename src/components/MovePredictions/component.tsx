@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useMode } from 'context/ModeContext';
 import './style.scss';
 
 // Export interface so it can be imported elsewhere
@@ -17,6 +18,8 @@ interface MovePredictionsProps {
   onMoveHover?: (move: string, index: number) => void;
   onMoveHoverEnd?: () => void;
   loading?: boolean;
+  compact?: boolean;
+  ultraCompact?: boolean;
 }
 
 const MovePredictions: React.FC<MovePredictionsProps> = ({
@@ -26,7 +29,10 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
   onMoveHover,
   onMoveHoverEnd,
   loading = false,
+  compact = false,
+  ultraCompact = false,
 }) => {
+  const { mode } = useMode();
   // Long‑press (hold to confirm) — enabled for touch/pen pointers
   const [holdingIndex, setHoldingIndex] = useState<number | null>(null);
   const [holdProgress, setHoldProgress] = useState(0); // 0..1
@@ -75,7 +81,13 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
   return (
     <div className="move-predictions">
       <div className="move-predictions__header">Move Predictions</div>
-      <div className="move-predictions__list">
+      <div className="move-predictions__list" style={
+        compact ? (
+          ultraCompact
+            ? { display: 'grid', gridTemplateColumns: `repeat(${Math.max(1, Math.ceil(moves.length / 2))}, 1fr)`, gap: 8 }
+            : { display: 'grid', gridTemplateColumns: `repeat(${Math.max(1, moves.length)}, 1fr)`, gap: 8 }
+        ) : undefined
+      }>
         {loading && moves.length === 0 && (
           <>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -101,10 +113,18 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             opacity: 0.7
           }}>No move predictions available.</div>
         )}
-        {moves.map((move, index) => (
+        {moves.map((move, index) => {
+          const baseStatus = (move.status || 'idle');
+          // Use explicit RGBA to avoid any CSS var resolution issues
+          const baseTintStyle = (baseStatus === 'idle' && !gameEnded) ? {
+            background: mode === 'arcade' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(34, 197, 94, 0.12)',
+            border: mode === 'arcade' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(34, 197, 94, 0.25)'
+          } as React.CSSProperties : undefined;
+          return (
           <div 
             key={`${move.move}-${index}`}
             className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
+            style={compact ? { ...baseTintStyle, padding: 10 } : baseTintStyle}
             onClick={() => { if (!gameEnded && move.status !== 'disabled' && onMoveClick) onMoveClick(move.move, index); }}
             onPointerDown={(e) => onItemPointerDown(e, index, move.move)}
             onPointerUp={onItemPointerUp}
@@ -121,8 +141,8 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
               }
             }}
           >
-            <div className="move-predictions__move">{move.move}</div>
-            <div className="move-predictions__details">
+            <div className="move-predictions__move" style={compact ? { fontSize: 14 } : undefined}>{move.move}</div>
+            <div className="move-predictions__details" style={compact ? { fontSize: 11 } : undefined}>
               <span className="move-predictions__score">{move.score}</span>
               <span className="move-predictions__odds">x{move.odds.toFixed(2)}</span>
             </div>
@@ -132,7 +152,7 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             {(holdingIndex === index) && (
               <div className="move-predictions__hold" aria-hidden>
                 <div className="move-predictions__hold-ring" style={{
-                  background: `conic-gradient(#22c55e ${Math.round(holdProgress * 360)}deg, rgba(255,255,255,0.08) 0deg)`
+                  background: `conic-gradient(${mode === 'arcade' ? 'var(--warning)' : 'var(--success)'} ${Math.round(holdProgress * 360)}deg, rgba(255,255,255,0.08) 0deg)`
                 }} />
                 <div className="move-predictions__hold-inner" />
               </div>
@@ -141,7 +161,8 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
               <div className="move-predictions__message">{move.message}</div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

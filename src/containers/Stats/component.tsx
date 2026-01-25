@@ -56,40 +56,40 @@ const Stats: React.FC = () => {
 
   return (
     <>
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: 'inherit', color: 'var(--text-primary)', position: 'relative' }}>
       <Header active="Stats" />
 
       <main style={{ padding: '32px 40px', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 700, margin: '0 0 8px' }}>Statistics</h1>
-            <p style={{ fontSize: 14, opacity: 0.5, margin: 0 }}>Deep dive into your betting performance</p>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>Deep dive into your betting performance</p>
           </div>
-          <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 10 }}>
+          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', padding: 4, borderRadius: 10 }}>
             {(['7d','30d','90d','all'] as const).map(r => (
-              <button key={r} onClick={() => setTimeRange(r)} style={{ padding: '8px 16px', background: timeRange === r ? 'rgba(34,197,94,0.15)' : 'transparent', border: timeRange === r ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent', borderRadius: 8, color: timeRange === r ? '#22c55e' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>{r.toUpperCase()}</button>
+              <button key={r} onClick={() => setTimeRange(r)} style={{ padding: '8px 16px', background: timeRange === r ? 'rgba(var(--success-rgb),0.15)' : 'transparent', border: timeRange === r ? '1px solid rgba(var(--success-rgb),0.3)' : '1px solid transparent', borderRadius: 8, color: timeRange === r ? 'var(--success)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>{r.toUpperCase()}</button>
             ))}
           </div>
         </div>
 
         {/* Top Stats Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.04) 100%)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 16, padding: 24 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Total Profit</div>
             <div style={{ fontSize: 32, fontWeight: 700, color: '#22c55e', marginBottom: 8 }}>+${totalProfit.toLocaleString()}</div>
             <div style={{ fontSize: 12, color: '#22c55e' }}>↑ {Math.abs(profitThisWeek).toFixed(2)} this week</div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>ROI</div>
             <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>{roi}%</div>
             <div style={{ fontSize: 12, opacity: 0.5 }}>${totalWagered.toLocaleString()} wagered</div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Win Rate</div>
             <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>{winRate}%</div>
             <div style={{ fontSize: 12, opacity: 0.5 }}>{wonBets} won · {lostBets} lost</div>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Total Bets</div>
             <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>{totalBets}</div>
             <div style={{ fontSize: 12, opacity: 0.5 }}>Across all markets</div>
@@ -98,7 +98,7 @@ const Stats: React.FC = () => {
 
         {/* Placeholder sections (charts/tables) remain visual-only for now */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 24, minHeight: 220 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24, minHeight: 220 }}>
             <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Profit Over Time</div>
             {profitSeries.length === 0 ? (
               <div style={{ opacity: 0.6, fontSize: 12 }}>Insufficient data</div>
@@ -118,7 +118,7 @@ const Stats: React.FC = () => {
               </div>
             )}
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 24, minHeight: 220 }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24, minHeight: 220 }}>
             <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Bet Types</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
               <div style={{ fontSize: 12, opacity: 0.7 }}>Move vs WDL (by count)</div>
@@ -127,7 +127,7 @@ const Stats: React.FC = () => {
                 <div style={{ fontSize: 12 }}>Move</div>
                 <div style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700 }}>{betTypeBreakdown.movePct}%</div>
               </div>
-              <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${betTypeBreakdown.movePct}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#4ade80)' }} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -135,7 +135,7 @@ const Stats: React.FC = () => {
                 <div style={{ fontSize: 12 }}>WDL</div>
                 <div style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700 }}>{betTypeBreakdown.wdlPct}%</div>
               </div>
-              <div style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{ width: `${betTypeBreakdown.wdlPct}%`, height: '100%', background: 'linear-gradient(90deg,#60a5fa,#93c5fd)' }} />
               </div>
             </div>

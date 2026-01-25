@@ -68,9 +68,9 @@ const Dashboard: React.FC = () => {
     <div data-bm-dashboard
       style={{
       minHeight: '100vh',
-      background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)',
-      fontFamily: "'JetBrains Mono', 'SF Mono', monospace",
-      color: '#e8e8e8',
+      background: 'var(--bg-primary)',
+      fontFamily: 'inherit',
+      color: 'var(--text-primary)',
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -200,8 +200,8 @@ const Dashboard: React.FC = () => {
         }}>
           {/* Welcome Card */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(34, 197, 94, 0.04) 100%)',
-            border: '1px solid rgba(34, 197, 94, 0.2)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px',
             position: 'relative',
@@ -223,8 +223,8 @@ const Dashboard: React.FC = () => {
 
           {/* Balance Card */}
           <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px'
           }}>
@@ -251,14 +251,14 @@ const Dashboard: React.FC = () => {
               gap: '4px'
             }}>
               <span>{(data.netPL ?? 0) >= 0 ? '↑' : '↓'}</span>
-              <span style={{ opacity: 0.5, color: '#e8e8e8' }}>{data.netPLPeriodLabel || 'this week'}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>{data.netPLPeriodLabel || 'this week'}</span>
             </div>
           </div>
 
           {/* Win Rate Card */}
           <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px'
           }}>
@@ -288,8 +288,8 @@ const Dashboard: React.FC = () => {
 
           {/* Streak Card */}
           <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
             borderRadius: '16px',
             padding: '24px',
             position: 'relative',
@@ -322,7 +322,8 @@ const Dashboard: React.FC = () => {
               display: 'flex',
               gap: '8px',
               marginBottom: '20px',
-              background: 'rgba(255,255,255,0.03)',
+              background: 'var(--bg-tertiary)',
+              border: '1px solid var(--border-primary)',
               padding: '6px',
               borderRadius: '12px',
               width: 'fit-content'
@@ -336,9 +337,9 @@ const Dashboard: React.FC = () => {
                   key={tab.id as string}
                   onClick={() => setActiveTab(tab.id as any)}
                   style={{
-                    background: activeTab === (tab.id as any) ? 'rgba(34, 197, 94, 0.15)' : 'transparent',
-                    border: activeTab === (tab.id as any) ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent',
-                    color: activeTab === (tab.id as any) ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                    background: activeTab === (tab.id as any) ? 'rgba(var(--success-rgb), 0.15)' : 'transparent',
+                    border: activeTab === (tab.id as any) ? '1px solid rgba(var(--success-rgb), 0.3)' : '1px solid transparent',
+                    color: activeTab === (tab.id as any) ? 'var(--success)' : 'var(--text-secondary)',
                     padding: '10px 20px',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -354,8 +355,8 @@ const Dashboard: React.FC = () => {
                   {tab.label}
                   {tab.count && (
                     <span style={{
-                      background: activeTab === (tab.id as any) ? '#22c55e' : 'rgba(255,255,255,0.2)',
-                      color: activeTab === (tab.id as any) ? '#000' : '#fff',
+                      background: activeTab === (tab.id as any) ? 'var(--success)' : 'var(--bg-tertiary)',
+                      color: activeTab === (tab.id as any) ? '#000' : 'var(--text-secondary)',
                       fontSize: '10px',
                       padding: '2px 6px',
                       borderRadius: '4px',
@@ -517,7 +518,8 @@ const Dashboard: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '20px'
+                        fontSize: '20px',
+                        color: '#ffffff'
                       }}>♚</div>
                     </div>
                   </div>

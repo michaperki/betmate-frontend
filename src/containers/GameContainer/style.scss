@@ -1,8 +1,11 @@
+@import '../../styles/tokens.scss';
+
 .new-game-page {
   min-height: 100vh;
-  background: linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
-  font-family: "'JetBrains Mono', 'SF Mono', monospace";
-  color: #e8e8e8;
+  /* Follow theme variables so theme toggle reflects here */
+  background: var(--bg-primary);
+  font-family: $font-primary;
+  color: var(--text-primary);
   position: relative;
   overflow: hidden;
 }
@@ -136,8 +139,8 @@
   }
 }
 
-// Main wrapper for game page content
-.new-game-main {
+  // Main wrapper for game page content
+  .new-game-main {
   padding: 32px 40px;
   max-width: 1600px;
   margin: 0 auto;
@@ -156,10 +159,11 @@
     padding: 0;
     
     &__content {
+      /* On mobile, Move Predictions should come right after the board */
       grid-template-areas:
         "board"
-        "betting"
-        "predictions";
+        "predictions"
+        "betting";
     }
     
     &__board-wrapper {
