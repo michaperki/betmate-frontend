@@ -6,6 +6,10 @@ import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { useMode } from 'context/ModeContext';
 import { Wager, WagerStatus } from 'types/resources/wager';
 
+export function useStatsData() {
+  return useNewStatsData();
+}
+
 export function useNewStatsData() {
   const dispatch = useDispatch();
   const { mode } = useMode();

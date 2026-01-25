@@ -7,6 +7,10 @@ import { Wager, WagerStatus } from 'types/resources/wager';
 
 const outcomeMap: Record<string, string> = { white_win: 'White Win', black_win: 'Black Win', draw: 'Draw' };
 
+export function useMyBetsData() {
+  return useNewMyBetsData();
+}
+
 export function useNewMyBetsData() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
