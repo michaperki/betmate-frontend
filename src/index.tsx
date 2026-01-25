@@ -6,6 +6,9 @@ import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
 import App from 'components/app';
+// Developer tool: Agentation overlay (harmless in prod if not used)
+// If types are missing, see src/types/modules/agentation.d.ts
+import Agentation from 'agentation';
 
 import reducers from './store/reducers';
 import rootSaga from './store/sagas';
@@ -60,7 +63,10 @@ const container = document.getElementById('main');
 if (container) {
   createRoot(container).render(
     <Provider store={store}>
-      <App />
+      <>
+        <App />
+        <Agentation />
+      </>
     </Provider>,
   );
 }
