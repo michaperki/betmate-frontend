@@ -6,9 +6,16 @@ import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
 import App from 'components/app';
-// Developer tool: Agentation overlay (harmless in prod if not used)
-// If types are missing, see src/types/modules/agentation.d.ts
-import Agentation from 'agentation';
+// Developer tool: Agentation overlay (dev-only, safe in prod builds)
+// Loaded dynamically so production builds without devDependencies don't break
+let AgentationDev: React.ComponentType | null = null;
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+    const mod = require('agentation');
+    AgentationDev = mod.Agentation || null;
+  } catch {}
+}
 
 import reducers from './store/reducers';
 import rootSaga from './store/sagas';
@@ -65,7 +72,7 @@ if (container) {
     <Provider store={store}>
       <>
         <App />
-        <Agentation />
+        {AgentationDev ? <AgentationDev /> : null}
       </>
     </Provider>,
   );
