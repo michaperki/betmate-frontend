@@ -3,16 +3,17 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { authTokenName } from 'utils';
-import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
-import MockHeader from './MockHeader';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
+import Header from '../../components/Header';
 import BottomTabBar from 'components/BottomTabBar';
 
-const NewSettings: React.FC = () => {
+const Settings: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'account'|'preferences'|'notifications'|'responsible'|'security'|'wallet'>('account');
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const history = useHistory();
   const location = useLocation();
-  useRequireAuthForNew();
+  // Auth protection
+  useRequireAuth();
   const STORAGE_KEY = 'betmate.newSettings';
   const [settings, setSettings] = useState({
     username: 'abc124',
@@ -88,7 +89,7 @@ const NewSettings: React.FC = () => {
   return (
     <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
-      <MockHeader />
+      <Header />
 
       <main style={{ display: 'grid', gridTemplateColumns: '280px 1fr', maxWidth: 1200, margin: '0 auto', padding: '32px 40px', gap: 32 }}>
         <div>
@@ -203,4 +204,4 @@ const NewSettings: React.FC = () => {
   );
 };
 
-export default NewSettings;
+export default Settings;

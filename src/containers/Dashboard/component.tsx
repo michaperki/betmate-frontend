@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
-import { useNewDashboardData } from './hooks/useNewDashboardData';
+import { useDashboardData } from '../../hooks/useDashboardData';
 import { authTokenName } from 'utils';
-import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
 import Header from '../../components/Header';
 import BottomTabBar from 'components/BottomTabBar';
-import { useNewMyBetsData } from './hooks/useNewMyBetsData';
+import { useMyBetsData } from '../../hooks/useMyBetsData';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { formatAmountShort } from 'utils/currency';
 import EmptyState from 'components/EmptyState';
@@ -19,18 +19,19 @@ import EmptyState from 'components/EmptyState';
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'featured' | 'active' | 'history'>('featured');
   const [showSkeletons, setShowSkeletons] = useState(true);
-  const [drawerMatch, setDrawerMatch] = useState<ReturnType<typeof useNewDashboardData>['liveMatches'][number] | null>(null);
+  const [drawerMatch, setDrawerMatch] = useState<ReturnType<typeof useDashboardData>['liveMatches'][number] | null>(null);
   const history = useHistory();
   const location = useLocation();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
-  const data = useNewDashboardData();
-  const bets = useNewMyBetsData();
+  const data = useDashboardData();
+  const bets = useMyBetsData();
   const { screenWidth } = useResponsiveLayout();
   // Use same breakpoint as BottomTabBar (<= 860px) for compact/mobile layout
   const isCompact = screenWidth <= 860;
 
   // DRY guest redirect for new pages
-  useRequireAuthForNew();
+  // Auth protection
+  useRequireAuth();
 
   // Turn off skeletons when data arrives or after a short delay
   useEffect(() => {

@@ -3,21 +3,22 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { authTokenName } from 'utils';
-import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
-import { useNewMyBetsData } from './hooks/useNewMyBetsData';
-import MockHeader from './MockHeader';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
+import { useMyBetsData } from '../../hooks/useMyBetsData';
+import Header from '../../components/Header';
 import BottomTabBar from 'components/BottomTabBar';
 import EmptyState from 'components/EmptyState';
 
-const NewMyBets: React.FC = () => {
+const MyBets: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active'|'history'>('active');
   const [resultFilter, setResultFilter] = useState<'all'|'won'|'lost'|'cancelled'>('all');
   const [sortBy, setSortBy] = useState<'date-desc'|'date-asc'|'stake-desc'|'stake-asc'>('date-desc');
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const history = useHistory();
   const location = useLocation();
-  useRequireAuthForNew();
-  const data = useNewMyBetsData();
+  // Auth protection
+  useRequireAuth();
+  const data = useMyBetsData();
 
   const filteredHistory = useMemo(() => {
     let arr = data.betHistory || [];
@@ -45,7 +46,7 @@ const NewMyBets: React.FC = () => {
   return (
     <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
-      <MockHeader active="My Bets" />
+      <Header active="My Bets" />
 
       <main style={{ padding: '32px 40px', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
@@ -168,4 +169,4 @@ const NewMyBets: React.FC = () => {
   );
 };
 
-export default NewMyBets;
+export default MyBets;

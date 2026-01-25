@@ -3,18 +3,19 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { authTokenName } from 'utils';
-import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
-import { useNewStatsData } from './hooks/useNewStatsData';
-import MockHeader from './MockHeader';
+import { useRequireAuth } from '../../hooks/useRequireAuth';
+import { useStatsData } from '../../hooks/useStatsData';
+import Header from '../../components/Header';
 import BottomTabBar from 'components/BottomTabBar';
 
-const NewStats: React.FC = () => {
+const Stats: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d'|'30d'|'90d'|'all'>('30d');
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const history = useHistory();
   const location = useLocation();
-  useRequireAuthForNew();
-  const data = useNewStatsData();
+  // Auth protection
+  useRequireAuth();
+  const data = useStatsData();
 
   // Fallbacks to keep mock visuals stable
   const totalProfit = useMemo(() => (typeof data.totalProfit === 'number' ? data.totalProfit : 1247.8), [data.totalProfit]);
@@ -56,7 +57,7 @@ const NewStats: React.FC = () => {
   return (
     <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
-      <MockHeader active="Stats" />
+      <Header active="Stats" />
 
       <main style={{ padding: '32px 40px', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
@@ -147,4 +148,4 @@ const NewStats: React.FC = () => {
   );
 };
 
-export default NewStats;
+export default Stats;
