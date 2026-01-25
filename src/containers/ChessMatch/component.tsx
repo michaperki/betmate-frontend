@@ -20,6 +20,7 @@ import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreator
 import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCreators';
 import { fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
 import { shortWagerReason } from 'utils/wagerErrorText';
+import { currencySymbol, currencyShortName, modeCurrency } from 'utils/currency';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
 import { Chess } from 'chess.js';
 import { getTopMoves, type MoveAnalysis } from 'store/requests/analysisRequests';
@@ -1097,7 +1098,14 @@ const ChessMatch: React.FC = () => {
                             <span className={["rg-type-dot", type].join(' ')} aria-hidden />
                             <span className="rg-label" title={label}>{label}</span>
                           </div>
-                          <div className="rg-cell rg-col-stake" role="cell">${Math.max(0, w.amount).toFixed(0)}</div>
+                          <div className="rg-cell rg-col-stake" role="cell">
+                            {(() => {
+                              const curr = (w as any)?.currency || (w.mode === 'real' ? 'USDT' : 'BET');
+                              const sym = currencySymbol(curr);
+                              const amt = Math.max(0, Number(w.amount || 0));
+                              return sym === '$' ? `$${amt.toFixed(0)}` : `${amt.toFixed(0)} K`;
+                            })()}
+                          </div>
                           <div className="rg-cell rg-col-odds" role="cell">{oddsText}</div>
                           <div className="rg-cell rg-col-status" role="cell">{String(w.status || 'pending')}</div>
                         </div>
@@ -1121,7 +1129,7 @@ const ChessMatch: React.FC = () => {
           <div className="frame frame--bar" aria-label="info-bar">
             {(() => {
               const viewers = 128;
-              const modeLabel = mode === 'real' ? 'USDT' : 'KBITZ';
+              const modeLabel = mode === 'real' ? 'Cash' : 'K';
               const [showChat, setShowChat] = useState(false);
               const [showLeaders, setShowLeaders] = useState(false);
               const [showDev, setShowDev] = useState(false);
