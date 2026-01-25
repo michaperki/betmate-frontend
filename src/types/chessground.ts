@@ -24,22 +24,28 @@ export const CG_NEW_ARROWS = 'CG_NEW_ARROWS';
 export const CG_MOVE_HOVER = 'CG_MOVE_HOVER';
 export const CG_MOVE_UNHOVER = 'CG_MOVE_UNHOVER';
 
-export type CgNewMoveData = { newState: string, lastMove?: KeyPair };
-export type CgNewArrowsData = DrawShape[];
+export type CgMoveData = { newState: string, lastMove?: KeyPair };
+export type CgArrowsData = DrawShape[];
 export type CgMoveSelectData = FromTo;
 export type CgMoveHoverData = FromTo;
 
-export type CgNewMoveActions = Action<typeof CG_NEW_MOVE, CgNewMoveData>;
+export type CgMoveActions = Action<typeof CG_NEW_MOVE, CgMoveData>;
 export type CgEnterMovePanelActions = Action<typeof CG_ENTER_MOVE_PANEL>;
 export type CgLeaveMovePanelActions = Action<typeof CG_LEAVE_MOVE_PANEL>;
-export type CgNewArrowsActions = Action<typeof CG_NEW_ARROWS, CgNewArrowsData>;
+export type CgArrowsActions = Action<typeof CG_NEW_ARROWS, CgArrowsData>;
 export type CgMoveHoverActions = Action<typeof CG_MOVE_HOVER, CgMoveHoverData>;
 export type CgMoveUnhoverActions = Action<typeof CG_MOVE_UNHOVER>;
 
 export type CgActions =
-    CgNewMoveActions | CgEnterMovePanelActions | CgLeaveMovePanelActions |
-    CgNewArrowsActions | CgMoveHoverActions | CgMoveUnhoverActions;
+    CgMoveActions | CgEnterMovePanelActions | CgLeaveMovePanelActions |
+    CgArrowsActions | CgMoveHoverActions | CgMoveUnhoverActions;
 
 export type CgActionTypes =
     typeof CG_NEW_MOVE | typeof CG_ENTER_MOVE_PANEL | typeof CG_LEAVE_MOVE_PANEL |
     typeof CG_NEW_ARROWS | typeof CG_MOVE_HOVER | typeof CG_MOVE_UNHOVER;
+
+// Backwards-compat type aliases
+export type CgNewMoveData = CgMoveData;
+export type CgNewArrowsData = CgArrowsData;
+export type CgNewMoveActions = CgMoveActions;
+export type CgNewArrowsActions = CgArrowsActions;

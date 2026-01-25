@@ -42,15 +42,6 @@ export const ENABLE_DEV_FAUCET = (
 // Optional: include admin key header for staging faucet calls (avoid in prod)
 export const FAUCET_ADMIN_KEY = process.env.FAUCET_ADMIN_KEY || '';
 
-// New Game UI flag: enable via build flag or query param (?newUI=1)
-export function isNewGameUiEnabled(): boolean {
-  const buildFlag = String(process.env.ENABLE_NEW_GAME_UI || '').toLowerCase() === 'true';
-  try {
-    if (typeof window !== 'undefined' && window.location?.search) {
-      const sp = new URLSearchParams(window.location.search);
-      if (sp.get('oldUI') === '1') return false;
-      if (sp.get('newUI') === '1' || sp.get('newGame') === '1') return true;
-    }
-  } catch {}
-  return buildFlag;
-}
+// New Game UI flag was used during migration and is now deprecated.
+// Retained here as a no-op for compatibility; always returns true since new UI is canonical.
+export function isNewGameUiEnabled(): boolean { return true; }

@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNotifications } from 'components/NotificationCenter/context';
 import { createPortal } from 'react-dom';
 
-type MockDepositModalProps = {
+type DepositModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
 // Minimal mock deposit modal — visual only, no backend calls.
-const MockDepositModal: React.FC<MockDepositModalProps> = ({ isOpen, onClose }) => {
+const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<'amount' | 'processing' | 'success'>('amount');
   const [amount, setAmount] = useState<number>(50);
   const [custom, setCustom] = useState<string>('');
@@ -155,4 +155,4 @@ const MockDepositModal: React.FC<MockDepositModalProps> = ({ isOpen, onClose }) 
   );
 };
 
-export default MockDepositModal;
+export default DepositModal;

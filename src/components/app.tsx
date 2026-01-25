@@ -21,14 +21,14 @@ import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
-// Main application pages
-import Dashboard from '../experimental/NewDashboard';
-import GameContainer from '../containers/NewGameContainer';
-import Stats from '../experimental/NewStats';
-import MyBets from '../experimental/NewMyBets';
-import Settings from '../experimental/NewSettings';
-import Onboarding from '../experimental/NewOnboarding';
-import Login from '../experimental/MockLogin';
+// Main application pages (canonical containers)
+import Dashboard from '../containers/Dashboard';
+import GameContainer from '../containers/GameContainer';
+import Stats from '../containers/Stats';
+import MyBets from '../containers/MyBets';
+import Settings from '../containers/Settings';
+import Onboarding from '../containers/Onboarding';
+import Login from '../containers/Login';
 import { RootState } from 'types/state';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';

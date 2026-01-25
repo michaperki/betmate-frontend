@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const NewOnboarding: React.FC = () => {
+const Onboarding: React.FC = () => {
   const [step, setStep] = useState(0);
   const location = useLocation();
   const returnTo = useMemo(() => {
@@ -155,4 +155,4 @@ const NewOnboarding: React.FC = () => {
   );
 };
 
-export default NewOnboarding;
+export default Onboarding;

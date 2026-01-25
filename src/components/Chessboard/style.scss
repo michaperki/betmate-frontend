@@ -1,0 +1,131 @@
+/*
+ * Chessboard Component - styled to match the new UI design
+ * Wraps the existing ChessgroundWrapper with enhanced styling and game end overlay
+ */
+
+.chessboard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #2a2a3a 0%, #1e1e28 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition: all 0.5s ease;
+  
+  &__container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  
+  /* End game overlay */
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.4s ease;
+    z-index: 20; /* ensure overlay sits above chessground pieces across breakpoints */
+  }
+  
+  &__overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    text-align: center;
+  }
+  
+  &__overlay-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    opacity: 0.6;
+  }
+  
+  &__overlay-result {
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  &__overlay-piece {
+    font-size: 36px;
+  }
+  
+  &__overlay-type {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-top: -8px;
+  }
+  
+  &__overlay-actions {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+  }
+  
+  &__overlay-button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    
+    &--primary {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #22c55e;
+      
+      &:hover {
+        background: rgba(34, 197, 94, 0.25);
+      }
+    }
+    
+    &--secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      opacity: 0.8;
+      
+      &:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+}
+
+/* Game ended state */
+.game-ended .chessboard {
+  filter: brightness(0.6);
+}
+
+/* Override some chessground styles for the new design */
+.chessboard .cg-wrap {
+  cg-board {
+    background-size: cover;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  /* Custom piece drop shadow */
+  piece {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
