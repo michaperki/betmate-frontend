@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import BalanceIcon from 'assets/wager_panel/balance-icon.svg';
 
 import './style.scss';
+import { currencyShortName, currencySymbol } from 'utils/currency';
 
 export type BetMode = 'arcade' | 'real';
 
@@ -79,7 +80,10 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
     };
   }, [tokenBalance, cashBalance, balance, mode]);
 
-  const unit = mode === 'real' ? 'USDT' : 'KBITZ';
+  // For real mode, we'll use just the currency symbol
+  // For arcade mode, we'll use "K" as the unit
+  const unit = mode === 'real' ? '' : currencyShortName('BET');
+  const symbol = mode === 'real' ? currencySymbol('USDT') : '';
 
   return (
     <div
@@ -94,7 +98,7 @@ const CoinBalance: React.FC<CoinBalanceProps> = ({
     >
       <img src={BalanceIcon} alt="Balance" className="balance-icon" />
       <span className="balance-text">
-        {display} <span className={`tokens-text ${compact ? 'hidden' : ''}`}>{unit}</span>
+        {symbol}{display} <span className={`tokens-text ${compact ? 'hidden' : ''}`}>{unit}</span>
       </span>
       {label && <span className="mode-label">{label}</span>}
     </div>

@@ -19,7 +19,6 @@ export interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalance, cashBalance, role, compact = false, breadcrumb }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const { mode, toggleMode, realEnabled } = useMode();
   const [armed, setArmed] = useState(false);
@@ -42,42 +41,24 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
     toggleMode();
   };
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
   const isGameRoute = location.pathname.startsWith('/chess');
 
   return (
     <nav className={`navbar ${compact ? 'navbar--compact' : ''}`}>
       <div className="navbar__container">
-        <NavLink to="/" className="navbar__brand" onClick={() => setMenuOpen(false)}>
+        <NavLink to="/" className="navbar__brand">
           <img src={logo} alt="BetMate Logo" />
           <span>BetMate</span>
         </NavLink>
 
-        {/* Breadcrumb removed */}
-
-        {/* Mobile menu toggle */}
-        <button 
-          className={`navbar__toggle ${menuOpen ? 'open' : ''}`} 
-          onClick={toggleMenu}
-          aria-label="Toggle navigation menu"
-        >
-          <span className="bar"></span>
-          <span className="bar"></span>
-          <span className="bar"></span>
-        </button>
-
-          {/* Navigation menu */}
-          <div className={`navbar__menu ${menuOpen ? 'open' : ''}`}>
+        {/* Mobile-friendly navigation menu */}
+        <div className="navbar__menu">
           {isAuthenticated && (
             <NavLink
               to="/wallet"
               exact
               activeClassName="active"
               className="navbar__item"
-              onClick={() => setMenuOpen(false)}
             >
               Wallet
             </NavLink>
@@ -88,7 +69,6 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
               exact
               activeClassName="active"
               className="navbar__item"
-              onClick={() => setMenuOpen(false)}
             >
               Admin
             </NavLink>
@@ -99,7 +79,6 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
               exact
               activeClassName="active"
               className="navbar__item"
-              onClick={() => setMenuOpen(false)}
             >
               Home
             </NavLink>
@@ -111,14 +90,13 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
           <ThemeToggle />
 
           {isAuthenticated ? (
-            !isGameRoute ? <SignOutPanel /> : null
+            !isGameRoute ? <div className="navbar__sign-out"><SignOutPanel /></div> : null
           ) : (
-            <>
+            <div className="navbar__auth-links">
               <NavLink
                 to="/signin"
                 activeClassName="active"
                 className="navbar__item"
-                onClick={() => setMenuOpen(false)}
               >
                 Sign In
               </NavLink>
@@ -126,11 +104,10 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
                 to="/signup"
                 activeClassName="active"
                 className="navbar__item"
-                onClick={() => setMenuOpen(false)}
               >
                 Sign Up
               </NavLink>
-            </>
+            </div>
           )}
 
           {/* Unified account cluster: avatar (non-dashboard) + token balance */}
@@ -145,12 +122,12 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
                 tokenBalance={tokenBalance}
                 cashBalance={cashBalance}
                 mode={mode}
-                label={mode === 'arcade' ? 'KBITZ • Arcade' : 'USDT • Real'}
+                label={mode === 'arcade' ? 'K-BITS • Arcade' : 'Cash • Real'}
                 compact={compact}
                 armed={armed}
                 onClick={handleToggleClick}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}
-                title={!realEnabled ? 'Real mode coming soon' : (armed ? `Tap again to switch to ${mode === 'arcade' ? 'Real' : 'Arcade'}` : `Current mode: ${mode === 'arcade' ? 'Arcade (KBITZ)' : 'Real (USDT)'} • Tap twice to toggle`) }
+                title={!realEnabled ? 'Real mode coming soon' : (armed ? `Tap again to switch to ${mode === 'arcade' ? 'Real' : 'Arcade'}` : `Current mode: ${mode === 'arcade' ? 'Arcade (K‑BITS)' : 'Real (Cash)'} • Tap twice to toggle`) }
                 ariaLabel={`Current mode ${mode}. Tap twice to toggle`}
                 testId="mode-toggle"
               />
@@ -167,19 +144,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAuthenticated, firstName, tokenBalanc
               tabIndex={0}
               data-testid="mode-toggle"
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleToggleClick(); }}
-              title={`Current mode: ${mode === 'arcade' ? 'Arcade (KBITZ)' : 'Real (USDT)'} • Tap twice to toggle`}
+              title={`Current mode: ${mode === 'arcade' ? 'Arcade (K‑BITS)' : 'Real (Cash)'} • Tap twice to toggle`}
               aria-label={`Current mode ${mode}. Tap twice to toggle`}
             >
               <span className="mode-chip">{mode === 'arcade' ? 'Arcade' : 'Real'}</span>
             </div>
           )}
 
-          {/* Mobile menu-only version label (appears at bottom of flyout) */}
-          {menuOpen && (
-            <div className="navbar__version">
-              <VersionTag ariaLabelPrefix="Frontend build" />
-            </div>
-          )}
+          {/* Version label */}
+          <div className="navbar__version navbar__version--desktop">
+            <VersionTag ariaLabelPrefix="Frontend build" />
+          </div>
         </div>
       </div>
     </nav>

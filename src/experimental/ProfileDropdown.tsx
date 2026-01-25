@@ -6,6 +6,7 @@ import { useMode } from 'context/ModeContext';
 import { signOutUser } from 'store/actionCreators/authActionCreators';
 import MockDepositModal from './MockDepositModal';
 import MockWithdrawModal from './MockWithdrawModal';
+import { currencyShortName, formatAmountShort, modeCurrency } from 'utils/currency';
 
 const ProfileDropdown: React.FC = () => {
   const dispatch = useDispatch();
@@ -15,6 +16,7 @@ const ProfileDropdown: React.FC = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const user = useSelector((s: RootState) => s.auth.user);
   const cashBalance = Number(user?.cash_balance || 0);
+  const tokenBalance = Number(user?.token_balance || 0);
   const avatar = (user?.first_name?.[0] || user?.full_name?.[0] || 'A').toUpperCase();
 
   const [open, setOpen] = useState(false);
@@ -47,7 +49,7 @@ const ProfileDropdown: React.FC = () => {
   const signOut = () => {
     setOpen(false);
     try { dispatch(signOutUser()); } catch {}
-    history.push('/new-dashboard');
+    history.push('/');
   };
 
   return (
@@ -63,7 +65,8 @@ const ProfileDropdown: React.FC = () => {
           background: open ? 'linear-gradient(135deg,#16a34a 0%,#22c55e 100%)' : 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)',
           border: open ? '2px solid #4ade80' : '2px solid transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, fontWeight: 700, color: '#000', cursor: 'pointer'
+          fontSize: 14, fontWeight: 700, color: '#000', cursor: 'pointer',
+          boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.2)'
         }}
       >
         {avatar}
@@ -93,9 +96,9 @@ const ProfileDropdown: React.FC = () => {
 
           {/* Actions */}
           <div style={{ padding: 8 }}>
-            <a role="menuitem" onClick={() => go('/new-my-bets')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
-            <a role="menuitem" onClick={() => go('/new-settings')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
-            <a role="menuitem" onClick={() => go('/new-stats')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
+            <a role="menuitem" onClick={() => go('/bets')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
+            <a role="menuitem" onClick={() => go('/user')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
+            <a role="menuitem" onClick={() => go('/stats')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
             <a
               role="menuitem"
               onClick={() => { setOpen(false); setShowDeposit(true); }}
@@ -114,7 +117,13 @@ const ProfileDropdown: React.FC = () => {
           <div style={{ padding: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', fontSize: 12, opacity: 0.8 }}>
               <span>Balance</span>
-              <span style={{ color: '#22c55e', fontWeight: 600 }}>{cashBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {mode === 'real' ? 'USDT' : 'KBITZ'}</span>
+              {(() => {
+                const c = modeCurrency(mode);
+                const bal = mode === 'real' ? cashBalance : tokenBalance;
+                return (
+                  <span style={{ color: '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
+                );
+              })()}
             </div>
             <button onClick={signOut} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '10px 12px', border: 'none', borderRadius: 10, background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer' }}>🚪 <span style={{ fontSize: 14, fontWeight: 500 }}>Sign Out</span></button>
           </div>

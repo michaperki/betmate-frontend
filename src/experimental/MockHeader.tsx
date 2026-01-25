@@ -174,10 +174,7 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
           const c = modeCurrency(mode);
           const bal = mode === 'real' ? cashBalance : tokenBalance;
           return (
-            <>
-              <span style={{ color: '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
-              <span style={{ opacity: 0.7 }}>{currencyShortName(c)}</span>
-            </>
+            <span style={{ color: '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
           );
         })()}
       </div>
@@ -253,58 +250,68 @@ const MockHeader: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Sta
         </div>
       )}
 
-      {/* Right cluster on desktop; hamburger on mobile */}
-      {!isMobile ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {ThemeToggleBtn}
-          {AuthCluster}
-        </div>
-      ) : (
-        <button
-          aria-label="Toggle menu"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen(v => !v)}
-          style={{
-            width: 36,
-            height: 28,
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 6,
-            border: '1px solid rgba(255,255,255,0.2)',
-            background: 'rgba(255,255,255,0.06)',
-            color: '#e8e8e8',
-            cursor: 'pointer'
-          }}
-        >
-          {menuOpen ? '✕' : '☰'}
-        </button>
-      )}
+      {/* Right cluster on desktop; simplified on mobile */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12 }}>
+        {!isMobile && ThemeToggleBtn}
+        {isAuthenticated ? (
+          isMobile ? (
+            // On mobile, show balance and profile dropdown
+            <>
+              <div style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 8,
+                padding: '6px 10px',
+                fontSize: 12,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                {(() => {
+                  const c = modeCurrency(mode);
+                  const bal = mode === 'real' ? cashBalance : tokenBalance;
+                  return (
+                    <span style={{ color: '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
+                  );
+                })()}
+              </div>
+              <ProfileDropdown />
+            </>
+          ) : (
+            // On desktop, show the full auth cluster
+            AuthCluster
+          )
+        ) : (
+          // For non-authenticated users on mobile, show just the sign in button
+          isMobile ? (
+            <button
+              onClick={() => {
+                try {
+                  const from = encodeURIComponent(location.pathname + (location.search || ''));
+                  goTo(`/signin?from=${from}`);
+                } catch {
+                  goTo('/signin');
+                }
+              }}
+              aria-label="Sign in"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#e8e8e8',
+                padding: '8px 12px',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: 'inherit'
+              }}
+            >Sign In</button>
+          ) : (
+            // On desktop, show both buttons
+            AuthCluster
+          )
+        )}
+      </div>
 
-      {/* Mobile flyout menu */}
-      {isMobile && menuOpen && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            background: 'rgba(10, 10, 15, 0.98)',
-            borderBottom: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.35)',
-            padding: '12px 16px',
-            display: 'grid',
-            rowGap: 12,
-            zIndex: 200
-          }}
-        >
-          {NavLinks}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {ThemeToggleBtn}
-            {AuthCluster}
-          </div>
-        </div>
-      )}
 
       {showDeposit && (
         <MockDepositModal isOpen={showDeposit} onClose={() => setShowDeposit(false)} />
