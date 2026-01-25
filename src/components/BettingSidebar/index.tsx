@@ -253,7 +253,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
               onMouseEnter={handleMovePanelMouseEnter}
               onMouseLeave={handleMovePanelMouseLeave}
             >
-              Bet on which move will happen next. Win {mode === 'real' ? 'USDT' : 'KBITZ'} from the pool.
+              Bet on which move will happen next. Win {mode === 'real' ? 'Cash' : 'K'} from the pool.
             </div>
 
             <div
@@ -303,7 +303,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
             <div className="bet-explanation">
               {mode === 'real'
                 ? 'Real market prices (read-only preview).'
-                : 'Bet on the outcome of the game. Win KBITZ from the house.'}
+                : 'Bet on the outcome of the game. Win K from the house.'}
             </div>
 
             <div className="options-container">

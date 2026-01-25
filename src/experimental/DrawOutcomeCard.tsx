@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMode } from 'context/ModeContext';
 import { realWdlMultiplier } from 'utils/realOdds';
+import { currencyShortName, currencySymbol, modeCurrency } from 'utils/currency';
 
 type Outcome = 'white_win' | 'draw' | 'black_win';
 
@@ -34,10 +35,10 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
 
   const chips = [2, 5, 10, 25];
   const canAct = !disabled && !!selected && stake >= 1;
-  const currency = mode === 'real' ? 'USDT' : 'KBITZ';
+  const c = modeCurrency(mode);
   const minStake = 1;
   const maxStake = mode === 'arcade' ? (limits?.arcadeMaxStakeWdl ?? undefined) : undefined;
-  const maxHint = typeof maxStake === 'number' ? `${maxStake} ${currency}` : (mode === 'real' ? undefined : undefined);
+  const maxHint = typeof maxStake === 'number' ? `${maxStake} ${currencySymbol(c)}` : (mode === 'real' ? undefined : undefined);
 
   return (
     <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16 }}>
@@ -136,7 +137,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
       {/* Hints and disabled copy */}
       <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 11, opacity: 0.6 }}>
-          Min {minStake} {currency}{maxHint ? ` • Max ${maxHint}` : ''}
+          Min {minStake} {currencySymbol(c)}{maxHint ? ` • Max ${maxHint}` : ''}
         </div>
         {disabled && (
           <div style={{ fontSize: 11, color: '#fbbf24' }}>

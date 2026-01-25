@@ -4,6 +4,9 @@ import { call, take, put } from 'redux-saga/effects';
 
 import * as wagerRequests from 'store/requests/wagerRequests';
 import { getErrorPayload } from 'utils/error';
+import { emit as emitNotification } from 'components/NotificationCenter/bus';
+import { readableBet } from 'utils/wager';
+import { formatAmountShort, modeCurrency } from 'utils/currency';
 import { getBearerToken } from 'store/actionCreators';
 
 import { Actions, RequestReturnType } from 'types/state';
@@ -64,6 +67,15 @@ export function* watchCreateWager() {
       } catch {}
       yield put<Actions>({ type: 'CREATE_WAGER', payload: response.data, status: 'SUCCESS' });
 
+      // UI toast: Bet placed
+      try {
+        const w = response?.data as any;
+        const curr = (w?.currency as any) || modeCurrency((w?.mode as any) || 'arcade');
+        const readable = readableBet(!!w?.wdl, String(w?.data));
+        const amt = typeof w?.amount === 'number' ? formatAmountShort(w.amount, curr) : '';
+        emitNotification({ type: 'success', title: 'Bet Placed', message: `${amt} on ${readable} @ ${w?.odds}x`, icon: '✓' });
+      } catch {}
+
       // Refresh game stats after successful wager creation
       yield put<Actions>({
         type: 'FETCH_GAME_STATS',
@@ -99,7 +111,11 @@ export function* watchCreateWager() {
           (window as any).__bmLastWagerError = { ...err, at: Date.now(), context: (lastRequest as any)?.payload };
         }
       } catch {}
-      yield put<Actions>({ type: 'CREATE_WAGER', payload: getErrorPayload(error), status: 'FAILURE' });
+      const errPayload = getErrorPayload(error);
+      yield put<Actions>({ type: 'CREATE_WAGER', payload: errPayload, status: 'FAILURE' });
+      try {
+        emitNotification({ type: 'error', title: 'Bet Rejected', message: String((errPayload as any)?.message || 'Please try again'), icon: '⚠️' });
+      } catch {}
       // Roll back optimistic balance if the wager failed to create
       try {
         yield put({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });

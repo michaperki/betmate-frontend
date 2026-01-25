@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNotifications } from 'components/NotificationCenter/context';
 import { createPortal } from 'react-dom';
 
 type MockDepositModalProps = {
@@ -12,6 +13,7 @@ const MockDepositModal: React.FC<MockDepositModalProps> = ({ isOpen, onClose }) 
   const [amount, setAmount] = useState<number>(50);
   const [custom, setCustom] = useState<string>('');
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const { notifySuccess } = useNotifications();
 
   useEffect(() => {
     if (!isOpen) {
@@ -38,7 +40,10 @@ const MockDepositModal: React.FC<MockDepositModalProps> = ({ isOpen, onClose }) 
   const onDeposit = () => {
     if (amount < 10) return; // soft minimum
     setStep('processing');
-    setTimeout(() => setStep('success'), 1500);
+    setTimeout(() => {
+      setStep('success');
+      try { notifySuccess('Deposit Confirmed', `+$${Number(amount).toFixed(2)} added to your balance`); } catch {}
+    }, 1500);
   };
 
   return createPortal(

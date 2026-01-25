@@ -6,6 +6,8 @@ import { authTokenName } from 'utils';
 import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import { useNewMyBetsData } from './hooks/useNewMyBetsData';
 import MockHeader from './MockHeader';
+import BottomTabBar from 'components/BottomTabBar';
+import EmptyState from 'components/EmptyState';
 
 const NewMyBets: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active'|'history'>('active');
@@ -41,6 +43,7 @@ const NewMyBets: React.FC = () => {
   const quick = data.quick || { todayPL: 0, weekPL: 0, monthPL: 0, winRate: 0, avgOdds: 0, totalBets: 0, wonBets: 0, lostBets: 0 };
 
   return (
+    <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
       <MockHeader active="My Bets" />
 
@@ -124,7 +127,13 @@ const NewMyBets: React.FC = () => {
                 </div>
               ))}
               {activeBets.length === 0 && (
-                <div style={{ opacity: 0.7, fontSize: 13 }}>No active bets.</div>
+                <EmptyState
+                  icon={<span>🎯</span>}
+                  title="No Active Bets"
+                  description="You don't have any bets in play right now. Find a game and make your first prediction!"
+                  ctaLabel="Browse Live Games"
+                  onCtaClick={() => history.push('/chess/featured?newUI=1')}
+                />
               )}
             </div>
           </div>
@@ -132,7 +141,7 @@ const NewMyBets: React.FC = () => {
           <div className="scroll-panel scroll-panel--tall scroll-panel--tall-history">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {filteredHistory.map((h: any) => (
-                <div key={h.id} onClick={() => history.push(`/new-game/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                <div key={h.id} onClick={() => history.push(`/matches/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
                     <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
@@ -141,18 +150,21 @@ const NewMyBets: React.FC = () => {
                 </div>
               ))}
               {filteredHistory.length === 0 && (
-                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '40px 28px', textAlign: 'center' }}>
-                  <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'rgba(99,102,241,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📜</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Betting History</div>
-                  <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>Your completed bets will appear here.</div>
-                  <button onClick={() => history.push('/chess/featured?newUI=1')} style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#22c55e 0%, #16a34a 100%)', color: '#000', fontWeight: 800, cursor: 'pointer', fontSize: 12 }}>Start Betting</button>
-                </div>
+                <EmptyState
+                  icon={<span>📜</span>}
+                  title="No Betting History"
+                  description="Your completed bets will appear here."
+                  ctaLabel="Start Betting"
+                  onCtaClick={() => history.push('/chess/featured?newUI=1')}
+                />
               )}
             </div>
           </div>
         )}
       </main>
     </div>
+    <BottomTabBar />
+    </>
   );
 };
 

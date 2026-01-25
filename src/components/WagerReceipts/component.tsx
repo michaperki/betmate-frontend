@@ -111,7 +111,7 @@ const WagerReceipts: React.FC<WagerReceiptsProps> = ({
           {/* Link to future wager history page */}
           {hasMoreWagers && (
             <Link
-              to="/betting-history"
+              to="/bets"
               className="view-more-button"
               aria-label="View complete wager history"
             >

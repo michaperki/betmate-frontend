@@ -5,6 +5,7 @@ import WagerSubPanel from 'components/WagerSubPanel';
 import { useParams } from 'react-router';
 import { Game } from 'types/resources/game';
 import { useMode } from 'context/ModeContext';
+import { currencyShortName, currencySymbol, modeCurrency } from 'utils/currency';
 
 interface WagerPanelProps {
   isAuthenticated: boolean,
@@ -23,7 +24,9 @@ const WagerPanel: React.FC<WagerPanelProps> = (props) => {
     <div className="wager-panel-container">
       {(props.isAuthenticated) && (
         <div className="balance-text">
-          <p>Balance: {displayBalance.toFixed(2)} {mode === 'real' ? 'USDT' : 'KBITZ'}</p>
+          <p>
+            Balance: {currencySymbol(modeCurrency(mode))}{displayBalance.toFixed(2)} {currencyShortName(modeCurrency(mode))}
+          </p>
           <img src={BalanceIcon} />
         </div>
       )}

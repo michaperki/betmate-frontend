@@ -37,7 +37,13 @@ module.exports = {
     rules: [
       {
         test: /\.(js|ts|tsx)$/,
-        exclude: /node_modules/,
+        exclude: [
+          /node_modules/,
+          // Exclude legacy pages that are no longer part of the mock-first app
+          path.resolve(__dirname, 'src/containers/ActiveBetsPage'),
+          path.resolve(__dirname, 'src/containers/BettingHistoryPage'),
+          path.resolve(__dirname, 'src/containers/Dashboard'),
+        ],
         use: 'ts-loader',
       },
       { test: /\.m?js$/, resolve: { fullySpecified: false } },

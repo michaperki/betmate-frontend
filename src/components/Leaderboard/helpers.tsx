@@ -1,6 +1,7 @@
 import React from 'react';
 import { Rank } from 'types/leaderboard';
 import { User } from 'types/resources/auth';
+import { formatNet } from 'utils/currency';
 
 interface RowProps {
   data: Rank,
@@ -33,7 +34,7 @@ const LeaderboardRow: React.FC<RowProps> = (props) => {
           <span className="metric-label">Net:</span> {props.data.winnings >= 0 ? '+' : ''}
         </div>
         <div className={`balance ${props.data.winnings >= 0 ? 'positive' : 'negative'}`}>
-          {Math.abs(props.data.winnings).toFixed(0)} KBITZ
+          {formatNet(props.data.winnings, 'BET')}
         </div>
       </div>
     </div>

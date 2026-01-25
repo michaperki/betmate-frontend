@@ -199,6 +199,19 @@ body {
   max-height: min(70vh, calc(100dvh - 320px));
 }
 
+// =============================================================================
+// SHARED SKELETON SHIMMER
+// =============================================================================
+.bm-shimmer {
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+  animation: shimmer 1.8s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* Slightly different caps for contexts with extra controls */
 .scroll-panel--tall-active {
   max-height: min(66vh, calc(100dvh - 340px));

@@ -8,8 +8,8 @@ const NewOnboarding: React.FC = () => {
     try {
       const q = new URLSearchParams(location.search || '');
       const from = q.get('from');
-      return from ? decodeURIComponent(from) : '/new-dashboard';
-    } catch { return '/new-dashboard'; }
+      return from ? decodeURIComponent(from) : '/';
+    } catch { return '/'; }
   }, [location.search]);
   const [formData, setFormData] = useState({
     username: '', email: '', password: '', confirmPassword: '',
@@ -69,7 +69,7 @@ const NewOnboarding: React.FC = () => {
               <p style={{ fontSize: 15, opacity: 0.6, margin: '0 0 32px', lineHeight: 1.6 }}>Predict moves, bet on outcomes, and win while watching the world's best players compete.</p>
               <button onClick={() => setStep(1)} style={{ width: '100%', padding: 16, background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', border: 'none', borderRadius: 12, color: '#000', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', marginBottom: 16 }}>Get Started</button>
               <p style={{ fontSize: 13, opacity: 0.5, margin: 0 }}>
-                Already have an account? <a href={`/new-login?from=${encodeURIComponent(returnTo)}`} style={{ color: '#22c55e' }}>Sign in</a>
+                Already have an account? <a href={`/signin?from=${encodeURIComponent(returnTo)}`} style={{ color: '#22c55e' }}>Sign in</a>
               </p>
             </div>
           )}

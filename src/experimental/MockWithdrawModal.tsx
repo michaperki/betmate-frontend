@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNotifications } from 'components/NotificationCenter/context';
 import { createPortal } from 'react-dom';
 
 type MockWithdrawModalProps = {
@@ -12,6 +13,7 @@ const MockWithdrawModal: React.FC<MockWithdrawModalProps> = ({ isOpen, onClose }
   const [amount, setAmount] = useState<number>(50);
   const [custom, setCustom] = useState<string>('');
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const { notifyInfo } = useNotifications();
 
   useEffect(() => {
     if (!isOpen) {
@@ -36,7 +38,10 @@ const MockWithdrawModal: React.FC<MockWithdrawModalProps> = ({ isOpen, onClose }
   const onWithdraw = () => {
     if (amount < 10) return;
     setStep('processing');
-    setTimeout(() => setStep('success'), 1500);
+    setTimeout(() => {
+      setStep('success');
+      try { notifyInfo('Withdrawal Processing', `$${Number(amount).toFixed(2)} will arrive in ~10 minutes`); } catch {}
+    }, 1500);
   };
 
   return createPortal(

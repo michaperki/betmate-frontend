@@ -6,6 +6,7 @@ import { authTokenName } from 'utils';
 import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import { useNewStatsData } from './hooks/useNewStatsData';
 import MockHeader from './MockHeader';
+import BottomTabBar from 'components/BottomTabBar';
 
 const NewStats: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'7d'|'30d'|'90d'|'all'>('30d');
@@ -53,6 +54,7 @@ const NewStats: React.FC = () => {
   }, [wagerHistory]);
 
   return (
+    <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
       <MockHeader active="Stats" />
 
@@ -140,6 +142,8 @@ const NewStats: React.FC = () => {
         </div>
       </main>
     </div>
+    <BottomTabBar />
+    </>
   );
 };
 

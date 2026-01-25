@@ -31,62 +31,48 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#111111">
 
-    <!-- Initial dark theme styling -->
+    <!-- Initial loading styling (static) -->
     <style>
       html, body {
         margin: 0;
         padding: 0;
-        background-color: #050505;
+        background: linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
         color: #F2F2F2;
         font-family: 'Roboto', sans-serif;
         height: 100%;
         width: 100%;
       }
-
-      #main {
-        min-height: 100%;
-        width: 100%;
-      }
-
-      .initial-loader {
-        text-align: center;
-      }
-
-      .initial-loader .dot {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        margin: 0 4px;
-        border-radius: 50%;
-        background-color: #00EFB2;
-        animation: pulse 1.5s infinite ease-in-out;
-      }
-
-      .initial-loader .dot:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-
-      .initial-loader .dot:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-
-      @keyframes pulse {
-        0%, 100% { transform: scale(0.5); opacity: 0.5; }
-        50% { transform: scale(1); opacity: 1; }
-      }
+      /* React root should flow normally; centering handled by boot overlay only */
+      #main { min-height: 100%; width: 100%; display: block; }
+      .boot-card { max-width: 480px; width: calc(100% - 48px); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; }
+      .boot-brand { display: flex; align-items: center; gap: 12px; }
+      .boot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; }
+      .boot-dot { width: 10px; height: 10px; border-radius: 50%; }
+      .boot-title { font-size: 18px; font-weight: 700; color: #22c55e; letter-spacing: 1px; }
+      .boot-track { height: 10px; border-radius: 6px; background: rgba(255,255,255,0.06); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+      .boot-bar { width: 40%; height: 100%; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); animation: bootmove 1200ms ease-in-out infinite alternate; }
+      @keyframes bootmove { from { transform: translateX(-20%); } to { transform: translateX(80%); } }
     </style>
   </head>
   <body>
-    <div id="main">
-      <div class="initial-loader">
-        <h2>BetMate</h2>
-        <div>
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
+    <!-- Boot overlay sits above the React root until the app removes it -->
+    <div id="boot" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index: 9999;">
+      <div class="boot-card">
+        <div class="boot-brand">
+          <div class="boot-grid">
+            <div class="boot-dot" style="background:#fbbf24"></div>
+            <div class="boot-dot" style="background:#f87171"></div>
+            <div class="boot-dot" style="background:#22c55e"></div>
+            <div class="boot-dot" style="background:#60a5fa"></div>
+          </div>
+          <span class="boot-title">BetMate</span>
         </div>
+        <div style="margin:12px 0 8px; font-size:14px; font-weight:700; opacity:.9">Loading…</div>
+        <div class="boot-track"><div class="boot-bar"></div></div>
       </div>
     </div>
+    <!-- React root -->
+    <div id="main"></div>
 
     <noscript>
       <div style="padding: 2rem; text-align: center;">

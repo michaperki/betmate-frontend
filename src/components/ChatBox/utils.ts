@@ -2,7 +2,7 @@ import {
   FeedWager, Wager, WagerStatus,
 } from 'types/resources/wager';
 import { getMultiplier } from 'utils/chess';
-import { formatAmount as fmtAmount } from 'utils/currency';
+import { formatAmountShort as fmtAmount } from 'utils/currency';
 
 export const createResolvedFeedWager = (wager: Wager): FeedWager => ({
   ...wager,

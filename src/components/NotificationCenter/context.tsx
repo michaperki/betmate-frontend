@@ -10,7 +10,7 @@ import React, {
 
 import './style.scss';
 
-export type NotificationType = 'success' | 'error' | 'info';
+export type NotificationType = 'success' | 'error' | 'info' | 'win' | 'loss';
 
 export interface Notification {
   id: number;
@@ -18,6 +18,9 @@ export interface Notification {
   message?: string;
   type: NotificationType;
   duration?: number;
+  icon?: ReactNode;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 interface NotificationContextValue {
@@ -103,8 +106,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             className={`notification-toast ${notification.type}`}
             role="status"
           >
-            <strong>{notification.title}</strong>
-            {notification.message && <p>{notification.message}</p>}
+            {notification.icon && (
+              <div className="notification-icon" aria-hidden>{notification.icon}</div>
+            )}
+            <div className="notification-content">
+              <strong>{notification.title}</strong>
+              {notification.message && <p>{notification.message}</p>}
+            </div>
+            {notification.actionLabel && (
+              <button className="notification-action" onClick={notification.onAction}>{notification.actionLabel}</button>
+            )}
           </div>
         ))}
       </div>

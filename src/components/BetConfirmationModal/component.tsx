@@ -1,6 +1,7 @@
 import React from 'react';
 import './style.scss';
 import { useMode } from 'context/ModeContext';
+import { currencyShortName, currencySymbol, modeCurrency } from 'utils/currency';
 
 // Default stake options, matching those in BettingSidebar
 const STAKE_OPTIONS = [10, 50, 100];
@@ -29,7 +30,9 @@ const BetConfirmationModal: React.FC<BetConfirmationModalProps> = ({
     <div className="bet-confirmation-modal">
       <div className="modal-content">
         <h3>Confirm Your Bet</h3>
-        <p>Bet {stake} {mode === 'real' ? 'USDT' : 'KBITZ'} on move: <strong>{moveString}</strong></p>
+        <p>
+          Bet {currencySymbol(modeCurrency(mode))}{stake} {currencyShortName(modeCurrency(mode))} on move: <strong>{moveString}</strong>
+        </p>
         
         <div className="stake-buttons">
           {STAKE_OPTIONS.map((stakeOption) => (

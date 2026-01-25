@@ -128,6 +128,31 @@
     padding: 2px 6px;
     border-radius: 4px;
   }
+
+  // Hold-to-confirm overlay (circular progress)
+  &__hold {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+  }
+  &__hold-ring {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  &__hold-inner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
 }
 
 @keyframes moveGradient {

@@ -18,9 +18,8 @@ export function useRequireAuthForNew(): void {
       const hasToken = (typeof window !== 'undefined') && !!window.localStorage.getItem(authTokenName);
       if (!isAuthenticated && !hasToken) {
         const from = encodeURIComponent(location.pathname + (location.search || ''));
-        history.replace(`/new-onboarding?from=${from}`);
+        history.replace(`/onboarding?from=${from}`);
       }
     } catch {}
   }, [isAuthenticated, history, location.pathname, location.search]);
 }
-

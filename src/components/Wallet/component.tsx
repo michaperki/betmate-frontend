@@ -11,6 +11,7 @@ import { JWT_SIGN_IN } from 'types/resources/auth';
 import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
 import { useMode } from 'context/ModeContext';
 import './style.scss';
+import { currencyLongName, formatAmountShort } from 'utils/currency';
 
 interface DepositItem {
   _id: string;
@@ -228,12 +229,12 @@ const Wallet: React.FC = () => {
         {err && <div className="wallet-error">{err}</div>}
         <section className="wallet-balances">
           <div className="wallet-card">
-            <div className="wallet-card__label">KBITZ Balance</div>
-            <div className="wallet-card__value">{Math.max(0, Math.round(tokenBalance))} KBITZ</div>
+            <div className="wallet-card__label">{currencyLongName('BET')} Balance</div>
+            <div className="wallet-card__value">{formatAmountShort(tokenBalance, 'BET')}</div>
           </div>
           <div className="wallet-card">
-            <div className="wallet-card__label">Real Balance</div>
-            <div className="wallet-card__value">${Math.max(0, Math.round(cashBalance))}</div>
+            <div className="wallet-card__label">{currencyLongName('USDT')} Balance</div>
+            <div className="wallet-card__value">{formatAmountShort(cashBalance, 'USDT')}</div>
           </div>
         </section>
         <section className="wallet-history">

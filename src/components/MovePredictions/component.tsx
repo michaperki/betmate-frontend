@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './style.scss';
 
 // Export interface so it can be imported elsewhere
@@ -27,6 +27,51 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
   onMoveHoverEnd,
   loading = false,
 }) => {
+  // Long‑press (hold to confirm) — enabled for touch/pen pointers
+  const [holdingIndex, setHoldingIndex] = useState<number | null>(null);
+  const [holdProgress, setHoldProgress] = useState(0); // 0..1
+  const holdStartRef = useRef<number>(0);
+  const holdRafRef = useRef<number | null>(null);
+
+  const cancelHold = () => {
+    if (holdRafRef.current) cancelAnimationFrame(holdRafRef.current);
+    holdRafRef.current = null;
+    setHoldingIndex(null);
+    setHoldProgress(0);
+  };
+
+  useEffect(() => () => cancelHold(), []);
+
+  const startHold = (index: number, move: string) => {
+    holdStartRef.current = performance.now();
+    setHoldingIndex(index);
+    const duration = 800; // ms per mock
+    const step = (now: number) => {
+      const p = Math.min(1, (now - holdStartRef.current) / duration);
+      setHoldProgress(p);
+      if (p < 1) {
+        holdRafRef.current = requestAnimationFrame(step);
+      } else {
+        // Confirmed by hold
+        cancelHold();
+        if (!gameEnded && onMoveClick) onMoveClick(move, index);
+      }
+    };
+    holdRafRef.current = requestAnimationFrame(step);
+  };
+
+  const onItemPointerDown = (e: React.PointerEvent, index: number, move: string) => {
+    if (gameEnded || !onMoveClick) return;
+    // Only require hold on touch/pen; mouse can click as usual
+    if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch {}
+      startHold(index, move);
+    }
+  };
+  const onItemPointerUp = (e: React.PointerEvent) => { cancelHold(); };
+  const onItemPointerCancel = (e: React.PointerEvent) => { cancelHold(); };
+  const onItemPointerLeave = (e: React.PointerEvent) => { cancelHold(); };
+
   return (
     <div className="move-predictions">
       <div className="move-predictions__header">Move Predictions</div>
@@ -61,6 +106,10 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             key={`${move.move}-${index}`}
             className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
             onClick={() => { if (!gameEnded && move.status !== 'disabled' && onMoveClick) onMoveClick(move.move, index); }}
+            onPointerDown={(e) => onItemPointerDown(e, index, move.move)}
+            onPointerUp={onItemPointerUp}
+            onPointerCancel={onItemPointerCancel}
+            onPointerLeave={onItemPointerLeave}
             onMouseEnter={() => onMoveHover && onMoveHover(move.move, index)}
             onMouseLeave={() => onMoveHoverEnd && onMoveHoverEnd()}
             role={onMoveClick ? "button" : undefined}
@@ -79,6 +128,14 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             </div>
             {move.status === 'loading' && (
               <div className="move-predictions__loader"></div>
+            )}
+            {(holdingIndex === index) && (
+              <div className="move-predictions__hold" aria-hidden>
+                <div className="move-predictions__hold-ring" style={{
+                  background: `conic-gradient(#22c55e ${Math.round(holdProgress * 360)}deg, rgba(255,255,255,0.08) 0deg)`
+                }} />
+                <div className="move-predictions__hold-inner" />
+              </div>
             )}
             {move.message && ['lost', 'disabled'].includes(move.status || '') && (
               <div className="move-predictions__message">{move.message}</div>

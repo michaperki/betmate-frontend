@@ -6,7 +6,11 @@ import { useNewDashboardData } from './hooks/useNewDashboardData';
 import { authTokenName } from 'utils';
 import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import MockHeader from './MockHeader';
+import BottomTabBar from 'components/BottomTabBar';
 import { useNewMyBetsData } from './hooks/useNewMyBetsData';
+import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
+import { formatAmountShort } from 'utils/currency';
+import EmptyState from 'components/EmptyState';
 
 // Standalone New Dashboard mockup page.
 // Priority: visual fidelity. Inline styles preserved from mockup.
@@ -21,6 +25,9 @@ const NewDashboard: React.FC = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const data = useNewDashboardData();
   const bets = useNewMyBetsData();
+  const { screenWidth } = useResponsiveLayout();
+  // Use same breakpoint as BottomTabBar (<= 860px) for compact/mobile layout
+  const isCompact = screenWidth <= 860;
 
   // DRY guest redirect for new pages
   useRequireAuthForNew();
@@ -56,7 +63,9 @@ const NewDashboard: React.FC = () => {
   ]), []);
 
   return (
-    <div style={{
+    <>
+    <div data-bm-dashboard
+      style={{
       minHeight: '100vh',
       background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)',
       fontFamily: "'JetBrains Mono', 'SF Mono', monospace",
@@ -69,8 +78,10 @@ const NewDashboard: React.FC = () => {
         position: 'fixed',
         top: '10%',
         left: '20%',
-        width: '500px',
-        height: '500px',
+        width: isCompact ? '60vw' : '500px',
+        height: isCompact ? '60vw' : '500px',
+        maxWidth: '500px',
+        maxHeight: '500px',
         background: 'radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
         filter: 'blur(80px)'
@@ -79,8 +90,10 @@ const NewDashboard: React.FC = () => {
         position: 'fixed',
         bottom: '20%',
         right: '10%',
-        width: '400px',
-        height: '400px',
+        width: isCompact ? '50vw' : '400px',
+        height: isCompact ? '50vw' : '400px',
+        maxWidth: '400px',
+        maxHeight: '400px',
         background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)',
         pointerEvents: 'none',
         filter: 'blur(80px)'
@@ -176,13 +189,13 @@ const NewDashboard: React.FC = () => {
         </div>
       </header>
 
-      <main style={{ padding: '32px 40px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main style={{ padding: isCompact ? '16px 16px 80px' : '32px 40px', maxWidth: '1400px', margin: '0 auto' }}>
         {/* Welcome & Stats Row */}
-        <div style={{
+        <div className="grid-top" style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 1fr',
-          gap: '16px',
-          marginBottom: '32px'
+          gridTemplateColumns: isCompact ? '1fr' : '1fr 1fr 1fr 1fr',
+          gap: isCompact ? '12px' : '16px',
+          marginBottom: isCompact ? '20px' : '32px'
         }}>
           {/* Welcome Card */}
           <div style={{
@@ -296,10 +309,10 @@ const NewDashboard: React.FC = () => {
         </div>
 
         {/* Main Content Grid */}
-        <div style={{
+        <div className="grid-main" style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 380px',
-          gap: '24px'
+          gridTemplateColumns: isCompact ? '1fr' : '1fr 380px',
+          gap: isCompact ? '16px' : '24px'
         }}>
           {/* Left Column - Matches */}
           <div>
@@ -382,44 +395,23 @@ const NewDashboard: React.FC = () => {
                           </div>
                         </div>
                         <div style={{ height: 32, marginTop: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 10 }} />
-                        <div style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)',
-                          animation: 'shimmer 1.8s infinite'
-                        }} />
+                        <div className="bm-shimmer" style={{ position: 'absolute', inset: 0 }} />
                       </div>
                     ))}
                   </>
                 )}
                 {/* Empty state when no live matches */}
                 {!showSkeletons && (!data.liveMatches || data.liveMatches.length === 0) && (
-                  <div style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 20,
-                    padding: '40px 28px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ width: 100, height: 100, margin: '0 auto 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>♟️</div>
-                    <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No Live Games Right Now</div>
-                    <div style={{ fontSize: 13, opacity: 0.6, marginBottom: 16 }}>There are no games available at the moment. Check back soon.</div>
-                    <button style={{
-                      padding: '10px 16px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 10,
-                      color: '#fff',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      fontFamily: 'inherit',
-                      cursor: 'pointer'
-                    }}>🔔 Notify Me</button>
-                  </div>
+                  <EmptyState
+                    icon={<span>♟️</span>}
+                    title="No Live Games Right Now"
+                    description="There are no games available at the moment. Check back soon."
+                    ctaLabel="🔔 Notify Me"
+                  />
                 )}
                 {/* Live matches */}
                 {!showSkeletons && (data.liveMatches?.length ? data.liveMatches : sampleMatches).map((match) => (
-                <div 
+                <div className="match-card"
                   key={match.id}
                   style={{
                     background: match.featured 
@@ -427,7 +419,7 @@ const NewDashboard: React.FC = () => {
                       : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${match.featured ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.08)'}`,
                     borderRadius: '16px',
-                    padding: '24px',
+                    padding: isCompact ? '16px' : '24px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     position: 'relative'
@@ -459,11 +451,11 @@ const NewDashboard: React.FC = () => {
                   </div>
 
                   {/* Players row */}
-                  <div style={{
+                  <div className="players-row" style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr auto 1fr',
+                    gridTemplateColumns: isCompact ? '1fr' : '1fr auto 1fr',
                     alignItems: 'center',
-                    gap: '24px'
+                    gap: isCompact ? '12px' : '24px'
                   }}>
                     {/* White */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -488,9 +480,10 @@ const NewDashboard: React.FC = () => {
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: isCompact ? 'center' : undefined,
                       gap: '12px',
                       background: 'rgba(0,0,0,0.3)',
-                      padding: '12px 20px',
+                      padding: isCompact ? '10px 14px' : '12px 20px',
                       borderRadius: '10px'
                     }}>
                       <span style={{ 
@@ -509,7 +502,7 @@ const NewDashboard: React.FC = () => {
                     </div>
 
                     {/* Black */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: isCompact ? 'flex-start' : 'flex-end' }}>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '15px', fontWeight: '600' }}>{match.black.name}</div>
                         <div style={{ fontSize: '12px', opacity: 0.5 }}>{match.black.rating}</div>
@@ -529,11 +522,13 @@ const NewDashboard: React.FC = () => {
                   </div>
 
                   {/* Footer */}
-                  <div style={{
+                  <div className="footer-row" style={{
                     display: 'flex',
+                    flexDirection: isCompact ? 'column' : 'row',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: '20px',
+                    alignItems: isCompact ? 'stretch' : 'center',
+                    gap: isCompact ? 12 : 0,
+                    marginTop: isCompact ? '14px' : '20px',
                     paddingTop: '16px',
                     borderTop: '1px solid rgba(255,255,255,0.06)'
                   }}>
@@ -549,7 +544,7 @@ const NewDashboard: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <button
-                        onClick={(e) => { e.stopPropagation(); history.push(`/new-game/${match.id}`); }}
+                        onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
                         style={{
                          background: 'rgba(255,255,255,0.05)',
                          border: '1px solid rgba(255,255,255,0.1)',
@@ -563,7 +558,7 @@ const NewDashboard: React.FC = () => {
                         }}
                       >View Game</button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); history.push(`/new-game/${match.id}`); }}
+                        onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
                         style={{
                         background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                         border: 'none',
@@ -655,7 +650,7 @@ const NewDashboard: React.FC = () => {
                   <span style={{ fontSize: '14px' }}>📊</span>
                   Recent Activity
                 </div>
-                <a onClick={() => history.push('/new-my-bets')} style={{ fontSize: '12px', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}>View all</a>
+                <a onClick={() => history.push('/bets')} style={{ fontSize: '12px', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}>View all</a>
               </div>
 
               <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -668,7 +663,7 @@ const NewDashboard: React.FC = () => {
                           <div style={{ height: 10, width: 120, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
                         </div>
                         <div style={{ height: 14, width: 60, background: 'rgba(255,255,255,0.06)', borderRadius: 7 }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+                        <div className="bm-shimmer" style={{ position: 'absolute', inset: 0 }} />
                       </div>
                     ))}
                   </>
@@ -685,14 +680,20 @@ const NewDashboard: React.FC = () => {
                   }}>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '2px' }}>{bet.type}</div>
-                      <div style={{ fontSize: '11px', opacity: 0.5 }}>@ {bet.odds}x • {bet.currency === 'USDT' ? ('$' + bet.amount.toFixed(2)) : `${Math.round(bet.amount)} KBITZ`}</div>
+                      <div style={{ fontSize: '11px', opacity: 0.5 }}>@ {bet.odds}x • {formatAmountShort(bet.amount, (bet.currency as any) || 'BET')}</div>
                     </div>
                     <div style={{
                       fontSize: '13px',
                       fontWeight: '600',
                       color: bet.result === 'won' ? '#22c55e' : (bet.result === 'lost' ? '#ef4444' : '#94a3b8')
                     }}>
-                      {bet.profit >= 0 ? '+' : ''}{bet.currency === 'USDT' ? bet.profit.toFixed(2) : Math.round(bet.profit)}
+                      {(() => {
+                        const c = (bet.currency as any) || 'BET';
+                        const profit = Number(bet.profit || 0);
+                        return profit >= 0
+                          ? (c === 'USDT' ? `+$${profit.toFixed(2)}` : `+${Math.round(profit)} K`)
+                          : (c === 'USDT' ? `-$${Math.abs(profit).toFixed(2)}` : `-${Math.round(Math.abs(profit))} K`);
+                      })()}
                     </div>
                   </div>
                 ))}
@@ -821,8 +822,8 @@ const NewDashboard: React.FC = () => {
               borderRadius: '16px',
               padding: '20px',
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px'
+              gridTemplateColumns: isCompact ? '1fr' : '1fr 1fr',
+              gap: isCompact ? '12px' : '16px'
             }}>
               <div>
                 <div style={{ fontSize: '11px', opacity: 0.5, marginBottom: '4px' }}>Total Wagered</div>
@@ -854,7 +855,7 @@ const NewDashboard: React.FC = () => {
               <div id="match-details-title" style={{ fontSize: 16, fontWeight: 700 }}>Match Details</div>
               <button onClick={() => setDrawerMatch(null)} aria-label="Close" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', width: 28, height: 28, borderRadius: 8, color: '#e8e8e8', cursor: 'pointer' }}>×</button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 16, padding: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isCompact ? '1fr' : '1fr auto 1fr', alignItems: 'center', gap: 16, padding: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{drawerMatch.white.name}</div>
                 <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.white.rating}</div>
@@ -865,7 +866,7 @@ const NewDashboard: React.FC = () => {
                 <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.black.rating}</div>
               </div>
             </div>
-            <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: isCompact ? '1fr' : '1fr 1fr', gap: 10 }}>
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 12 }}>
                 <div style={{ fontSize: 11, opacity: 0.6, marginBottom: 4 }}>Time</div>
                 <div style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 700 }}>{drawerMatch.timeWhite} • {drawerMatch.timeBlack}</div>
@@ -880,7 +881,7 @@ const NewDashboard: React.FC = () => {
               <div style={{ fontSize: 13, opacity: 0.8 }}>Move {drawerMatch.move} • {drawerMatch.phase} • {drawerMatch.format}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-              <button onClick={() => { setDrawerMatch(null); history.push(`/new-game/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
+              <button onClick={() => { setDrawerMatch(null); history.push(`/matches/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
               <button onClick={() => setDrawerMatch(null)} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', cursor: 'pointer' }}>Close</button>
             </div>
           </div>
@@ -893,8 +894,20 @@ const NewDashboard: React.FC = () => {
           50% { opacity: 0.5; }
         }
         @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        /* Enforce compact layout via CSS to avoid JS breakpoint drift */
+        @media (max-width: 860px) {
+          [data-bm-dashboard] main { padding: 16px 16px 80px !important; }
+          [data-bm-dashboard] .grid-top { grid-template-columns: 1fr !important; gap: 12px !important; margin-bottom: 20px !important; }
+          [data-bm-dashboard] .grid-main { grid-template-columns: 1fr !important; gap: 16px !important; }
+          [data-bm-dashboard] .match-card { padding: 16px !important; }
+          [data-bm-dashboard] .players-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+          [data-bm-dashboard] .footer-row { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+        }
       `}</style>
     </div>
+    <BottomTabBar />
+    </>
   );
 };
 

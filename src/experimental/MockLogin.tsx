@@ -27,8 +27,8 @@ const MockLogin: React.FC = () => {
     try {
       const q = new URLSearchParams(location.search || '');
       const from = q.get('from');
-      return from ? decodeURIComponent(from) : '/new-dashboard';
-    } catch { return '/new-dashboard'; }
+      return from ? decodeURIComponent(from) : '/';
+    } catch { return '/'; }
   }, [location.search]);
 
   useEffect(() => {

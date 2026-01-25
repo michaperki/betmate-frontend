@@ -15,7 +15,10 @@ import {
   SocketErrorAction, SocketGameErrorAction,
 } from 'types/socket';
 
-import { CreateWagerActions, FetchWagersActions } from 'types/resources/wager';
+import { CreateWagerActions, FetchWagersActions, WagerStatus } from 'types/resources/wager';
+import { emit as emitNotification } from 'components/NotificationCenter/bus';
+import { readableBet } from 'utils/wager';
+import { formatAmountShort, formatNet } from 'utils/currency';
 import { getBearerToken, removeBearerToken } from 'store/actionCreators';
 import { User } from 'types/resources/auth';
 import {
@@ -92,12 +95,42 @@ export function* updateGameStateHandler(socket: Socket) {
  */
 export function* updateWagerStateHandler(socket: Socket) {
   const socketChannel: EventChannel<FetchWagersActions | BroadcastPoolWagerActions> = yield call(createUpdateWagerStateChannel, socket);
-
+  // Track last known status to detect transitions
+  const lastStatus = new Map<string, string>();
   while (true) {
     try {
       const action: FetchWagersActions | BroadcastPoolWagerActions = yield take(socketChannel);
       yield put<Actions>(action);
       if (action.type === 'FETCH_WAGERS') yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: getBearerToken() || '' } });
+
+      // Emit notifications for refunds and results when status flips
+      try {
+        if (action.type === 'FETCH_WAGERS' && action.status === 'SUCCESS') {
+          const list = (action as any).payload as Array<any>;
+          for (const w of list) {
+            const prev = lastStatus.get(w._id);
+            if (w.status === WagerStatus.CANCELLED && prev && prev !== WagerStatus.CANCELLED) {
+              const readable = readableBet(!!w?.wdl, String(w?.data));
+              emitNotification({ type: 'info', title: 'Bet Refunded', message: `${readable} — no winners`, icon: '↺' });
+            }
+            if (w.status === WagerStatus.WON && prev && prev !== WagerStatus.WON) {
+              const readable = readableBet(!!w?.wdl, String(w?.data));
+              const amt = Number(w?.amount || 0);
+              const odds = Number(w?.odds || 0);
+              const profit = Math.max(0, (amt * odds) - amt);
+              const curr = (w?.currency as any) || ((w?.mode === 'real') ? 'USDT' : 'BET');
+              emitNotification({ type: 'win', title: 'You Won!', message: `${formatNet(profit, curr)} on ${readable}` });
+            }
+            if (w.status === WagerStatus.LOST && prev && prev !== WagerStatus.LOST) {
+              const readable = readableBet(!!w?.wdl, String(w?.data));
+              const amt = Number(w?.amount || 0);
+              const curr = (w?.currency as any) || ((w?.mode === 'real') ? 'USDT' : 'BET');
+              emitNotification({ type: 'loss', title: 'Bet Lost', message: `${formatNet(-amt, curr)} on ${readable}` });
+            }
+            lastStatus.set(w._id, w.status);
+          }
+        }
+      } catch {}
     } catch (error) {
       yield put<Actions>({ type: 'FETCH_WAGERS', status: 'FAILURE', payload: { message: error.message, code: null } });
     }
@@ -258,7 +291,10 @@ export function* betUpdateHandler(socket: Socket) {
   while (true) {
     try {
       const action: any = yield take(socketChannel);
-      console.log('Bet update received:', action.payload);
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.log('Bet update received:', action.payload);
+      }
       // Trigger a refresh of game stats when new bets come in
       yield put({
         type: 'FETCH_GAME_STATS',
@@ -281,7 +317,10 @@ export function* betUpdateHandler(socket: Socket) {
  */
 export function* gameEndRefreshHandler(socket: Socket) {
   const socketChannel: EventChannel<GameUpdateActions> = yield call(createUpdateGameStateChannel, socket);
-  console.log('Game end handler started - monitoring for game_over events');
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line no-console
+    console.log('Game end handler started - monitoring for game_over events');
+  }
 
   while (true) {
     try {
@@ -291,7 +330,10 @@ export function* gameEndRefreshHandler(socket: Socket) {
       if (action.type === 'UPDATE_GAME_END' && action.status === 'SUCCESS') {
         // Type guard to ensure we have the correct payload type
         if ('gameId' in action.payload) {
-          console.log('Game ended:', action.payload.gameId);
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.log('Game ended:', action.payload.gameId);
+          }
 
           // Refresh the games list to fetch only active games
           yield put<Actions>({

@@ -5,6 +5,7 @@ import { RootState } from 'types/state';
 import { authTokenName } from 'utils';
 import { useRequireAuthForNew } from './hooks/useRequireAuthForNew';
 import MockHeader from './MockHeader';
+import BottomTabBar from 'components/BottomTabBar';
 
 const NewSettings: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'account'|'preferences'|'notifications'|'responsible'|'security'|'wallet'>('account');
@@ -85,6 +86,7 @@ const NewSettings: React.FC = () => {
   );
 
   return (
+    <>
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', position: 'relative' }}>
       <MockHeader />
 
@@ -196,6 +198,8 @@ const NewSettings: React.FC = () => {
         </div>
       </main>
     </div>
+    <BottomTabBar />
+    </>
   );
 };
 

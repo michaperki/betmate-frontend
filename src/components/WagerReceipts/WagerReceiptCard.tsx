@@ -1,7 +1,7 @@
 import React from 'react';
 import { FeedWager, WagerStatus } from 'types/resources/wager';
 import { getMultiplier } from 'utils/chess';
-import { formatAmount, formatNet } from 'utils/currency';
+import { formatAmountShort, formatNet } from 'utils/currency';
 
 interface WagerReceiptCardProps {
   wager: FeedWager;
@@ -103,7 +103,7 @@ const WagerReceiptCard: React.FC<WagerReceiptCardProps> = ({ wager }) => {
         </div>
 
         <div className="bet-details">
-          <div className="amount-staked"><span className="value">{formatAmount(wager.amount, currency)}</span></div>
+          <div className="amount-staked"><span className="value">{formatAmountShort(wager.amount, currency)}</span></div>
 
           {/* No explicit REAL label; panel should filter by mode */}
 
