@@ -44,7 +44,7 @@ type LeaderboardItem = {
   isYou?: boolean;
 };
 
-export function useDashboardData() {
+export function useNewDashboardData() {
   const dispatch = useDispatch();
   const { mode } = useMode();
 

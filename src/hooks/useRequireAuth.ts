@@ -8,7 +8,7 @@ import { authTokenName } from 'utils';
  * Redirect unauthenticated guests to onboarding,
  * but avoid redirecting while a persisted token is present (jwt hydration).
  */
-export function useRequireAuth(): void {
+export function useRequireAuthForNew(): void {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const history = useHistory();
   const location = useLocation();

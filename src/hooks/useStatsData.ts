@@ -6,7 +6,7 @@ import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { useMode } from 'context/ModeContext';
 import { Wager, WagerStatus } from 'types/resources/wager';
 
-export function useStatsData() {
+export function useNewStatsData() {
   const dispatch = useDispatch();
   const { mode } = useMode();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
