@@ -68,6 +68,8 @@
 
 /* Make explicit widths on mobile to preserve proportions */
 @media (max-width: 767px) {
+  /* Tighten mobile gutters to maximize board area */
+  .match-page__content { padding: 8px; }
   /* Let the grid grow naturally on mobile to prevent row overlap */
   .match-layout-grid { height: auto; --bar: 44px; grid-template-rows: auto auto auto auto var(--bar); }
   .match-layout-grid .frame--board { width: min(var(--s), 100%); }

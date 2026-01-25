@@ -536,7 +536,7 @@ const NewGameContainer: React.FC = () => {
 
       <MockHeader active="Markets" />
 
-      <main style={{ padding: '32px 40px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main className="new-game-main">
         <div className={`new-game-container new-game-container--${gameState}`}>
           {errorBanner && (
             <div className="new-game-container__error" role="alert">
