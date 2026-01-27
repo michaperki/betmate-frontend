@@ -120,6 +120,17 @@ const Login: React.FC = () => {
                 <button type="submit" disabled={isLoading} style={{ width: '100%', padding: 14, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: '#000', fontWeight: 700, cursor: 'pointer' }}>
                   {isLoading ? 'Signing in…' : 'Sign In'}
                 </button>
+
+                {/* Secondary actions: industry-standard CTA to onboarding/create */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => history.push(`/onboarding?from=${encodeURIComponent(returnTo)}`)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--mode-accent)', fontWeight: 700, cursor: 'pointer', padding: 8 }}
+                  >
+                    Don’t have an account? Get started
+                  </button>
+                </div>
               </form>
             ) : (
               <div>

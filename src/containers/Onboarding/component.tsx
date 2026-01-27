@@ -1,9 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import * as authRequests from 'store/requests/authRequests';
+import { setBearerToken } from 'store/actionCreators';
+import { JWT_SIGN_IN } from 'types/resources/auth';
+import { getDeviceId } from 'utils';
 
 const Onboarding: React.FC = () => {
   const [step, setStep] = useState(0);
   const location = useLocation();
+  const dispatch = useDispatch();
   const returnTo = useMemo(() => {
     try {
       const q = new URLSearchParams(location.search || '');
@@ -18,8 +24,25 @@ const Onboarding: React.FC = () => {
     defaultStake: 2, oddsFormat: 'decimal', notifications: true,
     depositAmount: 50
   });
+  // Capture and persist referral invite code for later account creation
+  const [inviteCode, setInviteCode] = useState<string>('');
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(location.search || '');
+      const code = (q.get('code') || '').trim();
+      if (code) {
+        setInviteCode(code);
+        try { window.localStorage.setItem('betmate:invite_code', code); } catch {}
+      } else {
+        try { const stored = window.localStorage.getItem('betmate:invite_code') || ''; if (stored) setInviteCode(stored); } catch {}
+      }
+    } catch {}
+  }, [location.search]);
+  const referred = useMemo(() => !!inviteCode, [inviteCode]);
   const [walletConnecting, setWalletConnecting] = useState(false);
   const [depositProcessing, setDepositProcessing] = useState(false);
+  const [creatingAccount, setCreatingAccount] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const updateForm = (k: string, v: any) => setFormData((p) => ({ ...p, [k]: v }));
   const simulateWalletConnect = () => { setWalletConnecting(true); setTimeout(() => { setWalletConnecting(false); updateForm('walletConnected', true); updateForm('walletAddress', '0x7a3d...8f2e'); }, 1500); };
   const simulateDeposit = () => { setDepositProcessing(true); setTimeout(() => { setDepositProcessing(false); setStep(5); }, 2000); };
@@ -27,12 +50,45 @@ const Onboarding: React.FC = () => {
     switch (step) {
       case 0: return true;
       case 1: return !!(formData.username && formData.email && formData.password && formData.password === formData.confirmPassword && formData.agreeTerms && formData.ageVerified);
-      case 2: return formData.walletConnected;
+      case 2: return referred ? true : formData.walletConnected;
       case 3: return true;
-      case 4: return formData.depositAmount >= 10;
+      case 4: return referred ? true : (formData.depositAmount >= 10);
       default: return true;
     }
   };
+  // Create account for referred users at Step 1
+  const createReferredAccount = async () => {
+    try {
+      setCreateError(null);
+      setCreatingAccount(true);
+      const deviceId = getDeviceId();
+      const firstName = formData.username || '';
+      const lastName = '';
+      const res = await authRequests.createUser(
+        formData.email,
+        formData.password,
+        firstName,
+        lastName,
+        inviteCode,
+        deviceId,
+      );
+      const token = (res?.data as any)?.token;
+      const user = (res?.data as any)?.user;
+      if (token) setBearerToken(token);
+      if (user) dispatch({ type: JWT_SIGN_IN, payload: { user }, status: 'SUCCESS' } as any);
+      setStep(3); // skip wallet step next
+    } catch (e: any) {
+      setCreateError(e?.response?.data?.message || e?.response?.data?.error || 'Failed to create account');
+    } finally {
+      setCreatingAccount(false);
+    }
+  };
+  // Auto-skip wallet/deposit steps for referred users
+  useEffect(() => {
+    if (!referred) return;
+    if (step === 2) setStep(3);
+    if (step === 4) setStep(5);
+  }, [referred, step]);
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)', fontFamily: "'JetBrains Mono','SF Mono',monospace", color: '#e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', position: 'relative', overflow: 'hidden' }}>
@@ -67,6 +123,9 @@ const Onboarding: React.FC = () => {
               <div style={{ width: 80, height: 80, background: 'linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.20) 0%, rgb(var(--mode-accent-rgb) / 0.05) 100%)', borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: 40 }}>♟️</div>
               <h1 style={{ fontSize: 28, fontWeight: 700, margin: '0 0 12px' }}>Bet on Chess, Live</h1>
               <p style={{ fontSize: 15, opacity: 0.6, margin: '0 0 32px', lineHeight: 1.6 }}>Predict moves, bet on outcomes, and win while watching the world's best players compete.</p>
+              {referred && inviteCode && (
+                <div style={{ fontSize: 12, color: '#a1a1aa', marginBottom: 12 }}>Invite code applied: <code>{inviteCode}</code></div>
+              )}
               <button onClick={() => setStep(1)} style={{ width: '100%', padding: 16, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: '#000', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', marginBottom: 16 }}>Get Started</button>
               <p style={{ fontSize: 13, opacity: 0.5, margin: 0 }}>
                 Already have an account? <a href={`/signin?from=${encodeURIComponent(returnTo)}`} style={{ color: 'var(--mode-accent)' }}>Sign in</a>
@@ -91,7 +150,16 @@ const Onboarding: React.FC = () => {
               </div>
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
                 <button onClick={() => setStep(0)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8' }}>Back</button>
-                <button disabled={!canProceed()} onClick={() => setStep(2)} style={{ padding: '10px 16px', background: canProceed() ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.15)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: canProceed() ? 'pointer' : 'not-allowed' }}>Continue</button>
+              <button
+                disabled={!canProceed() || (referred && creatingAccount)}
+                onClick={() => { if (referred) { void createReferredAccount(); } else { setStep(2); } }}
+                style={{ padding: '10px 16px', background: canProceed() ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.15)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: canProceed() ? 'pointer' : 'not-allowed' }}
+              >
+                {referred && creatingAccount ? 'Creating…' : 'Continue'}
+              </button>
+              {createError && (
+                <div style={{ marginTop: 8, fontSize: 12, color: '#ef4444' }}>{createError}</div>
+              )}
               </div>
             </div>
           )}
@@ -124,7 +192,7 @@ const Onboarding: React.FC = () => {
               </div>
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
                 <button onClick={() => setStep(2)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8' }}>Back</button>
-                <button onClick={() => setStep(4)} style={{ padding: '10px 16px', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: 'pointer' }}>Continue</button>
+                <button onClick={() => setStep(referred ? 5 : 4)} style={{ padding: '10px 16px', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: 'pointer' }}>Continue</button>
               </div>
             </div>
           )}

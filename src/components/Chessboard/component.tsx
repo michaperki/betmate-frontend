@@ -45,7 +45,7 @@ const Chessboard = forwardRef<HTMLDivElement, ChessboardProps>(
                 {endType && <div className="chessboard__overlay-type">{endType}</div>}
                 <div className="chessboard__overlay-actions">
                   {onRestart && (
-                    <button 
+                    <button
                       onClick={onRestart}
                       className="chessboard__overlay-button chessboard__overlay-button--primary"
                     >
@@ -53,11 +53,11 @@ const Chessboard = forwardRef<HTMLDivElement, ChessboardProps>(
                     </button>
                   )}
                   {onReview && (
-                    <button 
+                    <button
                       onClick={onReview}
                       className="chessboard__overlay-button chessboard__overlay-button--secondary"
                     >
-                      Review Game
+                      Dashboard
                     </button>
                   )}
                 </div>

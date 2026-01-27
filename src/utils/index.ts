@@ -21,3 +21,4 @@ export * as leaderboard from './leaderboard';
 export { default as logger } from './logger';
 export * from './error';
 export * from './config';
+export * from './device';

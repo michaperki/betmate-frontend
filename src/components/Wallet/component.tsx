@@ -37,9 +37,11 @@ const Wallet: React.FC = () => {
   const [banner, setBanner] = useState<string | null>(null);
   const [payCurrency, setPayCurrency] = useState<string>('USDTTRC20');
   const [wdCurrency, setWdCurrency] = useState<string>('USDTTRC20');
+  const [wdMethod, setWdMethod] = useState<'crypto'|'manual'>('crypto');
   const [quote, setQuote] = useState<{ charge_usd: number; fee_usd: number; estimated_pay_amount: number } | null>(null);
   const [wdAmount, setWdAmount] = useState<number>(25);
   const [wdAddress, setWdAddress] = useState<string>('');
+  const [wdHandle, setWdHandle] = useState<string>('');
   const { faucetEnabled, withdrawEnabled, requireKyc } = useMode();
 
   const tokenBalance = user?.token_balance ?? 0;
@@ -132,9 +134,16 @@ const Wallet: React.FC = () => {
     setErr(null);
     try {
       const amt = Math.max(5, Math.min(10000, Number(wdAmount || 0)));
-      await requestWithdrawal(amt, wdCurrency, wdAddress.trim());
+      if (wdMethod === 'manual') {
+        const h = wdHandle.trim();
+        if (!h) throw new Error('Missing handle');
+        await requestWithdrawal(amt, 'USD', h, 'manual', h);
+      } else {
+        await requestWithdrawal(amt, wdCurrency, wdAddress.trim());
+      }
       setBanner('Withdrawal requested. It will appear below and await admin approval.');
       setWdAddress('');
+      setWdHandle('');
       await refresh();
     } catch (e: any) {
       setErr(e?.response?.data?.error || 'Failed to request withdrawal');
@@ -286,10 +295,21 @@ const Wallet: React.FC = () => {
           <div style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               className="wallet-amount-input"
+              aria-label="Withdraw method"
+              value={wdMethod}
+              onChange={(e) => setWdMethod(e.target.value === 'manual' ? 'manual' : 'crypto')}
+              style={{ width: 160 }}
+            >
+              <option value="crypto">Crypto</option>
+              <option value="manual">Manual (Venmo)</option>
+            </select>
+            <select
+              className="wallet-amount-input"
               aria-label="Withdraw currency"
-              value={wdCurrency}
+              value={wdMethod === 'manual' ? 'USD' : wdCurrency}
               onChange={(e) => setWdCurrency(e.target.value)}
               style={{ width: 160 }}
+              disabled={wdMethod === 'manual'}
             >
               <option value="USDTTRC20">USDT (TRC20)</option>
               <option value="USDTBEP20">USDT (BEP20)</option>
@@ -308,16 +328,27 @@ const Wallet: React.FC = () => {
               className="wallet-amount-input"
               aria-label="Withdraw amount"
             />
-            <input
-              type="text"
-              value={wdAddress}
-              onChange={(e) => setWdAddress(e.target.value)}
-              placeholder="Destination address"
-              className="wallet-amount-input"
-              style={{ width: 360 }}
-            />
+            {wdMethod === 'manual' ? (
+              <input
+                type="text"
+                value={wdHandle}
+                onChange={(e) => setWdHandle(e.target.value)}
+                placeholder="Venmo handle (e.g., @username)"
+                className="wallet-amount-input"
+                style={{ width: 360 }}
+              />
+            ) : (
+              <input
+                type="text"
+                value={wdAddress}
+                onChange={(e) => setWdAddress(e.target.value)}
+                placeholder="Destination address"
+                className="wallet-amount-input"
+                style={{ width: 360 }}
+              />
+            )}
             {((user as any)?.kyc_status === 'approved') ? (
-              <button className="wallet-deposit-btn" onClick={onWithdraw} disabled={loading || !isAuthenticated || !wdAddress || withdrawEnabled === false}>
+              <button className="wallet-deposit-btn" onClick={onWithdraw} disabled={loading || !isAuthenticated || (wdMethod === 'manual' ? !wdHandle : !wdAddress) || withdrawEnabled === false}>
                 {loading ? 'Submitting…' : `Withdraw $${Math.max(5, Math.min(10000, Number(wdAmount || 0)))}`}
               </button>
             ) : (

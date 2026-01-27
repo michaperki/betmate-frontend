@@ -211,6 +211,15 @@ const GameContainer: React.FC = () => {
     return toFenFromMoves(game?.move_hist as any);
   }, [game?.state, game?.move_hist]);
 
+  // Hide any pending move confirmation overlay when the board position updates
+  useEffect(() => {
+    // A new move occurred; prior proposal is no longer valid
+    if (proposal) setProposal(null);
+    if (hoverArrow) setHoverArrow(null);
+    if (proposalLoading) setProposalLoading(false);
+    if (proposalScore !== null) setProposalScore(null);
+  }, [currentFen]);
+
   // Parse time from game state via view model
   const [displayWhite, setDisplayWhite] = useState<number>(0);
   const [displayBlack, setDisplayBlack] = useState<number>(0);
@@ -665,8 +674,8 @@ const GameContainer: React.FC = () => {
             gameStatus={gameState}
             winner={gameState === 'ended' ? (viewModel?.winner || undefined) : undefined}
             endType={gameState === 'ended' ? (viewModel?.endType || '') : ''}
-            onRestart={resetDemo}
-            onReview={() => {}}
+            onRestart={() => { setGameState('live'); history.push('/chess/featured'); }}
+            onReview={() => { setGameState('live'); history.push('/'); }}
           />
           {proposal && (
             <MoveConfirmChip

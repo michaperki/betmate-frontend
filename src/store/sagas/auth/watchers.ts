@@ -19,7 +19,15 @@ export function* watchCreateUser() {
       const action: CreateUserActions = yield take((a: Actions) => (a.type === 'CREATE_USER' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
-      const response: RequestReturnType<AuthUserResponseData> = yield call(authRequests.createUser, action.payload.email, action.payload.password, action.payload.firstName, action.payload.lastName);
+      const response: RequestReturnType<AuthUserResponseData> = yield call(
+        authRequests.createUser,
+        action.payload.email,
+        action.payload.password,
+        action.payload.firstName,
+        action.payload.lastName,
+        (action.payload as any).invite_code,
+        (action.payload as any).device_id,
+      );
 
       yield call(setBearerToken, response.data.token);
 
