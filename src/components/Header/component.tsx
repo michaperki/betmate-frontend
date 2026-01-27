@@ -68,10 +68,10 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f87171' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e' }} />
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--mode-accent)' }} />
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#60a5fa' }} />
       </div>
-      <span style={{ fontSize: 18, fontWeight: 700, color: '#22c55e', letterSpacing: 1 }}>BetMate</span>
+      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: 1 }}>BetMate</span>
     </div>
   );
 
@@ -207,9 +207,9 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         onClick={() => setShowDeposit(true)}
         aria-label="Deposit funds"
         style={{
-          background: 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)',
+          background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
           border: 'none',
-          color: '#0a0a0f',
+          color: 'var(--mode-accent-contrast)',
           padding: '10px 16px',
           borderRadius: 8,
           cursor: 'pointer',
@@ -219,7 +219,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          boxShadow: '0 4px 16px rgba(34, 197, 94, 0.25)'
+          boxShadow: '0 4px 16px rgb(var(--mode-accent-rgb) / 0.25)'
         }}
       >
         <span style={{ fontSize: 16 }}>+</span>
@@ -233,7 +233,9 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         fontSize: 13,
         display: 'flex',
         alignItems: 'center',
-        gap: 8
+        gap: 8,
+        width: 140,
+        justifyContent: 'center'
       }}>
         {(() => {
           const c = modeCurrency(mode);
@@ -273,7 +275,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         onClick={() => { goTo('/onboarding'); }}
         aria-label="Get started"
         style={{
-          background: 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)',
+          background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
           border: 'none',
           color: '#000',
           padding: '10px 16px',
@@ -362,13 +364,15 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                 padding: '6px 10px',
                 fontSize: 12,
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                width: 110,
+                justifyContent: 'center'
               }}>
                 {(() => {
                   const c = modeCurrency(mode);
                   const bal = mode === 'real' ? cashBalance : tokenBalance;
                   return (
-                    <span style={{ color: mode === 'arcade' ? '#fbbf24' : '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
+                    <span style={{ color: 'var(--mode-accent)', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
                   );
                 })()}
               </div>

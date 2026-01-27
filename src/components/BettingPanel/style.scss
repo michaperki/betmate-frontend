@@ -38,8 +38,8 @@
     
     // Result-based styling
     &--won {
-      background-color: rgba(34, 197, 94, 0.06);
-      border-color: rgba(34, 197, 94, 0.15);
+      background-color: rgb(var(--success-rgb) / 0.06);
+      border-color: rgb(var(--success-rgb) / 0.15);
     }
     
     &--lost {
@@ -121,8 +121,8 @@
     transition: all 0.4s ease;
     
     &--won {
-      background: rgba(34, 197, 94, 0.2);
-      color: #22c55e;
+      background: rgb(var(--success-rgb) / 0.20);
+      color: var(--success);
     }
     
     &--lost {
@@ -143,8 +143,8 @@
   
   // Summary section
   &__summary {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(34, 197, 94, 0.04) 100%);
-    border: 1px solid rgba(34, 197, 94, 0.25);
+    background: linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.12) 0%, rgb(var(--mode-accent-rgb) / 0.04) 100%);
+    border: 1px solid rgb(var(--mode-accent-rgb) / 0.25);
     border-radius: 12px;
     padding: 20px;
     animation: slideUp 0.4s ease;
@@ -187,11 +187,11 @@
       font-size: 13px;
       
       &--won {
-        color: #22c55e;
+        color: var(--mode-accent);
       }
       
       &--positive {
-        color: #22c55e;
+        color: var(--mode-accent);
       }
       
       &--negative {

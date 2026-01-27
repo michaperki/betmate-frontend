@@ -92,5 +92,3 @@ export function useMyBetsData() {
 export type UseMyBetsData = ReturnType<typeof useMyBetsData>;
 
 // Backwards-compat named export
-export const useNewMyBetsData = useMyBetsData;
-export type UseNewMyBetsData = UseMyBetsData;

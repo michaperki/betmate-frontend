@@ -117,8 +117,8 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
           const baseStatus = (move.status || 'idle');
           // Use explicit RGBA to avoid any CSS var resolution issues
           const baseTintStyle = (baseStatus === 'idle' && !gameEnded) ? {
-            background: mode === 'arcade' ? 'rgba(251, 191, 36, 0.12)' : 'rgba(34, 197, 94, 0.12)',
-            border: mode === 'arcade' ? '1px solid rgba(251, 191, 36, 0.25)' : '1px solid rgba(34, 197, 94, 0.25)'
+            background: 'rgb(var(--mode-accent-rgb) / 0.12)',
+            border: '1px solid rgb(var(--mode-accent-rgb) / 0.25)'
           } as React.CSSProperties : undefined;
           return (
           <div 

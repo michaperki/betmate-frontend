@@ -131,7 +131,7 @@ const Settings: React.FC = () => {
               <h2 style={{ fontSize: 18, fontWeight: 600, margin: '0 0 8px' }}>Account Settings</h2>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 24px' }}>Manage your profile and account details</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, padding: 24, background: 'var(--bg-tertiary)', borderRadius: 16, marginBottom: 24 }}>
-                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 700, fontSize: 24 }}>{settings.avatar}</div>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontWeight: 700, fontSize: 24 }}>{settings.avatar}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, flex: 1 }}>
                   <div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>Username</div>
@@ -234,7 +234,7 @@ const Settings: React.FC = () => {
                           notifyError('Faucet Failed', e?.response?.data?.error || 'Try again later');
                         }
                       }}
-                      style={{ padding: '10px 14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)', color: '#0a0a0f', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ padding: '10px 14px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', color: '#0a0a0f', fontWeight: 700, cursor: 'pointer' }}
                     >
                       Get Test Funds
                     </button>

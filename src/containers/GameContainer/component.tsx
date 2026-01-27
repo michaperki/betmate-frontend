@@ -15,12 +15,13 @@ import { MoveOption } from 'components/MovePredictions/component';
 import BettingPanel from 'components/BettingPanel';
 import DrawOutcomeCard from 'components/DrawOutcomeCard';
 import { BetItem } from 'components/BettingPanel/component';
+import MoveConfirmChip from 'components/MoveConfirmChip';
 
 // Redux actions
 import { joinGame, leaveGame } from 'store/actionCreators/websocketActionCreators';
 import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCreators';
 import { createWager, fetchActiveWagers, fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
-import { getTopMoves } from 'store/requests/analysisRequests';
+import { getTopMoves, getMoveAnalysis } from 'store/requests/analysisRequests';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
 
 // Utilities
@@ -79,6 +80,10 @@ const GameContainer: React.FC = () => {
   const [pendingMoveIndex, setPendingMoveIndex] = useState<number | null>(null);
   const [hoverArrow, setHoverArrow] = useState<[string, string] | null>(null);
   const [predictionsLoading, setPredictionsLoading] = useState<boolean>(false);
+  // Drag-to-bet proposal state
+  const [proposal, setProposal] = useState<null | { from: string; to: string; san: string }>(null);
+  const [proposalScore, setProposalScore] = useState<number | null>(null);
+  const [proposalLoading, setProposalLoading] = useState<boolean>(false);
 
   // Global wager error banner and last attempted action
   const wagerError = useSelector((s: RootState) => s.wager.error);
@@ -259,22 +264,43 @@ const GameContainer: React.FC = () => {
     return undefined;
   }, [game?.move_hist]);
   
-  // Generate chessground config
+  // Generate chessground config (interactive for drag-to-bet)
   const chessboardConfig: Config = useMemo(() => ({
     fen: currentFen as any,
     lastMove,
     orientation: 'white',
-    viewOnly: true,
+    viewOnly: false,
     animation: { enabled: true, duration: 250 } as any,
     highlight: { lastMove: true, check: true } as any,
     draggable: { showGhost: true } as any,
-    movable: { free: false, color: 'both', rookCastle: true } as any,
+    movable: { free: true, color: 'both', rookCastle: true } as any,
     drawable: {
       enabled: true,
       visible: true,
       autoShapes: hoverArrow ? [{ orig: hoverArrow[0] as Key, dest: hoverArrow[1] as Key, brush: 'green' }] : [],
     },
     coordinates: true,
+    events: {
+      move: (orig: string, dest: string) => {
+        try {
+          const chess = new Chess(currentFen);
+          const m = (chess.move({ from: orig as any, to: dest as any, promotion: 'q' } as any) as any) || (chess.move(`${orig}${dest}`, { sloppy: true } as any) as any);
+          if (!m) return;
+          const san = String(m.san || '');
+          setHoverArrow([orig, dest]);
+          setProposal({ from: orig, to: dest, san });
+          setProposalScore(null);
+          setProposalLoading(true);
+          getMoveAnalysis(currentFen, san)
+            .then((resp) => {
+              const val = Number((resp as any)?.data?.percentile ?? (resp as any)?.data?.score ?? 0);
+              setProposalScore(Number.isFinite(val) ? val : 0);
+            })
+            .catch(() => setProposalScore(null))
+            .finally(() => setProposalLoading(false));
+        } catch {}
+      },
+    } as any,
   }), [currentFen, lastMove, hoverArrow]);
   
   // Fetch move predictions
@@ -324,6 +350,19 @@ const GameContainer: React.FC = () => {
 
     fetchTopMoves();
   }, [currentFen, id, targetGameId, game?.move_hist]);
+
+  // Hydrate default stake from Settings (localStorage)
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem('betmate.newSettings');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.defaultStake === 'number' && parsed.defaultStake > 0) {
+          setStake(parsed.defaultStake);
+        }
+      }
+    } catch {}
+  }, []);
   
   // Handle move hover for arrow display
   const handleMoveHover = useCallback((move: string, index: number) => {
@@ -382,6 +421,35 @@ const GameContainer: React.FC = () => {
     // Clear pending indicator with a slight delay for UX; real result reconciles via Redux
     setTimeout(() => setPendingMoveIndex(null), 1000);
   }, [dispatch, id, isAuthenticated, gameState, stake, moveOptions, mode, limits?.arcadeMaxStakeMove, targetGameId]);
+
+  // Confirm a proposed drag move using default stake
+  const handleConfirmProposal = useCallback(() => {
+    if (!proposal || !isAuthenticated || gameState !== 'live') return;
+    try {
+      const odds = 2.0; // server will compute final odds for arcade move bets
+      const moveNumber = Array.isArray(game?.move_hist) ? (game!.move_hist.length + 1) : 1;
+      dispatch(createWager(
+        targetGameId || id,
+        proposal.san,
+        stake,
+        false,
+        odds,
+        moveNumber,
+        mode,
+        mode === 'real' ? 'USDT' : 'BET',
+      ));
+    } catch (err) {
+      console.error('Error dispatching drag wager:', err);
+    }
+    // Clear overlay and arrow
+    setProposal(null);
+    setHoverArrow(null);
+  }, [dispatch, id, isAuthenticated, gameState, proposal, stake, mode, targetGameId, game?.move_hist]);
+
+  const handleCancelProposal = useCallback(() => {
+    setProposal(null);
+    setHoverArrow(null);
+  }, []);
   
   // Handle bet on white win
   const handleWhiteBet = useCallback(() => {
@@ -535,18 +603,14 @@ const GameContainer: React.FC = () => {
 
   return (
     <div className={`new-game-page mode-${mode}`}>
-      <div style={{ position: 'fixed', top: '10%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
+      <div style={{ position: 'fixed', top: '10%', left: '20%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgb(var(--mode-accent-rgb) / 0.06) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
       <div style={{ position: 'fixed', bottom: '20%', right: '10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
 
       <Header active="Markets" />
 
       <main className="new-game-main">
         <div className={`new-game-container new-game-container--${gameState}`}>
-          {errorBanner && (
-            <div className="new-game-container__error" role="alert">
-              {errorBanner}
-            </div>
-          )}
+          {/* Suppress inline error toast/banner to avoid layout shifts; toasts handled globally */}
 
           <div className="new-game-container__content">
         {/* Left column - Move Predictions */}
@@ -586,6 +650,16 @@ const GameContainer: React.FC = () => {
             onRestart={resetDemo}
             onReview={() => {}}
           />
+          {proposal && (
+            <MoveConfirmChip
+              parentRef={boardRef as any}
+              destSquare={proposal.to}
+              score={proposalScore}
+              loading={proposalLoading}
+              onConfirm={handleConfirmProposal}
+              onCancel={handleCancelProposal}
+            />
+          )}
           
           <PlayerHeader
             side="white"

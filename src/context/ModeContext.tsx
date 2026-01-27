@@ -50,6 +50,21 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
   }, [mode]);
 
+  // Reflect current betting mode on the <html> element for CSS hooks
+  useEffect(() => {
+    try {
+      const html = document.documentElement;
+      if (!html) return;
+      if (mode === 'real') {
+        html.classList.add('mode-real');
+        html.classList.remove('mode-arcade');
+      } else {
+        html.classList.add('mode-arcade');
+        html.classList.remove('mode-real');
+      }
+    } catch {}
+  }, [mode]);
+
   // Optional sync across tabs
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {

@@ -83,7 +83,7 @@ const Dashboard: React.FC = () => {
         height: isCompact ? '60vw' : '500px',
         maxWidth: '500px',
         maxHeight: '500px',
-        background: 'radial-gradient(circle, rgba(34, 197, 94, 0.06) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgb(var(--mode-accent-rgb) / 0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
         filter: 'blur(80px)'
       }} />
@@ -120,22 +120,22 @@ const Dashboard: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '3px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fbbf24' }} />
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f87171' }} />
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22c55e' }} />
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--mode-accent)' }} />
             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#60a5fa' }} />
           </div>
-          <span style={{ fontSize: '20px', fontWeight: '700', color: '#22c55e', letterSpacing: '1px' }}>BetMate</span>
+          <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--mode-accent)', letterSpacing: '1px' }}>BetMate</span>
         </div>
 
         <nav style={{ display: 'flex', gap: '32px' }}>
           {['Dashboard', 'Markets', 'My Bets', 'Stats'].map((item, i) => (
             <a key={item} href="#" style={{
-              color: i === 0 ? '#22c55e' : 'rgba(255,255,255,0.5)',
+              color: i === 0 ? 'var(--mode-accent)' : 'rgba(255,255,255,0.5)',
               textDecoration: 'none',
               fontSize: '13px',
               fontWeight: '500',
               letterSpacing: '0.5px',
               transition: 'color 0.2s ease',
-              borderBottom: i === 0 ? '2px solid #22c55e' : '2px solid transparent',
+              borderBottom: i === 0 ? '2px solid var(--mode-accent)' : '2px solid transparent',
               paddingBottom: '4px'
             }}>{item}</a>
           ))}
@@ -143,9 +143,9 @@ const Dashboard: React.FC = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button style={{
-            background: 'rgba(34, 197, 94, 0.1)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            color: '#22c55e',
+            background: 'rgb(var(--mode-accent-rgb) / 0.10)',
+            border: '1px solid rgb(var(--mode-accent-rgb) / 0.30)',
+            color: 'var(--mode-accent)',
             padding: '10px 20px',
             borderRadius: '8px',
             cursor: 'pointer',
@@ -169,14 +169,14 @@ const Dashboard: React.FC = () => {
             alignItems: 'center',
             gap: '8px'
           }}>
-            <span style={{ color: '#22c55e', fontWeight: '600' }}>{(data?.wallet?.usdt ?? 279.50).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span style={{ color: 'var(--mode-accent)', fontWeight: '600' }}>{(data?.wallet?.usdt ?? 279.50).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             <span style={{ opacity: 0.5 }}>USDT</span>
           </div>
           <div style={{
             width: '36px',
             height: '36px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+            background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -234,7 +234,7 @@ const Dashboard: React.FC = () => {
             <div style={{ 
               fontSize: '32px', 
               fontWeight: '700', 
-              color: '#22c55e',
+              color: 'var(--mode-accent)',
               display: 'flex',
               alignItems: 'baseline',
               gap: '8px'
@@ -244,7 +244,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div style={{ 
               fontSize: '12px', 
-              color: (data.netPL ?? 0) >= 0 ? '#22c55e' : '#ef4444', 
+              color: (data.netPL ?? 0) >= 0 ? 'var(--mode-accent)' : '#ef4444', 
               marginTop: '8px',
               display: 'flex',
               alignItems: 'center',
@@ -279,7 +279,7 @@ const Dashboard: React.FC = () => {
               <div style={{ 
                 width: '54%', 
                 height: '100%', 
-                background: 'linear-gradient(90deg, #22c55e 0%, #4ade80 100%)',
+                background: 'linear-gradient(90deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                 borderRadius: '2px'
               }} />
             </div>
@@ -417,9 +417,9 @@ const Dashboard: React.FC = () => {
                   key={match.id}
                   style={{
                     background: match.featured 
-                      ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(34, 197, 94, 0.02) 100%)'
+                      ? 'linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.08) 0%, rgb(var(--mode-accent-rgb) / 0.02) 100%)'
                       : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${match.featured ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.08)'}`,
+                    border: `1px solid ${match.featured ? 'rgb(var(--mode-accent-rgb) / 0.2)' : 'rgba(255,255,255,0.08)'}`,
                     borderRadius: '16px',
                     padding: isCompact ? '16px' : '24px',
                     cursor: 'pointer',
@@ -494,7 +494,7 @@ const Dashboard: React.FC = () => {
                         fontVariantNumeric: 'tabular-nums',
                         color: parseFloat(match.timeWhite) < 1 ? '#ef4444' : '#fff'
                       }}>{match.timeWhite}</span>
-                      <span style={{ color: '#22c55e', fontWeight: '700', fontSize: '12px' }}>VS</span>
+                      <span style={{ color: 'var(--mode-accent)', fontWeight: '700', fontSize: '12px' }}>VS</span>
                       <span style={{ 
                         fontSize: '18px', 
                         fontWeight: '600',
@@ -538,7 +538,7 @@ const Dashboard: React.FC = () => {
                     <div style={{ display: 'flex', gap: '20px' }}>
                       <div style={{ fontSize: '12px' }}>
                         <span style={{ opacity: 0.5 }}>Pool: </span>
-                        <span style={{ color: '#22c55e', fontWeight: '600' }}>{typeof match.totalPool === 'number' ? `$${match.totalPool.toFixed(2)}` : '—'}</span>
+                        <span style={{ color: 'var(--mode-accent)', fontWeight: '600' }}>{typeof match.totalPool === 'number' ? `$${match.totalPool.toFixed(2)}` : '—'}</span>
                       </div>
                       <div style={{ fontSize: '12px' }}>
                         <span style={{ opacity: 0.5 }}>Watching: </span>
@@ -563,7 +563,7 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
                         style={{
-                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                        background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                         border: 'none',
                         color: '#000',
                         padding: '10px 20px',
@@ -596,7 +596,7 @@ const Dashboard: React.FC = () => {
                           <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
                           <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
                           <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--mode-accent)' }}>→ ${b.potentialWin.toFixed(2)}</div>
                         </div>
                       </div>
                     </div>
@@ -615,7 +615,7 @@ const Dashboard: React.FC = () => {
                         <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
                         <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                     </div>
                   ))}
                   {(bets.betHistory || []).length === 0 && (
@@ -653,7 +653,7 @@ const Dashboard: React.FC = () => {
                   <span style={{ fontSize: '14px' }}>📊</span>
                   Recent Activity
                 </div>
-                <a onClick={() => history.push('/bets')} style={{ fontSize: '12px', color: '#22c55e', textDecoration: 'none', cursor: 'pointer' }}>View all</a>
+                <a onClick={() => history.push('/bets')} style={{ fontSize: '12px', color: 'var(--mode-accent)', textDecoration: 'none', cursor: 'pointer' }}>View all</a>
               </div>
 
               <div aria-live="polite" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -677,9 +677,9 @@ const Dashboard: React.FC = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '12px 14px',
-                    background: bet.result === 'won' ? 'rgba(34, 197, 94, 0.06)' : (bet.result === 'lost' ? 'rgba(239, 68, 68, 0.04)' : 'rgba(148, 163, 184, 0.06)'),
+                    background: bet.result === 'won' ? 'rgb(var(--success-rgb) / 0.06)' : (bet.result === 'lost' ? 'rgba(239, 68, 68, 0.04)' : 'rgba(148, 163, 184, 0.06)'),
                     borderRadius: '10px',
-                    border: `1px solid ${bet.result === 'won' ? 'rgba(34, 197, 94, 0.15)' : (bet.result === 'lost' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(148, 163, 184, 0.15)')}`
+                    border: `1px solid ${bet.result === 'won' ? 'rgb(var(--success-rgb) / 0.15)' : (bet.result === 'lost' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(148, 163, 184, 0.15)')}`
                   }}>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '2px' }}>{bet.type}</div>
@@ -688,7 +688,7 @@ const Dashboard: React.FC = () => {
                     <div style={{
                       fontSize: '13px',
                       fontWeight: '600',
-                      color: bet.result === 'won' ? '#22c55e' : (bet.result === 'lost' ? '#ef4444' : '#94a3b8')
+                      color: bet.result === 'won' ? 'var(--success)' : (bet.result === 'lost' ? '#ef4444' : '#94a3b8')
                     }}>
                       {(() => {
                         const c = (bet.currency as any) || 'BET';
@@ -760,9 +760,9 @@ const Dashboard: React.FC = () => {
                     alignItems: 'center',
                     gap: '12px',
                     padding: '12px 14px',
-                    background: (user as any).isYou ? 'rgba(34, 197, 94, 0.08)' : 'transparent',
+                    background: (user as any).isYou ? 'rgb(var(--mode-accent-rgb) / 0.08)' : 'transparent',
                     borderRadius: '10px',
-                    border: (user as any).isYou ? '1px solid rgba(34, 197, 94, 0.2)' : '1px solid transparent'
+                    border: (user as any).isYou ? '1px solid rgb(var(--mode-accent-rgb) / 0.2)' : '1px solid transparent'
                   }}>
                     <div style={{
                       width: '24px',
@@ -796,7 +796,7 @@ const Dashboard: React.FC = () => {
                         {(user as any).isYou && (
                           <span style={{
                             fontSize: '9px',
-                            background: '#22c55e',
+                            background: 'var(--mode-accent)',
                             color: '#000',
                             padding: '2px 6px',
                             borderRadius: '3px',
@@ -809,7 +809,7 @@ const Dashboard: React.FC = () => {
                     <div style={{
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: '#22c55e'
+                      color: 'var(--mode-accent)'
                     }}>
                       +${user.net.toFixed(0)}
                     </div>
@@ -838,7 +838,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <div style={{ fontSize: '11px', opacity: 0.5, marginBottom: '4px' }}>Best Win</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#22c55e' }}>+${(data.quickStats?.bestWin ?? 87.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--mode-accent)' }}>+${(data.quickStats?.bestWin ?? 87.5).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
               </div>
               <div>
                 <div style={{ fontSize: '11px', opacity: 0.5, marginBottom: '4px' }}>Favorite Bet</div>
@@ -863,7 +863,7 @@ const Dashboard: React.FC = () => {
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{drawerMatch.white.name}</div>
                 <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.white.rating}</div>
               </div>
-              <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 700 }}>VS</div>
+              <div style={{ fontSize: 12, color: 'var(--mode-accent)', fontWeight: 700 }}>VS</div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{drawerMatch.black.name}</div>
                 <div style={{ fontSize: 11, opacity: 0.6 }}>{drawerMatch.black.rating}</div>
@@ -884,7 +884,7 @@ const Dashboard: React.FC = () => {
               <div style={{ fontSize: 13, opacity: 0.8 }}>Move {drawerMatch.move} • {drawerMatch.phase} • {drawerMatch.format}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-              <button onClick={() => { setDrawerMatch(null); history.push(`/matches/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
+              <button onClick={() => { setDrawerMatch(null); history.push(`/matches/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
               <button onClick={() => setDrawerMatch(null)} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', cursor: 'pointer' }}>Close</button>
             </div>
           </div>

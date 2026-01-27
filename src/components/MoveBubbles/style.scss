@@ -158,7 +158,7 @@
   }
   
   &.pending {
-    border-color: #00EFB2;
+    border-color: var(--mode-accent);
     box-shadow: 0 0 15px rgba(0, 239, 178, 0.5);
     animation: pulse 1.5s infinite;
   }
@@ -310,7 +310,7 @@
   width: 16px;
   height: 16px;
   border: 2px solid #333;
-  border-top: 2px solid #00EFB2;
+  border-top: 2px solid var(--mode-accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
@@ -455,7 +455,7 @@
 
 // User-submitted move styles
 .move-bubble.user-submitted {
-  border-color: #00EFB2;
+  border-color: var(--mode-accent);
   background: linear-gradient(135deg, #1A2A2A 0%, #0A1A1A 100%);
 
   &:hover {
@@ -464,14 +464,14 @@
   }
 
   .quality-badge.user-badge {
-    background: linear-gradient(135deg, #00EFB2 0%, #00D49A 100%);
+    background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%);
     color: #111111;
     font-weight: 700;
     border: 1px solid #00FFCC;
   }
 
   .move-text {
-    color: #00EFB2;
+    color: var(--mode-accent);
     font-weight: 600;
   }
 

@@ -31,7 +31,6 @@
   ],
   "exclude": [
     "src/containers/ActiveBetsPage/**/*",
-    "src/containers/BettingHistoryPage/**/*",
-    "src/containers/NewGameContainer/**/*"
+    "src/containers/BettingHistoryPage/**/*"
   ],
 }

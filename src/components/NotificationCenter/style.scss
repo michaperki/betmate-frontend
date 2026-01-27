@@ -27,8 +27,8 @@
     position: relative;
 
     &.success {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
-      border-color: rgba(34, 197, 94, 0.3);
+      background: linear-gradient(135deg, rgb(var(--success-rgb) / 0.15) 0%, rgb(var(--success-rgb) / 0.05) 100%);
+      border-color: rgb(var(--success-rgb) / 0.30);
     }
 
     &.error {
@@ -42,8 +42,8 @@
     }
 
     &.win {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%);
-      border-color: rgba(34, 197, 94, 0.4);
+      background: linear-gradient(135deg, rgb(var(--success-rgb) / 0.20) 0%, rgba(251, 191, 36, 0.10) 100%);
+      border-color: rgb(var(--success-rgb) / 0.40);
     }
 
     &.loss {
@@ -117,8 +117,8 @@
 
 /* Icon styling by type to mirror examples */
 .notification-toast.success .notification-icon {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: rgb(var(--success-rgb) / 0.20);
+  color: var(--success);
 }
 .notification-toast.error .notification-icon,
 .notification-toast.loss .notification-icon {
@@ -130,7 +130,7 @@
   color: #818cf8;
 }
 .notification-toast.win .notification-icon {
-  background: linear-gradient(135deg, #22c55e 0%, #fbbf24 100%);
+  background: linear-gradient(135deg, var(--success) 0%, #fbbf24 100%);
   color: #000;
 }
 

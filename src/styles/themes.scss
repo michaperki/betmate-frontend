@@ -99,6 +99,24 @@
   // Transitions
   --transition-base: 0.2s;
   --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Mode Accent System (cash vs K-Bits)
+  // Base accent palettes for each mode (can be tuned per theme)
+  --accent-real: var(--brand-primary);
+  --accent-real-rgb: var(--brand-primary-rgb);
+  // Deeper tone for gradients/pressed states (greens)
+  --accent-real-strong: #16a34a; /* tailwind green-600 */
+
+  // Arcade/K-Bits accent uses amber
+  --accent-arcade: #fbbf24;       /* amber-400 */
+  --accent-arcade-strong: #f59e0b;/* amber-500 */
+  --accent-arcade-rgb: 251 191 36;
+
+  // Runtime-selected accent (overridden by html.mode-*)
+  --mode-accent: var(--accent-real);
+  --mode-accent-strong: var(--accent-real-strong);
+  --mode-accent-rgb: var(--accent-real-rgb);
+  --mode-accent-contrast: #0a0a0f; /* dark text on bright accent */
 }
 
 // Light Theme
@@ -173,6 +191,10 @@ html.light-mode {
   --input-placeholder: var(--text-muted);
   --input-focus-border: var(--brand-primary);
   --input-focus-shadow: rgba(0, 239, 178, 0.1);
+
+  // Light-mode tuning for accent strong variants
+  --accent-real-strong: #15803d;   /* green-700 for better contrast on light */
+  --accent-arcade-strong: #b45309; /* amber-700 */
 }
 
 // Apply transition to theme changes
@@ -197,4 +219,16 @@ html.light-mode .empty-state {
 html, body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+}
+
+// Mode mapping: set the active accent based on betting mode
+html.mode-real {
+  --mode-accent: var(--accent-real);
+  --mode-accent-strong: var(--accent-real-strong);
+  --mode-accent-rgb: var(--accent-real-rgb);
+}
+html.mode-arcade {
+  --mode-accent: var(--accent-arcade);
+  --mode-accent-strong: var(--accent-arcade-strong);
+  --mode-accent-rgb: var(--accent-arcade-rgb);
 }

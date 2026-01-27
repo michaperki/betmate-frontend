@@ -61,7 +61,7 @@
 
 .actions-row { display: flex; gap: 8px; align-items: center; justify-content: center; }
 .join-button {
-    background: #FADF9B;
+    background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%);
     border-radius: 10px;
     min-width: 8em;
     min-height: 3em;

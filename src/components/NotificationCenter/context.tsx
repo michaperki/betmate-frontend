@@ -133,7 +133,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
               className="notification-progress"
               style={{
                 animationDuration: `${notification.duration || 4000}ms`,
-                background: notification.type === 'success' || notification.type === 'win' ? '#22c55e'
+                background: notification.type === 'success' || notification.type === 'win' ? 'var(--success)'
                   : notification.type === 'error' || notification.type === 'loss' ? '#ef4444'
                   : '#818cf8'
               }}

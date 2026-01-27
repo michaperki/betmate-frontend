@@ -83,12 +83,12 @@
     transition: all 0.2s ease;
     
     &--primary {
-      background: rgba(34, 197, 94, 0.15);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      color: #22c55e;
+      background: rgb(var(--mode-accent-rgb) / 0.15);
+      border: 1px solid rgb(var(--mode-accent-rgb) / 0.40);
+      color: var(--mode-accent);
       
       &:hover {
-        background: rgba(34, 197, 94, 0.25);
+        background: rgb(var(--mode-accent-rgb) / 0.25);
       }
     }
     

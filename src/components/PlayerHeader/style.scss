@@ -36,8 +36,8 @@
         font-size: 11px;
         padding: 4px 10px;
         border-radius: 6px;
-        background: rgba(34, 197, 94, 0.18);
-        border: 1px solid rgba(34, 197, 94, 0.35);
+        background: rgb(var(--mode-accent-rgb) / 0.18);
+        border: 1px solid rgb(var(--mode-accent-rgb) / 0.35);
         color: #e8e8e8;
         letter-spacing: 0.2px;
         opacity: 0.95;
@@ -48,7 +48,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid rgba(34, 197, 94, 0.5);
+      outline: 2px solid rgb(var(--mode-accent-rgb) / 0.5);
     }
   }
 
@@ -76,14 +76,14 @@
   
   // Winner state - shown after game ends
   &--black.player-header--winner {
-    background: rgba(34, 197, 94, 0.08);
-    border: 1px solid rgba(34, 197, 94, 0.2);
+    background: rgb(var(--success-rgb) / 0.08);
+    border: 1px solid rgb(var(--success-rgb) / 0.2);
   }
   
   // Active state - indicates whose turn it is
   &--active {
-    border-color: rgba(34, 197, 94, 0.3);
-    background: rgba(34, 197, 94, 0.05);
+    border-color: rgb(var(--mode-accent-rgb) / 0.30);
+    background: rgb(var(--mode-accent-rgb) / 0.05);
   }
   
   &__avatar {
@@ -118,7 +118,7 @@
   }
   
   &__winner-tag {
-    background: #22c55e;
+    background: var(--success);
     color: #000;
     font-size: 10px;
     padding: 2px 8px;
@@ -162,15 +162,15 @@
   
   &--confirmed {
     .player-header__clock {
-      color: #22c55e;
-      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+      background: rgb(var(--success-rgb) / 0.20);
     }
     
     &::after {
       content: '';
       position: absolute;
       inset: 0;
-      border: 2px solid rgba(34, 197, 94, 0.5);
+      border: 2px solid rgb(var(--success-rgb) / 0.50);
       border-radius: 10px;
       animation: confirm 0.6s ease-out;
     }

@@ -3,7 +3,7 @@
 .betting-sidebar-container {
   background-color: #111111;
   border-radius: 12px;
-  border: 4px solid #00EFB2;
+  border: 4px solid var(--mode-accent);
   padding: 16px;
   width: 100%;
   display: flex;
@@ -41,13 +41,13 @@
   }
 
   &.active {
-    color: #00EFB2;
-    border-bottom: 2px solid #00EFB2;
+    color: var(--mode-accent);
+    border-bottom: 2px solid var(--mode-accent);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 239, 178, 0.3);
+    box-shadow: 0 0 0 2px rgb(var(--mode-accent-rgb) / 0.30);
   }
 }
 
@@ -120,7 +120,7 @@
   background-color: #1E1E1E;
   border-radius: 6px;
   cursor: pointer;
-  border-left: 2px solid #00EFB2;
+  border-left: 2px solid var(--mode-accent);
   transition: all 0.2s ease;
 
   &:hover {
@@ -135,7 +135,7 @@
           &.outcome-black {
             background-color: #1E1E1E;
             color: #F2F2F2;
-            border-left-color: #00EFB2;
+            border-left-color: var(--mode-accent);
           }
 
   &:hover {
@@ -150,7 +150,7 @@
 }
 
   .option-payout {
-    color: #00EFB2;
+    color: var(--mode-accent);
     font-weight: 500;
     font-size: 13px;
     min-width: 40px;
@@ -185,14 +185,14 @@
   }
 
   &.active {
-    background-color: #00EFB2;
+    background-color: var(--mode-accent);
     color: #111111;
-    box-shadow: 0 0 15px 2px rgba(0, 239, 178, 0.5);
+    box-shadow: 0 0 15px 2px rgba(var(--mode-accent-rgb), 0.5);
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 239, 178, 0.3);
+    box-shadow: 0 0 0 2px rgb(var(--mode-accent-rgb) / 0.30);
   }
 }
 

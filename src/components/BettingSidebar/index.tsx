@@ -8,7 +8,7 @@ import {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
-  createNewArrows,
+  createArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
 import { Rank } from 'types/leaderboard';
 import MiniLeaderboard from './MiniLeaderboard';
@@ -31,7 +31,7 @@ interface BettingSidebarProps {
   onLeaveMovePanel?: typeof onLeaveMovePanel;
   onMoveHover?: typeof onMoveHover;
   onMoveUnhover?: typeof onMoveUnhover;
-  createNewArrows?: typeof createNewArrows;
+  createArrows?: typeof createArrows;
 }
 
 const STAKE_OPTIONS = [10, 50, 100];
@@ -45,7 +45,7 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
   onLeaveMovePanel: handleLeaveMovePanel,
   onMoveHover: handleMoveHover,
   onMoveUnhover: handleMoveUnhover,
-  createNewArrows: handleCreateNewArrows,
+  createArrows: handleCreateArrows,
 }) => {
   const { id: gameId } = useParams<{ id: string }>();
   const [selectedStake, setSelectedStake] = useState<number>(STAKE_OPTIONS[0]);
@@ -213,8 +213,8 @@ const BettingSidebar: React.FC<BettingSidebarProps> = ({
       }
 
       // Then create the arrows for possible moves
-      if (game && handleCreateNewArrows && game.pool_wagers?.move?.options) {
-        handleCreateNewArrows(game.state, game.pool_wagers.move.options);
+      if (game && handleCreateArrows && game.pool_wagers?.move?.options) {
+        handleCreateArrows(game.state, game.pool_wagers.move.options);
       }
     }
   };

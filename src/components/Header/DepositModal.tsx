@@ -67,7 +67,7 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgb(var(--mode-accent-rgb) / 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
             <div>
               <div id="deposit-modal-title" style={{ fontSize: 16, fontWeight: 700 }}>Deposit Funds</div>
               <div style={{ fontSize: 12, opacity: 0.6 }}>Add funds to your account</div>
@@ -90,9 +90,9 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
                       style={{
                         padding: '10px 8px',
                         borderRadius: 10,
-                        background: amount === p && !custom ? 'rgba(34,197,94,0.18)' : 'rgba(255,255,255,0.05)',
-                        border: amount === p && !custom ? '1px solid rgba(34,197,94,0.35)' : '1px solid rgba(255,255,255,0.1)',
-                        color: amount === p && !custom ? '#22c55e' : '#e8e8e8',
+                        background: amount === p && !custom ? 'rgb(var(--mode-accent-rgb) / 0.18)' : 'rgba(255,255,255,0.05)',
+                        border: amount === p && !custom ? '1px solid rgb(var(--mode-accent-rgb) / 0.35)' : '1px solid rgba(255,255,255,0.1)',
+                        color: amount === p && !custom ? 'var(--mode-accent)' : '#e8e8e8',
                         fontWeight: 700,
                         cursor: 'pointer'
                       }}
@@ -109,7 +109,7 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
                     placeholder="Custom amount"
                     value={custom}
                     onChange={(e) => { setCustom(e.target.value); setAmount(parseFloat(e.target.value || '0') || 0); }}
-                    style={{ width: '100%', padding: '10px 12px 10px 28px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: custom ? '1px solid rgba(34,197,94,0.35)' : '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', fontFamily: 'inherit' }}
+                    style={{ width: '100%', padding: '10px 12px 10px 28px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: custom ? '1px solid rgb(var(--mode-accent-rgb) / 0.35)' : '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', fontFamily: 'inherit' }}
                   />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, opacity: 0.5, marginTop: 6 }}>
@@ -120,14 +120,14 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
 
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#e8e8e8', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={onDeposit} disabled={amount < 10} style={{ flex: 1, padding: 12, borderRadius: 10, background: amount >= 10 ? 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)' : 'rgba(34,197,94,0.14)', border: 'none', color: amount >= 10 ? '#000' : '#7f7f7f', fontWeight: 800, cursor: amount >= 10 ? 'pointer' : 'not-allowed' }}>Deposit</button>
+                <button onClick={onDeposit} disabled={amount < 10} style={{ flex: 1, padding: 12, borderRadius: 10, background: amount >= 10 ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.14)', border: 'none', color: amount >= 10 ? '#000' : '#7f7f7f', fontWeight: 800, cursor: amount >= 10 ? 'pointer' : 'not-allowed' }}>Deposit</button>
               </div>
             </>
           )}
 
           {step === 'processing' && (
             <div style={{ textAlign: 'center', padding: '30px 0' }}>
-              <div style={{ width: 56, height: 56, margin: '0 auto 16px', borderRadius: '50%', border: '3px solid rgba(34,197,94,0.15)', borderTopColor: '#22c55e', animation: 'spin 1s linear infinite' }} />
+              <div style={{ width: 56, height: 56, margin: '0 auto 16px', borderRadius: '50%', border: '3px solid rgb(var(--mode-accent-rgb) / 0.15)', borderTopColor: 'var(--mode-accent)', animation: 'spin 1s linear infinite' }} />
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>Processing…</div>
               <div style={{ fontSize: 12, opacity: 0.6 }}>Confirm the transaction in your wallet</div>
             </div>
@@ -135,11 +135,11 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
 
           {step === 'success' && (
             <div style={{ textAlign: 'center', padding: '26px 0' }}>
-              <div style={{ width: 72, height: 72, margin: '0 auto 16px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34 }}>🎉</div>
+              <div style={{ width: 72, height: 72, margin: '0 auto 16px', borderRadius: '50%', background: 'rgb(var(--mode-accent-rgb) / 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34 }}>🎉</div>
               <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Deposit Successful</div>
               <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 14 }}>Funds will appear shortly</div>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>Close</button>
+                <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>Close</button>
                 <button onClick={() => setStep('amount')} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#e8e8e8', cursor: 'pointer' }}>New Deposit</button>
               </div>
             </div>

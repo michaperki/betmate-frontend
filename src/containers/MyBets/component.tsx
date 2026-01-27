@@ -53,35 +53,35 @@ const MyBets: React.FC = () => {
           <div>
             <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
               My Bets
-              <span style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e', fontSize: 12, padding: '4px 12px', borderRadius: 20, fontWeight: 600 }}>{activeBets.length} Active</span>
+              <span style={{ background: 'rgb(var(--mode-accent-rgb) / 0.15)', border: '1px solid rgb(var(--mode-accent-rgb) / 0.30)', color: 'var(--mode-accent)', fontSize: 12, padding: '4px 12px', borderRadius: 20, fontWeight: 600 }}>{activeBets.length} Active</span>
             </h1>
             <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)', fontSize: 14 }}>Track your positions and betting history</p>
           </div>
           <div style={{ display: 'flex', gap: 24, background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: '16px 24px' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>Today</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: quick.todayPL >= 0 ? '#22c55e' : '#ef4444' }}>{quick.todayPL >= 0 ? '+' : ''}{quick.todayPL.toFixed(2)}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: quick.todayPL >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{quick.todayPL >= 0 ? '+' : ''}{quick.todayPL.toFixed(2)}</div>
             </div>
             <div style={{ width: 1, background: 'var(--border-primary)' }} />
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>This Week</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: quick.weekPL >= 0 ? '#22c55e' : '#ef4444' }}>{quick.weekPL >= 0 ? '+' : ''}{quick.weekPL.toFixed(2)}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: quick.weekPL >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{quick.weekPL >= 0 ? '+' : ''}{quick.weekPL.toFixed(2)}</div>
             </div>
             <div style={{ width: 1, background: 'var(--border-primary)' }} />
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4 }}>This Month</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: quick.monthPL >= 0 ? '#22c55e' : '#ef4444' }}>{quick.monthPL >= 0 ? '+' : ''}{quick.monthPL.toFixed(2)}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: quick.monthPL >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{quick.monthPL >= 0 ? '+' : ''}{quick.monthPL.toFixed(2)}</div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 20, background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', padding: 6, borderRadius: 12, width: 'fit-content' }}>
-          {([
+          {([ 
             { id: 'active', label: 'Active Bets' },
             { id: 'history', label: 'History' },
           ] as const).map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ background: activeTab === t.id ? 'rgba(var(--success-rgb),0.15)' : 'transparent', border: activeTab === t.id ? '1px solid rgba(var(--success-rgb),0.3)' : '1px solid transparent', color: activeTab === t.id ? 'var(--success)' : 'var(--text-secondary)', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, fontFamily: 'inherit' }}>{t.label}</button>
+            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ background: activeTab === t.id ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: activeTab === t.id ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', color: activeTab === t.id ? 'var(--mode-accent)' : 'var(--text-secondary)', padding: '10px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 500, fontFamily: 'inherit' }}>{t.label}</button>
           ))}
         </div>
 
@@ -122,7 +122,7 @@ const MyBets: React.FC = () => {
                       <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
                       <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
                       <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#22c55e' }}>→ ${b.potentialWin.toFixed(2)}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--mode-accent)' }}>→ ${b.potentialWin.toFixed(2)}</div>
                     </div>
                   </div>
                 </div>
@@ -147,7 +147,7 @@ const MyBets: React.FC = () => {
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
                     <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? '#22c55e' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                 </div>
               ))}
               {filteredHistory.length === 0 && (

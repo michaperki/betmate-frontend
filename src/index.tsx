@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 import reducers from './store/reducers';
 import rootSaga from './store/sagas';
 
-import { logger } from './utils';
+import logger from './utils/logger_integration';
 import version from './version';
 import './style.scss';
 import './styles/chessboard-global.css';

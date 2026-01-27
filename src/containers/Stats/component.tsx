@@ -67,7 +67,7 @@ const Stats: React.FC = () => {
           </div>
           <div style={{ display: 'flex', gap: 4, background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', padding: 4, borderRadius: 10 }}>
             {(['7d','30d','90d','all'] as const).map(r => (
-              <button key={r} onClick={() => setTimeRange(r)} style={{ padding: '8px 16px', background: timeRange === r ? 'rgba(var(--success-rgb),0.15)' : 'transparent', border: timeRange === r ? '1px solid rgba(var(--success-rgb),0.3)' : '1px solid transparent', borderRadius: 8, color: timeRange === r ? 'var(--success)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>{r.toUpperCase()}</button>
+              <button key={r} onClick={() => setTimeRange(r)} style={{ padding: '8px 16px', background: timeRange === r ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: timeRange === r ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 8, color: timeRange === r ? 'var(--mode-accent)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>{r.toUpperCase()}</button>
             ))}
           </div>
         </div>
@@ -76,8 +76,8 @@ const Stats: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 32 }}>
           <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>Total Profit</div>
-            <div style={{ fontSize: 32, fontWeight: 700, color: '#22c55e', marginBottom: 8 }}>+${totalProfit.toLocaleString()}</div>
-            <div style={{ fontSize: 12, color: '#22c55e' }}>↑ {Math.abs(profitThisWeek).toFixed(2)} this week</div>
+            <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--mode-accent)', marginBottom: 8 }}>+${totalProfit.toLocaleString()}</div>
+            <div style={{ fontSize: 12, color: 'var(--mode-accent)' }}>↑ {Math.abs(profitThisWeek).toFixed(2)} this week</div>
           </div>
           <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.6, marginBottom: 12 }}>ROI</div>
@@ -111,7 +111,7 @@ const Stats: React.FC = () => {
                     const pos = v >= 0;
                     return (
                       <div key={i} title={`${v >= 0 ? '+' : ''}${v.toFixed(2)}`}
-                        style={{ width: 8, height: h, background: pos ? '#22c55e' : '#ef4444', borderRadius: 2, opacity: 0.85 }} />
+                        style={{ width: 8, height: h, background: pos ? 'var(--mode-accent)' : '#ef4444', borderRadius: 2, opacity: 0.85 }} />
                     );
                   });
                 })()}
@@ -123,12 +123,12 @@ const Stats: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
               <div style={{ fontSize: 12, opacity: 0.7 }}>Move vs WDL (by count)</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 16, height: 8, background: '#22c55e', borderRadius: 2 }} />
+                <div style={{ width: 16, height: 8, background: 'var(--mode-accent)', borderRadius: 2 }} />
                 <div style={{ fontSize: 12 }}>Move</div>
                 <div style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700 }}>{betTypeBreakdown.movePct}%</div>
               </div>
               <div style={{ height: 8, background: 'var(--bg-tertiary)', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{ width: `${betTypeBreakdown.movePct}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#4ade80)' }} />
+                <div style={{ width: `${betTypeBreakdown.movePct}%`, height: '100%', background: 'linear-gradient(90deg, var(--mode-accent), var(--mode-accent-strong))' }} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 16, height: 8, background: '#60a5fa', borderRadius: 2 }} />

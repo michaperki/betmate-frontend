@@ -326,5 +326,3 @@ export function useDashboardData() {
 export type UseDashboardData = ReturnType<typeof useDashboardData>;
 
 // Backwards-compat named export
-export const useNewDashboardData = useDashboardData;
-export type UseNewDashboardData = UseDashboardData;

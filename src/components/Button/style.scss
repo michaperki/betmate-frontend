@@ -131,20 +131,20 @@
   // Button variants
   // Primary button
   &--primary {
-    background-color: var(--brand-primary);
+    background-color: var(--mode-accent);
     color: var(--text-inverse);
-    border-color: var(--brand-primary);
+    border-color: var(--mode-accent);
     
     &:hover:not(:disabled):not(.btn--loading) {
-      background-color: var(--brand-primary-hover);
-      border-color: var(--brand-primary-hover);
-      box-shadow: 0 4px 8px rgb(var(--brand-primary-rgb) / 0.20);
+      background-color: var(--mode-accent-strong);
+      border-color: var(--mode-accent-strong);
+      box-shadow: 0 4px 8px rgb(var(--mode-accent-rgb) / 0.20);
       transform: translateY(-1px);
     }
     
     &:active:not(:disabled):not(.btn--loading) {
-      background-color: var(--brand-primary-dark);
-      border-color: var(--brand-primary-dark);
+      background-color: var(--mode-accent-strong);
+      border-color: var(--mode-accent-strong);
       transform: translateY(1px);
     }
     
@@ -157,25 +157,25 @@
   // Secondary button
   &--secondary {
     background-color: transparent;
-    color: var(--brand-primary);
-    border-color: var(--brand-primary);
+    color: var(--mode-accent);
+    border-color: var(--mode-accent);
     
     &:hover:not(:disabled):not(.btn--loading) {
-      background-color: rgb(var(--brand-primary-rgb) / 0.10);
-      color: var(--brand-primary-hover);
-      border-color: var(--brand-primary-hover);
-      box-shadow: 0 4px 8px rgb(var(--brand-primary-rgb) / 0.15);
+      background-color: rgb(var(--mode-accent-rgb) / 0.10);
+      color: var(--mode-accent);
+      border-color: var(--mode-accent-strong);
+      box-shadow: 0 4px 8px rgb(var(--mode-accent-rgb) / 0.15);
       transform: translateY(-1px);
     }
     
     &:active:not(:disabled):not(.btn--loading) {
-      background-color: rgba(0, 239, 178, 0.2);
+      background-color: rgb(var(--mode-accent-rgb) / 0.20);
       transform: translateY(1px);
     }
     
     .btn__spinner {
-      border: 2px solid rgb(var(--brand-primary-rgb) / 0.20);
-      border-top-color: var(--brand-primary);
+      border: 2px solid rgb(var(--mode-accent-rgb) / 0.20);
+      border-top-color: var(--mode-accent);
     }
   }
   

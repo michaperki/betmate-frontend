@@ -74,5 +74,3 @@ export function useStatsData() {
 export type UseStatsData = ReturnType<typeof useStatsData>;
 
 // Backwards-compat named export
-export const useNewStatsData = useStatsData;
-export type UseNewStatsData = UseStatsData;

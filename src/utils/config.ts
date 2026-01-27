@@ -44,4 +44,4 @@ export const FAUCET_ADMIN_KEY = process.env.FAUCET_ADMIN_KEY || '';
 
 // New Game UI flag was used during migration and is now deprecated.
 // Retained here as a no-op for compatibility; always returns true since new UI is canonical.
-export function isNewGameUiEnabled(): boolean { return true; }
+// New game UI is the default; legacy flag removed.

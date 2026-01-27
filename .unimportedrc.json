@@ -1,0 +1,24 @@
+{
+  "entryFiles": [
+    "src/index.tsx"
+  ],
+  "ignoreUnresolved": [
+    "^adapters/",
+    "^components/",
+    "^containers/",
+    "^context/",
+    "^hooks/",
+    "^store/",
+    "^types/",
+    "^utils/",
+    "^features/",
+    "^assets/",
+    "^hocs/",
+    "^__fixtures__/"
+  ],
+  "ignorePatterns": [
+    "src/examples/**",
+    "src/_archive/**",
+    "**/*.md"
+  ]
+}

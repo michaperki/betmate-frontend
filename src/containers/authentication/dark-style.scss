@@ -135,7 +135,7 @@
     
     &:focus {
       outline: none;
-      border-color: #00EFB2;
+      border-color: var(--mode-accent);
       box-shadow: 0 0 0 2px rgba(0, 239, 178, 0.2);
     }
     
@@ -152,7 +152,7 @@
     margin-top: 12px;
     padding: 0 24px;
     height: 40px;
-    background-color: #00EFB2;
+    background-color: var(--mode-accent);
     color: #111111;
     font-weight: 500;
     border-radius: 8px;
@@ -219,7 +219,7 @@
     text-decoration: none;
     
     &:hover {
-      color: #00EFB2;
+      color: var(--mode-accent);
       text-decoration: underline;
     }
   }

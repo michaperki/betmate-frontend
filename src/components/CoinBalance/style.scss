@@ -8,14 +8,14 @@
   background-color: #1E1E1E;
   border-radius: 9999px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(0, 239, 178, 0.3);
+  border: 1px solid rgb(var(--mode-accent-rgb) / 0.30);
   transition: all 0.2s ease;
   cursor: pointer;
   outline: none;
 
   &.is-updating {
     filter: saturate(110%);
-    .balance-text { color: $brand-primary; }
+    .balance-text { color: var(--mode-accent); }
   }
 
   /* Compact version for game screen */
@@ -51,7 +51,7 @@
 }
 
 .tokens-text {
-  color: #00EFB2;
+  color: var(--mode-accent);
   font-size: 12px;
   transition: all 0.2s ease;
 

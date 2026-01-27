@@ -35,7 +35,7 @@
     }
 
     &.wdl {
-        border-color: $brand-primary;
+        border-color: var(--mode-accent);
         height: 210px;
     }
 
@@ -62,7 +62,7 @@
     }
 
     &.track-wdl-0 {
-        background-color: rgba($brand-primary, 0.35);
+        background-color: rgb(var(--mode-accent-rgb) / 0.35);
         border-top-left-radius: 20px;
         border-bottom-left-radius: 20px;
     }
@@ -92,6 +92,6 @@
     }
 
     &.thumb-wdl {
-        background-color: $brand-primary;
+        background-color: var(--mode-accent);
     }
 }

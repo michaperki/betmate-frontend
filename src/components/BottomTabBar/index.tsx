@@ -50,7 +50,7 @@ const BottomTabBar: React.FC = () => {
             }}
           >
             <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 10, color: active === t.id ? '#22c55e' : '#e8e8e8', fontWeight: active === t.id ? 700 : 500 }}>{t.id}</span>
+            <span style={{ fontSize: 10, color: active === t.id ? 'var(--mode-accent)' : '#e8e8e8', fontWeight: active === t.id ? 700 : 500 }}>{t.id}</span>
           </button>
         ))}
       </nav>

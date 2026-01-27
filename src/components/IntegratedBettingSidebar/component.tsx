@@ -10,7 +10,7 @@ import {
   onLeaveMovePanel,
   onMoveHover,
   onMoveUnhover,
-  createNewArrows,
+  createArrows,
 } from 'store/actionCreators/chessgroundActionCreators';
 import './style.scss';
 

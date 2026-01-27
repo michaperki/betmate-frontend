@@ -14,7 +14,7 @@
         padding: 0.3em;
 
         &.wdl-auth {
-            border-color: #2DFD83;
+            border-color: var(--mode-accent);
         }
         
         &.wdl-auth:hover {
