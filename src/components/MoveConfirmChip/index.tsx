@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import StarRating from 'components/StarRating';
 
 interface MoveConfirmChipProps {
   parentRef: React.RefObject<HTMLElement>;
@@ -97,8 +98,14 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
         backdropFilter: 'blur(6px)'
       }}>
         {loading ? <Spinner /> : null}
-        <span style={{ opacity: 0.8, minWidth: 60, textAlign: 'center' }}>
-          {loading ? 'Scoring…' : (typeof score === 'number' ? `Score ${Math.round(score)}` : 'Score —')}
+        <span style={{ opacity: 0.9, minWidth: 70, textAlign: 'center' }}>
+          {loading ? (
+            'Scoring…'
+          ) : typeof score === 'number' ? (
+            <StarRating score={score} maxStars={4} size="small" style={{ marginTop: 2 }} />
+          ) : (
+            'Score —'
+          )}
         </span>
         <button
           onClick={onConfirm}

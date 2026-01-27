@@ -23,6 +23,7 @@ import { fetchGameById, fetchGameStats } from 'store/actionCreators/gameActionCr
 import { createWager, fetchActiveWagers, fetchWagerHistory } from 'store/actionCreators/wagerActionCreators';
 import { getTopMoves, getMoveAnalysis } from 'store/requests/analysisRequests';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
+import { moveScoreCache } from 'utils/moveScoreCache';
 
 // Utilities
 import { computeArcadeMoveOdds } from 'utils/pricing';
@@ -291,16 +292,30 @@ const GameContainer: React.FC = () => {
           setProposal({ from: orig, to: dest, san });
           setProposalScore(null);
           setProposalLoading(true);
-          getMoveAnalysis(currentFen, san)
-            .then((resp) => {
-              // Backend returns { message, data } where data = MoveAnalysis
-              const payload = (resp as any)?.data;
-              const moveData = (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data : payload;
-              const val = Number(moveData?.percentile ?? moveData?.score ?? 0);
-              setProposalScore(Number.isFinite(val) ? val : 0);
-            })
-            .catch(() => setProposalScore(null))
-            .finally(() => setProposalLoading(false));
+          // First check if this score is already in our cache
+          const cachedScore = moveScoreCache.get(currentFen, san);
+          if (cachedScore !== null) {
+            setProposalScore(cachedScore);
+            setProposalLoading(false);
+          } else {
+            getMoveAnalysis(currentFen, san)
+              .then((resp) => {
+                // Backend returns { message, data } where data = MoveAnalysis
+                const payload = (resp as any)?.data;
+                const moveData = (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data : payload;
+                const val = Number(moveData?.percentile ?? moveData?.score ?? 0);
+                const score = Number.isFinite(val) ? val : 0;
+
+                // Store the score in cache for future UI consistency
+                if (score > 0) {
+                  moveScoreCache.set(currentFen, san, score);
+                }
+
+                setProposalScore(score);
+              })
+              .catch(() => setProposalScore(null))
+              .finally(() => setProposalLoading(false));
+          }
         } catch {}
       },
     } as any,

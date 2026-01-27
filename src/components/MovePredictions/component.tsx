@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMode } from 'context/ModeContext';
+import StarRating from 'components/StarRating';
 import './style.scss';
 
 // Export interface so it can be imported elsewhere
@@ -143,7 +144,9 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
           >
             <div className="move-predictions__move" style={compact ? { fontSize: 14 } : undefined}>{move.move}</div>
             <div className="move-predictions__details" style={compact ? { fontSize: 11 } : undefined}>
-              <span className="move-predictions__score">{move.score}</span>
+              <span className="move-predictions__score">
+                <StarRating score={move.score} maxStars={4} size={compact ? "small" : "medium"} />
+              </span>
               <span className="move-predictions__odds">x{move.odds.toFixed(2)}</span>
             </div>
             {move.status === 'loading' && (
