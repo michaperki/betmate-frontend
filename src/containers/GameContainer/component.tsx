@@ -293,7 +293,10 @@ const GameContainer: React.FC = () => {
           setProposalLoading(true);
           getMoveAnalysis(currentFen, san)
             .then((resp) => {
-              const val = Number((resp as any)?.data?.percentile ?? (resp as any)?.data?.score ?? 0);
+              // Backend returns { message, data } where data = MoveAnalysis
+              const payload = (resp as any)?.data;
+              const moveData = (payload && typeof payload === 'object' && 'data' in payload) ? (payload as any).data : payload;
+              const val = Number(moveData?.percentile ?? moveData?.score ?? 0);
               setProposalScore(Number.isFinite(val) ? val : 0);
             })
             .catch(() => setProposalScore(null))

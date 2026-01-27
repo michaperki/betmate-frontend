@@ -64,27 +64,78 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
     pointerEvents: 'auto',
   };
 
+  // Subtle spinner for loading state
+  const Spinner = () => (
+    <span
+      aria-label="Loading"
+      style={{
+        width: 12,
+        height: 12,
+        borderRadius: '50%',
+        border: '2px solid var(--border-primary, rgba(255,255,255,0.2))',
+        borderTopColor: 'var(--text-secondary, rgba(255,255,255,0.6))',
+        display: 'inline-block',
+        animation: 'mmc-spin 0.8s linear infinite'
+      }}
+    />
+  );
+
   return (
     <div ref={meRef} style={style}>
       <div style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 6,
-        background: 'rgba(0,0,0,0.75)',
-        color: '#e8e8e8',
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderRadius: 999,
+        gap: 8,
+        background: 'var(--card-bg, rgba(20,20,24,0.9))',
+        color: 'var(--text-primary, #e8e8e8)',
+        border: '1px solid var(--card-border, rgba(255,255,255,0.1))',
+        borderRadius: 10,
         padding: '6px 10px',
         fontSize: 12,
-        boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+        fontFamily: 'inherit',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+        backdropFilter: 'blur(6px)'
       }}>
-        <span style={{ opacity: 0.8 }}>{loading ? 'Scoring…' : (typeof score === 'number' ? `Score ${Math.round(score)}` : 'Score —')}</span>
-        <button onClick={onConfirm} style={{ background: 'var(--success, #22c55e)', color: '#000', border: 'none', borderRadius: 999, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>Confirm</button>
-        <button onClick={onCancel} style={{ background: 'transparent', color: '#e8e8e8', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 999, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>×</button>
+        {loading ? <Spinner /> : null}
+        <span style={{ opacity: 0.8, minWidth: 60, textAlign: 'center' }}>
+          {loading ? 'Scoring…' : (typeof score === 'number' ? `Score ${Math.round(score)}` : 'Score —')}
+        </span>
+        <button
+          onClick={onConfirm}
+          style={{
+            background: 'var(--success, #22c55e)',
+            color: '#000',
+            border: 'none',
+            borderRadius: 8,
+            padding: '4px 8px',
+            fontSize: 12,
+            lineHeight: 1,
+            cursor: 'pointer'
+          }}
+        >
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          aria-label="Cancel"
+          style={{
+            background: 'transparent',
+            color: 'var(--text-secondary, #bdbdbd)',
+            border: '1px solid var(--border-primary, rgba(255,255,255,0.2))',
+            borderRadius: 8,
+            padding: '4px 8px',
+            fontSize: 12,
+            lineHeight: 1,
+            cursor: 'pointer'
+          }}
+        >
+          ×
+        </button>
       </div>
+      {/* Inline keyframes for spinner */}
+      <style>{`@keyframes mmc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };
 
 export default MoveConfirmChip;
-
