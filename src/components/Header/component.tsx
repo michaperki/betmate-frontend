@@ -77,10 +77,54 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
   };
 
   // Reusable pieces
+  // Dev: allow quick PNG export of the CSS brand (Alt+Click or ?exportLogo=1)
+  const maybeExportBrand = (e?: React.MouseEvent | null) => {
+    const alt = (e && (e as React.MouseEvent).altKey) || /[?&]exportLogo=1/.test(window.location.search);
+    if (!alt) return;
+    try {
+      const scale = 2; // for sharper PNG
+      const W = 256 * scale;
+      const H = 72 * scale;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const ctx = c.getContext('2d');
+      if (!ctx) return;
+      ctx.clearRect(0, 0, W, H);
+      // Background transparent
+      // Dots (Y, R, G, B)
+      const dot = 12 * scale;
+      const gap = 4 * scale;
+      const startX = 8 * scale;
+      const startY = 12 * scale;
+      const drawDot = (x: number, y: number, color: string) => {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x + dot / 2, y + dot / 2, dot / 2, 0, Math.PI * 2);
+        ctx.fill();
+      };
+      drawDot(startX + 0 * (dot + gap), startY + 0 * (dot + gap), '#fbbf24');
+      drawDot(startX + 1 * (dot + gap), startY + 0 * (dot + gap), '#f87171');
+      drawDot(startX + 0 * (dot + gap), startY + 1 * (dot + gap), '#22c55e');
+      drawDot(startX + 1 * (dot + gap), startY + 1 * (dot + gap), '#60a5fa');
+      // Text
+      ctx.fillStyle = '#22c55e';
+      ctx.font = `${600 * scale} ${24 * scale}px 'JetBrains Mono','Roboto Mono','SF Mono',monospace`;
+      ctx.textBaseline = 'top';
+      ctx.fillText('BetMate', startX + 2 * (dot + gap) + (8 * scale), (startY - 2 * scale));
+      const url = c.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url; a.download = 'betmate-logo.png'; a.click();
+    } catch { /* no-op */ }
+  };
+
   const Brand = (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+<<<<<<< HEAD
       onClick={(e) => { exportCssLogoPng(e); if (!e.altKey) goTo('/'); }}
+=======
+      onClick={(e) => { maybeExportBrand(e); if (!(e as any).altKey) goTo('/'); }}
+>>>>>>> origin/release
       role="link"
       aria-label="Go to Dashboard"
       title="BetMate (Alt+Click to export logo PNG)"
