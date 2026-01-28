@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { takeEvery } from 'redux-saga/effects';
-import { takeRequest, takeSuccess } from '../utils';
 import { FETCH_GAME_LEADERBOARD } from 'types/leaderboard';
+import { takeRequest, takeSuccess } from '../utils';
 import {
   handleExtendLeaderboardBottom, handleExtendLeaderboardTop, handleGetGameLeaderboard, handleGetLeaderboardHead, handleGetUserRank, handleGoToUserPosition, handleLeaveUserPosition,
 } from './handlers';

@@ -12,7 +12,9 @@ export interface DrawOutcomeCardProps {
   disabledReason?: string;
 }
 
-const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPlace, disabledReason }) => {
+const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({
+  disabled, odds, onPlace, disabledReason,
+}) => {
   const { mode, limits } = useMode();
   const [selected, setSelected] = useState<Outcome | null>(null);
   const [stake, setStake] = useState<number>(2);
@@ -45,8 +47,12 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
   const selectedBg = mode === 'arcade' ? 'rgba(var(--warning-rgb),0.18)' : 'rgba(var(--success-rgb),0.18)';
 
   return (
-    <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{
+      background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: 16,
+    }}>
+      <div style={{
+        fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
         <span>Game Outcome</span>
         <span style={{ opacity: 0.4, fontSize: 10, letterSpacing: '1px' }}>Click to select</span>
       </div>
@@ -63,13 +69,21 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
             opacity: disabled ? 0.5 : 1,
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             minHeight: 86,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>White Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto' }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%',
+          }}>
+            <span style={{
+              fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center',
+            }}>White Wins</span>
+            <span style={{
+              fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto',
+            }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
           </div>
         </button>
 
@@ -84,13 +98,21 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
             opacity: disabled ? 0.5 : 1,
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             minHeight: 86,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Draw</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%',
+          }}>
+            <span style={{
+              fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center',
+            }}>Draw</span>
+            <span style={{
+              fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto',
+            }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
           </div>
         </button>
 
@@ -105,33 +127,45 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
             padding: '14px 12px',
             cursor: disabled ? 'not-allowed' : 'pointer',
             opacity: disabled ? 0.5 : 1,
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             minHeight: 86,
           }}
         >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Black Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%',
+          }}>
+            <span style={{
+              fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center',
+            }}>Black Wins</span>
+            <span style={{
+              fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto',
+            }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
           </div>
         </button>
       </div>
 
       {/* Quick stake + input */}
-      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{
+        marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+      }}>
         {chips.map((v) => (
           <button key={v} onClick={() => setStake(v)} disabled={disabled} style={{
-            padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
+            padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600,
           }}>
             {formatAmountShort(v, curr)}
           </button>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{
+          marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6,
+        }}>
           <input type="number" min={1} step={1} value={stake} onChange={(e) => setStake(Math.max(1, Number(e.target.value) || 0))} disabled={disabled} style={{
-            width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: 12
+            width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: 12,
           }} />
           <span style={{ fontSize: 12, opacity: 0.6 }}>{curr === 'BET' ? 'K' : '$'}</span>
           <button onClick={() => selected && onPlace?.(selected, stake)} disabled={!canAct} style={{
-            padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? (mode === 'arcade' ? 'linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%)' : 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)') : (mode === 'arcade' ? 'rgba(var(--warning-rgb),0.15)' : 'rgba(var(--success-rgb),0.15)'), color: canAct ? '#000' : 'var(--text-secondary)', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12
+            padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? (mode === 'arcade' ? 'linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%)' : 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)') : (mode === 'arcade' ? 'rgba(var(--warning-rgb),0.15)' : 'rgba(var(--success-rgb),0.15)'), color: canAct ? '#000' : 'var(--text-secondary)', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12,
           }}>
             Place
           </button>
@@ -139,7 +173,9 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
       </div>
 
       {/* Hints and disabled copy */}
-      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{
+        marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
         <div style={{ fontSize: 11, opacity: 0.6 }}>
           Min {curr === 'BET' ? `${minStake} K` : `$${minStake}`}{maxHint ? ` • Max ${maxHint}` : ''}
         </div>

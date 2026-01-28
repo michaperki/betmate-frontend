@@ -7,7 +7,7 @@ const initialState: WagerState = {
   wagerHistory: [],
   stats: {
     totalWagers: 0,
-    winRate: 0
+    winRate: 0,
   },
   loading: false,
   error: null,
@@ -31,7 +31,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
         return {
           ...state,
           loading: true,
-          error: null
+          error: null,
         };
       default:
         return state;
@@ -54,7 +54,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
         return {
           ...state,
           loading: false,
-          error: action.payload.message
+          error: action.payload.message,
         };
       default:
         return state;
@@ -84,7 +84,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
         }), state.wagers);
 
         // Also reconcile list views (active vs history) so UIs that rely on them update in realtime
-        const incomingById = new Map<string, Wager>(action.payload.map(w => [w._id, w]));
+        const incomingById = new Map<string, Wager>(action.payload.map((w) => [w._id, w]));
 
         // Active: keep pending only; update existing; add new pending from incoming
         const nextActive: Wager[] = [];
@@ -146,7 +146,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
           ...state,
           stats: action.payload,
           loading: false,
-          error: null
+          error: null,
         };
 
       case 'FETCH_ACTIVE_WAGERS':
@@ -154,7 +154,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
           ...state,
           activeWagers: action.payload,
           loading: false,
-          error: null
+          error: null,
         };
 
       case 'FETCH_WAGER_HISTORY':
@@ -162,7 +162,7 @@ const wagerReducer = (state = initialState, action: Actions): WagerState => {
           ...state,
           wagerHistory: action.payload,
           loading: false,
-          error: null
+          error: null,
         };
 
       case 'DEAUTH_USER':

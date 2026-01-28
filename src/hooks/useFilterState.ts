@@ -16,7 +16,7 @@ export const useFilterState = (games: Game[]) => {
   });
 
   const filteredGames = useMemo(() => {
-    return games.filter(game => {
+    return games.filter((game) => {
       // Time-based filtering
       if (filters.timeFilter !== 'all') {
         const gameTime = new Date(game.created_at).getTime();
@@ -41,7 +41,7 @@ export const useFilterState = (games: Game[]) => {
       // Rating-based filtering
       if (filters.ratingFilter !== 'all') {
         const avgRating = (game.player_black.elo + game.player_white.elo) / 2;
-        
+
         switch (filters.ratingFilter) {
           case 'beginner':
             if (avgRating > 1400) return false;
@@ -60,11 +60,11 @@ export const useFilterState = (games: Game[]) => {
   }, [games, filters]);
 
   const setTimeFilter = (timeFilter: TimeFilter) => {
-    setFilters(prev => ({ ...prev, timeFilter }));
+    setFilters((prev) => ({ ...prev, timeFilter }));
   };
 
   const setRatingFilter = (ratingFilter: RatingFilter) => {
-    setFilters(prev => ({ ...prev, ratingFilter }));
+    setFilters((prev) => ({ ...prev, ratingFilter }));
   };
 
   const clearFilters = () => {

@@ -15,4 +15,3 @@ export const getMatchDetails = async (id: string): Promise<RequestReturnType<Mat
     url: `/matches/${id}/details`,
   });
 };
-

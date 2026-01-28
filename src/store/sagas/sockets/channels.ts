@@ -88,12 +88,10 @@ export const createUpdateWagerStateChannel: ChannelCreator<FetchWagersActions | 
         console.log('Received wager results:', wagers);
 
         // Check if any wagers are resolved but not marked as such
-        const hasIncompleteWagers = wagers.some(w =>
-          (w.status === WagerStatus.WON ||
-           w.status === WagerStatus.LOST ||
-           w.status === WagerStatus.CANCELLED) &&
-          !w.resolved
-        );
+        const hasIncompleteWagers = wagers.some((w) => (w.status === WagerStatus.WON
+           || w.status === WagerStatus.LOST
+           || w.status === WagerStatus.CANCELLED)
+          && !w.resolved);
 
         if (hasIncompleteWagers) {
           console.warn('Some wagers have resolution status but are not marked as resolved');
@@ -173,7 +171,7 @@ export const createViewerCountChannel: ChannelCreator<any> = (socket) => eventCh
       pushToChannel({
         type: 'UPDATE_VIEWER_COUNT',
         status: 'SUCCESS',
-        payload
+        payload,
       });
     };
 
@@ -196,7 +194,7 @@ export const createBetUpdateChannel: ChannelCreator<any> = (socket) => eventChan
       pushToChannel({
         type: 'BET_UPDATE',
         status: 'SUCCESS',
-        payload
+        payload,
       });
     };
 

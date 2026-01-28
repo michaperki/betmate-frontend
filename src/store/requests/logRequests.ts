@@ -7,11 +7,12 @@ export const reportIssue = async (
   extra?: Record<string, any>,
 ) => {
   const url = typeof window !== 'undefined' ? window.location.href : '';
-  return await createBackendAxiosRequest<{ ok: boolean }>({
+  return createBackendAxiosRequest<{ ok: boolean }>({
     method: 'POST',
     url: '/api/log/issue',
-    data: { description, category, url, extra },
+    data: {
+      description, category, url, extra,
+    },
     headers: getBearerTokenHeader(),
   });
 };
-

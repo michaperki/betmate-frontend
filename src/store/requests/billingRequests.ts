@@ -1,7 +1,7 @@
-import { createBackendAxiosRequest } from '.';
 import { FAUCET_ADMIN_KEY, DEV_WEBHOOK_KEY } from 'utils/config';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
+import { createBackendAxiosRequest } from '.';
 
 export const createDepositIntent = async (amount: number, payCurrency: string) => (
   createBackendAxiosRequest<{ hosted_url: string; deposit_id: string }>({
@@ -58,11 +58,13 @@ export const listWithdrawals = async () => (
   }) as unknown as RequestReturnType<{ withdrawals: any[] }>
 );
 
-export const requestWithdrawal = async (amount: number, currency: string, address: string, method?: 'manual'|'venmo'|'crypto', handle?: string) => (
+export const requestWithdrawal = async (amount: number, currency: string, address: string, method?: 'manual' | 'venmo' | 'crypto', handle?: string) => (
   createBackendAxiosRequest<{ ok: boolean; withdrawal_id: string }>({
     method: 'POST',
     url: '/billing/withdrawals/request',
-    data: { amount, currency, address, ...(method ? { method } : {}), ...(handle ? { handle } : {}) },
+    data: {
+      amount, currency, address, ...(method ? { method } : {}), ...(handle ? { handle } : {}),
+    },
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ ok: boolean; withdrawal_id: string }>
 );

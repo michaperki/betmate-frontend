@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import { getAdminDeposits, clearStaleInvoices, getAdminWithdrawals, approveWithdrawal, rejectWithdrawal, markWithdrawalPaid, markWithdrawalProcessing, markWithdrawalFailed } from 'store/requests/adminRequests';
+import {
+  getAdminDeposits, clearStaleInvoices, getAdminWithdrawals, approveWithdrawal, rejectWithdrawal, markWithdrawalPaid, markWithdrawalProcessing, markWithdrawalFailed,
+} from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
 type DepositItem = {
@@ -69,11 +71,15 @@ const AdminWallet: React.FC = () => {
           <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        }}>
           <h2 style={{ margin: 0 }}>Admin — Wallet</h2>
           <button onClick={() => { refresh(); refreshWithdrawals(); }} disabled={loading || wLoading} style={{ marginLeft: 'auto' }}>{(loading || wLoading) ? 'Refreshing…' : 'Refresh'}</button>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{
+          marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
+        }}>
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">All</option>
             <option value="pending">Pending</option>
@@ -112,7 +118,9 @@ const AdminWallet: React.FC = () => {
         </div>
 
         <div style={{ marginTop: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+          }}>
             <h3 style={{ margin: 0 }}>Withdrawals</h3>
             <select value={wStatus} onChange={(e) => setWStatus(e.target.value)}>
               <option value="">All</option>
@@ -158,10 +166,14 @@ const AdminWallet: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ marginTop: 24, padding: 12, border: '1px solid #e5e7eb', borderRadius: 6 }}>
+        <div style={{
+          marginTop: 24, padding: 12, border: '1px solid #e5e7eb', borderRadius: 6,
+        }}>
           <h3 style={{ marginTop: 0 }}>Dev/Staging — Clear stale pending invoices</h3>
           <p style={{ marginTop: 4, color: '#6b7280' }}>Type CLEAR and confirm to mark pending invoices older than N minutes as failed.</p>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
+          }}>
             <input type="text" placeholder="Type CLEAR" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} />
             <input type="number" min={5} max={1440} defaultValue={60} id="stale-mins" />
             <button
@@ -183,7 +195,7 @@ const AdminWallet: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
     </div>
   );
 };

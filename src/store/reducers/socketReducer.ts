@@ -45,7 +45,7 @@ const socketReducer = (state = initialState, action: Actions): SocketState => {
         };
       }
       return state;
-      
+
     case 'SOCKET_CONNECTION_STATE':
       if (action.payload.state === 'connected') {
         return {
@@ -70,14 +70,14 @@ const socketReducer = (state = initialState, action: Actions): SocketState => {
         };
       }
       return state;
-      
+
     case 'SOCKET_RECONNECTING':
       return {
         ...state,
         connectionState: 'reconnecting',
         reconnectAttempt: action.payload.attempt,
       };
-      
+
     case 'SOCKET_RECONNECTED':
       return {
         ...state,
@@ -85,14 +85,14 @@ const socketReducer = (state = initialState, action: Actions): SocketState => {
         error: null,
         lastConnected: Date.now(),
       };
-      
+
     case 'SOCKET_RECONNECT_FAILED':
       return {
         ...state,
         connectionState: 'error',
         error: `Failed to reconnect after ${action.payload.maxAttempts} attempts`,
       };
-      
+
     case 'QUEUE_SOCKET_MESSAGE':
       return {
         ...state,
@@ -101,13 +101,13 @@ const socketReducer = (state = initialState, action: Actions): SocketState => {
           payload: action.payload.payload,
         }],
       };
-      
+
     case 'CLEAR_SOCKET_QUEUE':
       return {
         ...state,
         messageQueue: [],
       };
-      
+
     default:
       return state;
   }

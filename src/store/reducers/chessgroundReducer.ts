@@ -117,7 +117,7 @@ const chessgroundReducer = (
       const arrow = [{
         orig: action.payload.from,
         dest: action.payload.to,
-        brush: 'green'
+        brush: 'green',
       }] as DrawShape[];
 
       return {

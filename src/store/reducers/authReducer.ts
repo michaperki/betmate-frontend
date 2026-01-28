@@ -1,4 +1,6 @@
-import { AuthState, GET_BALANCE_HISTORY, ADJUST_BALANCE, SET_BALANCE } from 'types/resources/auth';
+import {
+  AuthState, GET_BALANCE_HISTORY, ADJUST_BALANCE, SET_BALANCE,
+} from 'types/resources/auth';
 import { Actions } from 'types/state';
 
 const initialState: AuthState = {
@@ -19,14 +21,14 @@ const reducer = (state = initialState, action: Actions): AuthState => {
           loadingBalanceHistory: true,
           balanceHistoryError: null,
         };
-        
+
       case 'SUCCESS':
         return {
           ...state,
           balanceHistory: action.payload as any,
           loadingBalanceHistory: false,
         };
-        
+
       case 'FAILURE':
         return {
           ...state,
@@ -35,10 +37,10 @@ const reducer = (state = initialState, action: Actions): AuthState => {
         };
     }
   }
-  
+
   // Only process the rest of the cases if action.status is SUCCESS
   if (action.status !== 'SUCCESS') return state;
-  
+
   switch (action.type) {
     case ADJUST_BALANCE: {
       if (!state.user) return state;

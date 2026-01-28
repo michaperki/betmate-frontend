@@ -40,7 +40,9 @@ const AdminOps: React.FC = () => {
           <button onClick={refresh} disabled={loading} style={{ marginLeft: 'auto' }}>{loading ? 'Refreshing…' : 'Refresh'}</button>
         </div>
 
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 12 }}>
+        <div style={{
+          display: 'flex', gap: 16, flexWrap: 'wrap', marginTop: 12,
+        }}>
           <div className="admin-card">
             <div className="admin-card__title">Health</div>
             <div className="admin-row"><span>DB</span><span>{stats?.db || '-'}</span></div>
@@ -61,7 +63,7 @@ const AdminOps: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
     </div>
   );
 };

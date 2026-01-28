@@ -107,19 +107,19 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
     case 'TOGGLE_QUICK_BET':
       return {
         ...state,
-        quickBetMode: !state.quickBetMode
+        quickBetMode: !state.quickBetMode,
       };
 
     case 'SET_PENDING_BET':
       return {
         ...state,
-        pendingBet: action.payload
+        pendingBet: action.payload,
       };
 
     case 'CLEAR_PENDING_BET':
       return {
         ...state,
-        pendingBet: null
+        pendingBet: null,
       };
 
     case 'FETCH_GAME_STATS':
@@ -127,8 +127,8 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
         ...state,
         gameStats: {
           ...state.gameStats,
-          [action.payload.gameId]: action.payload
-        }
+          [action.payload.gameId]: action.payload,
+        },
       };
 
     case 'UPDATE_VIEWER_COUNT':
@@ -139,9 +139,9 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
           ...state.gameStats,
           [gameId]: {
             ...state.gameStats[gameId],
-            viewerCount
-          }
-        }
+            viewerCount,
+          },
+        },
       };
 
     default:

@@ -111,7 +111,9 @@ export function* updateWagerStateHandler(socket: Socket) {
             const prev = lastStatus.get(w._id);
             if (w.status === WagerStatus.CANCELLED && prev && prev !== WagerStatus.CANCELLED) {
               const readable = readableBet(!!w?.wdl, String(w?.data));
-              emitNotification({ type: 'info', title: 'Bet Refunded', message: `${readable} — no winners`, icon: '↺' });
+              emitNotification({
+                type: 'info', title: 'Bet Refunded', message: `${readable} — no winners`, icon: '↺',
+              });
             }
             if (w.status === WagerStatus.WON && prev && prev !== WagerStatus.WON) {
               const readable = readableBet(!!w?.wdl, String(w?.data));
@@ -273,7 +275,7 @@ export function* viewerCountHandler(socket: Socket) {
       yield put({
         type: 'UPDATE_VIEWER_COUNT',
         status: 'SUCCESS',
-        payload: action.payload
+        payload: action.payload,
       });
     } catch (error) {
       // Silent error handling for viewer count updates
@@ -299,7 +301,7 @@ export function* betUpdateHandler(socket: Socket) {
       yield put({
         type: 'FETCH_GAME_STATS',
         status: 'REQUEST',
-        payload: { id: action.payload.gameId }
+        payload: { id: action.payload.gameId },
       });
       // If backend includes an updated balance, set it immediately (skip extra fetch)
       if (action.payload && typeof action.payload.balance === 'number') {
@@ -339,7 +341,7 @@ export function* gameEndRefreshHandler(socket: Socket) {
           yield put<Actions>({
             type: 'FETCH_GAMES',
             status: 'REQUEST',
-            payload: { game_status: ['not_started', 'in_progress'] }
+            payload: { game_status: ['not_started', 'in_progress'] },
           });
 
           // Dispatch a custom event that components can listen for
@@ -348,18 +350,18 @@ export function* gameEndRefreshHandler(socket: Socket) {
               gameId: action.payload.gameId,
               gameStatus: action.payload.game_status,
               timestamp: Date.now(),
-              complete: action.payload.complete
-            }
+              complete: action.payload.complete,
+            },
           });
 
           window.dispatchEvent(gameEndEvent);
 
           // Dispatch a second refresh after a delay as a backup
-          yield new Promise(resolve => setTimeout(resolve, 1500));
+          yield new Promise((resolve) => setTimeout(resolve, 1500));
           yield put<Actions>({
             type: 'FETCH_GAMES',
             status: 'REQUEST',
-            payload: { game_status: ['not_started', 'in_progress'] }
+            payload: { game_status: ['not_started', 'in_progress'] },
           });
         } else {
           console.error('Error: UPDATE_GAME_END payload missing gameId:', action.payload);

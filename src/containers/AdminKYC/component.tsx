@@ -37,11 +37,15 @@ const AdminKYC: React.FC = () => {
           <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
+        }}>
           <h2 style={{ margin: 0 }}>Admin — KYC</h2>
           <button onClick={refresh} disabled={loading} style={{ marginLeft: 'auto' }}>{loading ? 'Refreshing…' : 'Refresh'}</button>
         </div>
-        <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{
+          marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
+        }}>
           <select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">All</option>
             <option value="pending">Pending</option>
@@ -78,7 +82,7 @@ const AdminKYC: React.FC = () => {
           )}
         </div>
       </div>
-      
+
     </div>
   );
 };

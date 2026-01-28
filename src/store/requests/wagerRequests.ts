@@ -1,7 +1,9 @@
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { createBackendAxiosRequest } from 'store/requests';
 
-import { FetchWagerData, FetchWagersData, UserBettingStats, WagerStatus } from 'types/resources/wager';
+import {
+  FetchWagerData, FetchWagersData, UserBettingStats, WagerStatus,
+} from 'types/resources/wager';
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { WagerArraySchema, WagerSchema } from 'validation/wager';
@@ -56,7 +58,7 @@ export const fetchWagers = async (): Promise<RequestReturnType<FetchWagersData>>
 };
 
 export const fetchUserBettingStats = async (): Promise<RequestReturnType<UserBettingStats>> => {
-  return await createBackendAxiosRequest<UserBettingStats>({
+  return createBackendAxiosRequest<UserBettingStats>({
     method: 'GET',
     url: '/wager/stats',
     headers: getBearerTokenHeader(),
@@ -76,7 +78,7 @@ export const fetchActiveWagers = async (): Promise<RequestReturnType<FetchWagers
 export const fetchWagerHistory = async (
   status?: WagerStatus,
   limit?: number,
-  skip?: number
+  skip?: number,
 ): Promise<RequestReturnType<FetchWagersData>> => {
   // Build query params
   const params = new URLSearchParams();

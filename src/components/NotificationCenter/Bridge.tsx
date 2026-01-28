@@ -3,7 +3,9 @@ import { subscribe } from './bus';
 import { useNotifications } from './context';
 
 const NotificationBridge: React.FC = () => {
-  const { notify, notifySuccess, notifyError, notifyInfo } = useNotifications();
+  const {
+    notify, notifySuccess, notifyError, notifyInfo,
+  } = useNotifications();
 
   useEffect(() => {
     return subscribe((n) => {

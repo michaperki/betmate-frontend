@@ -60,7 +60,7 @@ async function sendToAxiom(event: LogEvent): Promise<void> {
         request_id: (event.context && (event.context as any).request_id) || lastRequestId || undefined,
         session_trace_id: SESSION_TRACE_ID,
         url: typeof window !== 'undefined' ? window.location.href : undefined,
-      }
+      },
     } as LogEvent & { ts: string };
 
     // In development, just log to console
@@ -94,7 +94,9 @@ async function sendToAxiom(event: LogEvent): Promise<void> {
 export function log(event: LogEvent): void {
   // Always log to console in development
   if (isDev) {
-    const { level, message, event: eventName, context } = event;
+    const {
+      level, message, event: eventName, context,
+    } = event;
     console[level](`[${eventName}]${message ? ` ${message}` : ''}`, context || '');
   }
 
@@ -114,11 +116,11 @@ export function log(event: LogEvent): void {
 export function logError(
   error: Error | string,
   context?: Record<string, any>,
-  eventName = 'frontend_error'
+  eventName = 'frontend_error',
 ): void {
   const errorMessage = error instanceof Error ? error.message : error;
   const stack = error instanceof Error ? error.stack : undefined;
-  
+
   log({
     level: 'error',
     event: eventName,
@@ -136,7 +138,7 @@ export function logError(
  */
 export function logUserAction(
   action: string,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): void {
   log({
     level: 'info',
@@ -168,18 +170,22 @@ export function initErrorTracking(): void {
 
 // Export default logger object with convenience methods
 export default {
-  debug: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'debug', event, message, context }),
-  
-  info: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'info', event, message, context }),
-  
-  warn: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'warn', event, message, context }),
-  
-  error: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'error', event, message, context }),
-  
+  debug: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'debug', event, message, context,
+  }),
+
+  info: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'info', event, message, context,
+  }),
+
+  warn: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'warn', event, message, context,
+  }),
+
+  error: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'error', event, message, context,
+  }),
+
   logError,
   logUserAction,
   initErrorTracking,

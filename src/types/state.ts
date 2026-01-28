@@ -13,6 +13,11 @@ import { WagerActions, WagerActionTypes, WagerState } from 'types/resources/wage
 import { CgActions, CgActionTypes, ChessgroundState } from './chessground';
 import { LeaderboardActions, LeaderboardActionTypes, LeaderboardState } from './leaderboard';
 
+/* -------- State -------- */
+
+// Import the socket state type
+import { SocketState } from '../store/reducers/socketReducer';
+
 /* -------- Action Types -------- */
 
 export type Actions =
@@ -47,11 +52,6 @@ export type AsyncAction<T extends string, D, R = Empty> =
   Action<T, { message: string, code: Code }, 'FAILURE'>;
 
 export type RequestReturnType<D> = AxiosResponse<D>;
-
-/* -------- State -------- */
-
-// Import the socket state type
-import { SocketState } from '../store/reducers/socketReducer';
 
 export interface RootState {
   auth: AuthState,

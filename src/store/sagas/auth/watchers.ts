@@ -9,7 +9,7 @@ import { getErrorPayload } from 'utils/error';
 import { Actions, RequestReturnType } from 'types/state';
 import {
   AuthUserResponseData, SignInUserActions, CreateUserActions, JwtSignInActions, JwtSignInResponseData,
-  GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions
+  GET_BALANCE_HISTORY, BalanceHistoryResponseData, GetBalanceHistoryActions,
 } from 'types/resources/auth';
 import { setBearerToken, removeBearerToken, getBearerToken } from 'store/actionCreators';
 

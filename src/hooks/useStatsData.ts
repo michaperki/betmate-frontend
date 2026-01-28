@@ -26,7 +26,9 @@ export function useStatsData() {
     : []), [wagerHistory]);
 
   const totals = useMemo(() => {
-    const sum = { totalBets: 0, wonBets: 0, lostBets: 0, totalWagered: 0, profit: 0 };
+    const sum = {
+      totalBets: 0, wonBets: 0, lostBets: 0, totalWagered: 0, profit: 0,
+    };
     for (const w of completed) {
       sum.totalBets += 1;
       sum.totalWagered += Number(w.amount) || 0;

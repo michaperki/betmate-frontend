@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext, useContext, useEffect, useState,
+} from 'react';
 
 export type Theme = 'dark' | 'light';
 
@@ -14,13 +16,13 @@ const STORAGE_KEY = 'betmate.theme';
 
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') return 'dark';
-  
+
   // Check localStorage first
   const storedTheme = window.localStorage.getItem(STORAGE_KEY);
   if (storedTheme === 'light' || storedTheme === 'dark') {
     return storedTheme as Theme;
   }
-  
+
   // Check user preference
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   return prefersDark ? 'dark' : 'light';
@@ -32,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Apply theme class to html element
   useEffect(() => {
     const html = document.documentElement;
-    
+
     if (theme === 'light') {
       html.classList.add('light-mode');
       html.classList.remove('dark-mode');
@@ -40,7 +42,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       html.classList.add('dark-mode');
       html.classList.remove('light-mode');
     }
-    
+
     // Save to localStorage
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
@@ -61,7 +63,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Watch for system preference changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = () => {
       // Only update if user hasn't explicitly chosen a theme
       const storedTheme = window.localStorage.getItem(STORAGE_KEY);
@@ -69,13 +71,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setThemeState(mediaQuery.matches ? 'dark' : 'light');
       }
     };
-    
+
     // Modern browsers
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-    
+
     // Fallback for older browsers
     else if ('addListener' in mediaQuery) {
       // @ts-ignore - Old method, typescript doesn't recognize it
@@ -85,12 +87,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         mediaQuery.removeListener(handleChange);
       };
     }
-    
+
     return undefined;
   }, []);
 
   const setTheme = (newTheme: Theme) => setThemeState(newTheme);
-  const toggleTheme = () => setThemeState(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  const toggleTheme = () => setThemeState((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>

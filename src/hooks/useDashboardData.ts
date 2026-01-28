@@ -2,14 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Chess } from 'chess.js';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'types/state';
-import { fetchGamesByStatus } from 'store/actionCreators/gameActionCreators';
+import { fetchGamesByStatus, fetchGameStats } from 'store/actionCreators/gameActionCreators';
 import { fetchWagerHistory, fetchUserBettingStats } from 'store/actionCreators/wagerActionCreators';
 import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { getLeaderboardHead } from 'store/actionCreators/leaderboardActionCreators';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
 import { Game } from 'types/resources/game';
 import { useMode } from 'context/ModeContext';
-import { fetchGameStats } from 'store/actionCreators/gameActionCreators';
 
 type LiveMatchCard = {
   id: string;
@@ -115,7 +114,7 @@ export function useDashboardData() {
   };
 
   // Local ticking clocks per live game id
-  const [clocks, setClocks] = useState<Record<string, { white: number; black: number; side: 'white'|'black' }>>({});
+  const [clocks, setClocks] = useState<Record<string, { white: number; black: number; side: 'white' | 'black' }>>({});
 
   const toFormat = (tf?: string): string => {
     const t = String(tf || '').trim();
@@ -145,7 +144,7 @@ export function useDashboardData() {
   const liveMatches: LiveMatchCard[] = useMemo(() => {
     const list = Object.values(gamesMap || {}) as Game[];
     if (!list.length) return [];
-    const filtered = list.filter(g => (g.game_status === 'not_started' || g.game_status === 'in_progress'));
+    const filtered = list.filter((g) => (g.game_status === 'not_started' || g.game_status === 'in_progress'));
     const items = filtered.map((g, idx) => {
       const move = Array.isArray(g.move_hist) ? g.move_hist.length : 0;
       const stats = gameStats[g._id];
@@ -174,7 +173,7 @@ export function useDashboardData() {
       } as LiveMatchCard;
     });
     // Keep featured match first
-    items.sort((a, b) => (a.featured === b.featured) ? 0 : (a.featured ? -1 : 1));
+    items.sort((a, b) => ((a.featured === b.featured) ? 0 : (a.featured ? -1 : 1)));
     return items;
   }, [gamesMap, gameStats, featuredId, clocks]);
 
@@ -182,28 +181,28 @@ export function useDashboardData() {
   useEffect(() => {
     if (!liveMatches || liveMatches.length === 0) return;
     const iv = window.setInterval(() => {
-      const ids = liveMatches.slice(0, 12).map(m => m.id); // cap to first 12
+      const ids = liveMatches.slice(0, 12).map((m) => m.id); // cap to first 12
       for (const id of ids) {
         try { dispatch(fetchGameStats(id)); } catch {}
       }
     }, 8000);
     return () => window.clearInterval(iv);
-  }, [dispatch, liveMatches.map(m => m.id).join(',')]);
+  }, [dispatch, liveMatches.map((m) => m.id).join(',')]);
 
   // Sync local clock state with store updates (initialize/reset)
   useEffect(() => {
     const list = Object.values(gamesMap || {}) as Game[];
-    const filtered = list.filter(g => (g.game_status === 'not_started' || g.game_status === 'in_progress'));
+    const filtered = list.filter((g) => (g.game_status === 'not_started' || g.game_status === 'in_progress'));
     if (!filtered.length) {
       setClocks({});
       return;
     }
     setClocks((prev) => {
-      const next: Record<string, { white: number; black: number; side: 'white'|'black' }> = {};
+      const next: Record<string, { white: number; black: number; side: 'white' | 'black' }> = {};
       for (const g of filtered) {
         const white = toSeconds(g.time_white, g.time_format);
         const black = toSeconds(g.time_black, g.time_format);
-        let side: 'white'|'black' = 'white';
+        let side: 'white' | 'black' = 'white';
         try { side = (new Chess(g.state).turn() === 'w') ? 'white' : 'black'; } catch {
           const mv = Array.isArray(g.move_hist) ? g.move_hist.length : 0;
           side = (mv % 2 === 0) ? 'white' : 'black';
@@ -250,7 +249,9 @@ export function useDashboardData() {
       const amount = Number(w.amount) || 0;
       const odds = Number(w.odds) || 1;
       const profit = result === 'won' ? (amount * odds - amount) : (result === 'lost' ? -amount : 0);
-      return { type, odds, amount, result, profit, currency };
+      return {
+        type, odds, amount, result, profit, currency,
+      };
     });
   }, [wagerHistory]);
 
@@ -281,7 +282,9 @@ export function useDashboardData() {
 
   const quickStats = useMemo(() => {
     if (!Array.isArray(wagerHistory) || wagerHistory.length === 0) {
-      return { totalWagered: 0, avgBetSize: 0, bestWin: 0, favorite: 'Move' as 'Move' | 'WDL' };
+      return {
+        totalWagered: 0, avgBetSize: 0, bestWin: 0, favorite: 'Move' as 'Move' | 'WDL',
+      };
     }
     const totalWagered = wagerHistory.reduce((s: number, w: any) => s + (Number(w.amount) || 0), 0);
     const avgBetSize = totalWagered / Math.max(1, wagerHistory.length);

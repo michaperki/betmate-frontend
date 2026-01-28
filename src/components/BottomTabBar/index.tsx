@@ -24,7 +24,10 @@ const BottomTabBar: React.FC = () => {
 
   return (
     <div aria-label="Primary navigation" style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0,
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
       display: 'none',
       background: 'rgba(18, 18, 26, 0.95)',
       backdropFilter: 'blur(20px)',
@@ -35,18 +38,22 @@ const BottomTabBar: React.FC = () => {
     className="bm-bottom-tabbar"
     >
       <nav style={{ display: 'flex', justifyContent: 'space-around' }}>
-        {tabs.map(t => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => history.push(t.route)}
             aria-current={active === t.id ? 'page' : undefined}
             style={{
-              background: 'none', border: 'none',
+              background: 'none',
+              border: 'none',
               padding: '6px 8px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
               cursor: 'pointer',
               opacity: active === t.id ? 1 : 0.6,
-              color: '#e8e8e8'
+              color: '#e8e8e8',
             }}
           >
             <span style={{ fontSize: 20 }}>{t.icon}</span>

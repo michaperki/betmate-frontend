@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import ChessgroundWrapper from '../ChessgroundWrapper';
 import { Config } from 'chessground/config';
+import ChessgroundWrapper from '../ChessgroundWrapper';
 import './style.scss';
 
 interface ChessboardProps {
@@ -13,7 +13,9 @@ interface ChessboardProps {
 }
 
 const Chessboard = forwardRef<HTMLDivElement, ChessboardProps>(
-  ({ config, gameStatus = 'live', winner, endType, onRestart, onReview }, ref) => {
+  ({
+    config, gameStatus = 'live', winner, endType, onRestart, onReview,
+  }, ref) => {
     return (
       <div className="chessboard" ref={ref}>
         <div className="chessboard__container">
@@ -67,7 +69,7 @@ const Chessboard = forwardRef<HTMLDivElement, ChessboardProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 Chessboard.displayName = 'Chessboard';

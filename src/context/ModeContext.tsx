@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext, useContext, useEffect, useMemo, useState,
+} from 'react';
 import { ROOT_URL } from 'utils';
 
 export type BetMode = 'arcade' | 'real';
@@ -35,7 +37,7 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [mode, setModeState] = useState<BetMode>(getInitialMode);
   const [realEnabled, setRealEnabled] = useState<boolean>(true);
   // Default: suppress onboarding in local/dev for friction-free flows
-  const defaultOnboarding = (process.env.TARGET_ENV === 'local' || process.env.NODE_ENV !== 'production') ? false : true;
+  const defaultOnboarding = !((process.env.TARGET_ENV === 'local' || process.env.NODE_ENV !== 'production'));
   const [onboardingEnabled, setOnboardingEnabled] = useState<boolean | undefined>(defaultOnboarding);
   const [withdrawEnabled, setWithdrawEnabled] = useState<boolean | undefined>(undefined);
   const [requireKyc, setRequireKyc] = useState<boolean | undefined>(undefined);
@@ -117,12 +119,14 @@ export const ModeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [mode]);
 
   const setMode = (m: BetMode) => setModeState(m === 'real' && !realEnabled ? 'arcade' : m);
-  const toggleMode = () => setModeState(prev => {
+  const toggleMode = () => setModeState((prev) => {
     if (!realEnabled) return 'arcade';
     return prev === 'arcade' ? 'real' : 'arcade';
   });
 
-  const value = useMemo(() => ({ mode, setMode, toggleMode, realEnabled, onboardingEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits }), [mode, realEnabled, onboardingEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits]);
+  const value = useMemo(() => ({
+    mode, setMode, toggleMode, realEnabled, onboardingEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits,
+  }), [mode, realEnabled, onboardingEnabled, withdrawEnabled, requireKyc, pricingVersion, faucetEnabled, risk, limits]);
   return <ModeContext.Provider value={value}>{children}</ModeContext.Provider>;
 };
 

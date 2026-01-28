@@ -4,9 +4,9 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { RootState } from 'types/state';
 import { useMode } from 'context/ModeContext';
 import { signOutUser } from 'store/actionCreators/authActionCreators';
+import { currencyShortName, formatAmountShort, modeCurrency } from 'utils/currency';
 import DepositModal from './DepositModal';
 import WithdrawModal from './WithdrawModal';
-import { currencyShortName, formatAmountShort, modeCurrency } from 'utils/currency';
 
 const ProfileDropdown: React.FC = () => {
   const dispatch = useDispatch();
@@ -55,7 +55,7 @@ const ProfileDropdown: React.FC = () => {
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
         style={{
@@ -64,9 +64,14 @@ const ProfileDropdown: React.FC = () => {
           borderRadius: '50%',
           background: open ? 'linear-gradient(135deg, var(--mode-accent-strong) 0%, var(--mode-accent) 100%)' : 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
           border: open ? '2px solid rgb(var(--mode-accent-rgb) / 0.45)' : '2px solid transparent',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, fontWeight: 700, color: '#000', cursor: 'pointer',
-          boxShadow: '0 0 0 2px rgb(var(--mode-accent-rgb) / 0.20)'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#000',
+          cursor: 'pointer',
+          boxShadow: '0 0 0 2px rgb(var(--mode-accent-rgb) / 0.20)',
         }}
       >
         {avatar}
@@ -83,11 +88,15 @@ const ProfileDropdown: React.FC = () => {
           borderRadius: 16,
           boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
           zIndex: 1000,
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}>
           {/* Header */}
-          <div style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{avatar}</div>
+          <div style={{
+            padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 12, alignItems: 'center',
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700,
+            }}>{avatar}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.full_name || user?.first_name || 'User'}</div>
               <div style={{ fontSize: 11, opacity: 0.6 }}>{user?.email || ''}</div>
@@ -96,18 +105,28 @@ const ProfileDropdown: React.FC = () => {
 
           {/* Actions */}
           <div style={{ padding: 8 }}>
-            <a role="menuitem" onClick={() => go('/bets')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
-            <a role="menuitem" onClick={() => go('/user')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
-            <a role="menuitem" onClick={() => go('/stats')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer' }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
+            <a role="menuitem" onClick={() => go('/bets')} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer',
+            }}>🎯 <span style={{ fontSize: 14 }}>My Bets</span></a>
+            <a role="menuitem" onClick={() => go('/user')} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer',
+            }}>⚙️ <span style={{ fontSize: 14 }}>Settings</span></a>
+            <a role="menuitem" onClick={() => go('/stats')} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#e8e8e8', textDecoration: 'none', cursor: 'pointer',
+            }}>📊 <span style={{ fontSize: 14 }}>Statistics</span></a>
             <a
               role="menuitem"
               onClick={() => { setOpen(false); setShowDeposit(true); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: 'var(--mode-accent)', textDecoration: 'none', cursor: 'pointer', background: 'rgb(var(--mode-accent-rgb) / 0.10)', border: '1px solid rgb(var(--mode-accent-rgb) / 0.20)' }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: 'var(--mode-accent)', textDecoration: 'none', cursor: 'pointer', background: 'rgb(var(--mode-accent-rgb) / 0.10)', border: '1px solid rgb(var(--mode-accent-rgb) / 0.20)',
+              }}
             >💰 <span style={{ fontSize: 14, fontWeight: 600 }}>Deposit</span></a>
             <a
               role="menuitem"
               onClick={() => { setOpen(false); setShowWithdraw(true); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#f87171', textDecoration: 'none', cursor: 'pointer', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', marginTop: 6 }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#f87171', textDecoration: 'none', cursor: 'pointer', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', marginTop: 6,
+              }}
             >🏧 <span style={{ fontSize: 14, fontWeight: 600 }}>Withdraw</span></a>
           </div>
 
@@ -115,7 +134,9 @@ const ProfileDropdown: React.FC = () => {
 
           {/* Footer */}
           <div style={{ padding: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', fontSize: 12, opacity: 0.8 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', fontSize: 12, opacity: 0.8,
+            }}>
               <span>Balance</span>
               {(() => {
                 const c = modeCurrency(mode);
@@ -125,7 +146,9 @@ const ProfileDropdown: React.FC = () => {
                 );
               })()}
             </div>
-            <button onClick={signOut} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '10px 12px', border: 'none', borderRadius: 10, background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer' }}>🚪 <span style={{ fontSize: 14, fontWeight: 500 }}>Sign Out</span></button>
+            <button onClick={signOut} style={{
+              display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '10px 12px', border: 'none', borderRadius: 10, background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer',
+            }}>🚪 <span style={{ fontSize: 14, fontWeight: 500 }}>Sign Out</span></button>
           </div>
         </div>
       )}

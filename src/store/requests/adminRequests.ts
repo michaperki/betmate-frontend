@@ -1,6 +1,6 @@
-import { createBackendAxiosRequest } from '.';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { FAUCET_ADMIN_KEY } from 'utils/config';
+import { createBackendAxiosRequest } from '.';
 
 const adminHeaders = () => ({
   ...getBearerTokenHeader(),
@@ -12,7 +12,9 @@ export const getRiskConfig = async () => (
 );
 
 export const updateRiskConfig = async (patch: any) => (
-  createBackendAxiosRequest<any>({ method: 'PUT', url: '/admin/risk/config', data: patch, headers: adminHeaders() })
+  createBackendAxiosRequest<any>({
+    method: 'PUT', url: '/admin/risk/config', data: patch, headers: adminHeaders(),
+  })
 );
 
 export const getGlobalExposure = async () => (
@@ -38,7 +40,9 @@ export const getAdminFeatures = async () => {
 };
 
 export const updateAdminFeatures = async (patch: any) => {
-  const res = await createBackendAxiosRequest<any>({ method: 'PUT', url: '/admin/features', data: patch, headers: adminHeaders() });
+  const res = await createBackendAxiosRequest<any>({
+    method: 'PUT', url: '/admin/features', data: patch, headers: adminHeaders(),
+  });
   return res.data;
 };
 
@@ -63,12 +67,16 @@ export const getAdminDeposits = async ({ status, since, limit }: { status?: stri
 };
 
 export const clearStaleInvoices = async (olderThanMinutes: number) => {
-  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/dev/clear-stale-invoices', data: { olderThanMinutes }, headers: adminHeaders() });
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST', url: '/admin/dev/clear-stale-invoices', data: { olderThanMinutes }, headers: adminHeaders(),
+  });
   return res.data;
 };
 
-export const applyRiskPreset = async (level: 'low'|'med'|'high') => {
-  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/risk/preset', data: { level }, headers: adminHeaders() });
+export const applyRiskPreset = async (level: 'low' | 'med' | 'high') => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST', url: '/admin/risk/preset', data: { level }, headers: adminHeaders(),
+  });
   return res.data;
 };
 
@@ -94,7 +102,9 @@ export const pingMicroservice = async () => {
 };
 
 export const clearStaleWagers = async (olderThanMinutes: number) => {
-  const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/dev/clear-stale-wagers', data: { olderThanMinutes }, headers: adminHeaders() });
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST', url: '/admin/dev/clear-stale-wagers', data: { olderThanMinutes }, headers: adminHeaders(),
+  });
   return res.data;
 };
 

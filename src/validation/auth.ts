@@ -22,7 +22,7 @@ const BalanceHistoryItemSchema = joi.object({
   reference_id: joi.string().optional(),
   reference_type: joi.string().optional(),
   created_at: joi.string().required(),
-  updated_at: joi.string().required()
+  updated_at: joi.string().required(),
 }).unknown(true);
 
 export const BalanceHistoryResponseSchema = joi.array().items(BalanceHistoryItemSchema);

@@ -15,4 +15,3 @@ export function readableBet(wdl: boolean | undefined, data: string | number): st
   const d = String(data);
   return wdl ? wdlLabel(d) : `Move ${d}`;
 }
-

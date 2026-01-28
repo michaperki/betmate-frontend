@@ -93,12 +93,20 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
           <>
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} aria-busy className="move-predictions__item move-predictions__item--disabled" style={{ position: 'relative', overflow: 'hidden' }}>
-                <div style={{ height: 14, width: 120, background: 'rgba(255,255,255,0.06)', borderRadius: 7, marginBottom: 8 }} />
+                <div style={{
+                  height: 14, width: 120, background: 'rgba(255,255,255,0.06)', borderRadius: 7, marginBottom: 8,
+                }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ height: 12, width: 60, background: 'rgba(255,255,255,0.05)', borderRadius: 6 }} />
-                  <div style={{ height: 12, width: 48, background: 'rgba(255,255,255,0.05)', borderRadius: 6 }} />
+                  <div style={{
+                    height: 12, width: 60, background: 'rgba(255,255,255,0.05)', borderRadius: 6,
+                  }} />
+                  <div style={{
+                    height: 12, width: 48, background: 'rgba(255,255,255,0.05)', borderRadius: 6,
+                  }} />
                 </div>
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+                <div style={{
+                  position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite',
+                }} />
               </div>
             ))}
           </>
@@ -111,7 +119,7 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             padding: 16,
             textAlign: 'center',
             fontSize: 12,
-            opacity: 0.7
+            opacity: 0.7,
           }}>No move predictions available.</div>
         )}
         {moves.map((move, index) => {
@@ -119,51 +127,51 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
           // Use explicit RGBA to avoid any CSS var resolution issues
           const baseTintStyle = (baseStatus === 'idle' && !gameEnded) ? {
             background: 'rgb(var(--mode-accent-rgb) / 0.12)',
-            border: '1px solid rgb(var(--mode-accent-rgb) / 0.25)'
+            border: '1px solid rgb(var(--mode-accent-rgb) / 0.25)',
           } as React.CSSProperties : undefined;
           return (
-          <div 
-            key={`${move.move}-${index}`}
-            className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
-            style={compact ? { ...baseTintStyle, padding: 10 } : baseTintStyle}
-            onClick={() => { if (!gameEnded && move.status !== 'disabled' && onMoveClick) onMoveClick(move.move, index); }}
-            onPointerDown={(e) => onItemPointerDown(e, index, move.move)}
-            onPointerUp={onItemPointerUp}
-            onPointerCancel={onItemPointerCancel}
-            onPointerLeave={onItemPointerLeave}
-            onMouseEnter={() => onMoveHover && onMoveHover(move.move, index)}
-            onMouseLeave={() => onMoveHoverEnd && onMoveHoverEnd()}
-            role={onMoveClick ? "button" : undefined}
-            tabIndex={onMoveClick ? 0 : undefined}
-            onKeyDown={(e) => { 
-              if (!gameEnded && move.status !== 'disabled' && onMoveClick && (e.key === 'Enter' || e.key === ' ')) {
-                onMoveClick(move.move, index);
-                e.preventDefault();
-              }
-            }}
-          >
-            <div className="move-predictions__move" style={compact ? { fontSize: 14 } : undefined}>{move.move}</div>
-            <div className="move-predictions__details" style={compact ? { fontSize: 11 } : undefined}>
-              <span className="move-predictions__score">
-                <StarRating score={move.score} maxStars={4} size={compact ? "small" : "medium"} />
-              </span>
-              <span className="move-predictions__odds">x{move.odds.toFixed(2)}</span>
-            </div>
-            {move.status === 'loading' && (
-              <div className="move-predictions__loader"></div>
-            )}
-            {(holdingIndex === index) && (
-              <div className="move-predictions__hold" aria-hidden>
-                <div className="move-predictions__hold-ring" style={{
-                  background: `conic-gradient(${mode === 'arcade' ? 'var(--warning)' : 'var(--success)'} ${Math.round(holdProgress * 360)}deg, rgba(255,255,255,0.08) 0deg)`
-                }} />
-                <div className="move-predictions__hold-inner" />
+            <div
+              key={`${move.move}-${index}`}
+              className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
+              style={compact ? { ...baseTintStyle, padding: 10 } : baseTintStyle}
+              onClick={() => { if (!gameEnded && move.status !== 'disabled' && onMoveClick) onMoveClick(move.move, index); }}
+              onPointerDown={(e) => onItemPointerDown(e, index, move.move)}
+              onPointerUp={onItemPointerUp}
+              onPointerCancel={onItemPointerCancel}
+              onPointerLeave={onItemPointerLeave}
+              onMouseEnter={() => onMoveHover && onMoveHover(move.move, index)}
+              onMouseLeave={() => onMoveHoverEnd && onMoveHoverEnd()}
+              role={onMoveClick ? 'button' : undefined}
+              tabIndex={onMoveClick ? 0 : undefined}
+              onKeyDown={(e) => {
+                if (!gameEnded && move.status !== 'disabled' && onMoveClick && (e.key === 'Enter' || e.key === ' ')) {
+                  onMoveClick(move.move, index);
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div className="move-predictions__move" style={compact ? { fontSize: 14 } : undefined}>{move.move}</div>
+              <div className="move-predictions__details" style={compact ? { fontSize: 11 } : undefined}>
+                <span className="move-predictions__score">
+                  <StarRating score={move.score} maxStars={4} size={compact ? 'small' : 'medium'} />
+                </span>
+                <span className="move-predictions__odds">x{move.odds.toFixed(2)}</span>
               </div>
-            )}
-            {move.message && ['lost', 'disabled'].includes(move.status || '') && (
-              <div className="move-predictions__message">{move.message}</div>
-            )}
-          </div>
+              {move.status === 'loading' && (
+                <div className="move-predictions__loader"></div>
+              )}
+              {(holdingIndex === index) && (
+                <div className="move-predictions__hold" aria-hidden>
+                  <div className="move-predictions__hold-ring" style={{
+                    background: `conic-gradient(${mode === 'arcade' ? 'var(--warning)' : 'var(--success)'} ${Math.round(holdProgress * 360)}deg, rgba(255,255,255,0.08) 0deg)`,
+                  }} />
+                  <div className="move-predictions__hold-inner" />
+                </div>
+              )}
+              {move.message && ['lost', 'disabled'].includes(move.status || '') && (
+                <div className="move-predictions__message">{move.message}</div>
+              )}
+            </div>
           );
         })}
       </div>

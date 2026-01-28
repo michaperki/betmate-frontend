@@ -4,14 +4,16 @@ import { NavLink } from 'react-router-dom';
 import { getAdminFeatures, updateAdminFeatures, getAdminHome } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
-const Toggle: React.FC<{ label: string; value: boolean; onChange: (v: boolean) => void }>= ({ label, value, onChange }) => (
-  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+const Toggle: React.FC<{ label: string; value: boolean; onChange: (v: boolean) => void }> = ({ label, value, onChange }) => (
+  <label style={{
+    display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+  }}>
     <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
     <span>{label}</span>
   </label>
 );
 
-const Card: React.FC<{ title: string; actions?: React.ReactNode }>= ({ title, actions, children }) => (
+const Card: React.FC<{ title: string; actions?: React.ReactNode }> = ({ title, actions, children }) => (
   <div className="admin-card">
     <div className="admin-card__title">
       <span>{title}</span>
@@ -21,7 +23,7 @@ const Card: React.FC<{ title: string; actions?: React.ReactNode }>= ({ title, ac
   </div>
 );
 
-const Row: React.FC<{ k: string; v: any }>= ({ k, v }) => (
+const Row: React.FC<{ k: string; v: any }> = ({ k, v }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', margin: '6px 0' }}>
     <div style={{ opacity: 0.8 }}>{k}</div>
     <div>{String(v)}</div>
@@ -74,7 +76,9 @@ const AdminHome: React.FC = () => {
   return (
     <div className="dashboard-page admin-content">
       <Header />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{
+        padding: 24, display: 'flex', flexDirection: 'column', gap: 16,
+      }}>
         <div className="admin-tabs">
           <NavLink to="/admin">Home</NavLink>
           <NavLink to="/admin/risk">Risk</NavLink>
@@ -91,7 +95,7 @@ const AdminHome: React.FC = () => {
                 <Row k="Version" v={home.env.version} />
                 <Row k="Commit" v={home.env.commit} />
                 <Row k="Release" v={home.env.release} />
-                <Row k="Uptime (s)" v={Math.round((home.env.uptimeMs || 0)/1000)} />
+                <Row k="Uptime (s)" v={Math.round((home.env.uptimeMs || 0) / 1000)} />
                 <Row k="Payments" v={home.env.provider} />
               </>
             )}
@@ -126,7 +130,9 @@ const AdminHome: React.FC = () => {
         </div>
 
         <Card title="Feature Flags">
-          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap',
+          }}>
             <Toggle label="Real Mode" value={!!features.realModeEnabled} onChange={(v) => patch({ realModeEnabled: v })} />
             <Toggle label="Faucet" value={!!features.enableFaucet} onChange={(v) => patch({ enableFaucet: v })} />
             <Toggle label="Rate Limiting" value={!!features.enableRateLimiting} onChange={(v) => patch({ enableRateLimiting: v })} />
@@ -139,14 +145,16 @@ const AdminHome: React.FC = () => {
                 value={features.pricingModelVersion || ''}
                 onChange={(e) => setFeatures({ ...features, pricingModelVersion: e.target.value })}
                 onBlur={() => patch({ pricingModelVersion: features.pricingModelVersion })}
-                style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }}
+                style={{
+                  background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px',
+                }}
               />
             </div>
             {saving && <span style={{ opacity: 0.7 }}>Saving…</span>}
           </div>
         </Card>
       </div>
-      
+
     </div>
   );
 };

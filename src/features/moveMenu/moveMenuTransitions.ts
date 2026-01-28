@@ -1,4 +1,6 @@
-import { AnimatePresenceProps, TargetAndTransition, Transition, Variants } from 'framer-motion';
+import {
+  AnimatePresenceProps, TargetAndTransition, Transition, Variants,
+} from 'framer-motion';
 
 export type MoveMenuTransitionVariant =
   | 'none'
@@ -57,7 +59,9 @@ export function tileMotionByVariant(variant: MoveMenuTransitionVariant): MotionS
         initial: { opacity: 0, scale: 0.985 },
         animate: { opacity: 1, scale: 1 },
         exit: { opacity: 0, scale: 0.985 },
-        transition: { type: 'spring', stiffness: 520, damping: 38, mass: 0.7 },
+        transition: {
+          type: 'spring', stiffness: 520, damping: 38, mass: 0.7,
+        },
       };
     case 'stack':
       return {

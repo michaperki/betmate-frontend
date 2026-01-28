@@ -19,7 +19,7 @@ function bucketProb(delta: number): number {
 export function computeArcadeMoveOdds(
   offered: string[],
   top: TopMoveLite[],
-  margin: number = 0.08,
+  margin = 0.08,
 ): Record<string, number> {
   const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
   const m = clamp(margin, 0, 0.25);

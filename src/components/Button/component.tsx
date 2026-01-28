@@ -32,7 +32,7 @@ const Button: React.FC<ButtonProps> = ({
     fullWidth && 'btn--full-width',
     loading && 'btn--loading',
     icon && !children && 'btn--icon-only',
-    className
+    className,
   ]
     .filter(Boolean)
     .join(' ');
@@ -46,15 +46,15 @@ const Button: React.FC<ButtonProps> = ({
       {loading && (
         <span className="btn__spinner" aria-hidden="true"></span>
       )}
-      
+
       {icon && iconPosition === 'left' && !loading && (
         <span className="btn__icon btn__icon--left">{icon}</span>
       )}
-      
+
       {children && (
         <span className="btn__text">{children}</span>
       )}
-      
+
       {icon && iconPosition === 'right' && !loading && (
         <span className="btn__icon btn__icon--right">{icon}</span>
       )}

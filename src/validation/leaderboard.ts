@@ -30,11 +30,11 @@ export const sanitizeLeaderboardData = (data: any): LeaderboardSection => {
   // Ensure rankings is an array and has default values
   const rankings = Array.isArray(data.rankings)
     ? data.rankings.map((rank: any) => ({
-        user_id: rank?.user_id || 'unknown',
-        user_name: rank?.user_name ? rank.user_name : `Player ${rank?.rank || 1}`,
-        rank: rank?.rank || 1,
-        winnings: rank?.winnings || 0,
-      }))
+      user_id: rank?.user_id || 'unknown',
+      user_name: rank?.user_name ? rank.user_name : `Player ${rank?.rank || 1}`,
+      rank: rank?.rank || 1,
+      winnings: rank?.winnings || 0,
+    }))
     : [];
 
   return {

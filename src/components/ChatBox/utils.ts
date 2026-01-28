@@ -53,8 +53,10 @@ const onWagerCancelled = (data: string, wdl: boolean, amount: number, currency?:
 export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, amount: number, odds: number, currency?: 'BET' | 'USDT', mode?: 'arcade' | 'real'): string => {
   // Defensive checks for missing data
   if (!data || amount === undefined || amount === null) {
-    console.warn('Missing wager data:', { status, data, wdl, amount, odds });
-    return `Wager data incomplete`;
+    console.warn('Missing wager data:', {
+      status, data, wdl, amount, odds,
+    });
+    return 'Wager data incomplete';
   }
 
   // Handle case where status might be an array (server data issue)
@@ -83,7 +85,9 @@ export const getFeedMessage = (status: WagerStatus, data: string, wdl: boolean, 
     case 'cancelled':
       return onWagerCancelled(data, wdl, amount, currency);
     default:
-      console.warn('Unhandled wager status:', { status, normalizedStatus, data, wdl, amount, odds });
+      console.warn('Unhandled wager status:', {
+        status, normalizedStatus, data, wdl, amount, odds,
+      });
       return `Wager ${normalizedStatus} - status not recognized`;
   }
 };

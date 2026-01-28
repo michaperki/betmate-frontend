@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect, useMemo, useRef, useState,
+} from 'react';
 import StarRating from 'components/StarRating';
 
 interface MoveConfirmChipProps {
@@ -24,7 +26,9 @@ function squareToGrid(dest: string): { x: number; y: number } | null {
   return { x, y };
 }
 
-const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare, score, loading, onConfirm, onCancel }) => {
+const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({
+  parentRef, destSquare, score, loading, onConfirm, onCancel,
+}) => {
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const meRef = useRef<HTMLDivElement | null>(null);
 
@@ -76,7 +80,7 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
         border: '2px solid var(--border-primary, rgba(255,255,255,0.2))',
         borderTopColor: 'var(--text-secondary, rgba(255,255,255,0.6))',
         display: 'inline-block',
-        animation: 'mmc-spin 0.8s linear infinite'
+        animation: 'mmc-spin 0.8s linear infinite',
       }}
     />
   );
@@ -95,7 +99,7 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
         fontSize: 12,
         fontFamily: 'inherit',
         boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-        backdropFilter: 'blur(6px)'
+        backdropFilter: 'blur(6px)',
       }}>
         {loading ? <Spinner /> : null}
         <span style={{ opacity: 0.9, minWidth: 70, textAlign: 'center' }}>
@@ -117,7 +121,7 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
             padding: '4px 8px',
             fontSize: 12,
             lineHeight: 1,
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           Confirm
@@ -133,14 +137,14 @@ const MoveConfirmChip: React.FC<MoveConfirmChipProps> = ({ parentRef, destSquare
             padding: '4px 8px',
             fontSize: 12,
             lineHeight: 1,
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           ×
         </button>
       </div>
       {/* Inline keyframes for spinner */}
-      <style>{`@keyframes mmc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{'@keyframes mmc-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }'}</style>
     </div>
   );
 };
