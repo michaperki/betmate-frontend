@@ -120,11 +120,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
   const Brand = (
     <div
       style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-<<<<<<< HEAD
-      onClick={(e) => { exportCssLogoPng(e); if (!e.altKey) goTo('/'); }}
-=======
-      onClick={(e) => { maybeExportBrand(e); if (!(e as any).altKey) goTo('/'); }}
->>>>>>> origin/release
+      onClick={(e) => { maybeExportBrand(e); if (!e.altKey) goTo('/'); }}
       role="link"
       aria-label="Go to Dashboard"
       title="BetMate (Alt+Click to export logo PNG)"
