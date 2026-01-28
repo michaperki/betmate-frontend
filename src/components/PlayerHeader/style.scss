@@ -18,38 +18,8 @@
   // Interactive state - clickable for betting
   &--interactive {
     cursor: pointer;
-
-    // Improve contrast on hover
-    &:hover {
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    // Only show hover hint on devices that actually support hover
-    @media (hover: hover) and (pointer: fine) {
-      // Centered hover hint at the bottom for better readability
-      &:hover::after {
-        content: attr(data-bet-label);
-        position: absolute;
-        left: 50%;
-        bottom: 6px;
-        transform: translateX(-50%);
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: rgb(var(--mode-accent-rgb) / 0.18);
-        border: 1px solid rgb(var(--mode-accent-rgb) / 0.35);
-        color: #e8e8e8;
-        letter-spacing: 0.2px;
-        opacity: 0.95;
-        pointer-events: none;
-        z-index: 2;
-        white-space: nowrap;
-      }
-    }
-
-    &:focus-visible {
-      outline: 2px solid rgb(var(--mode-accent-rgb) / 0.5);
-    }
+    &:hover { background: rgba(255, 255, 255, 0.06); }
+    &:focus-visible { outline: 2px solid rgb(var(--mode-accent-rgb) / 0.5); }
   }
 
   &__content {
@@ -139,6 +109,21 @@
       color: #ef4444;
       background: rgba(239, 68, 68, 0.2);
     }
+  }
+
+  &__bet-btn {
+    margin-left: 10px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgb(var(--mode-accent-rgb) / 0.35);
+    background: rgb(var(--mode-accent-rgb) / 0.18);
+    color: #e8e8e8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    &:hover { background: rgb(var(--mode-accent-rgb) / 0.28); border-color: rgb(var(--mode-accent-rgb) / 0.55); }
+    &:focus-visible { outline: 2px solid rgb(var(--mode-accent-rgb) / 0.5); }
   }
   
   // Bet status indicators

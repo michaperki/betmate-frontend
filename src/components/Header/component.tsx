@@ -16,7 +16,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
   const { theme, toggleTheme } = useTheme();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const cashBalance = useSelector((s: RootState) => s.auth.user?.cash_balance || 0);
-  const tokenBalance = useSelector((s: RootState) => (s.auth.user?.token_balance ?? (s.auth.user as any)?.account ?? 0));
+  const tokenBalance = useSelector((s: RootState) => (s.auth.user?.token_balance || 0));
   const [showDeposit, setShowDeposit] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

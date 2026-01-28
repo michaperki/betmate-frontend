@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import NavBar from 'components/NavBar';
+import Header from 'components/Header';
 import VersionFooter from 'components/VersionFooter';
 import { RootState } from 'types/state';
 import { createDepositIntent, listDeposits, getDepositQuote, faucetCredit, listWithdrawals as listMyWithdrawals, requestWithdrawal, startKycMock, cancelWithdrawal } from 'store/requests/billingRequests';
 import * as authRequests from 'store/requests/authRequests';
 import { JWT_SIGN_IN } from 'types/resources/auth';
-import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS } from 'utils/config';
+import { ENABLE_REAL_DEPOSITS, PAYMENT_SUCCESS_URL, PAYMENT_CANCEL_URL, SHOW_DEPOSIT_IDS, KBITS_PER_USD } from 'utils/config';
 import { useMode } from 'context/ModeContext';
 import './style.scss';
 import { currencyLongName, formatAmountShort } from 'utils/currency';
@@ -172,7 +172,7 @@ const Wallet: React.FC = () => {
 
   return (
     <div className="wallet-page">
-      <NavBar />
+      <Header />
       <div className="wallet-container">
         <header className="wallet-header">
           <h1>Wallet</h1>
@@ -204,7 +204,9 @@ const Wallet: React.FC = () => {
                 aria-label="Deposit amount"
               />
               <button className="wallet-deposit-btn" onClick={onDeposit} disabled={loading || !isAuthenticated}>
-                {loading ? 'Starting…' : `Add $${Math.max(5, Math.min(10000, Number(amount || 0)))}`}
+                {loading
+                  ? 'Starting…'
+                  : `Buy ${(Math.max(5, Math.min(10000, Number(amount || 0))) * KBITS_PER_USD).toLocaleString()} KBits`}
               </button>
               {(faucetEnabled === true) && (
                 <button
@@ -227,8 +229,9 @@ const Wallet: React.FC = () => {
           <div className="wallet-hint">
             {quote ? (
               <>
-                You’ll pay approximately <b>{quote.estimated_pay_amount.toFixed(6)} {payCurrency}</b> (~${quote.charge_usd.toFixed(2)} incl. fees ~${quote.fee_usd.toFixed(2)}).
-                {' '}Supported: USDT (TRC20/BEP20/ERC20), USDC, BTC, ETH. Tip: TRC20/BEP20 confirm fast with low fees; ERC20/BTC/ETH may cost more and take longer.
+                You’re purchasing <b>{(Math.max(5, Math.min(10000, Number(amount || 0))) * KBITS_PER_USD).toLocaleString()} KBits</b> and will receive a <b>${Math.max(5, Math.min(10000, Number(amount || 0)))} BetMate Cash</b> bonus (redeemable 1:1) after confirmation.
+                {' '}You’ll pay approximately <b>{quote.estimated_pay_amount.toFixed(6)} {payCurrency}</b> (~${quote.charge_usd.toFixed(2)} incl. fees ~${quote.fee_usd.toFixed(2)}).
+                {' '}Supported: USDT (TRC20/BEP20/ERC20), USDC, BTC, ETH.
               </>
             ) : (
               <>Redirects: <code>{PAYMENT_SUCCESS_URL}</code> (success), <code>{PAYMENT_CANCEL_URL}</code> (cancel)</>
@@ -238,16 +241,27 @@ const Wallet: React.FC = () => {
         {err && <div className="wallet-error">{err}</div>}
         <section className="wallet-balances">
           <div className="wallet-card">
-            <div className="wallet-card__label">{currencyLongName('BET')} Balance</div>
+            <div className="wallet-card__label" title="Tokens used for Arcade (pari‑mutuel) bets">{currencyLongName('BET')} Balance (Tokens)</div>
             <div className="wallet-card__value">{formatAmountShort(tokenBalance, 'BET')}</div>
           </div>
           <div className="wallet-card">
-            <div className="wallet-card__label">{currencyLongName('USDT')} Balance</div>
+            <div className="wallet-card__label" title="Redeemable USD-equivalent; used for Real bets and withdrawals">{currencyLongName('USDT')} Balance (Redeemable USD)</div>
             <div className="wallet-card__value">{formatAmountShort(cashBalance, 'USDT')}</div>
           </div>
         </section>
         <section className="wallet-history">
-          <h2>Deposits</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            Deposits
+            <button
+              className="wallet-link-btn"
+              style={{ padding: '2px 6px', fontSize: 12 }}
+              onClick={() => { try { window.dispatchEvent(new CustomEvent('betmate:open-help', { detail: 'deposits' })); } catch {} }}
+              aria-label="Why deposits are sometimes refunded"
+              title="Why deposits or bets may be refunded?"
+            >
+              ?
+            </button>
+          </h2>
           {(!deposits || !deposits.length) ? (
             <div className="wallet-empty">No deposits yet</div>
           ) : (
@@ -261,7 +275,10 @@ const Wallet: React.FC = () => {
                     </div>
                     <div className="wallet-row__meta">{new Date(d.created_at).toLocaleString()}</div>
                   </div>
-                  <div className="wallet-row__amount">${d.amount}</div>
+                  <div className="wallet-row__amount">
+                    ${d.amount}
+                    <div style={{ fontSize: 11, opacity: 0.7 }}>Cash wallet</div>
+                  </div>
                   <div className="wallet-row__status">
                     {d.status}
                     {(d.provider === 'nowpayments' && d.status === 'pending' && d.metadata?.payment_url && d.metadata.payment_url !== '#') && (
@@ -277,6 +294,14 @@ const Wallet: React.FC = () => {
                         title={d._id}
                         onClick={() => { navigator.clipboard?.writeText(d._id); }}
                       >Copy ID</button>
+                    )}
+                    {d.metadata && (
+                      <div style={{ marginTop: 6, fontSize: 12, color: '#9CA3AF' }}>
+                        Fee: ${Number((d.metadata as any)?.fee_usd || 0).toFixed(2)} • Charge: ${Number((d.metadata as any)?.charge_usd || d.amount).toFixed(2)}
+                        <div>
+                          KBits purchased: <b>{(d.amount * KBITS_PER_USD).toLocaleString()}</b> • Cash bonus: <b>${d.amount.toFixed(2)}</b>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>

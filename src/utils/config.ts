@@ -42,6 +42,9 @@ export const ENABLE_DEV_FAUCET = (
 // Optional: include admin key header for staging faucet calls (avoid in prod)
 export const FAUCET_ADMIN_KEY = process.env.FAUCET_ADMIN_KEY || '';
 
+// Sweepstakes copy ratio: KBits per USD (defaults to 1000 KBits = $1 BetMate Cash bonus)
+export const KBITS_PER_USD = Number(process.env.KBITS_PER_USD || 1000);
+
 // New Game UI flag was used during migration and is now deprecated.
 // Retained here as a no-op for compatibility; always returns true since new UI is canonical.
 // New game UI is the default; legacy flag removed.

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import NavBar from 'components/NavBar';
+import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
 import VersionFooter from 'components/VersionFooter';
 import { getOpsStats, pingMicroservice } from 'store/requests/adminRequests';
@@ -27,7 +27,7 @@ const AdminOps: React.FC = () => {
 
   return (
     <div className="dashboard-page admin-content">
-      <NavBar />
+      <Header />
       <div style={{ padding: 24 }}>
         <div className="admin-tabs">
           <NavLink to="/admin">Home</NavLink>

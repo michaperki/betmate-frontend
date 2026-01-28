@@ -8,6 +8,7 @@ import { closeSocket } from 'store/actionCreators/websocketActionCreators';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
 import OnboardingTour from './OnboardingTour';
+import TermsGate from './TermsGate';
 import { ModeProvider } from 'context/ModeContext';
 import { ThemeProvider } from 'context/ThemeContext';
 import { NotificationProvider } from './NotificationCenter/context';
@@ -35,6 +36,7 @@ import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
 import BetMateEmptyStates from '../examples/BetMateEmptyStates';
 import BetMateThemeToggle from '../examples/BetMateThemeToggle';
 import BetMateToasts from '../examples/BetMateToasts';
+import HelpFAQ from './HelpFAQ';
 
 const FallBack = () => {
   return <div>Uh oh... URL Not Found! Please contact the system administrator.</div>;
@@ -87,6 +89,10 @@ const App: React.FC<AppProps> = (props) => {
         <NotificationProvider>
         <Router>
           <div>
+            {/* Global Help modal toggled via window event */}
+            <HelpController />
+            {/* Terms gate modal (first-login acceptance) */}
+            {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
             {/* Render onboarding only on desktop widths to avoid intrusive overlay on small screens */}
             {allowOnboarding && <OnboardingTour />}
             <NotificationBridge />
@@ -154,3 +160,14 @@ const App: React.FC<AppProps> = (props) => {
 };
 
 export default connect(null, { jwtSignIn, closeSocket })(App);
+
+// Lightweight controller component mounted at app root to toggle HelpFAQ via a window event
+const HelpController: React.FC = () => {
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener('betmate:open-help', onOpen as any);
+    return () => window.removeEventListener('betmate:open-help', onOpen as any);
+  }, []);
+  return <HelpFAQ isOpen={open} onClose={() => setOpen(false)} />;
+};

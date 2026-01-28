@@ -45,11 +45,23 @@ async function sendToAxiom(event: LogEvent): Promise<void> {
     }
 
     // Add timestamp and service info
+    // Attach a persistent session trace id and last request id for correlation
+    const SESSION_TRACE_ID = (window as any).__bmSessionTraceId
+      || ((window as any).__bmSessionTraceId = Math.random().toString(36).slice(2, 10));
+    const lastRequestId = (window as any).__bmLastRequestId || '';
+
     const payload = {
       ...event,
       service: event.service || 'frontend',
+      trace_id: event.trace_id || SESSION_TRACE_ID,
       ts: new Date().toISOString(),
-    };
+      context: {
+        ...(event.context || {}),
+        request_id: (event.context && (event.context as any).request_id) || lastRequestId || undefined,
+        session_trace_id: SESSION_TRACE_ID,
+        url: typeof window !== 'undefined' ? window.location.href : undefined,
+      }
+    } as LogEvent & { ts: string };
 
     // In development, just log to console
     if (isDev) {

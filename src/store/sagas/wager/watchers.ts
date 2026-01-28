@@ -114,7 +114,22 @@ export function* watchCreateWager() {
       const errPayload = getErrorPayload(error);
       yield put<Actions>({ type: 'CREATE_WAGER', payload: errPayload, status: 'FAILURE' });
       try {
-        emitNotification({ type: 'error', title: 'Bet Rejected', message: String((errPayload as any)?.message || 'Please try again'), icon: '⚠️' });
+        const code = (errPayload as any)?.code;
+        const title = 'Bet Rejected';
+        let message = String((errPayload as any)?.message || 'Please try again');
+        if (typeof code === 'string' && code.startsWith('CAP_')) {
+          message += ` (${code.replace('CAP_', '').replace(/_/g, ' ').toLowerCase()})`;
+          emitNotification({
+            type: 'error',
+            title,
+            message,
+            icon: '⚠️',
+            actionLabel: 'Why?',
+            onAction: () => { try { window.dispatchEvent(new CustomEvent('betmate:open-help', { detail: 'risk' })); } catch {} },
+          } as any);
+        } else {
+          emitNotification({ type: 'error', title, message, icon: '⚠️' });
+        }
       } catch {}
       // Roll back optimistic balance if the wager failed to create
       try {

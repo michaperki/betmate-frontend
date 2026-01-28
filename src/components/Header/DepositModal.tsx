@@ -65,14 +65,14 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
         overflow: 'hidden',
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgb(var(--mode-accent-rgb) / 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
-            <div>
-              <div id="deposit-modal-title" style={{ fontSize: 16, fontWeight: 700 }}>Deposit Funds</div>
-              <div style={{ fontSize: 12, opacity: 0.6 }}>Add funds to your account</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgb(var(--mode-accent-rgb) / 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💰</div>
+              <div>
+                <div id="deposit-modal-title" style={{ fontSize: 16, fontWeight: 700 }}>Buy KBits</div>
+                <div style={{ fontSize: 12, opacity: 0.6 }}>Receive BetMate Cash bonus 1:1 with USD</div>
+              </div>
             </div>
-          </div>
           <button ref={closeRef} onClick={onClose} aria-label="Close" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', width: 32, height: 32, borderRadius: 8, color: '#e8e8e8', cursor: 'pointer' }}>×</button>
         </div>
 
@@ -112,15 +112,15 @@ const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose }) => {
                     style={{ width: '100%', padding: '10px 12px 10px 28px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: custom ? '1px solid rgb(var(--mode-accent-rgb) / 0.35)' : '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', fontFamily: 'inherit' }}
                   />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, opacity: 0.5, marginTop: 6 }}>
-                  <span>Min $10</span>
-                  <span>Max $10,000</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, opacity: 0.6, marginTop: 6 }}>
+                  <span>Min $10 • Max $10,000</span>
+                  <span>Bonus: BetMate Cash matches your USD</span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button onClick={onClose} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#e8e8e8', cursor: 'pointer' }}>Cancel</button>
-                <button onClick={onDeposit} disabled={amount < 10} style={{ flex: 1, padding: 12, borderRadius: 10, background: amount >= 10 ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.14)', border: 'none', color: amount >= 10 ? '#000' : '#7f7f7f', fontWeight: 800, cursor: amount >= 10 ? 'pointer' : 'not-allowed' }}>Deposit</button>
+                <button onClick={onDeposit} disabled={amount < 10} style={{ flex: 1, padding: 12, borderRadius: 10, background: amount >= 10 ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.14)', border: 'none', color: amount >= 10 ? '#000' : '#7f7f7f', fontWeight: 800, cursor: amount >= 10 ? 'pointer' : 'not-allowed' }}>Buy KBits</button>
               </div>
             </>
           )}
