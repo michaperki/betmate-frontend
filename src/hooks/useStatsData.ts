@@ -7,10 +7,6 @@ import { useMode } from 'context/ModeContext';
 import { Wager, WagerStatus } from 'types/resources/wager';
 
 export function useStatsData() {
-  return useNewStatsData();
-}
-
-export function useNewStatsData() {
   const dispatch = useDispatch();
   const { mode } = useMode();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
@@ -74,6 +70,7 @@ export function useNewStatsData() {
     balanceHistory,
   };
 }
+// Canonical type
+export type UseStatsData = ReturnType<typeof useStatsData>;
 
-export type UseNewStatsData = ReturnType<typeof useNewStatsData>;
-
+// Backwards-compat named export

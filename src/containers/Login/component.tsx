@@ -59,7 +59,7 @@ const Login: React.FC = () => {
       overflow: 'hidden'
     }}>
       {/* Ambient glows */}
-      <div style={{ position: 'fixed', top: '10%', left: '20%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
+      <div style={{ position: 'fixed', top: '10%', left: '20%', width: 600, height: 600, background: 'radial-gradient(circle, rgb(var(--mode-accent-rgb) / 0.08) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '10%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
 
       {/* Content grid */}
@@ -70,13 +70,13 @@ const Login: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 5 }}>
               <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fbbf24' }} />
               <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#f87171' }} />
-              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#22c55e' }} />
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--mode-accent)' }} />
               <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#60a5fa' }} />
             </div>
-            <span style={{ fontSize: 32, fontWeight: 700, color: '#22c55e', letterSpacing: '1px' }}>BetMate</span>
+            <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: '1px' }}>BetMate</span>
           </div>
           <h1 style={{ fontSize: 48, fontWeight: 700, lineHeight: 1.1, margin: '0 0 24px' }}>
-            Bet on Chess,<br /><span style={{ color: '#22c55e' }}>Live.</span>
+            Bet on Chess,<br /><span style={{ color: 'var(--mode-accent)' }}>Live.</span>
           </h1>
           <p style={{ fontSize: 18, opacity: 0.6, lineHeight: 1.6, margin: 0 }}>
             Predict moves, bet on outcomes, and win while watching the world's best players compete in real-time.
@@ -91,8 +91,8 @@ const Login: React.FC = () => {
 
             {/* Login method toggle */}
             <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 12, marginBottom: 24 }}>
-              <button onClick={() => setLoginMethod('email')} style={{ flex: 1, padding: 12, background: loginMethod === 'email' ? 'rgba(34,197,94,0.15)' : 'transparent', border: loginMethod === 'email' ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'email' ? '#22c55e' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>📧 Email</button>
-              <button onClick={() => setLoginMethod('wallet')} style={{ flex: 1, padding: 12, background: loginMethod === 'wallet' ? 'rgba(34,197,94,0.15)' : 'transparent', border: loginMethod === 'wallet' ? '1px solid rgba(34,197,94,0.3)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'wallet' ? '#22c55e' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>🔗 Wallet</button>
+              <button onClick={() => setLoginMethod('email')} style={{ flex: 1, padding: 12, background: loginMethod === 'email' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'email' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'email' ? 'var(--mode-accent)' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>📧 Email</button>
+              <button onClick={() => setLoginMethod('wallet')} style={{ flex: 1, padding: 12, background: loginMethod === 'wallet' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'wallet' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'wallet' ? 'var(--mode-accent)' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>🔗 Wallet</button>
             </div>
 
             {loginMethod === 'email' ? (
@@ -117,9 +117,20 @@ const Login: React.FC = () => {
                   </div>
                 )}
 
-                <button type="submit" disabled={isLoading} style={{ width: '100%', padding: 14, background: 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)', border: 'none', borderRadius: 12, color: '#000', fontWeight: 700, cursor: 'pointer' }}>
+                <button type="submit" disabled={isLoading} style={{ width: '100%', padding: 14, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: '#000', fontWeight: 700, cursor: 'pointer' }}>
                   {isLoading ? 'Signing in…' : 'Sign In'}
                 </button>
+
+                {/* Secondary actions: industry-standard CTA to onboarding/create */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                  <button
+                    type="button"
+                    onClick={() => history.push(`/onboarding?from=${encodeURIComponent(returnTo)}`)}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--mode-accent)', fontWeight: 700, cursor: 'pointer', padding: 8 }}
+                  >
+                    Don’t have an account? Get started
+                  </button>
+                </div>
               </form>
             ) : (
               <div>

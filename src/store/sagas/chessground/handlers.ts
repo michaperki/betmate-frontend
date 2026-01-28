@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { put, select } from 'redux-saga/effects';
-import { newMove, createNewArrows } from 'store/actionCreators/chessgroundActionCreators';
+import { applyMoveState, createArrows } from 'store/actionCreators/chessgroundActionCreators';
 import { FetchGameActions, UpdateGameOddsActions, UpdateGameStateActions } from 'types/resources/game';
 import { Actions, RootState } from 'types/state';
 
-export function* handleNewGameState(action: FetchGameActions | UpdateGameStateActions) {
+export function* handleGameStateUpdate(action: FetchGameActions | UpdateGameStateActions) {
   if (action.status !== 'SUCCESS') return;
 
   const { state, move_hist: moveHist } = action.payload;
-  yield put<Actions>(newMove(state, moveHist));
+  yield put<Actions>(applyMoveState(state, moveHist));
 }
 
-export function* handleNewGameOdds(action: FetchGameActions | UpdateGameOddsActions) {
+export function* handleGameOddsUpdate(action: FetchGameActions | UpdateGameOddsActions) {
   if (action.status !== 'SUCCESS') return;
 
   const gameId = action.type === 'FETCH_GAME'
@@ -21,5 +21,5 @@ export function* handleNewGameOdds(action: FetchGameActions | UpdateGameOddsActi
   const { options } = action.payload.pool_wagers.move;
   const gameState: string = yield select((state: RootState) => state.game.games[gameId].state);
 
-  yield put<Actions>(createNewArrows(gameState, options));
+  yield put<Actions>(createArrows(gameState, options));
 }

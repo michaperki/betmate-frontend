@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import NavBar from 'components/NavBar';
+import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import VersionFooter from 'components/VersionFooter';
 import { getAdminFeatures, updateAdminFeatures, getAdminHome } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
@@ -66,16 +65,15 @@ const AdminHome: React.FC = () => {
   if (loading) {
     return (
       <div className="dashboard-page">
-        <NavBar />
+        <Header />
         <div style={{ padding: 24 }}>Loading admin…</div>
-        <VersionFooter />
       </div>
     );
   }
 
   return (
     <div className="dashboard-page admin-content">
-      <NavBar />
+      <Header />
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div className="admin-tabs">
           <NavLink to="/admin">Home</NavLink>
@@ -148,7 +146,7 @@ const AdminHome: React.FC = () => {
           </div>
         </Card>
       </div>
-      <VersionFooter />
+      
     </div>
   );
 };

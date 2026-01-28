@@ -235,6 +235,25 @@
 .border-pink-500 { border-color: #FF00B7; }
 
 // =============================================================================
+// MODE ACCENT UTILITIES (cash vs K-Bits)
+// =============================================================================
+
+.text-accent { color: var(--mode-accent); }
+.bg-accent { background-color: var(--mode-accent); }
+.border-mode-accent { border-color: var(--mode-accent); }
+
+// Common patterns
+.ring-accent { box-shadow: 0 0 0 2px rgb(var(--mode-accent-rgb) / 0.5); }
+.glow-accent { box-shadow: 0 0 15px 2px rgba(var(--mode-accent-rgb), 0.5); }
+.gradient-accent { background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%); }
+
+// Tints
+.bg-accent-tint-sm { background-color: rgb(var(--mode-accent-rgb) / 0.08); }
+.bg-accent-tint { background-color: rgb(var(--mode-accent-rgb) / 0.12); }
+.bg-accent-tint-lg { background-color: rgb(var(--mode-accent-rgb) / 0.15); }
+.border-accent-tint { border-color: rgb(var(--mode-accent-rgb) / 0.30); }
+
+// =============================================================================
 // TYPOGRAPHY UTILITIES
 // =============================================================================
 

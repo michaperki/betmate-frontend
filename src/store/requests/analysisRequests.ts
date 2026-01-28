@@ -1,5 +1,6 @@
 import { createBackendAxiosRequest } from 'store/requests';
 import { RequestReturnType } from 'types/state';
+import { moveScoreCache } from 'utils/moveScoreCache';
 
 // Types for move analysis response
 export interface MoveAnalysis {
@@ -72,8 +73,41 @@ export const getMoveAnalysis = async (
   moveString: string
 ): Promise<RequestReturnType<MoveAnalysis>> => {
   const key = moveKey(fen, moveString);
+
+  // Check if we have the score in the global UI cache
+  const cachedScore = moveScoreCache.get(fen, moveString);
+
+  // If we have it in the API response cache, use that
   const cached = cacheMove.get(key);
-  if (cached) return Promise.resolve(cached);
+  if (cached) {
+    // Still update the global move score cache if needed
+    if (cached?.data?.percentile && !moveScoreCache.has(fen, moveString)) {
+      moveScoreCache.set(fen, moveString, cached.data.percentile);
+    } else if (cached?.data?.score && !moveScoreCache.has(fen, moveString)) {
+      moveScoreCache.set(fen, moveString, cached.data.score);
+    }
+    return Promise.resolve(cached);
+  }
+
+  // If we have a score in the global cache but no API response, create a synthetic response
+  if (cachedScore !== null) {
+    const syntheticResponse = {
+      data: {
+        move: moveString,
+        percentile: cachedScore,
+        score: cachedScore,
+        is_best_move: false
+      },
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {},
+    } as RequestReturnType<MoveAnalysis>;
+
+    return Promise.resolve(syntheticResponse);
+  }
+
+  // Check if there's an in-flight request
   const inflight = inFlightMove.get(key);
   if (inflight) return inflight;
 
@@ -85,6 +119,12 @@ export const getMoveAnalysis = async (
     .then((resp) => {
       cacheMove.set(key, resp);
       inFlightMove.delete(key);
+      // Also update our global move score cache for UI consistency
+      if (resp?.data?.percentile) {
+        moveScoreCache.set(fen, moveString, resp.data.percentile);
+      } else if (resp?.data?.score) {
+        moveScoreCache.set(fen, moveString, resp.data.score);
+      }
       return resp;
     })
     .catch((err) => {
@@ -121,6 +161,17 @@ export const getTopMoves = async (
       const resp = { ...raw, data: normalized } as RequestReturnType<MoveAnalysis[]> & { meta?: any };
       // Preserve backend-provided badge meta if present
       (resp as any).meta = (raw?.data && (raw.data as any).meta) ? (raw.data as any).meta : undefined;
+
+      // Update global move score cache with all top moves
+      if (normalized && Array.isArray(normalized)) {
+        for (const move of normalized) {
+          if (move && typeof move === 'object' && move.move && (move.percentile || move.score)) {
+            const score = typeof move.percentile === 'number' ? move.percentile : move.score;
+            moveScoreCache.set(fen, move.move, score);
+          }
+        }
+      }
+
       cacheTop.set(key, resp);
       inFlightTop.delete(key);
       return resp;

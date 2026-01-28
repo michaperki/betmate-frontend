@@ -8,11 +8,12 @@ import { closeSocket } from 'store/actionCreators/websocketActionCreators';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
 import OnboardingTour from './OnboardingTour';
+import TermsGate from './TermsGate';
 import { ModeProvider } from 'context/ModeContext';
 import { ThemeProvider } from 'context/ThemeContext';
 import { NotificationProvider } from './NotificationCenter/context';
 import NotificationBridge from './NotificationCenter/Bridge';
-import Wallet from './Wallet/component';
+import VersionFooter from 'components/VersionFooter';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
@@ -21,20 +22,21 @@ import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
-// Main application pages
-import Dashboard from '../experimental/NewDashboard';
-import GameContainer from '../containers/NewGameContainer';
-import Stats from '../experimental/NewStats';
-import MyBets from '../experimental/NewMyBets';
-import Settings from '../experimental/NewSettings';
-import Onboarding from '../experimental/NewOnboarding';
-import Login from '../experimental/MockLogin';
+// Main application pages (canonical containers)
+import Dashboard from '../containers/Dashboard';
+import GameContainer from '../containers/GameContainer';
+import Stats from '../containers/Stats';
+import MyBets from '../containers/MyBets';
+import Settings from '../containers/Settings';
+import Onboarding from '../containers/Onboarding';
+import Login from '../containers/Login';
 import { RootState } from 'types/state';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
 import BetMateEmptyStates from '../examples/BetMateEmptyStates';
 import BetMateThemeToggle from '../examples/BetMateThemeToggle';
 import BetMateToasts from '../examples/BetMateToasts';
+import HelpFAQ from './HelpFAQ';
 
 const FallBack = () => {
   return <div>Uh oh... URL Not Found! Please contact the system administrator.</div>;
@@ -87,6 +89,10 @@ const App: React.FC<AppProps> = (props) => {
         <NotificationProvider>
         <Router>
           <div>
+            {/* Global Help modal toggled via window event */}
+            <HelpController />
+            {/* Terms gate modal (first-login acceptance) */}
+            {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
             {/* Render onboarding only on desktop widths to avoid intrusive overlay on small screens */}
             {allowOnboarding && <OnboardingTour />}
             <NotificationBridge />
@@ -107,11 +113,7 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/onboarding" component={Onboarding} />
             {/* User settings */}
             <ProtectedRoute exact path="/user" component={Settings} />
-            <ProtectedRoute exact path="/wallet" render={() => (
-              <div className="dashboard-page">
-                <Wallet />
-              </div>
-            )} />
+            {/* Wallet route removed (old UI deprecated) */}
             {/* Dev examples (design references) */}
             <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />
             <Route exact path="/examples/empty-states" component={BetMateEmptyStates} />
@@ -145,6 +147,8 @@ const App: React.FC<AppProps> = (props) => {
             <Route component={FallBack} />
           </Switch>
             )}
+            {/* Global fixed footer with Report Issue */}
+            <VersionFooter />
           </div>
         </Router>
         </NotificationProvider>
@@ -154,3 +158,14 @@ const App: React.FC<AppProps> = (props) => {
 };
 
 export default connect(null, { jwtSignIn, closeSocket })(App);
+
+// Lightweight controller component mounted at app root to toggle HelpFAQ via a window event
+const HelpController: React.FC = () => {
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener('betmate:open-help', onOpen as any);
+    return () => window.removeEventListener('betmate:open-help', onOpen as any);
+  }, []);
+  return <HelpFAQ isOpen={open} onClose={() => setOpen(false)} />;
+};

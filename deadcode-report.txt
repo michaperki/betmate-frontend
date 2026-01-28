@@ -1,0 +1,592 @@
+
+> betmate-frontend@2.0.0 deadcode:all
+> npm run deadcode:unimported && npm run deadcode:tsprune && npm run deadcode:depcheck
+
+
+> betmate-frontend@2.0.0 deadcode:unimported
+> unimported
+
+
+       summary               unimported v1.31.0 (node)
+────────────────────────────────────────────────────────────────────────────────
+       entry file          : src/index.tsx
+
+       unresolved imports  : 61
+       unused dependencies : 17
+       unimported files    : 174
+
+
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ 61 unresolved imports
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ store/actionCreators/authActionCreators at src/components/app.tsx, src/hooks/useDashboardData.ts, src/components/Header/ProfileDropdown.tsx, src/hooks/useStatsData.ts, src/containers/Login/component.tsx
+   2 │ store/actionCreators/websocketActionCreators at src/components/app.tsx, src/containers/GameContainer/component.tsx
+   3 │ containers/authentication/signOutPanel at src/components/app.tsx
+   4 │ utils at src/components/app.tsx, src/components/OnboardingTour/component.tsx, src/components/ProtectedRoute.tsx, src/containers/Dashboard/component.tsx, src/hooks/useRequireAuth.ts, src/containers/Stats/component.tsx, src/containers/MyBets/component.tsx, src/containers/Settings/component.tsx
+   5 │ context/ModeContext at src/components/OnboardingTour/component.tsx, src/components/app.tsx, src/components/Wallet/component.tsx, src/hooks/useDashboardData.ts, src/components/Header/component.tsx, src/components/Header/ProfileDropdown.tsx, src/containers/GameContainer/component.tsx, src/hooks/useStatsData.ts, src/containers/Settings/component.tsx
+   6 │ store/requests at src/components/OnboardingTour/component.tsx
+   7 │ store/actionCreators at src/components/OnboardingTour/component.tsx
+   8 │ store/requests/matchesRequests at src/components/OnboardingTour/component.tsx, src/hooks/useDashboardData.ts, src/containers/GameContainer/component.tsx
+   9 │ context/ThemeContext at src/components/app.tsx, src/components/Header/component.tsx
+  10 │ components/NavBar at src/components/Wallet/component.tsx
+  11 │ components/VersionFooter at src/components/Wallet/component.tsx
+  12 │ types/state at src/components/Wallet/component.tsx, src/components/ProtectedRoute.tsx, src/components/AdminRoute.tsx, src/containers/Dashboard/component.tsx, src/hooks/useDashboardData.ts, src/hooks/useRequireAuth.ts, src/components/Header/ProfileDropdown.tsx, src/components/Header/component.tsx, src/hooks/useMyBetsData.ts, src/containers/GameContainer/component.tsx, src/containers/Stats/component.tsx, src/hooks/useStatsData.ts, src/containers/MyBets/component.tsx, src/containers/Settings/component.tsx, src/containers/Login/component.tsx, src/components/app.tsx, src/utils/error.ts
+  13 │ store/requests/billingRequests at src/components/Wallet/component.tsx, src/containers/Settings/component.tsx
+  14 │ store/requests/authRequests at src/components/Wallet/component.tsx, src/containers/Settings/component.tsx
+  15 │ types/resources/auth at src/components/Wallet/component.tsx, src/containers/Settings/component.tsx
+  16 │ utils/config at src/components/Wallet/component.tsx
+  17 │ utils/currency at src/components/Wallet/component.tsx, src/components/Header/ProfileDropdown.tsx, src/components/Header/component.tsx, src/containers/Dashboard/component.tsx
+  18 │ hooks/useResponsiveLayout at src/components/app.tsx, src/containers/Dashboard/component.tsx, src/containers/GameContainer/component.tsx, src/containers/Settings/component.tsx
+  19 │ containers/AdminRiskPage/component at src/components/app.tsx
+  20 │ containers/AdminHome/component at src/components/app.tsx
+  21 │ containers/AdminWallet/component at src/components/app.tsx
+  22 │ containers/AdminOps/component at src/components/app.tsx
+  23 │ containers/AdminKYC/component at src/components/app.tsx
+  24 │ store/actionCreators/gameActionCreators at src/hooks/useDashboardData.ts, src/hooks/useMyBetsData.ts, src/containers/GameContainer/component.tsx
+  25 │ store/actionCreators/wagerActionCreators at src/hooks/useDashboardData.ts, src/hooks/useMyBetsData.ts, src/containers/GameContainer/component.tsx, src/hooks/useStatsData.ts
+  26 │ store/actionCreators/leaderboardActionCreators at src/hooks/useDashboardData.ts
+  27 │ types/resources/game at src/hooks/useDashboardData.ts, src/containers/GameContainer/component.tsx, src/utils/chess.ts
+  28 │ components/NotificationCenter/context at src/components/Header/DepositModal.tsx, src/components/Header/WithdrawModal.tsx, src/containers/Settings/component.tsx
+  29 │ components/BottomTabBar at src/containers/Dashboard/component.tsx, src/containers/Stats/component.tsx, src/containers/MyBets/component.tsx, src/containers/Settings/component.tsx
+  30 │ types/resources/wager at src/hooks/useMyBetsData.ts, src/hooks/useStatsData.ts
+  31 │ components/EmptyState at src/containers/Dashboard/component.tsx, src/containers/MyBets/component.tsx
+  32 │ components/Chessboard at src/containers/GameContainer/component.tsx
+  33 │ components/Header at src/containers/GameContainer/component.tsx
+  34 │ components/PlayerHeader at src/containers/GameContainer/component.tsx
+  35 │ components/MovePredictions at src/containers/GameContainer/component.tsx
+  36 │ components/MovePredictions/component at src/containers/GameContainer/component.tsx
+  37 │ components/BettingPanel at src/containers/GameContainer/component.tsx
+  38 │ components/DrawOutcomeCard at src/containers/GameContainer/component.tsx
+  39 │ components/BettingPanel/component at src/containers/GameContainer/component.tsx
+  40 │ store/requests/analysisRequests at src/containers/GameContainer/component.tsx
+  41 │ utils/pricing at src/containers/GameContainer/component.tsx
+  42 │ utils/realOdds at src/containers/GameContainer/component.tsx
+  43 │ adapters/game at src/containers/GameContainer/component.tsx
+  44 │ __fixtures__/analysis at src/containers/GameContainer/component.tsx
+  45 │ utils/wagerErrorText at src/containers/GameContainer/component.tsx
+  46 │ store/actionCreators/requestActionCreators at src/containers/Login/component.tsx
+  47 │ store/reducers/authReducer at src/store/reducers/index.ts
+  48 │ store/reducers/chessgroundReducer at src/store/reducers/index.ts
+  49 │ store/reducers/gameReducer at src/store/reducers/index.ts
+  50 │ store/reducers/leaderboardReducer at src/store/reducers/index.ts
+  51 │ store/reducers/requestReducer at src/store/reducers/index.ts
+  52 │ store/reducers/wagerReducer at src/store/reducers/index.ts
+  53 │ store/reducers/socketReducer at src/store/reducers/index.ts
+  54 │ store/sagas/auth at src/store/sagas/index.ts
+  55 │ store/sagas/chessground at src/store/sagas/index.ts
+  56 │ store/sagas/game at src/store/sagas/index.ts
+  57 │ store/sagas/wager at src/store/sagas/index.ts
+  58 │ store/sagas/leaderboard at src/store/sagas/index.ts
+  59 │ store/sagas/sockets at src/store/sagas/index.ts
+  60 │ types/chessground at src/utils/chess.ts
+  61 │ types/leaderboard at src/utils/leaderboard.ts
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ 17 unused dependencies
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ @fortawesome/free-brands-svg-icons
+   2 │ @fortawesome/free-solid-svg-icons
+   3 │ @fortawesome/react-fontawesome
+   4 │ @headlessui/react
+   5 │ @heroicons/react
+   6 │ @jakeane/react-bidirectional-infinite-scroll
+   7 │ @react-chess/chessground
+   8 │ clsx
+   9 │ framer-motion
+  10 │ joi
+  11 │ lodash.omit
+  12 │ ordinal
+  13 │ react-router
+  14 │ react-scroll-to-bottom
+  15 │ react-slider
+  16 │ socket.io-client
+  17 │ typescript
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ 174 unimported files
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/__fixtures__/analysis.ts
+   2 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/adapters/game.ts
+   3 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/AuthenticatedLayout/index.tsx
+   4 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BetConfirmationModal/component.tsx
+   5 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BetConfirmationModal/index.ts
+   6 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BettingPanel/component.tsx
+   7 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BettingPanel/index.ts
+   8 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BettingSidebar/index.tsx
+   9 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BettingSidebar/MiniLeaderboard.tsx
+  10 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BotIndicator/component.tsx
+  11 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BotIndicator/index.ts
+  12 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/BottomTabBar/index.tsx
+  13 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Button/component.tsx
+  14 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Button/index.ts
+  15 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ButtonDemo/component.tsx
+  16 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ButtonDemo/index.ts
+  17 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Card/component.tsx
+  18 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ChatBox/component.tsx
+  19 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ChatBox/helper_components.tsx
+  20 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ChatBox/index.ts
+  21 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ChatBox/utils.ts
+  22 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Chessboard/component.tsx
+  23 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Chessboard/index.ts
+  24 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ChessgroundWrapper/index.tsx
+  25 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/CoinBalance/index.tsx
+  26 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/CollapsibleSection/component.tsx
+  27 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/CollapsibleSection/index.ts
+  28 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ConnectionStatus/component.tsx
+  29 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ConnectionStatus/index.ts
+  30 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DragWagerSidebar/component.tsx
+  31 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DragWagerSidebar/index.ts
+  32 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DrawBetBubble/component.tsx
+  33 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DrawBetBubble/index.ts
+  34 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DrawOutcomeCard/component.tsx
+  35 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/DrawOutcomeCard/index.ts
+  36 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/EmptyState/index.tsx
+  37 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/GameCard/component.tsx
+  38 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/GameCommunication/component.tsx
+  39 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/GameCommunication/index.ts
+  40 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/GameInfoPanel/component.tsx
+  41 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/GameInfoPanel/index.ts
+  42 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/IntegratedBettingSidebar/component.tsx
+  43 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/IntegratedBettingSidebar/index.ts
+  44 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Leaderboard/component.tsx
+  45 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Leaderboard/helpers.tsx
+  46 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Leaderboard/index.ts
+  47 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/LichessModal/component.tsx
+  48 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/LichessModal/index.ts
+  49 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/Loading/BetMateLoading.tsx
+  50 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/LoadingIcon/index.tsx
+  51 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/MoveBubbles/component.tsx
+  52 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/MoveBubbles/index.ts
+  53 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/MovePredictions/component.tsx
+  54 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/MovePredictions/index.ts
+  55 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/NavBar/component.tsx
+  56 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/NavBar/index.ts
+  57 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/OnboardingGate/component.tsx
+  58 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/OnboardingGate/index.ts
+  59 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PlayerHeader/component.tsx
+  60 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PlayerHeader/index.ts
+  61 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PostgameModal/component.tsx
+  62 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PostgameModal/helperComponents.tsx
+  63 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PostgameModal/index.ts
+  64 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PregameModal/component.tsx
+  65 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/PregameModal/index.ts
+  66 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/TabPanel/component.tsx
+  67 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/TabPanel/index.ts
+  68 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ThemeToggle/component.tsx
+  69 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/ThemeToggle/index.ts
+  70 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/VersionFooter.tsx
+  71 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/VersionTag.tsx
+  72 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/GameOutcomes/component.tsx
+  73 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/GameOutcomes/index.ts
+  74 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/index.ts
+  75 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/MoveOptions/component.tsx
+  76 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/MoveOptions/index.ts
+  77 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/WagerMessages/component.tsx
+  78 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerFormComponents/WagerMessages/index.ts
+  79 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerPanel/component.tsx
+  80 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerPanel/helper_components.tsx
+  81 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerPanel/index.ts
+  82 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerReceipts/component.tsx
+  83 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerReceipts/index.ts
+  84 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerReceipts/utils.ts
+  85 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerReceipts/WagerReceiptCard.tsx
+  86 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerSubPanel/component.tsx
+  87 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/components/WagerSubPanel/index.ts
+  88 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/AdminHome/component.tsx
+  89 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/AdminKYC/component.tsx
+  90 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/AdminOps/component.tsx
+  91 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/AdminRiskPage/component.tsx
+  92 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/AdminWallet/component.tsx
+  93 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signInPanel/component.tsx
+  94 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signInPanel/index.ts
+  95 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signOutPanel/component.tsx
+  96 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signOutPanel/index.ts
+  97 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signUpPanel/component.tsx
+  98 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/containers/authentication/signUpPanel/index.ts
+  99 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/context/ModeContext.tsx
+ 100 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/context/ThemeContext.tsx
+ 101 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/examples/ButtonDemo/component.tsx
+ 102 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/examples/ButtonDemo/index.ts
+ 103 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/features/moveMenu/moveMenuTransitions.ts
+ 104 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/hocs/requireAuth.tsx
+ 105 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/hooks/useFilterState.ts
+ 106 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/hooks/useOddsPolling.ts
+ 107 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/hooks/useResponsiveLayout.ts
+ 108 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/authActionCreators.ts
+ 109 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/chessgroundActionCreators.ts
+ 110 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/gameActionCreators.ts
+ 111 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/index.ts
+ 112 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/leaderboardActionCreators.ts
+ 113 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/requestActionCreators.ts
+ 114 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/wagerActionCreators.ts
+ 115 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/websocketActionCreators.ts
+ 116 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/actionCreators/websocketConnectionActionCreators.ts
+ 117 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/authReducer.ts
+ 118 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/chessgroundReducer.ts
+ 119 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/gameReducer.ts
+ 120 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/leaderboardReducer.ts
+ 121 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/requestReducer.ts
+ 122 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/socketReducer.ts
+ 123 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/reducers/wagerReducer.ts
+ 124 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/adminRequests.ts
+ 125 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/analysisRequests.ts
+ 126 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/authRequests.ts
+ 127 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/billingRequests.ts
+ 128 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/gameRequests.ts
+ 129 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/index.ts
+ 130 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/leaderboardRequests.ts
+ 131 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/lichessRequests.ts
+ 132 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/marketRequests.ts
+ 133 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/matchesRequests.ts
+ 134 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/requests/wagerRequests.ts
+ 135 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/auth/index.ts
+ 136 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/auth/watchers.ts
+ 137 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/chessground/handlers.ts
+ 138 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/chessground/index.ts
+ 139 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/game/index.ts
+ 140 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/game/watchers.ts
+ 141 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/leaderboard/handlers.ts
+ 142 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/leaderboard/index.ts
+ 143 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/sockets/channels.ts
+ 144 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/sockets/handlers.ts
+ 145 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/sockets/index.ts
+ 146 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/utils.ts
+ 147 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/wager/index.ts
+ 148 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/store/sagas/wager/watchers.ts
+ 149 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/chessground.ts
+ 150 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/index.ts
+ 151 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/leaderboard.ts
+ 152 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/lichess.ts
+ 153 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/matches.ts
+ 154 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/requests.ts
+ 155 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/resources/auth.ts
+ 156 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/resources/game.ts
+ 157 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/resources/wager.ts
+ 158 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/socket.ts
+ 159 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/types/state.ts
+ 160 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/currency.ts
+ 161 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/imagePreload.ts
+ 162 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/moveCandidates.ts
+ 163 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/pricing.ts
+ 164 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/realOdds.ts
+ 165 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/wager.ts
+ 166 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/utils/wagerErrorText.ts
+ 167 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/auth.ts
+ 168 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/game.ts
+ 169 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/index.ts
+ 170 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/leaderboard.ts
+ 171 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/lichess.ts
+ 172 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/socket.ts
+ 173 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/user.ts
+ 174 │ /mnt/c/Users/PerkD/documents/dev/betmate/frontend/src/validation/wager.ts
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+       Inspect the results and run npx unimported -u to update ignore lists
+
+> betmate-frontend@2.0.0 deadcode:tsprune
+> ts-prune
+
+src/version.ts:6 - environment (used in module)
+src/version.ts:10 - packageVersion (used in module)
+src/version.ts:13 - buildContext (used in module)
+src/version.ts:14 - buildUrl (used in module)
+src/version.ts:15 - buildBranch (used in module)
+src/adapters/game.ts:41 - normalizeStatus (used in module)
+src/adapters/game.ts:51 - deriveWinner (used in module)
+src/adapters/game.ts:63 - deriveEndType (used in module)
+src/adapters/game.ts:4 - GameViewModel (used in module)
+src/context/ModeContext.tsx:4 - BetMode (used in module)
+src/context/ThemeContext.tsx:3 - Theme (used in module)
+src/hocs/requireAuth.tsx:4 - RequireAuthProps (used in module)
+src/hocs/requireAuth.tsx:23 - default
+src/hooks/useDashboardData.ts:326 - UseDashboardData (used in module)
+src/hooks/useDashboardData.ts:329 - useNewDashboardData
+src/hooks/useDashboardData.ts:330 - UseNewDashboardData
+src/hooks/useFilterState.ts:4 - TimeFilter (used in module)
+src/hooks/useFilterState.ts:5 - RatingFilter (used in module)
+src/hooks/useFilterState.ts:7 - FilterState (used in module)
+src/hooks/useFilterState.ts:12 - useFilterState
+src/hooks/useMyBetsData.ts:92 - UseMyBetsData (used in module)
+src/hooks/useMyBetsData.ts:95 - useNewMyBetsData
+src/hooks/useMyBetsData.ts:96 - UseNewMyBetsData
+src/hooks/useOddsPolling.ts:54 - default
+src/hooks/useRequireAuth.ts:15 - useRequireAuthForNew (used in module)
+src/hooks/useResponsiveLayout.ts:3 - ResponsiveBreakpoints (used in module)
+src/hooks/useStatsData.ts:74 - UseStatsData (used in module)
+src/hooks/useStatsData.ts:77 - useNewStatsData
+src/hooks/useStatsData.ts:78 - UseNewStatsData
+src/types/chessground.ts:20 - CG_NEW_MOVE (used in module)
+src/types/chessground.ts:21 - CG_ENTER_MOVE_PANEL (used in module)
+src/types/chessground.ts:22 - CG_LEAVE_MOVE_PANEL (used in module)
+src/types/chessground.ts:23 - CG_NEW_ARROWS (used in module)
+src/types/chessground.ts:24 - CG_MOVE_HOVER (used in module)
+src/types/chessground.ts:25 - CG_MOVE_UNHOVER (used in module)
+src/types/chessground.ts:27 - CgMoveData (used in module)
+src/types/chessground.ts:28 - CgArrowsData (used in module)
+src/types/chessground.ts:29 - CgMoveSelectData
+src/types/chessground.ts:30 - CgMoveHoverData (used in module)
+src/types/chessground.ts:32 - CgMoveActions (used in module)
+src/types/chessground.ts:33 - CgEnterMovePanelActions (used in module)
+src/types/chessground.ts:34 - CgLeaveMovePanelActions (used in module)
+src/types/chessground.ts:35 - CgArrowsActions (used in module)
+src/types/chessground.ts:36 - CgMoveHoverActions (used in module)
+src/types/chessground.ts:37 - CgMoveUnhoverActions (used in module)
+src/types/chessground.ts:48 - CgNewMoveData
+src/types/chessground.ts:49 - CgNewArrowsData
+src/types/chessground.ts:50 - CgNewMoveActions
+src/types/chessground.ts:51 - CgNewArrowsActions
+src/types/leaderboard.ts:32 - ON_LEADERBOARD_SCROLL (used in module)
+src/types/leaderboard.ts:33 - FETCH_LEADERBOARD_HEAD (used in module)
+src/types/leaderboard.ts:34 - EXTEND_LEADERBOARD_TOP (used in module)
+src/types/leaderboard.ts:35 - EXTEND_LEADERBOARD_BOTTOM (used in module)
+src/types/leaderboard.ts:36 - FETCH_USER_RANK (used in module)
+src/types/leaderboard.ts:37 - GOTO_USER_POSITION (used in module)
+src/types/leaderboard.ts:38 - LEAVE_USER_POSITION (used in module)
+src/types/leaderboard.ts:41 - FetchLeaderboardData (used in module)
+src/types/leaderboard.ts:43 - FetchUserRankData (used in module)
+src/types/leaderboard.ts:44 - FetchGameLeaderboardData (used in module)
+src/types/leaderboard.ts:46 - FetchLeaderboardRequest
+src/types/leaderboard.ts:47 - ScrollPositionData (used in module)
+src/types/leaderboard.ts:48 - RowSizeData (used in module)
+src/types/leaderboard.ts:50 - OnLeaderboardScrollActions (used in module)
+src/types/matches.ts:1 - MatchStatus (used in module)
+src/types/matches.ts:3 - MatchPlayer (used in module)
+src/types/matches.ts:11 - MatchTimeControl (used in module)
+src/types/matches.ts:16 - MatchClocks (used in module)
+src/types/matches.ts:21 - MatchOpening (used in module)
+src/types/matches.ts:26 - MatchStakes (used in module)
+src/types/matches.ts:33 - MatchSource (used in module)
+src/types/matches.ts:38 - MatchStats (used in module)
+src/types/socket.ts:8 - ClientEvents (used in module)
+src/types/socket.ts:10 - ServerEvents (used in module)
+src/types/socket.ts:21 - INITIALIZE_SOCKET (used in module)
+src/types/socket.ts:22 - CLOSE_SOCKET (used in module)
+src/types/socket.ts:23 - SOCKET_ERROR (used in module)
+src/types/socket.ts:24 - SOCKET_GAME_ERROR (used in module)
+src/types/socket.ts:25 - JOIN_AUTH (used in module)
+src/types/socket.ts:26 - LEAVE_AUTH (used in module)
+src/types/socket.ts:34 - InitializeSocketData (used in module)
+src/types/socket.ts:37 - CloseSocketData (used in module)
+src/types/socket.ts:38 - JoinAuthData (used in module)
+src/types/socket.ts:39 - LeaveAuthData (used in module)
+src/types/socket.ts:49 - ClearSocketQueueData (used in module)
+src/types/socket.ts:55 - JoinAuthActions (used in module)
+src/types/socket.ts:56 - LeaveAuthActions (used in module)
+src/types/socket.ts:57 - SocketConnectionStateAction (used in module)
+src/types/socket.ts:58 - SocketReconnectingAction (used in module)
+src/types/socket.ts:59 - SocketReconnectedAction (used in module)
+src/types/socket.ts:60 - SocketReconnectFailedAction (used in module)
+src/types/socket.ts:61 - QueueSocketMessageAction (used in module)
+src/types/socket.ts:62 - ClearSocketQueueAction (used in module)
+src/types/state.ts:24 - REQUEST (used in module)
+src/types/state.ts:25 - SUCCESS (used in module)
+src/types/state.ts:26 - FAILURE (used in module)
+src/types/state.ts:32 - FailurePayload
+src/utils/currency.ts:1 - Currency (used in module)
+src/utils/currency.ts:13 - formatAmount
+src/utils/enhanced_logger.ts:101 - generateTraceId (used in module)
+src/utils/enhanced_logger.ts:297 - log (used in module)
+src/utils/enhanced_logger.ts:323 - logError (used in module)
+src/utils/enhanced_logger.ts:346 - logUserAction (used in module)
+src/utils/enhanced_logger.ts:361 - logReduxAction (used in module)
+src/utils/enhanced_logger.ts:380 - logPerformance (used in module)
+src/utils/enhanced_logger.ts:400 - initErrorTracking (used in module)
+src/utils/imagePreload.ts:20 - preloadPieces
+src/utils/imagePreload.ts:30 - PIECES (used in module)
+src/utils/imagePreload.ts:30 - DIRS (used in module)
+src/utils/index.ts:19 - chess
+src/utils/index.ts:20 - leaderboard
+src/utils/index.ts:4 - getErrorPayload
+src/utils/index.ts:47 - isNewGameUiEnabled
+src/utils/index.ts:1 - moveOptionColors
+src/utils/index.ts:8 - DISABLE_GLOBAL_LEADERBOARD
+src/utils/index.ts:15 - ENABLE_REAL_DEPOSITS
+src/utils/index.ts:24 - PAYMENT_SUCCESS_URL
+src/utils/index.ts:28 - PAYMENT_CANCEL_URL
+src/utils/index.ts:33 - SHOW_DEPOSIT_IDS
+src/utils/index.ts:38 - ENABLE_DEV_FAUCET
+src/utils/index.ts:43 - FAUCET_ADMIN_KEY
+src/utils/logger_integration.ts:27 - LogEvent
+src/utils/logger_integration.ts:27 - LogLevel
+src/utils/logger_integration.ts:28 - enhancedLogger (used in module)
+src/utils/logger_integration.ts:29 - originalLogger (used in module)
+src/utils/logger.ts:32 - generateTraceId
+src/utils/logger.ts:82 - log (used in module)
+src/utils/logger.ts:102 - logError (used in module)
+src/utils/logger.ts:125 - logUserAction (used in module)
+src/utils/logger.ts:141 - initErrorTracking (used in module)
+src/utils/logger.ts:17 - LogLevel (used in module)
+src/utils/logger.ts:20 - LogEvent (used in module)
+src/utils/moveCandidates.ts:9 - deriveMoveCandidates
+src/utils/moveCandidates.ts:3 - MoveAnalysisLite (used in module)
+src/utils/pricing.ts:4 - TopMoveLite (used in module)
+src/utils/realOdds.ts:3 - UIRisk (used in module)
+src/utils/wager.ts:1 - wdlLabel (used in module)
+src/validation/game.ts:19 - isGameStatus (used in module)
+src/validation/game.ts:47 - GameOddsSchema (used in module)
+src/validation/game.ts:53 - AnonMoveWagerSchema (used in module)
+src/validation/user.ts:4 - isUserRole (used in module)
+src/validation/wager.ts:5 - isWagerStatus (used in module)
+src/components/AuthenticatedLayout/index.tsx:32 - default
+src/components/BetConfirmationModal/index.ts:3 - default
+src/components/BettingSidebar/index.tsx:360 - default
+src/components/Button/index.ts:4 - ButtonVariant
+src/components/Button/index.ts:5 - ButtonSize
+src/components/Button/index.ts:7 - ButtonProps
+src/components/ButtonDemo/index.ts:3 - default
+src/components/Card/component.tsx:11 - Card (used in module)
+src/components/Card/component.tsx:21 - default
+src/components/ChatBox/helper_components.tsx:20 - ChatWager (used in module)
+src/components/ChatBox/helper_components.tsx:94 - ChatItem
+src/components/ChatBox/index.ts:11 - ChatBoxProps (used in module)
+src/components/ChatBox/utils.ts:7 - createResolvedFeedWager (used in module)
+src/components/ChatBox/utils.ts:17 - createFeedWagers
+src/components/CoinBalance/index.tsx:7 - BetMode (used in module)
+src/components/CollapsibleSection/index.ts:2 - default
+src/components/CollapsibleSection/index.ts:4 - CollapsibleSectionProps
+src/components/DragWagerSidebar/index.ts:3 - default
+src/components/DrawBetBubble/index.ts:1 - default
+src/components/DrawOutcomeCard/component.tsx:8 - DrawOutcomeCardProps (used in module)
+src/components/GameCard/component.tsx:41 - default
+src/components/GameCommunication/index.ts:14 - default
+src/components/GameInfoPanel/index.ts:1 - default
+src/components/IntegratedBettingSidebar/index.ts:3 - default
+src/components/Leaderboard/index.ts:27 - default
+src/components/LichessModal/index.ts:4 - default
+src/components/Loading/BetMateLoading.tsx:56 - default
+src/components/LoadingIcon/index.tsx:10 - default
+src/components/MoveBubbles/index.ts:1 - default
+src/components/NavBar/component.tsx:11 - NavBarProps (used in module)
+src/components/NotificationCenter/bus.ts:1 - BusNotification (used in module)
+src/components/NotificationCenter/context.tsx:13 - NotificationType (used in module)
+src/components/NotificationCenter/context.tsx:15 - Notification (used in module)
+src/components/PostgameModal/index.ts:13 - default
+src/components/PregameModal/index.ts:16 - default
+src/components/WagerPanel/index.ts:14 - default
+src/components/WagerReceipts/index.ts:22 - WagerReceiptsProps (used in module)
+src/examples/ButtonDemo/index.ts:3 - default
+src/features/moveMenu/moveMenuTransitions.ts:3 - MoveMenuTransitionVariant (used in module)
+src/features/moveMenu/moveMenuTransitions.ts:11 - DEFAULT_MOVE_MENU_TRANSITION (used in module)
+src/store/actionCreators/chessgroundActionCreators.ts:25 - newMove
+src/store/actionCreators/gameActionCreators.ts:21 - clearGames
+src/store/actionCreators/leaderboardActionCreators.ts:46 - getGameLeaderboard
+src/store/actionCreators/wagerActionCreators.ts:21 - fetchWagerById
+src/store/actionCreators/websocketActionCreators.ts:4 - initializeSocket
+src/store/actionCreators/websocketConnectionActionCreators.ts:17 - updateSocketConnectionState
+src/store/actionCreators/websocketConnectionActionCreators.ts:23 - socketReconnecting
+src/store/actionCreators/websocketConnectionActionCreators.ts:29 - socketReconnected
+src/store/actionCreators/websocketConnectionActionCreators.ts:35 - socketReconnectFailed
+src/store/actionCreators/websocketConnectionActionCreators.ts:41 - queueSocketMessage
+src/store/actionCreators/websocketConnectionActionCreators.ts:47 - clearSocketQueue
+src/store/reducers/index.ts:22 - RootState
+src/store/reducers/socketReducer.ts:3 - ConnectionState (used in module)
+src/store/requests/index.ts:9 - isAnalysisRateLimited (used in module)
+src/store/requests/index.ts:10 - isAuthRateLimited (used in module)
+src/store/requests/index.ts:102 - getTopMoves
+src/store/requests/index.ts:140 - getBatchMoveAnalysis
+src/store/requests/index.ts:4 - RealWdlMarketResponse
+src/store/requests/matchesRequests.ts:12 - getMatchDetails
+src/types/resources/auth.ts:52 - SIGN_IN_USER (used in module)
+src/types/resources/auth.ts:53 - DEAUTH_USER (used in module)
+src/types/resources/auth.ts:54 - CREATE_USER (used in module)
+src/types/resources/auth.ts:60 - CreateUserRequestData (used in module)
+src/types/resources/auth.ts:61 - SignInRequestData (used in module)
+src/types/resources/auth.ts:62 - JwtSignInRequestData (used in module)
+src/types/resources/auth.ts:63 - GetBalanceHistoryRequestData (used in module)
+src/types/resources/auth.ts:68 - DeAuthUserData (used in module)
+src/types/resources/auth.ts:73 - DeAuthUserActions (used in module)
+src/types/resources/auth.ts:75 - AdjustBalanceActions (used in module)
+src/types/resources/auth.ts:76 - SetBalanceActions (used in module)
+src/types/resources/game.ts:33 - GameSource (used in module)
+src/types/resources/game.ts:106 - PendingBet (used in module)
+src/types/resources/game.ts:113 - GameStats (used in module)
+src/types/resources/game.ts:144 - JOIN_GAME (used in module)
+src/types/resources/game.ts:145 - LEAVE_GAME (used in module)
+src/types/resources/game.ts:146 - START_GAME (used in module)
+src/types/resources/game.ts:147 - UPDATE_GAME_STATE (used in module)
+src/types/resources/game.ts:148 - UPDATE_GAME_ODDS (used in module)
+src/types/resources/game.ts:149 - UPDATE_GAME_END (used in module)
+src/types/resources/game.ts:150 - BROADCAST_POOL_WAGER (used in module)
+src/types/resources/game.ts:151 - GAME_CHAT (used in module)
+src/types/resources/game.ts:153 - FETCH_GAME (used in module)
+src/types/resources/game.ts:154 - FETCH_GAMES (used in module)
+src/types/resources/game.ts:155 - UPDATE_SHOW_MODAL (used in module)
+src/types/resources/game.ts:156 - CLEAR_GAMES (used in module)
+src/types/resources/game.ts:157 - TOGGLE_QUICK_BET (used in module)
+src/types/resources/game.ts:158 - SET_PENDING_BET (used in module)
+src/types/resources/game.ts:159 - CLEAR_PENDING_BET (used in module)
+src/types/resources/game.ts:160 - FETCH_GAME_STATS (used in module)
+src/types/resources/game.ts:161 - UPDATE_VIEWER_COUNT (used in module)
+src/types/resources/game.ts:172 - FetchGameRequestData (used in module)
+src/types/resources/game.ts:173 - FetchGamesRequestData (used in module)
+src/types/resources/game.ts:174 - FetchGameStatsRequestData (used in module)
+src/types/resources/game.ts:180 - UpdateModalData (used in module)
+src/types/resources/game.ts:181 - SetPendingBetData (used in module)
+src/types/resources/game.ts:182 - UpdateViewerCountData (used in module)
+src/types/resources/game.ts:186 - StartGameActions (used in module)
+src/types/resources/game.ts:189 - UpdateGameEndActions (used in module)
+src/types/resources/game.ts:196 - ShowModalActions (used in module)
+src/types/resources/game.ts:197 - ClearGamesActions (used in module)
+src/types/resources/game.ts:198 - ToggleQuickBetActions (used in module)
+src/types/resources/game.ts:199 - SetPendingBetActions (used in module)
+src/types/resources/game.ts:200 - ClearPendingBetActions (used in module)
+src/types/resources/game.ts:201 - UpdateViewerCountActions (used in module)
+src/types/resources/wager.ts:4 - WagerWDL
+src/types/resources/wager.ts:61 - CREATE_WAGER (used in module)
+src/types/resources/wager.ts:62 - FETCH_WAGER (used in module)
+src/types/resources/wager.ts:63 - FETCH_WAGERS (used in module)
+src/types/resources/wager.ts:64 - FETCH_USER_BETTING_STATS (used in module)
+src/types/resources/wager.ts:65 - FETCH_ACTIVE_WAGERS (used in module)
+src/types/resources/wager.ts:66 - FETCH_WAGER_HISTORY (used in module)
+src/types/resources/wager.ts:68 - CreateWagerRequestData (used in module)
+src/types/resources/wager.ts:78 - FetchWagerRequestData (used in module)
+src/types/resources/wager.ts:79 - DeleteWagerRequestData
+src/types/resources/wager.ts:80 - FetchWagerHistoryRequestData (used in module)
+src/containers/authentication/signInPanel/component.tsx:8 - SignInPanelProps (used in module)
+src/containers/authentication/signInPanel/index.ts:18 - default
+src/containers/authentication/signOutPanel/component.tsx:5 - SignOutPanelProps (used in module)
+src/containers/authentication/signUpPanel/component.tsx:8 - SignUpPanelProps (used in module)
+src/containers/authentication/signUpPanel/index.ts:18 - default
+
+> betmate-frontend@2.0.0 deadcode:depcheck
+> depcheck
+
+Unused dependencies
+* @headlessui/react
+* @heroicons/react
+* react-scroll-to-bottom
+Unused devDependencies
+* @types/node
+* @types/webpack
+* @types/webpack-dev-server
+* @webpack-cli/serve
+* autoprefixer
+* eslint-config-airbnb
+* eslint-loader
+* eslint-plugin-jsx-a11y
+* file-loader
+* surge
+* tailwindcss
+* ts-node
+* webpack-cli
+* webpack-dev-server
+Missing dependencies
+* components: ./src/index.tsx
+* agentation: ./src/index.tsx
+* types: ./src/validation/auth.ts
+* validation: ./src/validation/auth.ts
+* store: ./src/store/sagas/index.ts
+* utils: ./src/store/sagas/wager/watchers.ts
+* context: ./src/hooks/useDashboardData.ts
+* containers: ./src/containers/authentication/signUpPanel/index.ts
+* hooks: ./src/containers/Settings/component.tsx
+* adapters: ./src/containers/GameContainer/component.tsx
+* __fixtures__: ./src/containers/GameContainer/component.tsx
+* assets: ./src/components/WagerPanel/component.tsx
+* features: ./src/components/WagerFormComponents/MoveOptions/component.tsx
+* node-fetch: ./scripts/notify-discord.js

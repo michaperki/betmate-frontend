@@ -8,10 +8,6 @@ import { Wager, WagerStatus } from 'types/resources/wager';
 const outcomeMap: Record<string, string> = { white_win: 'White Win', black_win: 'Black Win', draw: 'Draw' };
 
 export function useMyBetsData() {
-  return useNewMyBetsData();
-}
-
-export function useNewMyBetsData() {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const active = useSelector((s: RootState) => s.wager.activeWagers);
@@ -92,5 +88,7 @@ export function useNewMyBetsData() {
 
   return { activeBets, betHistory, quick };
 }
+// Canonical type
+export type UseMyBetsData = ReturnType<typeof useMyBetsData>;
 
-export type UseNewMyBetsData = ReturnType<typeof useNewMyBetsData>;
+// Backwards-compat named export

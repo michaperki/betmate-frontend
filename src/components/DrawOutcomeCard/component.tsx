@@ -1,0 +1,156 @@
+import React, { useMemo, useState } from 'react';
+import { useMode } from 'context/ModeContext';
+import { realWdlMultiplier } from 'utils/realOdds';
+import { formatAmountShort, modeCurrency } from 'utils/currency';
+
+type Outcome = 'white_win' | 'draw' | 'black_win';
+
+export interface DrawOutcomeCardProps {
+  disabled?: boolean;
+  odds?: { white_win?: number; draw?: number; black_win?: number } | null;
+  onPlace?: (outcome: Outcome, stake: number) => void;
+  disabledReason?: string;
+}
+
+const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPlace, disabledReason }) => {
+  const { mode, limits } = useMode();
+  const [selected, setSelected] = useState<Outcome | null>(null);
+  const [stake, setStake] = useState<number>(2);
+
+  const multipliers = useMemo(() => {
+    const pW = Number(odds?.white_win ?? 0);
+    const pD = Number(odds?.draw ?? 0);
+    const pB = Number(odds?.black_win ?? 0);
+    const toX = (p: number, key: Outcome) => {
+      if (!p || p <= 0) return 0;
+      if (mode === 'real') return realWdlMultiplier(key, p, undefined);
+      return 1 / p;
+    };
+    return {
+      white: toX(pW, 'white_win'),
+      draw: toX(pD, 'draw'),
+      black: toX(pB, 'black_win'),
+    };
+  }, [odds, mode]);
+
+  const chips = [2, 5, 10, 25];
+  const canAct = !disabled && !!selected && stake >= 1;
+  const curr = modeCurrency(mode);
+  const minStake = 1;
+  const maxStake = mode === 'arcade' ? (limits?.arcadeMaxStakeWdl ?? undefined) : undefined;
+  const maxHint = typeof maxStake === 'number'
+    ? (curr === 'BET' ? `${maxStake} K` : `$${maxStake}`)
+    : (mode === 'real' ? undefined : undefined);
+  const accent = mode === 'arcade' ? 'var(--warning)' : 'var(--success)';
+  const selectedBg = mode === 'arcade' ? 'rgba(var(--warning-rgb),0.18)' : 'rgba(var(--success-rgb),0.18)';
+
+  return (
+    <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, padding: 16 }}>
+      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>Game Outcome</span>
+        <span style={{ opacity: 0.4, fontSize: 10, letterSpacing: '1px' }}>Click to select</span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+        {/* White */}
+        <button
+          onClick={() => setSelected('white_win')}
+          disabled={disabled}
+          style={{
+            background: selected === 'white_win' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'white_win' ? `2px solid ${accent}` : '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 12px',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            minHeight: 86,
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>White Wins</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto' }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
+          </div>
+        </button>
+
+        {/* Draw */}
+        <button
+          onClick={() => setSelected('draw')}
+          disabled={disabled}
+          style={{
+            background: selected === 'draw' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'draw' ? `2px solid ${accent}` : '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 12px',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            minHeight: 86,
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Draw</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
+          </div>
+        </button>
+
+        {/* Black */}
+        <button
+          onClick={() => setSelected('black_win')}
+          disabled={disabled}
+          style={{
+            background: selected === 'black_win' ? selectedBg : 'var(--card-bg)',
+            border: selected === 'black_win' ? `2px solid ${accent}` : '1px solid var(--card-border)',
+            borderRadius: 10,
+            padding: '14px 12px',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            opacity: disabled ? 0.5 : 1,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            minHeight: 86,
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Black Wins</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
+          </div>
+        </button>
+      </div>
+
+      {/* Quick stake + input */}
+      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        {chips.map((v) => (
+          <button key={v} onClick={() => setStake(v)} disabled={disabled} style={{
+            padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
+          }}>
+            {formatAmountShort(v, curr)}
+          </button>
+        ))}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <input type="number" min={1} step={1} value={stake} onChange={(e) => setStake(Math.max(1, Number(e.target.value) || 0))} disabled={disabled} style={{
+            width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: 12
+          }} />
+          <span style={{ fontSize: 12, opacity: 0.6 }}>{curr === 'BET' ? 'K' : '$'}</span>
+          <button onClick={() => selected && onPlace?.(selected, stake)} disabled={!canAct} style={{
+            padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? (mode === 'arcade' ? 'linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%)' : 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)') : (mode === 'arcade' ? 'rgba(var(--warning-rgb),0.15)' : 'rgba(var(--success-rgb),0.15)'), color: canAct ? '#000' : 'var(--text-secondary)', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12
+          }}>
+            Place
+          </button>
+        </div>
+      </div>
+
+      {/* Hints and disabled copy */}
+      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 11, opacity: 0.6 }}>
+          Min {curr === 'BET' ? `${minStake} K` : `$${minStake}`}{maxHint ? ` • Max ${maxHint}` : ''}
+        </div>
+        {disabled && (
+          <div style={{ fontSize: 11, color: '#fbbf24' }}>
+            {disabledReason || 'Betting unavailable'}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default DrawOutcomeCard;

@@ -44,7 +44,7 @@ type LeaderboardItem = {
   isYou?: boolean;
 };
 
-export function useNewDashboardData() {
+export function useDashboardData() {
   const dispatch = useDispatch();
   const { mode } = useMode();
 
@@ -322,4 +322,7 @@ export function useNewDashboardData() {
   };
 }
 
-export type UseNewDashboardData = ReturnType<typeof useNewDashboardData>;
+// Canonical type
+export type UseDashboardData = ReturnType<typeof useDashboardData>;
+
+// Backwards-compat named export

@@ -23,10 +23,12 @@
     align-items: center;
 
     background: linear-gradient(135deg, rgba(17, 17, 17, 0.95) 0%, rgba(20, 20, 24, 0.95) 100%);
+    animation: slideIn 0.3s ease;
+    position: relative;
 
     &.success {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
-      border-color: rgba(34, 197, 94, 0.3);
+      background: linear-gradient(135deg, rgb(var(--success-rgb) / 0.15) 0%, rgb(var(--success-rgb) / 0.05) 100%);
+      border-color: rgb(var(--success-rgb) / 0.30);
     }
 
     &.error {
@@ -40,8 +42,8 @@
     }
 
     &.win {
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%);
-      border-color: rgba(34, 197, 94, 0.4);
+      background: linear-gradient(135deg, rgb(var(--success-rgb) / 0.20) 0%, rgba(251, 191, 36, 0.10) 100%);
+      border-color: rgb(var(--success-rgb) / 0.40);
     }
 
     &.loss {
@@ -58,6 +60,7 @@
       justify-content: center;
       font-size: 16px;
       background: rgba(255, 255, 255, 0.12);
+      color: #fff;
     }
 
     .notification-content {
@@ -85,7 +88,50 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    .notification-close {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .notification-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.6);
+      animation: toastProgress 5s linear forwards;
+      opacity: 0.6;
+      width: 100%;
+    }
   }
+}
+
+/* Icon styling by type to mirror examples */
+.notification-toast.success .notification-icon {
+  background: rgb(var(--success-rgb) / 0.20);
+  color: var(--success);
+}
+.notification-toast.error .notification-icon,
+.notification-toast.loss .notification-icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+.notification-toast.info .notification-icon {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+}
+.notification-toast.win .notification-icon {
+  background: linear-gradient(135deg, var(--success) 0%, #fbbf24 100%);
+  color: #000;
 }
 
 .global-loading-bar {
@@ -113,6 +159,22 @@
   100% {
     transform: translateX(400%);
   }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastProgress {
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 /* Mobile placement: full-width bottom stack */

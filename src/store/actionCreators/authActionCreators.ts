@@ -2,7 +2,7 @@ import { BalanceHistoryItem, GET_BALANCE_HISTORY } from 'types/resources/auth';
 import { Actions } from 'types/state';
 import { authTokenName } from 'utils';
 
-export const signUpUser = (email: string, password: string, firstName: string, lastName: string): Actions => ({
+export const signUpUser = (email: string, password: string, firstName: string, lastName: string, invite_code: string, device_id?: string): Actions => ({
   type: 'CREATE_USER',
   status: 'REQUEST',
   payload: {
@@ -10,6 +10,8 @@ export const signUpUser = (email: string, password: string, firstName: string, l
     password,
     firstName,
     lastName,
+    invite_code,
+    device_id,
   },
 });
 

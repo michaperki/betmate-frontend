@@ -120,8 +120,27 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/interface-name-prefix": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/ban-ts-ignore": "off"
+        "@typescript-eslint/ban-ts-ignore": "off",
+        // Guardrails: block importing mocks/experimental/new components outside examples
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              "**/experimental/*",
+              "**/Mock*",
+              "**/New[A-Z]*"
+            ]
+          }
+        ]
     },
+    "overrides": [
+      {
+        "files": ["src/examples/**/*"],
+        "rules": {
+          "no-restricted-imports": "off"
+        }
+      }
+    ],
     "settings": {
       "react": {
         "version": "detect"

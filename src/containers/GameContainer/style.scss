@@ -1,0 +1,181 @@
+@import '../../styles/tokens.scss';
+
+.new-game-page {
+  min-height: 100vh;
+  /* Follow theme variables so theme toggle reflects here */
+  background: var(--bg-primary);
+  font-family: $font-primary;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.new-game-container {
+  position: relative;
+  z-index: 1;
+  
+  // Legacy brand styles removed (header provided by Header component)
+  
+  &__viewers {
+    margin-left: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+    line-height: 1;
+  }
+  
+  &__signin {
+    margin-left: 12px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%);
+    color: #0a0a0f;
+    font-weight: 700;
+    letter-spacing: .4px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgb(var(--mode-accent-rgb) / 0.25);
+    transition: transform .15s ease;
+    &:hover { transform: translateY(-1px); }
+    &:active { transform: translateY(0); }
+  }
+  
+  &__balance {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &-label {
+      opacity: 0.6;
+    }
+    
+    &-amount {
+      color: var(--mode-accent);
+      font-weight: 600;
+    }
+  }
+  
+  // Main content grid
+  &__content {
+    display: grid;
+    grid-template-columns: 200px 1fr 280px;
+    gap: 24px;
+    max-width: 1500px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 180px 1fr 250px;
+    }
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    // On wider screens, let the center column breathe
+    @media (min-width: 1280px) {
+      grid-template-columns: 2fr 3fr 2fr;
+    }
+  }
+  
+  // Board wrapper and header
+  &__board-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Demo button - for development/presentation only
+  &__demo-button {
+    margin-top: 20px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%);
+    border: none;
+    color: #000;
+    padding: 14px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgb(var(--mode-accent-rgb) / 0.30);
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  
+  // Game state modifications
+  &--ended {
+    .new-game-container__board-wrapper {
+      filter: brightness(1); // The board has its own dimming
+    }
+  }
+  
+  &__error {
+    max-width: 1200px;
+    margin: 0 auto 12px auto;
+    background: rgba(255, 71, 87, 0.12);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    color: #ffb4ba;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+}
+
+  // Main wrapper for game page content
+  .new-game-main {
+  padding: 32px 40px;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  @media (max-width: 900px) {
+    /* Trim gutters heavily on mobile */
+    padding: 8px;
+    max-width: 100%;
+  }
+}
+
+// Responsive styles
+@media (max-width: 900px) {
+  .new-game-container {
+    /* Remove inner container padding; rely on .new-game-main for small gutter */
+    padding: 0;
+    
+    &__content {
+      /* On mobile, Move Predictions should come right after the board */
+      grid-template-areas:
+        "board"
+        "predictions"
+        "betting";
+    }
+    
+    &__board-wrapper {
+      grid-area: board;
+    }
+    
+    &__betting {
+      grid-area: betting;
+    }
+    
+    &__predictions {
+      grid-area: predictions;
+    }
+  }
+}

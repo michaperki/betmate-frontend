@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNotifications } from 'components/NotificationCenter/context';
 import { createPortal } from 'react-dom';
 
-type MockWithdrawModalProps = {
+type WithdrawModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
 // Lightweight mock Withdraw modal: visual only, mirrors Deposit styling
-const MockWithdrawModal: React.FC<MockWithdrawModalProps> = ({ isOpen, onClose }) => {
+const WithdrawModal: React.FC<WithdrawModalProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<'amount' | 'processing' | 'success'>('amount');
   const [amount, setAmount] = useState<number>(50);
   const [custom, setCustom] = useState<string>('');
@@ -149,4 +149,4 @@ const MockWithdrawModal: React.FC<MockWithdrawModalProps> = ({ isOpen, onClose }
   );
 };
 
-export default MockWithdrawModal;
+export default WithdrawModal;

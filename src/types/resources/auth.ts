@@ -57,7 +57,7 @@ export const GET_BALANCE_HISTORY = 'GET_BALANCE_HISTORY';
 export const ADJUST_BALANCE = 'ADJUST_BALANCE';
 export const SET_BALANCE = 'SET_BALANCE';
 
-export type CreateUserRequestData = { email: string, password: string, firstName: string, lastName: string };
+export type CreateUserRequestData = { email: string, password: string, firstName: string, lastName: string, invite_code: string, device_id?: string };
 export type SignInRequestData = { email: string, password: string };
 export type JwtSignInRequestData = { token: string };
 export type GetBalanceHistoryRequestData = { limit?: number, currency?: 'BET' | 'USDT' };

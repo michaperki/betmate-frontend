@@ -23,6 +23,7 @@ backendAxios.interceptors.request.use((config) => {
     const rid = existing || `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
     (headers as any)['X-Request-Id'] = String(rid);
     config.headers = headers;
+    try { (window as any).__bmLastRequestId = rid; } catch {}
   } catch {}
   return config;
 });

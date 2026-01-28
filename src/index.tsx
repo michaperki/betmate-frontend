@@ -6,11 +6,21 @@ import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
 import App from 'components/app';
+// Developer tool: Agentation overlay (dev-only, safe in prod builds)
+// Loaded dynamically so production builds without devDependencies don't break
+let AgentationDev: React.ComponentType | null = null;
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+    const mod = require('agentation');
+    AgentationDev = mod.Agentation || null;
+  } catch {}
+}
 
 import reducers from './store/reducers';
 import rootSaga from './store/sagas';
 
-import { logger } from './utils';
+import logger from './utils/logger_integration';
 import version from './version';
 import './style.scss';
 import './styles/chessboard-global.css';
@@ -60,7 +70,10 @@ const container = document.getElementById('main');
 if (container) {
   createRoot(container).render(
     <Provider store={store}>
-      <App />
+      <>
+        <App />
+        {AgentationDev ? <AgentationDev /> : null}
+      </>
     </Provider>,
   );
 }

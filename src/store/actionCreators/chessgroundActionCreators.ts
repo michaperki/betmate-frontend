@@ -5,7 +5,7 @@ import { Move } from 'types/resources/game';
 import { Actions } from 'types/state';
 import { getBrush } from 'utils/chess';
 
-export const newMove = (state: string, moveHist: Move[]): Actions => {
+export const applyMoveState = (state: string, moveHist: Move[]): Actions => {
   const hasLastMove = moveHist.length > 0;
   const lm = hasLastMove
     ? moveHist[moveHist.length - 1]
@@ -21,6 +21,9 @@ export const newMove = (state: string, moveHist: Move[]): Actions => {
   };
 };
 
+// Backwards-compat alias
+export const newMove = applyMoveState;
+
 export const onEnterMovePanel = (): Actions => {
   return {
     type: 'CG_ENTER_MOVE_PANEL',
@@ -35,7 +38,7 @@ export const onLeaveMovePanel = (): Actions => ({
   payload: {},
 });
 
-export const createNewArrows = (state: string, moveOptions: string[]): Actions => {
+export const createArrows = (state: string, moveOptions: string[]): Actions => {
   const newArrows = moveOptions
     .map((move, index) => {
       const brush = getBrush(state)(move, index);
@@ -49,6 +52,9 @@ export const createNewArrows = (state: string, moveOptions: string[]): Actions =
     payload: newArrows,
   };
 };
+
+// Backwards-compat alias
+export const createNewArrows = createArrows;
 
 export const onMoveHover = (shapes: Array<{ orig: string; dest: string }>): Actions => {
   if (!shapes || shapes.length === 0 || !shapes[0].orig || !shapes[0].dest) {

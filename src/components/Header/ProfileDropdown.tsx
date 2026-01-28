@@ -62,11 +62,11 @@ const ProfileDropdown: React.FC = () => {
           width: 36,
           height: 36,
           borderRadius: '50%',
-          background: open ? 'linear-gradient(135deg,#16a34a 0%,#22c55e 100%)' : 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)',
-          border: open ? '2px solid #4ade80' : '2px solid transparent',
+          background: open ? 'linear-gradient(135deg, var(--mode-accent-strong) 0%, var(--mode-accent) 100%)' : 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
+          border: open ? '2px solid rgb(var(--mode-accent-rgb) / 0.45)' : '2px solid transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 14, fontWeight: 700, color: '#000', cursor: 'pointer',
-          boxShadow: '0 0 0 2px rgba(34, 197, 94, 0.2)'
+          boxShadow: '0 0 0 2px rgb(var(--mode-accent-rgb) / 0.20)'
         }}
       >
         {avatar}
@@ -87,7 +87,7 @@ const ProfileDropdown: React.FC = () => {
         }}>
           {/* Header */}
           <div style={{ padding: 16, borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{avatar}</div>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{avatar}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.full_name || user?.first_name || 'User'}</div>
               <div style={{ fontSize: 11, opacity: 0.6 }}>{user?.email || ''}</div>
@@ -102,7 +102,7 @@ const ProfileDropdown: React.FC = () => {
             <a
               role="menuitem"
               onClick={() => { setOpen(false); setShowDeposit(true); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: '#22c55e', textDecoration: 'none', cursor: 'pointer', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, color: 'var(--mode-accent)', textDecoration: 'none', cursor: 'pointer', background: 'rgb(var(--mode-accent-rgb) / 0.10)', border: '1px solid rgb(var(--mode-accent-rgb) / 0.20)' }}
             >💰 <span style={{ fontSize: 14, fontWeight: 600 }}>Deposit</span></a>
             <a
               role="menuitem"
@@ -121,7 +121,7 @@ const ProfileDropdown: React.FC = () => {
                 const c = modeCurrency(mode);
                 const bal = mode === 'real' ? cashBalance : tokenBalance;
                 return (
-                  <span style={{ color: '#22c55e', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
+                  <span style={{ color: 'var(--mode-accent)', fontWeight: 600 }}>{formatAmountShort(bal, c)}</span>
                 );
               })()}
             </div>

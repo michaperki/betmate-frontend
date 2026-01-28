@@ -1,5 +1,5 @@
 import { createBackendAxiosRequest } from '.';
-import { FAUCET_ADMIN_KEY } from 'utils/config';
+import { FAUCET_ADMIN_KEY, DEV_WEBHOOK_KEY } from 'utils/config';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
 
@@ -38,16 +38,16 @@ export const getDepositQuote = async (amount: number, payCurrency: string) => (
   }) as unknown as RequestReturnType<any>
 );
 
-export const faucetCredit = async (amount: number) => (
-  createBackendAxiosRequest<{ ok: boolean; credited: number }>({
+export const faucetCredit = async (amount: number, currency?: 'BET' | 'USDT' | 'both') => (
+  createBackendAxiosRequest<{ ok: boolean; credited: number; tokens?: number }>({
     method: 'POST',
     url: '/billing/faucet',
-    data: { amount },
+    data: { amount, ...(currency ? { currency } : {}) },
     headers: {
       ...getBearerTokenHeader(),
       ...(FAUCET_ADMIN_KEY ? { 'X-Admin-Key': FAUCET_ADMIN_KEY } : {}),
     },
-  }) as unknown as RequestReturnType<{ ok: boolean; credited: number }>
+  }) as unknown as RequestReturnType<{ ok: boolean; credited: number; tokens?: number }>
 );
 
 export const listWithdrawals = async () => (
@@ -58,11 +58,11 @@ export const listWithdrawals = async () => (
   }) as unknown as RequestReturnType<{ withdrawals: any[] }>
 );
 
-export const requestWithdrawal = async (amount: number, currency: string, address: string) => (
+export const requestWithdrawal = async (amount: number, currency: string, address: string, method?: 'manual'|'venmo'|'crypto', handle?: string) => (
   createBackendAxiosRequest<{ ok: boolean; withdrawal_id: string }>({
     method: 'POST',
     url: '/billing/withdrawals/request',
-    data: { amount, currency, address },
+    data: { amount, currency, address, ...(method ? { method } : {}), ...(handle ? { handle } : {}) },
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ ok: boolean; withdrawal_id: string }>
 );
@@ -81,4 +81,16 @@ export const startKycMock = async () => (
     url: '/auth/kyc/start',
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ ok: boolean; kyc_status: string }>
+);
+
+// Dev helper: confirm NOWPayments mock webhook locally
+export const confirmDepositMock = async (deposit_id: string, status: 'confirmed' | 'failed' = 'confirmed') => (
+  createBackendAxiosRequest<{ ok: boolean }>({
+    method: 'POST',
+    url: '/billing/webhook/nowpayments/mock',
+    data: { deposit_id, status },
+    headers: {
+      ...(DEV_WEBHOOK_KEY ? { 'x-dev-webhook-key': DEV_WEBHOOK_KEY } : {}),
+    },
+  }) as unknown as RequestReturnType<{ ok: boolean }>
 );

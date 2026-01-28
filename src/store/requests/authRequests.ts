@@ -6,7 +6,14 @@ import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { AuthUserResponseSchema, JwtSignInResponseSchema, BalanceHistoryResponseSchema } from 'validation/auth';
 
-export const createUser = async (email: string, password: string, firstName: string, lastName: string): Promise<RequestReturnType<AuthUserResponseData>> => {
+export const createUser = async (
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  invite_code: string,
+  device_id?: string,
+): Promise<RequestReturnType<AuthUserResponseData>> => {
   const result = await createBackendAxiosRequest<AuthUserResponseData>({
     method: 'POST',
     url: '/auth/signup',
@@ -15,6 +22,8 @@ export const createUser = async (email: string, password: string, firstName: str
       password,
       firstName,
       lastName,
+      invite_code,
+      ...(device_id ? { device_id } : {}),
     },
   });
 

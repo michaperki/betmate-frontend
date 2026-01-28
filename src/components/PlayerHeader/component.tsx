@@ -57,8 +57,15 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
         </div>
       </div>
       
-      <div className={`player-header__clock ${lowTime ? 'player-header__clock--low' : ''}`}>
-        {time}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className={`player-header__clock ${lowTime ? 'player-header__clock--low' : ''}`}>
+          {time}
+        </div>
+        {isInteractive && (
+          <button type="button" className="player-header__bet-btn" onClick={(e) => { e.stopPropagation(); handleClick(); }} aria-label={betLabel}>
+            {betLabel}
+          </button>
+        )}
       </div>
 
       {statusMessage && status === 'rejected' && (
