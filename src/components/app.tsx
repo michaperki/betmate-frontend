@@ -13,7 +13,7 @@ import { ModeProvider } from 'context/ModeContext';
 import { ThemeProvider } from 'context/ThemeContext';
 import { NotificationProvider } from './NotificationCenter/context';
 import NotificationBridge from './NotificationCenter/Bridge';
-import Wallet from './Wallet/component';
+import VersionFooter from 'components/VersionFooter';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
@@ -113,11 +113,7 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/onboarding" component={Onboarding} />
             {/* User settings */}
             <ProtectedRoute exact path="/user" component={Settings} />
-            <ProtectedRoute exact path="/wallet" render={() => (
-              <div className="dashboard-page">
-                <Wallet />
-              </div>
-            )} />
+            {/* Wallet route removed (old UI deprecated) */}
             {/* Dev examples (design references) */}
             <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />
             <Route exact path="/examples/empty-states" component={BetMateEmptyStates} />
@@ -151,6 +147,8 @@ const App: React.FC<AppProps> = (props) => {
             <Route component={FallBack} />
           </Switch>
             )}
+            {/* Global fixed footer with Report Issue */}
+            <VersionFooter />
           </div>
         </Router>
         </NotificationProvider>

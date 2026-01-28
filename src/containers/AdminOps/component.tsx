@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import VersionFooter from 'components/VersionFooter';
 import { getOpsStats, pingMicroservice } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
@@ -62,7 +61,7 @@ const AdminOps: React.FC = () => {
           </div>
         </div>
       </div>
-      <VersionFooter />
+      
     </div>
   );
 };

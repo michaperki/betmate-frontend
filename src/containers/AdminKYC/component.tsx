@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import VersionFooter from 'components/VersionFooter';
 import '../../styles/admin.scss';
 import { getKycUsers, approveKycUser, rejectKycUser } from 'store/requests/adminRequests';
 
@@ -79,7 +78,7 @@ const AdminKYC: React.FC = () => {
           )}
         </div>
       </div>
-      <VersionFooter />
+      
     </div>
   );
 };

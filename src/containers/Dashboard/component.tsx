@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
         background: 'rgba(10, 10, 15, 0.8)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/icons/icon-192.svg" alt="BetMate" style={{ height: 28, width: 'auto', display: 'block' }} />
+          <img src="/icons/icon.png" alt="BetMate" style={{ height: 28, width: 'auto', display: 'block' }} />
         </div>
 
         <nav style={{ display: 'flex', gap: '32px' }}>

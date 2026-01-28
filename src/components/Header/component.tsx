@@ -57,15 +57,41 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
     setMenuOpen(false);
   };
 
+  // Allow exporting the CSS logo as a PNG (Alt+Click)
+  const exportCssLogoPng = (e?: React.MouseEvent) => {
+    if (!e?.altKey) return;
+    try {
+      const scale = 2; const W = 256 * scale; const H = 72 * scale;
+      const c = document.createElement('canvas'); c.width = W; c.height = H;
+      const ctx = c.getContext('2d'); if (!ctx) return;
+      const dot = 10 * scale; const gap = 3 * scale; const startX = 8 * scale; const startY = 16 * scale;
+      const drawDot = (x: number, y: number, color: string) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x + dot/2, y + dot/2, dot/2, 0, Math.PI*2); ctx.fill(); };
+      drawDot(startX + 0 * (dot + gap), startY + 0 * (dot + gap), '#fbbf24');
+      drawDot(startX + 1 * (dot + gap), startY + 0 * (dot + gap), '#f87171');
+      drawDot(startX + 0 * (dot + gap), startY + 1 * (dot + gap), '#22c55e');
+      drawDot(startX + 1 * (dot + gap), startY + 1 * (dot + gap), '#60a5fa');
+      ctx.fillStyle = '#22c55e'; ctx.font = `${700 * scale} ${18 * scale}px 'JetBrains Mono','Roboto Mono','SF Mono',monospace`;
+      ctx.textBaseline = 'top'; ctx.fillText('BetMate', startX + 2 * (dot + gap) + (8 * scale), (startY - 6 * scale));
+      const a = document.createElement('a'); a.href = c.toDataURL('image/png'); a.download = 'betmate-logo.png'; a.click();
+    } catch {}
+  };
+
   // Reusable pieces
   const Brand = (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
-      onClick={() => goTo('/')}
+      style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+      onClick={(e) => { exportCssLogoPng(e); if (!e.altKey) goTo('/'); }}
       role="link"
       aria-label="Go to Dashboard"
+      title="BetMate (Alt+Click to export logo PNG)"
     >
-      <img src={"/icons/icon-192.svg"} alt="BetMate" style={{ height: 28, width: 'auto', display: 'block' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f87171' }} />
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--mode-accent)' }} />
+        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#60a5fa' }} />
+      </div>
+      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: 1 }}>BetMate</span>
     </div>
   );
 

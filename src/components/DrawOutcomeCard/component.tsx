@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMode } from 'context/ModeContext';
 import { realWdlMultiplier } from 'utils/realOdds';
-import { currencySymbol, modeCurrency } from 'utils/currency';
+import { formatAmountShort, modeCurrency } from 'utils/currency';
 
 type Outcome = 'white_win' | 'draw' | 'black_win';
 
@@ -35,10 +35,12 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
 
   const chips = [2, 5, 10, 25];
   const canAct = !disabled && !!selected && stake >= 1;
-  const c = modeCurrency(mode);
+  const curr = modeCurrency(mode);
   const minStake = 1;
   const maxStake = mode === 'arcade' ? (limits?.arcadeMaxStakeWdl ?? undefined) : undefined;
-  const maxHint = typeof maxStake === 'number' ? `${maxStake} ${currencySymbol(c)}` : (mode === 'real' ? undefined : undefined);
+  const maxHint = typeof maxStake === 'number'
+    ? (curr === 'BET' ? `${maxStake} K` : `$${maxStake}`)
+    : (mode === 'real' ? undefined : undefined);
   const accent = mode === 'arcade' ? 'var(--warning)' : 'var(--success)';
   const selectedBg = mode === 'arcade' ? 'rgba(var(--warning-rgb),0.18)' : 'rgba(var(--success-rgb),0.18)';
 
@@ -116,18 +118,18 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
 
       {/* Quick stake + input */}
       <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        {chips.map((c) => (
-          <button key={c} onClick={() => setStake(c)} disabled={disabled} style={{
+        {chips.map((v) => (
+          <button key={v} onClick={() => setStake(v)} disabled={disabled} style={{
             padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
           }}>
-            ${c}
+            {formatAmountShort(v, curr)}
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, opacity: 0.6 }}>$</span>
           <input type="number" min={1} step={1} value={stake} onChange={(e) => setStake(Math.max(1, Number(e.target.value) || 0))} disabled={disabled} style={{
             width: 80, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontFamily: 'inherit', fontSize: 12
           }} />
+          <span style={{ fontSize: 12, opacity: 0.6 }}>{curr === 'BET' ? 'K' : '$'}</span>
           <button onClick={() => selected && onPlace?.(selected, stake)} disabled={!canAct} style={{
             padding: '8px 12px', borderRadius: 8, border: 'none', background: canAct ? (mode === 'arcade' ? 'linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%)' : 'linear-gradient(135deg, var(--success) 0%, #16a34a 100%)') : (mode === 'arcade' ? 'rgba(var(--warning-rgb),0.15)' : 'rgba(var(--success-rgb),0.15)'), color: canAct ? '#000' : 'var(--text-secondary)', fontWeight: 800, cursor: canAct ? 'pointer' : 'not-allowed', fontSize: 12
           }}>
@@ -139,7 +141,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
       {/* Hints and disabled copy */}
       <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 11, opacity: 0.6 }}>
-          Min {minStake} {currencySymbol(c)}{maxHint ? ` • Max ${maxHint}` : ''}
+          Min {curr === 'BET' ? `${minStake} K` : `$${minStake}`}{maxHint ? ` • Max ${maxHint}` : ''}
         </div>
         {disabled && (
           <div style={{ fontSize: 11, color: '#fbbf24' }}>

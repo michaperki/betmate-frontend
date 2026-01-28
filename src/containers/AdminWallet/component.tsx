@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import VersionFooter from 'components/VersionFooter';
 import { getAdminDeposits, clearStaleInvoices, getAdminWithdrawals, approveWithdrawal, rejectWithdrawal, markWithdrawalPaid, markWithdrawalProcessing, markWithdrawalFailed } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
@@ -184,7 +183,7 @@ const AdminWallet: React.FC = () => {
           </div>
         </div>
       </div>
-      <VersionFooter />
+      
     </div>
   );
 };

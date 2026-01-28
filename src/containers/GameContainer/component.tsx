@@ -125,6 +125,7 @@ const GameContainer: React.FC = () => {
         stake: Number(w.amount || 0),
         result: result as any,
         profit: typeof profit === 'number' ? profit : undefined,
+        currency: ((String(w.currency || '').toUpperCase() === 'USDT') ? 'USDT' : 'BET') as 'USDT' | 'BET',
       };
     };
     const dictArr = Object.values(wagersDict || {});
@@ -498,7 +499,7 @@ const GameContainer: React.FC = () => {
       const moveNumber = Array.isArray(game?.move_hist) ? game!.move_hist.length : 0;
       // Backend expects odds >= 1; game.odds holds probabilities (0..1)
       const p = Number(game?.odds?.white_win || 0);
-      const odds = p > 0 ? realWdlMultiplier('white_win', p, moveNumber) : 2.0;
+      const odds = p > 0 ? (mode === 'real' ? realWdlMultiplier('white_win', p, moveNumber) : (1 / p)) : 2.0;
       dispatch(createWager(
         targetGameId || id,
         'white_win',
@@ -537,7 +538,7 @@ const GameContainer: React.FC = () => {
     try {
       const moveNumber = Array.isArray(game?.move_hist) ? game!.move_hist.length : 0;
       const p = Number(game?.odds?.black_win || 0);
-      const odds = p > 0 ? realWdlMultiplier('black_win', p, moveNumber) : 2.0;
+      const odds = p > 0 ? (mode === 'real' ? realWdlMultiplier('black_win', p, moveNumber) : (1 / p)) : 2.0;
       dispatch(createWager(
         targetGameId || id,
         'black_win',
@@ -567,7 +568,7 @@ const GameContainer: React.FC = () => {
     try {
       const moveNumber = Array.isArray(game?.move_hist) ? game!.move_hist.length : 0;
       const p = Number((game as any)?.odds?.[outcome.replace('_win','') as 'white'|'black'|'draw'] || (outcome === 'white_win' ? (game as any)?.odds?.white_win : outcome === 'black_win' ? (game as any)?.odds?.black_win : (game as any)?.odds?.draw) || 0);
-      const odds = p > 0 ? realWdlMultiplier(outcome as any, p, moveNumber) : 2.0;
+      const odds = p > 0 ? (mode === 'real' ? realWdlMultiplier(outcome as any, p, moveNumber) : (1 / p)) : 2.0;
       dispatch(createWager(
         targetGameId || id,
         outcome,
@@ -753,7 +754,6 @@ const GameContainer: React.FC = () => {
           {/* Receipts last */}
           <BettingPanel
             bets={userBets}
-            currency={mode === 'real' ? 'USDT' : 'KBITZ'}
             gameEnded={gameState === 'ended'}
             showSummary={showSummary}
           />

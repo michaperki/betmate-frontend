@@ -1,5 +1,5 @@
 import { createBackendAxiosRequest } from '.';
-import { FAUCET_ADMIN_KEY } from 'utils/config';
+import { FAUCET_ADMIN_KEY, DEV_WEBHOOK_KEY } from 'utils/config';
 import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
 
@@ -81,4 +81,16 @@ export const startKycMock = async () => (
     url: '/auth/kyc/start',
     headers: getBearerTokenHeader(),
   }) as unknown as RequestReturnType<{ ok: boolean; kyc_status: string }>
+);
+
+// Dev helper: confirm NOWPayments mock webhook locally
+export const confirmDepositMock = async (deposit_id: string, status: 'confirmed' | 'failed' = 'confirmed') => (
+  createBackendAxiosRequest<{ ok: boolean }>({
+    method: 'POST',
+    url: '/billing/webhook/nowpayments/mock',
+    data: { deposit_id, status },
+    headers: {
+      ...(DEV_WEBHOOK_KEY ? { 'x-dev-webhook-key': DEV_WEBHOOK_KEY } : {}),
+    },
+  }) as unknown as RequestReturnType<{ ok: boolean }>
 );

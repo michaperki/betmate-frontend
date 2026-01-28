@@ -18,17 +18,26 @@
     <meta property="og:url" content="https://betmate.app/">
     <meta property="og:title" content="BetMate - Chess Betting Platform">
     <meta property="og:description" content="Place live bets on chess matches with virtual currency">
-    <meta property="og:image" content="/icons/icon-512.svg">
+    <meta property="og:image" content="/icons/icon.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://betmate.app/">
     <meta property="twitter:title" content="BetMate - Chess Betting Platform">
     <meta property="twitter:description" content="Place live bets on chess matches with virtual currency">
-    <meta property="twitter:image" content="/icons/icon-512.svg">
+    <meta property="twitter:image" content="/icons/icon.png">
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json">
+    <!-- Favicons (cache-busted) -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon.png?v=2">
+    <link rel="shortcut icon" type="image/png" href="/icons/icon.png?v=2">
+    <link rel="apple-touch-icon" href="/icons/icon.png?v=2">
+    <!-- Safari pinned tab (uses mask color) -->
+    <link rel="mask-icon" href="/icons/icon-512.svg" color="#22c55e">
+    <!-- Windows tile -->
+    <meta name="msapplication-TileImage" content="/icons/icon.png">
     <meta name="theme-color" content="#111111">
 
     <!-- Preload main bundle for faster first paint (production builds) -->
@@ -62,7 +71,12 @@
     <div id="boot" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index: 9999;">
       <div class="boot-card">
         <div class="boot-brand" style="display:flex; align-items:center; gap:12px;">
-          <img src="/icons/icon-192.svg" alt="BetMate" style="width:36px; height:36px; border-radius:8px; background: rgba(255,255,255,0.06); padding:6px;" />
+          <div class="boot-grid">
+            <div class="boot-dot" style="background:#fbbf24"></div>
+            <div class="boot-dot" style="background:#f87171"></div>
+            <div class="boot-dot" style="background:#22c55e"></div>
+            <div class="boot-dot" style="background:#60a5fa"></div>
+          </div>
           <span class="boot-title">BetMate</span>
         </div>
         <div style="margin:12px 0 8px; font-size:14px; font-weight:700; opacity:.9">Loading…</div>

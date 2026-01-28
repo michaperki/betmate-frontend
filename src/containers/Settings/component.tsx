@@ -216,6 +216,7 @@ const Settings: React.FC = () => {
                       style={{ width: 120, padding: 10, borderRadius: 8, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)' }}
                     />
                     <button
+                      data-testid="wallet-faucet-btn"
                       onClick={async () => {
                         try {
                           const amt = Math.max(1, Math.min(10000, Number(faucetAmt || 0)));

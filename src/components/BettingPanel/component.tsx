@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatAmountShort, formatNet } from 'utils/currency';
 import './style.scss';
 
 // Export interface so it can be imported elsewhere
@@ -9,11 +10,11 @@ export interface BetItem {
   stake: number;
   result?: 'won' | 'lost' | 'pending' | 'cancelled';
   profit?: number;
+  currency?: 'USDT' | 'BET';
 }
 
 interface BettingPanelProps {
   bets: BetItem[];
-  currency?: 'USDT' | 'KBITZ';
   gameEnded?: boolean;
   showSummary?: boolean;
   onCashOut?: (betId: string) => void;
@@ -21,17 +22,22 @@ interface BettingPanelProps {
 
 const BettingPanel: React.FC<BettingPanelProps> = ({
   bets,
-  currency = 'USDT',
   gameEnded = false,
   showSummary = false,
   onCashOut
 }) => {
   // Calculate summary metrics
-  const totalStaked = bets.reduce((sum, bet) => sum + bet.stake, 0);
-  const totalWon = bets
-    .filter(bet => bet.result === 'won')
-    .reduce((sum, bet) => sum + bet.stake * bet.odds, 0);
-  const netProfit = totalWon - totalStaked;
+  // Summaries per currency for clarity if mixed
+  const totals = bets.reduce((acc, b) => {
+    const c = (b.currency || 'USDT') as 'USDT' | 'BET';
+    acc[c].staked += b.stake;
+    if (b.result === 'won') acc[c].won += b.stake * b.odds;
+    return acc;
+  }, { USDT: { staked: 0, won: 0 }, BET: { staked: 0, won: 0 } } as Record<'USDT' | 'BET', { staked: number; won: number }>);
+  const nets: Record<'USDT' | 'BET', number> = {
+    USDT: totals.USDT.won - totals.USDT.staked,
+    BET: totals.BET.won - totals.BET.staked,
+  };
   
   // Calculate win streak
   const [winStreak, setWinStreak] = useState(0);
@@ -55,6 +61,8 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
           <div 
             key={bet.id} 
             className={`betting-panel__bet betting-panel__bet--${bet.result || 'pending'}`}
+            data-currency={bet.currency || 'USDT'}
+            style={{ borderLeft: `3px solid ${bet.currency === 'BET' ? 'rgb(var(--accent-arcade-rgb))' : 'rgb(var(--accent-real-rgb))'}` }}
           >
             <div className="betting-panel__bet-info">
               <div className="betting-panel__bet-type">
@@ -67,13 +75,13 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
                 </span>
               </div>
               <div className="betting-panel__bet-details">
-                <span className="betting-panel__bet-stake">${bet.stake.toFixed(2)}</span>
+                <span className="betting-panel__bet-stake">{formatAmountShort(bet.stake, (bet.currency || 'USDT') as any)}</span>
                 <span className="betting-panel__bet-odds">x{bet.odds.toFixed(2)}</span>
                 <div className={`betting-panel__bet-result betting-panel__bet-result--${bet.result || 'pending'}`}>
                   {bet.result === 'won' && bet.profit !== undefined && 
-                    `+$${bet.profit.toFixed(2)}`}
+                    `${formatNet(Math.abs(bet.profit), (bet.currency || 'USDT') as any)}`}
                   {bet.result === 'lost' && 
-                    `-$${bet.stake.toFixed(2)}`}
+                    `${formatNet(-Math.abs(bet.stake), (bet.currency || 'USDT') as any)}`}
                   {(!bet.result || bet.result === 'pending') && 'Pending'}
                   {bet.result === 'cancelled' && 'Refunded'}
                 </div>
@@ -88,25 +96,51 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
           <div className="betting-panel__summary-header">Game Summary</div>
           
           <div className="betting-panel__summary-stats">
-            <div className="betting-panel__summary-row">
-              <span className="betting-panel__summary-label">Total Staked</span>
-              <span className="betting-panel__summary-value">${totalStaked.toFixed(2)}</span>
-            </div>
-            <div className="betting-panel__summary-row">
-              <span className="betting-panel__summary-label">Total Won</span>
-              <span className="betting-panel__summary-value betting-panel__summary-value--won">
-                ${totalWon.toFixed(2)}
-              </span>
-            </div>
+            {totals.USDT && (
+              <>
+                <div className="betting-panel__summary-row">
+                  <span className="betting-panel__summary-label">Total Staked (Cash)</span>
+                  <span className="betting-panel__summary-value">{formatAmountShort(totals.USDT.staked, 'USDT')}</span>
+                </div>
+                <div className="betting-panel__summary-row">
+                  <span className="betting-panel__summary-label">Total Won (Cash)</span>
+                  <span className="betting-panel__summary-value betting-panel__summary-value--won">
+                    {formatAmountShort(totals.USDT.won, 'USDT')}
+                  </span>
+                </div>
+              </>
+            )}
+            {totals.BET && (
+              <>
+                <div className="betting-panel__summary-row">
+                  <span className="betting-panel__summary-label">Total Staked (K-Bits)</span>
+                  <span className="betting-panel__summary-value">{formatAmountShort(totals.BET.staked, 'BET')}</span>
+                </div>
+                <div className="betting-panel__summary-row">
+                  <span className="betting-panel__summary-label">Total Won (K-Bits)</span>
+                  <span className="betting-panel__summary-value betting-panel__summary-value--won">
+                    {formatAmountShort(totals.BET.won, 'BET')}
+                  </span>
+                </div>
+              </>
+            )}
             <div className="betting-panel__summary-divider"></div>
-            <div className="betting-panel__summary-row betting-panel__summary-row--total">
-              <span className="betting-panel__summary-label betting-panel__summary-label--bold">
-                Net Profit
-              </span>
-              <span className={`betting-panel__summary-value betting-panel__summary-value--${netProfit >= 0 ? 'positive' : 'negative'} betting-panel__summary-value--large`}>
-                {netProfit >= 0 ? '+' : ''}${netProfit.toFixed(2)}
-              </span>
-            </div>
+            {nets.USDT !== undefined && (
+              <div className="betting-panel__summary-row betting-panel__summary-row--total">
+                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (Cash)</span>
+                <span className={`betting-panel__summary-value betting-panel__summary-value--${(nets.USDT || 0) >= 0 ? 'positive' : 'negative'} betting-panel__summary-value--large`}>
+                  {formatNet(nets.USDT || 0, 'USDT')}
+                </span>
+              </div>
+            )}
+            {nets.BET !== undefined && (
+              <div className="betting-panel__summary-row betting-panel__summary-row--total">
+                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (K-Bits)</span>
+                <span className={`betting-panel__summary-value betting-panel__summary-value--${(nets.BET || 0) >= 0 ? 'positive' : 'negative'} betting-panel__summary-value--large`}>
+                  {formatNet(nets.BET || 0, 'BET')}
+                </span>
+              </div>
+            )}
           </div>
           
           {winStreak > 2 && (

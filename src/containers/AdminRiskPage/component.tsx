@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Header from 'components/Header';
 import { NavLink } from 'react-router-dom';
-import VersionFooter from 'components/VersionFooter';
 import { getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 import { getMultiplier } from 'utils/chess';
@@ -284,7 +283,7 @@ const AdminRiskPage: React.FC = () => {
           </div>
         )}
       </div>
-      <VersionFooter />
+      
     </div>
   );
 };
