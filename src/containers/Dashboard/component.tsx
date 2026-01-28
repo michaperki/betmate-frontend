@@ -117,13 +117,7 @@ const Dashboard: React.FC = () => {
         background: 'rgba(10, 10, 15, 0.8)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '3px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fbbf24' }} />
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f87171' }} />
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--mode-accent)' }} />
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#60a5fa' }} />
-          </div>
-          <span style={{ fontSize: '20px', fontWeight: '700', color: 'var(--mode-accent)', letterSpacing: '1px' }}>BetMate</span>
+          <img src="/icons/icon-192.svg" alt="BetMate" style={{ height: 28, width: 'auto', display: 'block' }} />
         </div>
 
         <nav style={{ display: 'flex', gap: '32px' }}>

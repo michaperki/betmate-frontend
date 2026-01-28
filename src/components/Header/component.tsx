@@ -60,18 +60,12 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
   // Reusable pieces
   const Brand = (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
       onClick={() => goTo('/')}
       role="link"
       aria-label="Go to Dashboard"
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f87171' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--mode-accent)' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#60a5fa' }} />
-      </div>
-      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: 1 }}>BetMate</span>
+      <img src={"/icons/icon-192.svg"} alt="BetMate" style={{ height: 28, width: 'auto', display: 'block' }} />
     </div>
   );
 
