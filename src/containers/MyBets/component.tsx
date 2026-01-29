@@ -8,6 +8,7 @@ import { useMyBetsData } from '../../hooks/useMyBetsData';
 import Header from '../../components/Header';
 import BottomTabBar from 'components/BottomTabBar';
 import EmptyState from 'components/EmptyState';
+import { useOddsFormat } from 'context/OddsFormatContext';
 
 const MyBets: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active'|'history'>('active');
@@ -19,6 +20,7 @@ const MyBets: React.FC = () => {
   // Auth protection
   useRequireAuth();
   const data = useMyBetsData();
+  const { formatOdds } = useOddsFormat();
 
   const filteredHistory = useMemo(() => {
     let arr = data.betHistory || [];
@@ -120,7 +122,7 @@ const MyBets: React.FC = () => {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
-                      <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
+                      <div style={{ fontSize: 12, opacity: 0.6 }}>@ {formatOdds(b.odds)}</div>
                       <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
                           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--mode-accent)' }}>→ ${b.potentialWin.toFixed(2)}</div>
                     </div>
@@ -145,7 +147,7 @@ const MyBets: React.FC = () => {
                 <div key={h.id} onClick={() => history.push(`/matches/${h.gameId || ''}`)} style={{ padding: '12px 14px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
-                    <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+                    <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {formatOdds(h.odds)} • ${h.stake.toFixed(2)}</div>
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                 </div>

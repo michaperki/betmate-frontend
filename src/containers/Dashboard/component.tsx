@@ -11,6 +11,7 @@ import { useMyBetsData } from '../../hooks/useMyBetsData';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import { formatAmountShort } from 'utils/currency';
 import EmptyState from 'components/EmptyState';
+import { useOddsFormat } from 'context/OddsFormatContext';
 
 // Standalone New Dashboard mockup page.
 // Priority: visual fidelity. Inline styles preserved from mockup.
@@ -25,6 +26,7 @@ const Dashboard: React.FC = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const data = useDashboardData();
   const bets = useMyBetsData();
+  const { formatOdds } = useOddsFormat();
   const liveCount = useMemo(() => Number(data.liveMatches?.length || 0), [data.liveMatches?.length]);
   const activeCount = useMemo(() => Number(bets.activeBets?.length || 0), [bets.activeBets?.length]);
   const { screenWidth } = useResponsiveLayout();
@@ -594,7 +596,7 @@ const Dashboard: React.FC = () => {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{ fontSize: 12, opacity: 0.6 }}>{b.category === 'move' ? b.betType : `${b.betType}`}</div>
-                          <div style={{ fontSize: 12, opacity: 0.6 }}>@ {b.odds}x</div>
+                          <div style={{ fontSize: 12, opacity: 0.6 }}>@ {formatOdds(b.odds)}</div>
                           <div style={{ fontSize: 12, opacity: 0.6 }}>${b.stake.toFixed(2)}</div>
                           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--mode-accent)' }}>→ ${b.potentialWin.toFixed(2)}</div>
                         </div>
@@ -613,7 +615,7 @@ const Dashboard: React.FC = () => {
                     <div key={h.id} style={{ padding: '12px 14px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
-                        <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
+                        <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {formatOdds(h.odds)} • ${h.stake.toFixed(2)}</div>
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: h.profit >= 0 ? 'var(--mode-accent)' : '#ef4444' }}>{h.profit >= 0 ? '+' : ''}{h.profit.toFixed(2)}</div>
                     </div>
@@ -683,7 +685,7 @@ const Dashboard: React.FC = () => {
                   }}>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: '500', marginBottom: '2px' }}>{bet.type}</div>
-                      <div style={{ fontSize: '11px', opacity: 0.5 }}>@ {bet.odds}x • {formatAmountShort(bet.amount, (bet.currency as any) || 'BET')}</div>
+                      <div style={{ fontSize: '11px', opacity: 0.5 }}>@ {formatOdds(bet.odds)} • {formatAmountShort(bet.amount, (bet.currency as any) || 'BET')}</div>
                     </div>
                     <div style={{
                       fontSize: '13px',

@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { JWT_SIGN_IN, ADJUST_BALANCE } from 'types/resources/auth';
 import { useNotifications } from 'components/NotificationCenter/context';
 import { useMode } from 'context/ModeContext';
+import { useOddsFormat } from 'context/OddsFormatContext';
 
 const Settings: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'account'|'preferences'|'notifications'|'responsible'|'security'|'wallet'>('account');
@@ -61,6 +62,7 @@ const Settings: React.FC = () => {
   const { notifySuccess, notifyError } = useNotifications();
   const { faucetEnabled } = useMode();
   const [faucetAmt, setFaucetAmt] = useState<number>(50);
+  const { format, setFormat, formatOdds } = useOddsFormat();
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -157,6 +159,18 @@ const Settings: React.FC = () => {
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>Quick Bet</div>
                   <Toggle enabled={settings.quickBetEnabled} onChange={v => updateSetting('quickBetEnabled', v)} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>Odds Display</div>
+                  <select
+                    value={format}
+                    onChange={e => { const f = (e.target.value === 'fractional' ? 'fractional' : 'decimal') as any; setFormat(f); updateSetting('oddsFormat', f); }}
+                    style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', fontFamily: 'inherit' }}
+                  >
+                    <option value="decimal">Decimal</option>
+                    <option value="fractional">Fractional</option>
+                  </select>
+                  <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-secondary)' }}>Preview: {formatOdds(2.5)}</div>
                 </div>
               </div>
             </div>

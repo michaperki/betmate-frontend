@@ -124,7 +124,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           <button key={v} onClick={() => setStake(v)} disabled={disabled} style={{
             padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'rgba(var(--text-primary-rgb), 0.08)', color: 'var(--text-primary)', cursor: disabled ? 'not-allowed' : 'pointer', fontSize: 12, fontWeight: 600
           }}>
-            {formatAmountShort(v, curr)}
+            {curr === 'BET' ? `${v} K` : `$${v}`}
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
