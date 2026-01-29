@@ -146,7 +146,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
           Min {curr === 'BET' ? `${minStake} K` : `$${minStake}`}{maxHint ? ` • Max ${maxHint}` : ''}
         </div>
         {disabled && (
-          <div style={{ fontSize: 11, color: '#fbbf24' }}>
+          <div style={{ fontSize: 11, color: 'var(--warning)' }}>
             {disabledReason || 'Betting unavailable'}
           </div>
         )}

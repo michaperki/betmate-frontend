@@ -25,6 +25,8 @@ const Dashboard: React.FC = () => {
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
   const data = useDashboardData();
   const bets = useMyBetsData();
+  const liveCount = useMemo(() => Number(data.liveMatches?.length || 0), [data.liveMatches?.length]);
+  const activeCount = useMemo(() => Number(bets.activeBets?.length || 0), [bets.activeBets?.length]);
   const { screenWidth } = useResponsiveLayout();
   // Use same breakpoint as BottomTabBar (<= 860px) for compact/mobile layout
   const isCompact = screenWidth <= 860;
@@ -166,7 +168,7 @@ const Dashboard: React.FC = () => {
             <span style={{ color: 'var(--mode-accent)', fontWeight: '600' }}>{(data?.wallet?.usdt ?? 279.50).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             <span style={{ opacity: 0.5 }}>USDT</span>
           </div>
-          <div style={{
+            <div style={{
             width: '36px',
             height: '36px',
             borderRadius: '50%',
@@ -176,10 +178,10 @@ const Dashboard: React.FC = () => {
             justifyContent: 'center',
             fontSize: '14px',
             fontWeight: '600',
-            color: '#000',
+            color: 'var(--mode-accent-contrast)',
             cursor: 'pointer'
           }}>
-            A
+              A
           </div>
         </div>
       </header>
@@ -323,8 +325,8 @@ const Dashboard: React.FC = () => {
               width: 'fit-content'
             }}>
               {[
-                { id: 'featured', label: 'Live Matches', count: 3 },
-                { id: 'active', label: 'My Active Bets', count: 2 },
+                { id: 'featured', label: 'Live Matches', count: liveCount },
+                { id: 'active', label: 'My Active Bets', count: activeCount },
                 { id: 'history', label: 'History' }
               ].map(tab => (
                 <button
@@ -347,14 +349,15 @@ const Dashboard: React.FC = () => {
                   }}
                 >
                   {tab.label}
-                  {tab.count && (
+                  {typeof tab.count === 'number' && tab.count > 0 && (
                     <span style={{
                       background: activeTab === (tab.id as any) ? 'var(--success)' : 'var(--bg-tertiary)',
-                      color: activeTab === (tab.id as any) ? '#000' : 'var(--text-secondary)',
+                      color: activeTab === (tab.id as any) ? 'var(--text-inverse)' : 'var(--text-secondary)',
                       fontSize: '10px',
                       padding: '2px 6px',
                       borderRadius: '4px',
-                      fontWeight: '700'
+                      fontWeight: '700',
+                      marginLeft: '6px'
                     }}>{tab.count}</span>
                   )}
                 </button>
@@ -369,28 +372,28 @@ const Dashboard: React.FC = () => {
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
                       <div key={i} aria-busy style={{
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'var(--card-bg)',
+                        border: '1px solid var(--card-border)',
                         borderRadius: 16,
                         padding: 24,
                         overflow: 'hidden',
                         position: 'relative'
                       }}>
-                        <div style={{ height: 12, width: 120, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 16 }} />
+                        <div style={{ height: 12, width: 120, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 6, marginBottom: 16 }} />
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 24, alignItems: 'center' }}>
                           <div>
-                            <div style={{ height: 44, width: 44, background: 'rgba(255,255,255,0.08)', borderRadius: 10, marginBottom: 8 }} />
-                            <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
-                            <div style={{ height: 10, width: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                            <div style={{ height: 44, width: 44, background: 'rgb(var(--text-primary-rgb) / 0.08)', borderRadius: 10, marginBottom: 8 }} />
+                            <div style={{ height: 12, width: 140, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 6, marginBottom: 6 }} />
+                            <div style={{ height: 10, width: 80, background: 'rgb(var(--text-primary-rgb) / 0.05)', borderRadius: 5 }} />
                           </div>
-                          <div style={{ height: 36, width: 160, background: 'rgba(255,255,255,0.06)', borderRadius: 10 }} />
+                          <div style={{ height: 36, width: 160, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 10 }} />
                           <div>
-                            <div style={{ height: 44, width: 44, background: 'rgba(255,255,255,0.08)', borderRadius: 10, marginBottom: 8, marginLeft: 'auto' }} />
-                            <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6, marginLeft: 'auto' }} />
-                            <div style={{ height: 10, width: 80, background: 'rgba(255,255,255,0.05)', borderRadius: 5, marginLeft: 'auto' }} />
+                            <div style={{ height: 44, width: 44, background: 'rgb(var(--text-primary-rgb) / 0.08)', borderRadius: 10, marginBottom: 8, marginLeft: 'auto' }} />
+                            <div style={{ height: 12, width: 140, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 6, marginBottom: 6, marginLeft: 'auto' }} />
+                            <div style={{ height: 10, width: 80, background: 'rgb(var(--text-primary-rgb) / 0.05)', borderRadius: 5, marginLeft: 'auto' }} />
                           </div>
                         </div>
-                        <div style={{ height: 32, marginTop: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 10 }} />
+                        <div style={{ height: 32, marginTop: 16, background: 'rgb(var(--text-primary-rgb) / 0.05)', borderRadius: 10 }} />
                         <div className="bm-shimmer" style={{ position: 'absolute', inset: 0 }} />
                       </div>
                     ))}
@@ -412,8 +415,8 @@ const Dashboard: React.FC = () => {
                   style={{
                     background: match.featured 
                       ? 'linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.08) 0%, rgb(var(--mode-accent-rgb) / 0.02) 100%)'
-                      : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${match.featured ? 'rgb(var(--mode-accent-rgb) / 0.2)' : 'rgba(255,255,255,0.08)'}`,
+                      : 'var(--card-bg)',
+                    border: `1px solid ${match.featured ? 'rgb(var(--mode-accent-rgb) / 0.2)' : 'var(--card-border)'}`,
                     borderRadius: '16px',
                     padding: isCompact ? '16px' : '24px',
                     cursor: 'pointer',
@@ -458,13 +461,14 @@ const Dashboard: React.FC = () => {
                       <div style={{
                         width: '44px',
                         height: '44px',
-                        background: '#e8e8e8',
+                        // Use a constant dark neutral so the white king is visible in both themes
+                        background: '#1a1a24',
                         borderRadius: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '20px',
-                        color: '#1a1a24'
+                        color: '#ffffff'
                       }}>♔</div>
                       <div>
                         <div style={{ fontSize: '15px', fontWeight: '600' }}>{match.white.name}</div>
@@ -486,14 +490,14 @@ const Dashboard: React.FC = () => {
                         fontSize: '18px', 
                         fontWeight: '600',
                         fontVariantNumeric: 'tabular-nums',
-                        color: parseFloat(match.timeWhite) < 1 ? '#ef4444' : '#fff'
+                        color: parseFloat(match.timeWhite) < 1 ? 'var(--error)' : 'var(--text-primary)'
                       }}>{match.timeWhite}</span>
                       <span style={{ color: 'var(--mode-accent)', fontWeight: '700', fontSize: '12px' }}>VS</span>
                       <span style={{ 
                         fontSize: '18px', 
                         fontWeight: '600',
                         fontVariantNumeric: 'tabular-nums',
-                        color: parseFloat(match.timeBlack) < 1 ? '#ef4444' : '#fff'
+                        color: parseFloat(match.timeBlack) < 1 ? 'var(--error)' : 'var(--text-primary)'
                       }}>{match.timeBlack}</span>
                     </div>
 
@@ -506,14 +510,15 @@ const Dashboard: React.FC = () => {
                       <div style={{
                         width: '44px',
                         height: '44px',
-                        background: '#1a1a24',
+                        // Light square to ensure black king is visible in all themes
+                        background: '#e8e8e8',
                         border: '1px solid #333',
                         borderRadius: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '20px',
-                        color: '#ffffff'
+                        color: '#1a1a24'
                       }}>♚</div>
                     </div>
                   </div>
@@ -527,7 +532,7 @@ const Dashboard: React.FC = () => {
                     gap: isCompact ? 12 : 0,
                     marginTop: isCompact ? '14px' : '20px',
                     paddingTop: '16px',
-                    borderTop: '1px solid rgba(255,255,255,0.06)'
+                    borderTop: '1px solid var(--card-border)'
                   }}>
                     <div style={{ display: 'flex', gap: '20px' }}>
                       <div style={{ fontSize: '12px' }}>
@@ -543,9 +548,9 @@ const Dashboard: React.FC = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
                         style={{
-                         background: 'rgba(255,255,255,0.05)',
-                         border: '1px solid rgba(255,255,255,0.1)',
-                         color: '#fff',
+                         background: 'transparent',
+                         border: '1px solid var(--border-primary)',
+                         color: 'var(--text-primary)',
                          padding: '10px 20px',
                          borderRadius: '8px',
                          cursor: 'pointer',
@@ -559,7 +564,7 @@ const Dashboard: React.FC = () => {
                         style={{
                         background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                         border: 'none',
-                        color: '#000',
+                        color: 'var(--mode-accent-contrast)',
                         padding: '10px 20px',
                         borderRadius: '8px',
                         cursor: 'pointer',
@@ -578,7 +583,7 @@ const Dashboard: React.FC = () => {
               <div className="scroll-panel">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {(bets.activeBets || []).map((b) => (
-                    <div key={b.id} style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                    <div key={b.id} style={{ padding: '14px 16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           <div style={{ width: 36, height: 36, background: '#e8e8e8', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1a1a24' }}>♔</div>
@@ -605,7 +610,7 @@ const Dashboard: React.FC = () => {
               <div className="scroll-panel">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {(bets.betHistory || []).map((h) => (
-                    <div key={h.id} style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div key={h.id} style={{ padding: '12px 14px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{h.match}</div>
                         <div style={{ fontSize: 11, opacity: 0.6 }}>{h.betType} @ {h.odds}x • ${h.stake.toFixed(2)}</div>
@@ -625,8 +630,8 @@ const Dashboard: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Recent Activity */}
             <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
               borderRadius: '16px',
               padding: '24px'
             }}>
@@ -655,12 +660,12 @@ const Dashboard: React.FC = () => {
                 {showSkeletons && (
                   <>
                     {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} aria-busy style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', position: 'relative', overflow: 'hidden' }}>
+                      <div key={i} aria-busy style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: 'var(--card-bg)', borderRadius: 10, border: '1px solid var(--card-border)', position: 'relative', overflow: 'hidden' }}>
                         <div>
-                          <div style={{ height: 12, width: 140, background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
-                          <div style={{ height: 10, width: 120, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                          <div style={{ height: 12, width: 140, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 6, marginBottom: 6 }} />
+                          <div style={{ height: 10, width: 120, background: 'rgb(var(--text-primary-rgb) / 0.05)', borderRadius: 5 }} />
                         </div>
-                        <div style={{ height: 14, width: 60, background: 'rgba(255,255,255,0.06)', borderRadius: 7 }} />
+                        <div style={{ height: 14, width: 60, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 7 }} />
                         <div className="bm-shimmer" style={{ position: 'absolute', inset: 0 }} />
                       </div>
                     ))}
@@ -683,7 +688,7 @@ const Dashboard: React.FC = () => {
                     <div style={{
                       fontSize: '13px',
                       fontWeight: '600',
-                      color: bet.result === 'won' ? 'var(--success)' : (bet.result === 'lost' ? '#ef4444' : '#94a3b8')
+                      color: bet.result === 'won' ? 'var(--success)' : (bet.result === 'lost' ? 'var(--error)' : '#94a3b8')
                     }}>
                       {(() => {
                         const c = (bet.currency as any) || 'BET';
@@ -736,15 +741,15 @@ const Dashboard: React.FC = () => {
                 {showSkeletons && (
                   <>
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} aria-busy style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
+                      <div key={i} aria-busy style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card-bg)', position: 'relative', overflow: 'hidden' }}>
                         <div style={{ width: 24, height: 12, background: 'rgba(255,255,255,0.06)', borderRadius: 6 }} />
-                        <div style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.08)', borderRadius: 8 }} />
+                        <div style={{ width: 32, height: 32, background: 'rgb(var(--text-primary-rgb) / 0.08)', borderRadius: 8 }} />
                         <div style={{ flex: 1 }}>
-                          <div style={{ height: 12, width: '60%', background: 'rgba(255,255,255,0.06)', borderRadius: 6, marginBottom: 6 }} />
-                          <div style={{ height: 10, width: 100, background: 'rgba(255,255,255,0.05)', borderRadius: 5 }} />
+                          <div style={{ height: 12, width: '60%', background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 6, marginBottom: 6 }} />
+                          <div style={{ height: 10, width: 100, background: 'rgb(var(--text-primary-rgb) / 0.05)', borderRadius: 5 }} />
                         </div>
-                        <div style={{ height: 14, width: 80, background: 'rgba(255,255,255,0.06)', borderRadius: 7 }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
+                        <div style={{ height: 14, width: 80, background: 'rgb(var(--text-primary-rgb) / 0.06)', borderRadius: 7 }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg, transparent 40%, rgb(var(--text-primary-rgb) / 0.06) 50%, transparent 60%)', animation: 'shimmer 1.8s infinite' }} />
                       </div>
                     ))}
                   </>
@@ -763,14 +768,14 @@ const Dashboard: React.FC = () => {
                       width: '24px',
                       fontSize: '14px',
                       fontWeight: '700',
-                      color: user.rank <= 3 ? ['#fbbf24', '#94a3b8', '#cd7f32'][user.rank - 1] : 'rgba(255,255,255,0.4)'
+                      color: user.rank <= 3 ? ['#fbbf24', '#94a3b8', '#cd7f32'][user.rank - 1] : 'var(--text-secondary)'
                     }}>
                       {user.rank}
                     </div>
                     <div style={{
                       width: '32px',
                       height: '32px',
-                      background: 'rgba(255,255,255,0.1)',
+                      background: 'var(--bg-tertiary)',
                       borderRadius: '8px',
                       display: 'flex',
                       alignItems: 'center',
@@ -792,7 +797,7 @@ const Dashboard: React.FC = () => {
                           <span style={{
                             fontSize: '9px',
                             background: 'var(--mode-accent)',
-                            color: '#000',
+                            color: 'var(--mode-accent-contrast)',
                             padding: '2px 6px',
                             borderRadius: '3px',
                             fontWeight: '700'
@@ -851,7 +856,7 @@ const Dashboard: React.FC = () => {
           <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 'min(420px, 92vw)', background: 'linear-gradient(180deg, #1a1a24 0%, #12121a 100%)', borderLeft: '1px solid rgba(255,255,255,0.08)', boxShadow: '-10px 0 30px rgba(0,0,0,0.4)', padding: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <div id="match-details-title" style={{ fontSize: 16, fontWeight: 700 }}>Match Details</div>
-              <button onClick={() => setDrawerMatch(null)} aria-label="Close" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', width: 28, height: 28, borderRadius: 8, color: '#e8e8e8', cursor: 'pointer' }}>×</button>
+              <button onClick={() => setDrawerMatch(null)} aria-label="Close" style={{ background: 'rgb(var(--text-primary-rgb) / 0.06)', border: '1px solid rgb(var(--text-primary-rgb) / 0.12)', width: 28, height: 28, borderRadius: 8, color: 'var(--text-primary)', cursor: 'pointer' }}>×</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: isCompact ? '1fr' : '1fr auto 1fr', alignItems: 'center', gap: 16, padding: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
               <div>
@@ -879,8 +884,8 @@ const Dashboard: React.FC = () => {
               <div style={{ fontSize: 13, opacity: 0.8 }}>Move {drawerMatch.move} • {drawerMatch.phase} • {drawerMatch.format}</div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-              <button onClick={() => { setDrawerMatch(null); history.push(`/matches/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', color: '#000', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
-              <button onClick={() => setDrawerMatch(null)} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', cursor: 'pointer' }}>Close</button>
+              <button onClick={() => { setDrawerMatch(null); history.push(`/matches/${drawerMatch.id}`); }} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', color: 'var(--mode-accent-contrast)', fontWeight: 800, cursor: 'pointer' }}>View Game</button>
+              <button onClick={() => setDrawerMatch(null)} style={{ flex: 1, padding: 12, borderRadius: 10, background: 'rgb(var(--text-primary-rgb) / 0.05)', border: '1px solid var(--card-border)', color: 'var(--text-primary)', cursor: 'pointer' }}>Close</button>
             </div>
           </div>
         </div>

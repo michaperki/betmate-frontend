@@ -46,7 +46,7 @@ const BottomTabBar: React.FC = () => {
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
               cursor: 'pointer',
               opacity: active === t.id ? 1 : 0.6,
-              color: '#e8e8e8'
+              color: 'var(--text-primary)'
             }}
           >
             <span style={{ fontSize: 20 }}>{t.icon}</span>

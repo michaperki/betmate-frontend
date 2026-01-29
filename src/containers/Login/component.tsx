@@ -51,9 +51,9 @@ const Login: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(145deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)',
+      background: 'var(--bg-primary)',
       fontFamily: "'JetBrains Mono', 'SF Mono', monospace",
-      color: '#e8e8e8',
+      color: 'var(--text-primary)',
       display: 'flex',
       position: 'relative',
       overflow: 'hidden'
@@ -85,39 +85,39 @@ const Login: React.FC = () => {
 
         {/* Right login card */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, backdropFilter: 'blur(10px)' }}>
+          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 24, padding: 40, backdropFilter: 'blur(10px)' }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>Welcome back</h2>
             <p style={{ fontSize: 14, opacity: 0.5, margin: '0 0 24px', textAlign: 'center' }}>Sign in to continue betting</p>
 
             {/* Login method toggle */}
-            <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.03)', padding: 4, borderRadius: 12, marginBottom: 24 }}>
-              <button onClick={() => setLoginMethod('email')} style={{ flex: 1, padding: 12, background: loginMethod === 'email' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'email' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'email' ? 'var(--mode-accent)' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>📧 Email</button>
-              <button onClick={() => setLoginMethod('wallet')} style={{ flex: 1, padding: 12, background: loginMethod === 'wallet' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'wallet' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'wallet' ? 'var(--mode-accent)' : 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>🔗 Wallet</button>
+            <div style={{ display: 'flex', gap: 4, background: 'rgb(var(--text-primary-rgb) / 0.03)', padding: 4, borderRadius: 12, marginBottom: 24 }}>
+              <button onClick={() => setLoginMethod('email')} style={{ flex: 1, padding: 12, background: loginMethod === 'email' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'email' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'email' ? 'var(--mode-accent)' : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>📧 Email</button>
+              <button onClick={() => setLoginMethod('wallet')} style={{ flex: 1, padding: 12, background: loginMethod === 'wallet' ? 'rgb(var(--mode-accent-rgb) / 0.15)' : 'transparent', border: loginMethod === 'wallet' ? '1px solid rgb(var(--mode-accent-rgb) / 0.30)' : '1px solid transparent', borderRadius: 10, color: loginMethod === 'wallet' ? 'var(--mode-accent)' : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' }}>🔗 Wallet</button>
             </div>
 
             {loginMethod === 'email' ? (
               <form onSubmit={onSubmit}>
-                <label htmlFor="email" style={{ fontSize: 12, opacity: 0.7 }}>Email</label>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" style={{ width: '100%', padding: 12, borderRadius: 10, margin: '6px 0 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', fontFamily: 'inherit' }} />
+                <label htmlFor="email" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Email</label>
+                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" style={{ width: '100%', padding: 12, borderRadius: 10, margin: '6px 0 14px', background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', fontFamily: 'inherit' }} />
 
                 <label htmlFor="password" style={{ fontSize: 12, opacity: 0.7 }}>Password</label>
                 <div style={{ position: 'relative' }}>
-                  <input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" style={{ width: '100%', padding: 12, borderRadius: 10, margin: '6px 0 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', fontFamily: 'inherit' }} />
-                  <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: 'absolute', right: 8, top: 10, background: 'transparent', border: 'none', color: '#e8e8e8', cursor: 'pointer' }}>{showPassword ? '🙈' : '👁️'}</button>
+                  <input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete="current-password" style={{ width: '100%', padding: 12, borderRadius: 10, margin: '6px 0 14px', background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', fontFamily: 'inherit' }} />
+                  <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: 'absolute', right: 8, top: 10, background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}>{showPassword ? '🙈' : '👁️'}</button>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, opacity: 0.7 }}><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} /> Remember me</label>
-                  <a href="#" style={{ fontSize: 12, opacity: 0.6, textDecoration: 'none', color: '#e8e8e8' }}>Forgot?</a>
+                  <a href="#" style={{ fontSize: 12, opacity: 0.6, textDecoration: 'none', color: 'var(--text-primary)' }}>Forgot?</a>
                 </div>
 
                 {errorMessages && errorMessages[0] && (
-                  <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', fontSize: 12, marginBottom: 12 }}>
+                  <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgb(var(--error-rgb) / 0.12)', border: '1px solid rgb(var(--error-rgb) / 0.3)', color: 'var(--error)', fontSize: 12, marginBottom: 12 }}>
                     {errorMessages[0]}
                   </div>
                 )}
 
-                <button type="submit" disabled={isLoading} style={{ width: '100%', padding: 14, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: '#000', fontWeight: 700, cursor: 'pointer' }}>
+                <button type="submit" disabled={isLoading} style={{ width: '100%', padding: 14, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: 'var(--mode-accent-contrast)', fontWeight: 700, cursor: 'pointer' }}>
                   {isLoading ? 'Signing in…' : 'Sign In'}
                 </button>
 
@@ -136,7 +136,7 @@ const Login: React.FC = () => {
               <div>
                 <div style={{ display: 'grid', gap: 10, marginBottom: 12 }}>
                   {['Metamask', 'WalletConnect', 'Coinbase Wallet'].map(w => (
-                    <button key={w} disabled={!!walletConnecting} onClick={() => onWalletConnect(w)} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8', cursor: 'pointer' }}>
+                    <button key={w} disabled={!!walletConnecting} onClick={() => onWalletConnect(w)} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', cursor: 'pointer' }}>
                       {walletConnecting === w ? `Connecting ${w}…` : `Connect ${w}`}
                     </button>
                   ))}

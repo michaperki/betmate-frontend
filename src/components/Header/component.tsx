@@ -394,7 +394,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                   title={!realEnabled ? 'Cash' : 'Cash'}
                   style={{
                     background: mode === 'real' ? 'var(--success)' : 'transparent',
-                    color: mode === 'real' ? '#000' : 'var(--text-secondary)',
+                    color: mode === 'real' ? 'var(--text-inverse)' : 'var(--text-secondary)',
                     border: 'none',
                     padding: '6px 8px',
                     fontSize: 11,
@@ -408,7 +408,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                   title="K-Bits"
                   style={{
                     background: mode === 'arcade' ? 'var(--warning)' : 'transparent',
-                    color: mode === 'arcade' ? '#000' : 'var(--text-secondary)',
+                    color: mode === 'arcade' ? 'var(--text-inverse)' : 'var(--text-secondary)',
                     border: 'none',
                     padding: '6px 8px',
                     fontSize: 11,
@@ -489,9 +489,9 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
               }}
               aria-label="Sign in"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: '#e8e8e8',
+                background: 'rgb(var(--text-primary-rgb) / 0.06)',
+                border: '1px solid rgb(var(--text-primary-rgb) / 0.12)',
+                color: 'var(--text-primary)',
                 padding: '8px 12px',
                 borderRadius: 8,
                 cursor: 'pointer',

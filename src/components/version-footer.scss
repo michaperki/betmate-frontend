@@ -5,7 +5,7 @@
   right: $space-3;
   bottom: $space-3;
   z-index: 1000;
-  color: $text-muted;
+  color: var(--text-muted);
   font-size: $text-xs;
   opacity: 0.85;
   pointer-events: auto;
