@@ -48,10 +48,16 @@ const ReportIssue: React.FC<ReportIssueProps> = ({ isOpen, onClose }) => {
         </div>
         <div style={{ padding: 16 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#e8e8e8', borderRadius: 8, padding: '8px 10px' }}>
-              <option>Bug</option>
-              <option>Feedback</option>
-              <option>Other</option>
+            <select
+              aria-label="Issue category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#e8e8e8', borderRadius: 8, padding: '8px 10px' }}
+            >
+              {/* Ensure native dropdown menus (often white) show dark text for contrast */}
+              <option value="Bug" style={{ color: '#111', backgroundColor: '#fff' }}>Bug</option>
+              <option value="Feedback" style={{ color: '#111', backgroundColor: '#fff' }}>Feedback</option>
+              <option value="Other" style={{ color: '#111', backgroundColor: '#fff' }}>Other</option>
             </select>
           </div>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder="What happened? What did you expect?" style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#e8e8e8', borderRadius: 8, padding: 10, fontFamily: 'inherit' }} />

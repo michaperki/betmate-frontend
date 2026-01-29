@@ -81,6 +81,7 @@ const AdminHome: React.FC = () => {
           <NavLink to="/admin/wallet">Wallet</NavLink>
           <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
+          <NavLink to="/admin/invites">Invites</NavLink>
         </div>
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Home</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>

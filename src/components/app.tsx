@@ -22,6 +22,7 @@ import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
+import AdminInvites from 'containers/AdminInvites';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
 import GameContainer from '../containers/GameContainer';
@@ -142,6 +143,11 @@ const App: React.FC<AppProps> = (props) => {
             <AdminRoute exact path="/admin/risk" render={() => (
                 <div className="dashboard-page">
                   <AdminRiskPage />
+                </div>
+            )} />
+            <AdminRoute exact path="/admin/invites" render={() => (
+                <div className="dashboard-page">
+                  <AdminInvites />
                 </div>
             )} />
             <Route component={FallBack} />

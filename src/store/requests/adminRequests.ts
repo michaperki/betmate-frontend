@@ -139,3 +139,95 @@ export const approveKycUser = async (id: string) => (
 export const rejectKycUser = async (id: string) => (
   (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/kyc/${id}/reject`, headers: adminHeaders() })).data
 );
+
+// Invite code management
+export const getInviteCodes = async ({ campaign, active, limit = 50, skip = 0 }: {
+  campaign?: string;
+  active?: boolean;
+  limit?: number;
+  skip?: number;
+}) => {
+  const params = new URLSearchParams();
+  if (campaign) params.set('campaign', campaign);
+  if (active !== undefined) params.set('active', String(active));
+  if (limit) params.set('limit', String(limit));
+  if (skip) params.set('skip', String(skip));
+
+  const res = await createBackendAxiosRequest<any>({
+    method: 'GET',
+    url: `/admin/invites?${params.toString()}`,
+    headers: adminHeaders()
+  });
+  return res.data;
+};
+
+export const getInviteStats = async () => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'GET',
+    url: '/admin/invites/stats',
+    headers: adminHeaders()
+  });
+  return res.data;
+};
+
+export const createInviteCode = async (inviteData: {
+  code?: string;
+  campaign: string;
+  max_redemptions: number;
+  expires_at?: string;
+  grant_tokens?: number;
+  grant_cash_usd?: number;
+  active?: boolean;
+}) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/invites',
+    data: inviteData,
+    headers: adminHeaders()
+  });
+  return res.data;
+};
+
+export const createBulkInviteCodes = async (bulkData: {
+  count: number;
+  campaign: string;
+  max_redemptions: number;
+  expires_at?: string;
+  grant_tokens?: number;
+  grant_cash_usd?: number;
+  active?: boolean;
+}) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/invites/bulk',
+    data: bulkData,
+    headers: adminHeaders()
+  });
+  return res.data;
+};
+
+export const updateInviteCode = async (id: string, updateData: {
+  campaign?: string;
+  max_redemptions?: number;
+  expires_at?: string | null;
+  grant_tokens?: number;
+  grant_cash_usd?: number;
+  active?: boolean;
+}) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'PUT',
+    url: `/admin/invites/${id}`,
+    data: updateData,
+    headers: adminHeaders()
+  });
+  return res.data;
+};
+
+export const deleteInviteCode = async (id: string) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'DELETE',
+    url: `/admin/invites/${id}`,
+    headers: adminHeaders()
+  });
+  return res.data;
+};

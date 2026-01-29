@@ -136,7 +136,9 @@ const AdminRiskPage: React.FC = () => {
           <NavLink to="/admin">Home</NavLink>
           <NavLink to="/admin/risk">Risk</NavLink>
           <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
+          <NavLink to="/admin/invites">Invites</NavLink>
         </div>
         <h2>Admin — Real WDL Risk</h2>
         {err && <div style={{ color: 'red', marginBottom: 12 }}>{err}</div>}

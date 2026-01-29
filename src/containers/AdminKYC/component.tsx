@@ -36,6 +36,7 @@ const AdminKYC: React.FC = () => {
           <NavLink to="/admin/wallet">Wallet</NavLink>
           <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
+          <NavLink to="/admin/invites">Invites</NavLink>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0 }}>Admin — KYC</h2>
