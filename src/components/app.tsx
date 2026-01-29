@@ -8,8 +8,9 @@ import { closeSocket } from 'store/actionCreators/websocketActionCreators';
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
 import OnboardingTour from './OnboardingTour';
-import TermsGate from './TermsGate';
+// Terms gate overlay removed; use dedicated /terms route instead
 import { ModeProvider } from 'context/ModeContext';
+import { OddsFormatProvider } from 'context/OddsFormatContext';
 import { ThemeProvider } from 'context/ThemeContext';
 import { NotificationProvider } from './NotificationCenter/context';
 import NotificationBridge from './NotificationCenter/Bridge';
@@ -23,6 +24,7 @@ import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
 import AdminInvites from 'containers/AdminInvites';
+import Terms from 'containers/Terms';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
 import GameContainer from '../containers/GameContainer';
@@ -87,13 +89,13 @@ const App: React.FC<AppProps> = (props) => {
   return (
     <ThemeProvider>
       <ModeProvider>
+        <OddsFormatProvider>
         <NotificationProvider>
         <Router>
           <div>
             {/* Global Help modal toggled via window event */}
             <HelpController />
-            {/* Terms gate modal (first-login acceptance) */}
-            {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
+            {/* Terms gate moved to dedicated route; onboarding handles acceptance */}
             {/* Render onboarding only on desktop widths to avoid intrusive overlay on small screens */}
             {allowOnboarding && <OnboardingTour />}
             <NotificationBridge />
@@ -114,6 +116,8 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/onboarding" component={Onboarding} />
             {/* User settings */}
             <ProtectedRoute exact path="/user" component={Settings} />
+            {/* Terms & Conditions standalone route */}
+            <Route exact path="/terms" component={Terms} />
             {/* Wallet route removed (old UI deprecated) */}
             {/* Dev examples (design references) */}
             <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />
@@ -158,6 +162,7 @@ const App: React.FC<AppProps> = (props) => {
           </div>
         </Router>
         </NotificationProvider>
+        </OddsFormatProvider>
       </ModeProvider>
     </ThemeProvider>
   );

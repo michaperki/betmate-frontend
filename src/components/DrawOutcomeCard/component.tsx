@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useOddsFormat } from 'context/OddsFormatContext';
 import { useMode } from 'context/ModeContext';
 import { realWdlMultiplier } from 'utils/realOdds';
 import { formatAmountShort, modeCurrency } from 'utils/currency';
@@ -14,6 +15,7 @@ export interface DrawOutcomeCardProps {
 
 const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPlace, disabledReason }) => {
   const { mode, limits } = useMode();
+  const { formatOdds } = useOddsFormat();
   const [selected, setSelected] = useState<Outcome | null>(null);
   const [stake, setStake] = useState<number>(2);
 
@@ -69,7 +71,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>White Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto' }}>x{multipliers.white ? multipliers.white.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginTop: 'auto' }}>{multipliers.white ? formatOdds(multipliers.white) : '—'}</span>
           </div>
         </button>
 
@@ -90,7 +92,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Draw</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.draw ? multipliers.draw.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>{multipliers.draw ? formatOdds(multipliers.draw) : '—'}</span>
           </div>
         </button>
 
@@ -111,7 +113,7 @@ const DrawOutcomeCard: React.FC<DrawOutcomeCardProps> = ({ disabled, odds, onPla
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', height: '100%' }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'center' }}>Black Wins</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>x{multipliers.black ? multipliers.black.toFixed(2) : '—'}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: accent, marginTop: 'auto' }}>{multipliers.black ? formatOdds(multipliers.black) : '—'}</span>
           </div>
         </button>
       </div>

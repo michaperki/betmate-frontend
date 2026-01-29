@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useOddsFormat } from 'context/OddsFormatContext';
 import { useMode } from 'context/ModeContext';
 import StarRating from 'components/StarRating';
 import './style.scss';
@@ -36,6 +37,7 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
   const { mode } = useMode();
   // Long‑press (hold to confirm) — enabled for touch/pen pointers
   const [holdingIndex, setHoldingIndex] = useState<number | null>(null);
+  const { formatOdds } = useOddsFormat();
   const [holdProgress, setHoldProgress] = useState(0); // 0..1
   const holdStartRef = useRef<number>(0);
   const holdRafRef = useRef<number | null>(null);
@@ -147,7 +149,7 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
               <span className="move-predictions__score">
                 <StarRating score={move.score} maxStars={4} size={compact ? "small" : "medium"} />
               </span>
-              <span className="move-predictions__odds">x{move.odds.toFixed(2)}</span>
+              <span className="move-predictions__odds">{formatOdds(move.odds)}</span>
             </div>
             {move.status === 'loading' && (
               <div className="move-predictions__loader"></div>

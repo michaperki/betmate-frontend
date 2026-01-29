@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOddsFormat } from 'context/OddsFormatContext';
 import { formatAmountShort, formatNet } from 'utils/currency';
 import './style.scss';
 
@@ -27,6 +28,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
   onCashOut
 }) => {
   // Calculate summary metrics
+  const { formatOdds } = useOddsFormat();
   // Summaries per currency for clarity if mixed
   const totals = bets.reduce((acc, b) => {
     const c = (b.currency || 'USDT') as 'USDT' | 'BET';
@@ -76,7 +78,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
               </div>
               <div className="betting-panel__bet-details">
                 <span className="betting-panel__bet-stake">{formatAmountShort(bet.stake, (bet.currency || 'USDT') as any)}</span>
-                <span className="betting-panel__bet-odds">x{bet.odds.toFixed(2)}</span>
+                <span className="betting-panel__bet-odds">{formatOdds(bet.odds)}</span>
                 <div className={`betting-panel__bet-result betting-panel__bet-result--${bet.result || 'pending'}`}>
                   {bet.result === 'won' && bet.profit !== undefined && 
                     `${formatNet(Math.abs(bet.profit), (bet.currency || 'USDT') as any)}`}

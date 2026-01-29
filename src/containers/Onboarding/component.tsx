@@ -5,6 +5,7 @@ import * as authRequests from 'store/requests/authRequests';
 import { setBearerToken } from 'store/actionCreators';
 import { JWT_SIGN_IN } from 'types/resources/auth';
 import { getDeviceId } from 'utils';
+import { useOddsFormat } from 'context/OddsFormatContext';
 
 const Onboarding: React.FC = () => {
   const [step, setStep] = useState(0);
@@ -43,6 +44,7 @@ const Onboarding: React.FC = () => {
   const [depositProcessing, setDepositProcessing] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const { setFormat } = useOddsFormat();
   const updateForm = (k: string, v: any) => setFormData((p) => ({ ...p, [k]: v }));
   const simulateWalletConnect = () => { setWalletConnecting(true); setTimeout(() => { setWalletConnecting(false); updateForm('walletConnected', true); updateForm('walletAddress', '0x7a3d...8f2e'); }, 1500); };
   const simulateDeposit = () => { setDepositProcessing(true); setTimeout(() => { setDepositProcessing(false); setStep(5); }, 2000); };
@@ -76,6 +78,16 @@ const Onboarding: React.FC = () => {
       const user = (res?.data as any)?.user;
       if (token) setBearerToken(token);
       if (user) dispatch({ type: JWT_SIGN_IN, payload: { user }, status: 'SUCCESS' } as any);
+      // If user agreed to terms, persist acceptance to backend
+      try {
+        if (formData.agreeTerms && token) {
+          const statusRes = await authRequests.jwtSignIn().catch(() => null); // refresh token/user
+          void statusRes;
+          const get = await (await import('store/requests')).createBackendAxiosRequest({ method: 'GET', url: 'auth/terms', headers: (await import('store/actionCreators')).getBearerTokenHeader() });
+          const currentVersion = (get as any)?.data?.currentVersion || 1;
+          await (await import('store/requests')).createBackendAxiosRequest({ method: 'PUT', url: 'auth/terms', data: { version: currentVersion }, headers: (await import('store/actionCreators')).getBearerTokenHeader() });
+        }
+      } catch {}
       setStep(3); // skip wallet step next
     } catch (e: any) {
       setCreateError(e?.response?.data?.message || e?.response?.data?.error || 'Failed to create account');
@@ -144,8 +156,8 @@ const Onboarding: React.FC = () => {
                 <input placeholder="Password" type="password" value={formData.password} onChange={e => updateForm('password', e.target.value)} style={{ padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8' }} />
                 <input placeholder="Confirm Password" type="password" value={formData.confirmPassword} onChange={e => updateForm('confirmPassword', e.target.value)} style={{ padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8' }} />
               </div>
-              <div style={{ marginTop: 12, display: 'flex', gap: 12 }}>
-                <label><input type="checkbox" checked={formData.agreeTerms} onChange={e => updateForm('agreeTerms', e.target.checked)} /> I agree to Terms</label>
+              <div style={{ marginTop: 12, display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <label><input type="checkbox" checked={formData.agreeTerms} onChange={e => updateForm('agreeTerms', e.target.checked)} /> I agree to the <a href="/terms" target="_blank" rel="noreferrer" style={{ color: 'var(--mode-accent)' }}>Terms</a></label>
                 <label><input type="checkbox" checked={formData.ageVerified} onChange={e => updateForm('ageVerified', e.target.checked)} /> I am 18+</label>
               </div>
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
@@ -184,11 +196,26 @@ const Onboarding: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <label>Default Stake <input type="number" value={formData.defaultStake} onChange={e => updateForm('defaultStake', Number(e.target.value))} style={{ marginLeft: 8 }} /></label>
                 <label>Odds Format
-                  <select value={formData.oddsFormat} onChange={e => updateForm('oddsFormat', e.target.value)} style={{ marginLeft: 8 }}>
+                  <select value={formData.oddsFormat} onChange={e => { updateForm('oddsFormat', e.target.value); try { setFormat(e.target.value as any); } catch {} }} style={{ marginLeft: 8 }}>
                     <option value="decimal">Decimal</option>
                     <option value="fractional">Fractional</option>
                   </select>
                 </label>
+              </div>
+              {/* Preview odds formats */}
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
+                {(() => {
+                  const example = 2.5; // example multiplier
+                  const toFraction = (mult: number) => {
+                    const x = Math.max(1, mult) - 1; // fractional excludes stake
+                    let num = x, den = 1;
+                    // continued fraction approximation
+                    const tol = 1e-6; let a = x; let h1 = 1, h0 = 0, k1 = 0, k0 = 1;
+                    for (let i = 0; i < 8; i++) { const ai = Math.floor(a + tol); const h = ai * h1 + h0; const k = ai * k1 + k0; const frac = h / k; if (Math.abs(frac - x) < 1e-6 || k > 100) { num = Math.round(h); den = Math.round(k); break; } h0 = h1; k0 = k1; h1 = h; k1 = k; a = 1 / (a - ai + tol); }
+                    return `${num}/${den}`;
+                  };
+                  return <span>Preview: Decimal x{example.toFixed(2)} • Fractional {toFraction(example)}</span>;
+                })()}
               </div>
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
                 <button onClick={() => setStep(2)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8' }}>Back</button>

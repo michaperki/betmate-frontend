@@ -49,10 +49,9 @@ const stepsForRoute = (route: string): Step[] => {
       { id: 'complete', title: 'You’re all set!', body: 'Have fun and bet responsibly.' },
     ];
   }
-  // Dashboard
+  // Dashboard — streamline: intro then navigate directly to live board
   return [
-    { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a 30‑second tour. You can skip anytime.' },
-    { id: 'dashboard-featured', title: 'Featured Match', body: 'Jump into the top game right now.', anchor: 'featured-match', advanceOnAnchorClick: true },
+    { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a quick tour. You can skip anytime.' },
     { id: 'goto-chess', title: 'Let’s check out the live board', body: 'We’ll load the featured match interface.', route: '/chess/:featured', autoAdvance: true },
   ];
 };

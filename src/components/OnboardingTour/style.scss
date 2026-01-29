@@ -2,7 +2,7 @@
 .onboarding-tour-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--bg-overlay, rgba(0,0,0,0.6));
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -11,14 +11,14 @@
 }
 
 .onboarding-tour-card {
-  background: #111;
-  color: #f7f7f7;
-  border: 1px solid #333;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
   border-radius: 16px;
   max-width: 520px;
   width: 100%;
   padding: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg, 0 20px 50px rgba(0, 0, 0, 0.4));
 }
 
 .onboarding-tour-card h3 {
@@ -54,17 +54,13 @@
   cursor: pointer;
 }
 
-.onboarding-tour-actions .primary {
-  background: linear-gradient(135deg, #8f56ff, #4bc2ff);
-  color: #fff;
-  border: none;
-}
+.onboarding-tour-actions .primary { background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%); color: #000; border: none; }
 
 /* Non-invasive highlight applied directly to elements */
 .tour-highlight {
   position: relative;
   z-index: 1002; /* ensure above local stacking contexts */
-  outline: 2px solid rgba(0, 239, 178, 0.95); /* brand green */
+  outline: 2px solid var(--success, rgba(0, 239, 178, 0.95)); /* brand green */
   outline-offset: 3px;
   border-radius: 8px;
   transition: outline-color 0.2s ease;
@@ -103,7 +99,7 @@
 
 .tour-shade {
   position: fixed;
-  background: rgba(0,0,0,0.6);
+  background: var(--bg-overlay, rgba(0,0,0,0.6));
   pointer-events: none; /* clicks fall through */
   z-index: 1000;
 }
@@ -111,12 +107,12 @@
 .tour-bubble {
   position: fixed;
   max-width: 360px;
-  background: #111;
-  color: #f7f7f7;
-  border: 1px solid #333;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 14px 16px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  box-shadow: var(--shadow-base, 0 12px 30px rgba(0,0,0,0.45));
   pointer-events: auto; /* bubble itself is interactive */
   z-index: 1001;
 }
@@ -124,7 +120,7 @@
 /* Independent highlight box that won't be wiped by React rerenders */
 .tour-outline {
   position: fixed;
-  border: 2px solid rgba(0, 239, 178, 0.95);
+  border: 2px solid var(--success, rgba(0, 239, 178, 0.95));
   border-radius: 10px;
   box-shadow: 0 0 0 10px rgba(0, 239, 178, 0.14);
   pointer-events: none;
@@ -158,11 +154,7 @@
   cursor: pointer;
 }
 
-.tour-bubble .tour-actions .primary {
-  background: linear-gradient(135deg, #8f56ff, #4bc2ff);
-  color: #fff;
-  border: none;
-}
+.tour-bubble .tour-actions .primary { background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%); color: #000; border: none; }
 
 .tour-bubble .tour-meta {
   font-size: 12px;
@@ -175,10 +167,10 @@
   position: absolute;
   width: 10px;
   height: 10px;
-  background: #111;
+  background: var(--card-bg);
   transform: rotate(45deg);
-  border-left: 1px solid #333;
-  border-top: 1px solid #333;
+  border-left: 1px solid var(--card-border);
+  border-top: 1px solid var(--card-border);
 }
 
 .tour-bubble.side-top:after {
@@ -198,13 +190,13 @@
   position: fixed;
   left: 16px;
   bottom: 16px;
-  background: #111;
-  border: 1px solid #333;
-  color: #f7f7f7;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 13px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-base, 0 8px 20px rgba(0,0,0,0.4));
   z-index: 1001;
   cursor: pointer;
 }
