@@ -40,23 +40,22 @@ const CURRENT_VERSION = 1;
 const LOCAL_KEY = 'betmate:onboarding_version_seen';
 
 // Total number of steps in the complete tour
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 7;
 
 const stepsForRoute = (route: string): Step[] => {
   if (route.startsWith('/chess/')) {
     return [
       { id: 'chess-intro', title: 'Live Game Interface', body: 'Games are streamed live from Lichess. Here you can place bets on moves and outcomes.', globalStep: 3 },
-      { id: 'chess-player-header', title: 'Bet on a Player', body: 'Tap the White player header to bet on White winning the game.', anchor: 'white-player-header', advanceOnAnchorClick: true, globalStep: 4 },
-      { id: 'chess-move-predictions', title: 'Move Predictions', body: 'Preview potential next moves. Tap a specific move to place a bet on it.', anchor: 'single-move-prediction', advanceOnAnchorClick: true, globalStep: 5 },
-      { id: 'chess-outcomes', title: 'Outcome Wagers', body: 'On the right side, you can bet on game outcomes including draws and wins.', anchor: 'outcome-wagers', advanceOnAnchorClick: true, globalStep: 6 },
-      { id: 'chess-receipts', title: 'Receipts', body: 'Track your wagers here as they confirm and settle.', anchor: 'receipts', globalStep: 7 },
-      { id: 'complete', title: "You're all set!", body: "Have fun and bet responsibly.", globalStep: 8 },
+      { id: 'chess-player-header', title: 'Bet on a Player', body: 'Tap the player header to bet on White or Black winning the game.', anchor: 'player-header', advanceOnAnchorClick: true, globalStep: 4 },
+      { id: 'chess-move-predictions', title: 'Move Predictions', body: 'Preview potential next moves. Tap a move tile to place a bet on it.', anchor: 'move-tiles', advanceOnAnchorClick: true, globalStep: 5 },
+      { id: 'chess-outcomes', title: 'Outcome Wagers', body: 'On the right side, you can bet on game outcomes including draws and wins.', anchor: 'receipts', advanceOnAnchorClick: true, globalStep: 6 },
+      { id: 'complete', title: "You're all set!", body: "Have fun and bet responsibly.", globalStep: 7 },
     ];
   }
   // Dashboard with Join Game button highlight
   return [
     { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a quick tour. You can skip anytime.', globalStep: 1 },
-    { id: 'dashboard-join-game', title: 'Join Featured Match', body: 'Click the "Join Game" button on the featured match to start betting.', anchor: 'join-featured-button', advanceOnAnchorClick: true, globalStep: 2 },
+    { id: 'dashboard-join-game', title: 'Join Featured Match', body: 'Click the "Join Game" button on the featured match to start betting.', globalStep: 2 },
     { id: 'goto-chess', title: 'Going to Game Interface', body: "Now we'll take you to the live game interface.", route: '/chess/:featured', autoAdvance: true, globalStep: 3 },
   ];
 };
