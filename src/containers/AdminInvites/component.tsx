@@ -796,6 +796,29 @@ const InviteCodeList: React.FC<{
     }
   };
 
+  const handleCopyInviteLink = async (codeStr: string) => {
+    try {
+      const url = new URL('/onboarding', window.location.origin);
+      url.searchParams.set('code', codeStr);
+      const link = url.toString();
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = link;
+        ta.style.position = 'fixed';
+        ta.style.left = '-1000px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        document.body.removeChild(ta);
+      }
+      alert('Invite link copied to clipboard');
+    } catch (e) {
+      alert('Failed to copy invite link');
+    }
+  };
+
   if (!codes.length) {
     return (
       <div className="admin-card">
@@ -1042,6 +1065,21 @@ const InviteCodeList: React.FC<{
                           }}
                         >
                           {code.active ? 'Disable' : 'Enable'}
+                        </button>
+                        <button
+                          onClick={() => handleCopyInviteLink(code.code)}
+                          disabled={loading}
+                          title="Copy invite link"
+                          style={{ 
+                            padding: '4px 8px', 
+                            background: '#4a90e233', 
+                            border: 'none', 
+                            borderRadius: '4px',
+                            color: '#4a90e2',
+                            cursor: loading ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          Copy Link
                         </button>
                         <button
                           onClick={() => handleEdit(code)}
