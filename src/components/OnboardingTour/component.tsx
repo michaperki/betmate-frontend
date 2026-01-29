@@ -50,14 +50,14 @@ const stepsForRoute = (route: string): Step[] => {
       { id: 'chess-move-predictions', title: 'Move Predictions', body: 'Preview potential next moves. Tap a specific move to place a bet on it.', anchor: 'single-move-prediction', advanceOnAnchorClick: true, globalStep: 5 },
       { id: 'chess-outcomes', title: 'Outcome Wagers', body: 'On the right side, you can bet on game outcomes including draws and wins.', anchor: 'outcome-wagers', advanceOnAnchorClick: true, globalStep: 6 },
       { id: 'chess-receipts', title: 'Receipts', body: 'Track your wagers here as they confirm and settle.', anchor: 'receipts', globalStep: 7 },
-      { id: 'complete', title: 'You're all set!', body: 'Have fun and bet responsibly.', globalStep: 8 },
+      { id: 'complete', title: "You're all set!", body: "Have fun and bet responsibly.", globalStep: 8 },
     ];
   }
   // Dashboard with Join Game button highlight
   return [
     { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a quick tour. You can skip anytime.', globalStep: 1 },
     { id: 'dashboard-join-game', title: 'Join Featured Match', body: 'Click the "Join Game" button on the featured match to start betting.', anchor: 'join-featured-button', advanceOnAnchorClick: true, globalStep: 2 },
-    { id: 'goto-chess', title: 'Going to Game Interface', body: 'Now we'll take you to the live game interface.', route: '/chess/:featured', autoAdvance: true, globalStep: 3 },
+    { id: 'goto-chess', title: 'Going to Game Interface', body: "Now we'll take you to the live game interface.", route: '/chess/:featured', autoAdvance: true, globalStep: 3 },
   ];
 };
 
