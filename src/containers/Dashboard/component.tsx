@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
               Win Rate
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span style={{ fontSize: '32px', fontWeight: '700' }}>{Math.round(data.winRate || 54)}</span>
+              <span style={{ fontSize: '32px', fontWeight: '700' }}>{Math.round(data.winRate ?? 0)}</span>
               <span style={{ fontSize: '18px', opacity: 0.5 }}>%</span>
             </div>
             <div style={{ 
@@ -275,13 +275,13 @@ const Dashboard: React.FC = () => {
               overflow: 'hidden'
             }}>
               <div style={{ 
-                width: '54%', 
+                width: `${Math.max(0, Math.min(100, Math.round(data.winRate ?? 0)))}%`, 
                 height: '100%', 
                 background: 'linear-gradient(90deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                 borderRadius: '2px'
               }} />
             </div>
-            <div style={{ fontSize: '12px', opacity: 0.5, marginTop: '8px' }}>{`${data.approxWins || 47} of ${data.totalWagers || 87} bets won`}</div>
+            <div style={{ fontSize: '12px', opacity: 0.5, marginTop: '8px' }}>{`${data.approxWins ?? 0} of ${data.totalWagers ?? 0} bets won`}</div>
           </div>
 
           {/* Streak Card */}
