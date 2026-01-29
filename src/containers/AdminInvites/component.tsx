@@ -19,6 +19,8 @@ const CreateInviteForm: React.FC<{
   const [formData, setFormData] = useState({
     code: '',
     campaign: '',
+    // When selecting "+ New Campaign" from the dropdown, hold the typed name separately
+    newCampaignName: '',
     max_redemptions: 1,
     expires_at: '',
     grant_tokens: 0,
@@ -31,15 +33,29 @@ const CreateInviteForm: React.FC<{
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       const { checked } = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (type === 'number') {
-      setFormData(prev => ({ ...prev, [name]: parseFloat(value) }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      return;
     }
+
+    if (type === 'number') {
+      setFormData(prev => ({ ...prev, [name]: parseFloat(value) }));
+      return;
+    }
+
+    // Distinguish between selecting "new" vs typing the new name
+    if (name === 'campaign') {
+      setFormData(prev => ({ ...prev, campaign: value }));
+      return;
+    }
+    if (name === 'newCampaignName') {
+      setFormData(prev => ({ ...prev, newCampaignName: value }));
+      return;
+    }
+
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,10 +64,25 @@ const CreateInviteForm: React.FC<{
     setError('');
     
     try {
-      await createInviteCode(formData);
+      const finalCampaign = formData.campaign === 'new' ? formData.newCampaignName.trim() : formData.campaign.trim();
+      if (!finalCampaign) {
+        setLoading(false);
+        setError('Please enter a campaign name');
+        return;
+      }
+      await createInviteCode({
+        code: formData.code || undefined,
+        campaign: finalCampaign,
+        max_redemptions: formData.max_redemptions,
+        expires_at: formData.expires_at || undefined,
+        grant_tokens: formData.grant_tokens || undefined,
+        grant_cash_usd: formData.grant_cash_usd || undefined,
+        active: formData.active,
+      });
       setFormData({
         code: '',
-        campaign: formData.campaign, // Keep the campaign for convenience
+        campaign: formData.campaign, // keep selection (existing or 'new')
+        newCampaignName: '',
         max_redemptions: 1,
         expires_at: '',
         grant_tokens: 0,
@@ -125,8 +156,8 @@ const CreateInviteForm: React.FC<{
             {formData.campaign === 'new' && (
               <input
                 type="text"
-                name="campaign"
-                value=""
+                name="newCampaignName"
+                value={formData.newCampaignName}
                 onChange={handleChange}
                 placeholder="Enter new campaign name"
                 required
@@ -306,6 +337,7 @@ const BulkCreateForm: React.FC<{
   const [formData, setFormData] = useState({
     count: 5,
     campaign: '',
+    newCampaignName: '',
     max_redemptions: 1,
     expires_at: '',
     grant_tokens: 0,
@@ -318,15 +350,24 @@ const BulkCreateForm: React.FC<{
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
     if (type === 'checkbox') {
       const { checked } = e.target as HTMLInputElement;
       setFormData(prev => ({ ...prev, [name]: checked }));
-    } else if (type === 'number') {
-      setFormData(prev => ({ ...prev, [name]: parseFloat(value) }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      return;
     }
+    if (type === 'number') {
+      setFormData(prev => ({ ...prev, [name]: parseFloat(value) }));
+      return;
+    }
+    if (name === 'campaign') {
+      setFormData(prev => ({ ...prev, campaign: value }));
+      return;
+    }
+    if (name === 'newCampaignName') {
+      setFormData(prev => ({ ...prev, newCampaignName: value }));
+      return;
+    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -335,10 +376,25 @@ const BulkCreateForm: React.FC<{
     setError('');
     
     try {
-      await createBulkInviteCodes(formData);
+      const finalCampaign = formData.campaign === 'new' ? formData.newCampaignName.trim() : formData.campaign.trim();
+      if (!finalCampaign) {
+        setLoading(false);
+        setError('Please enter a campaign name');
+        return;
+      }
+      await createBulkInviteCodes({
+        count: formData.count,
+        campaign: finalCampaign,
+        max_redemptions: formData.max_redemptions,
+        expires_at: formData.expires_at || undefined,
+        grant_tokens: formData.grant_tokens || undefined,
+        grant_cash_usd: formData.grant_cash_usd || undefined,
+        active: formData.active,
+      });
       setFormData({
         count: 5,
-        campaign: formData.campaign, // Keep the campaign for convenience
+        campaign: formData.campaign,
+        newCampaignName: '',
         max_redemptions: 1,
         expires_at: '',
         grant_tokens: 0,
@@ -433,8 +489,8 @@ const BulkCreateForm: React.FC<{
             {formData.campaign === 'new' && (
               <input
                 type="text"
-                name="campaign"
-                value=""
+                name="newCampaignName"
+                value={formData.newCampaignName}
                 onChange={handleChange}
                 placeholder="Enter new campaign name"
                 required
@@ -671,6 +727,7 @@ const InviteCodeList: React.FC<{
     setEditingId(code._id);
     setEditData({
       campaign: code.campaign,
+      newCampaignName: '',
       max_redemptions: code.max_redemptions,
       expires_at: code.expires_at ? new Date(code.expires_at).toISOString().split('T')[0] : '',
       grant_tokens: code.grant_tokens,
@@ -690,7 +747,18 @@ const InviteCodeList: React.FC<{
     setError('');
     
     try {
-      await updateInviteCode(id, editData);
+      const update: any = { ...editData };
+      if (editData.campaign === 'new') {
+        const final = (editData.newCampaignName || '').trim();
+        if (!final) {
+          setLoading(false);
+          setError('Please enter a campaign name');
+          return;
+        }
+        update.campaign = final;
+      }
+      delete update.newCampaignName;
+      await updateInviteCode(id, update);
       setEditingId(null);
       onRefresh();
     } catch (err: any) {
@@ -789,8 +857,8 @@ const InviteCodeList: React.FC<{
                           {editData.campaign === 'new' && (
                             <input
                               type="text"
-                              value=""
-                              onChange={(e) => setEditData(prev => ({ ...prev, campaign: e.target.value }))}
+                              value={editData.newCampaignName || ''}
+                              onChange={(e) => setEditData(prev => ({ ...prev, newCampaignName: e.target.value }))}
                               placeholder="Enter new campaign name"
                               required
                               style={{ 
