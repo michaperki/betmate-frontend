@@ -165,21 +165,26 @@ const OnboardingTour: React.FC = () => {
         if (rect.height < minH) { const d = (minH - rect.height) / 2; rect.top = Math.max(0, rect.top - d); rect.height = minH; }
         setMaskRect(rect);
         const vw = window.innerWidth; const vh = window.innerHeight;
-        const canTop = rect.top >= 90;
-        const canBottom = (vh - (rect.top + rect.height)) >= 120;
-        const canLeft = rect.left >= 220;
-        const canRight = (vw - (rect.left + rect.width)) >= 220;
-        let side: BubblePos['side'] = 'bottom';
-        if (canBottom) side = 'bottom'; else if (canTop) side = 'top'; else if (canRight) side = 'right'; else if (canLeft) side = 'left';
-        const offset = 8;
-        let top = rect.top; let left = rect.left;
-        if (side === 'bottom') { top = rect.top + rect.height + offset; left = rect.left; }
-        if (side === 'top') { top = Math.max(8, rect.top - 12 - 110); left = rect.left; }
-        if (side === 'right') { top = rect.top; left = rect.left + rect.width + offset; }
-        if (side === 'left') { top = rect.top; left = Math.max(8, rect.left - 380 - offset); }
-        left = Math.max(8, Math.min(left, vw - 380 - 8));
-        top = Math.max(8, Math.min(top, vh - 160));
-        setBubblePos({ top, left, side });
+        const bubbleW = 360; const bubbleH = 140; // estimated bubble size
+        const offset = 12; const margin = 8;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const positions: Array<{ side: BubblePos['side']; top: number; left: number }>= [
+          { side: 'bottom', top: rect.top + rect.height + offset, left: centerX - bubbleW / 2 },
+          { side: 'top',    top: Math.max(margin, rect.top - bubbleH - offset), left: centerX - bubbleW / 2 },
+          { side: 'right',  top: centerY - bubbleH / 2, left: rect.left + rect.width + offset },
+          { side: 'left',   top: centerY - bubbleH / 2, left: Math.max(margin, rect.left - bubbleW - offset) },
+        ];
+        const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+        const fitsViewport = (p: { top: number; left: number }) => (
+          p.left >= margin && p.left + bubbleW <= vw - margin && p.top >= margin && p.top + bubbleH <= vh - margin
+        );
+        let choice = positions.find(p => fitsViewport(p));
+        if (!choice) {
+          const p = positions[0];
+          choice = { ...p, top: clamp(p.top, margin, vh - bubbleH - margin), left: clamp(p.left, margin, vw - bubbleW - margin) };
+        }
+        setBubblePos(choice);
       };
       compute();
       const id = window.setTimeout(compute, 250);
@@ -224,15 +229,24 @@ const OnboardingTour: React.FC = () => {
       if (rect.height < minH) { const d = (minH - rect.height) / 2; rect.top = Math.max(0, rect.top - d); rect.height = minH; }
       setMaskRect(rect);
       const vw = window.innerWidth; const vh = window.innerHeight;
-      const canTop = rect.top >= 90; const canBottom = (vh - (rect.top + rect.height)) >= 120; const canLeft = rect.left >= 220; const canRight = (vw - (rect.left + rect.width)) >= 220;
-      let side: BubblePos['side'] = 'bottom'; if (canBottom) side = 'bottom'; else if (canTop) side = 'top'; else if (canRight) side = 'right'; else if (canLeft) side = 'left';
-      const offset = 8; let top = rect.top; let left = rect.left;
-      if (side === 'bottom') { top = rect.top + rect.height + offset; left = rect.left; }
-      if (side === 'top') { top = Math.max(8, rect.top - 12 - 110); left = rect.left; }
-      if (side === 'right') { top = rect.top; left = rect.left + rect.width + offset; }
-      if (side === 'left') { top = rect.top; left = Math.max(8, rect.left - 380 - offset); }
-      left = Math.max(8, Math.min(left, vw - 380 - 8)); top = Math.max(8, Math.min(top, vh - 160));
-      setBubblePos({ top, left, side });
+      const bubbleW = 360; const bubbleH = 140; const offset = 12; const margin = 8;
+      const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2;
+      const positions: Array<{ side: BubblePos['side']; top: number; left: number }>= [
+        { side: 'bottom', top: rect.top + rect.height + offset, left: centerX - bubbleW / 2 },
+        { side: 'top',    top: Math.max(margin, rect.top - bubbleH - offset), left: centerX - bubbleW / 2 },
+        { side: 'right',  top: centerY - bubbleH / 2, left: rect.left + rect.width + offset },
+        { side: 'left',   top: centerY - bubbleH / 2, left: Math.max(margin, rect.left - bubbleW - offset) },
+      ];
+      const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+      const fitsViewport = (p: { top: number; left: number }) => (
+        p.left >= margin && p.left + bubbleW <= vw - margin && p.top >= margin && p.top + bubbleH <= vh - margin
+      );
+      let choice = positions.find(p => fitsViewport(p));
+      if (!choice) {
+        const p = positions[0];
+        choice = { ...p, top: clamp(p.top, margin, vh - bubbleH - margin), left: clamp(p.left, margin, vw - bubbleW - margin) };
+      }
+      setBubblePos(choice);
     };
     const onScroll = () => { window.requestAnimationFrame(handler); };
     window.addEventListener('resize', onScroll);

@@ -44,7 +44,7 @@ const Onboarding: React.FC = () => {
   const [depositProcessing, setDepositProcessing] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-  const { setFormat } = useOddsFormat();
+  const { setFormat, formatOdds } = useOddsFormat();
   const updateForm = (k: string, v: any) => setFormData((p) => ({ ...p, [k]: v }));
   const simulateWalletConnect = () => { setWalletConnecting(true); setTimeout(() => { setWalletConnecting(false); updateForm('walletConnected', true); updateForm('walletAddress', '0x7a3d...8f2e'); }, 1500); };
   const simulateDeposit = () => { setDepositProcessing(true); setTimeout(() => { setDepositProcessing(false); setStep(5); }, 2000); };
@@ -194,28 +194,18 @@ const Onboarding: React.FC = () => {
             <div>
               <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>Preferences</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <label>Default Stake <input type="number" value={formData.defaultStake} onChange={e => updateForm('defaultStake', Number(e.target.value))} style={{ marginLeft: 8 }} /></label>
-                <label>Odds Format
-                  <select value={formData.oddsFormat} onChange={e => { updateForm('oddsFormat', e.target.value); try { setFormat(e.target.value as any); } catch {} }} style={{ marginLeft: 8 }}>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>Default Stake</div>
+                  <input type="number" value={formData.defaultStake} onChange={e => updateForm('defaultStake', Number(e.target.value))} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', fontFamily: 'inherit' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>Odds Format</div>
+                  <select value={formData.oddsFormat} onChange={e => { updateForm('oddsFormat', e.target.value); try { setFormat(e.target.value as any); } catch {} }} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--input-text)', fontFamily: 'inherit' }}>
                     <option value="decimal">Decimal</option>
                     <option value="fractional">Fractional</option>
                   </select>
-                </label>
-              </div>
-              {/* Preview odds formats */}
-              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>
-                {(() => {
-                  const example = 2.5; // example multiplier
-                  const toFraction = (mult: number) => {
-                    const x = Math.max(1, mult) - 1; // fractional excludes stake
-                    let num = x, den = 1;
-                    // continued fraction approximation
-                    const tol = 1e-6; let a = x; let h1 = 1, h0 = 0, k1 = 0, k0 = 1;
-                    for (let i = 0; i < 8; i++) { const ai = Math.floor(a + tol); const h = ai * h1 + h0; const k = ai * k1 + k0; const frac = h / k; if (Math.abs(frac - x) < 1e-6 || k > 100) { num = Math.round(h); den = Math.round(k); break; } h0 = h1; k0 = k1; h1 = h; k1 = k; a = 1 / (a - ai + tol); }
-                    return `${num}/${den}`;
-                  };
-                  return <span>Preview: Decimal x{example.toFixed(2)} • Fractional {toFraction(example)}</span>;
-                })()}
+                  <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-secondary)' }}>Preview: {formatOdds(2.5)}</div>
+                </div>
               </div>
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
                 <button onClick={() => setStep(2)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8' }}>Back</button>
