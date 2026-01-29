@@ -689,18 +689,20 @@ const GameContainer: React.FC = () => {
             />
           )}
           
-          <PlayerHeader
-            side="white"
-            name={viewModel?.playerWhite.name || 'White'}
-            rating={viewModel?.playerWhite.elo || 0}
-            time={formatDisplayTime(timeWhite)}
-            isActive={isWhiteTurn}
-            lowTime={isWhiteTimeLow}
-            onOutcomeClick={isAuthenticated ? handleWhiteBet : undefined}
-            status={whiteBetStatus}
-            statusMessage={whiteBetError}
-            isWinner={false}
-          />
+          <div data-tour-id="white-player-header">
+            <PlayerHeader
+              side="white"
+              name={viewModel?.playerWhite.name || 'White'}
+              rating={viewModel?.playerWhite.elo || 0}
+              time={formatDisplayTime(timeWhite)}
+              isActive={isWhiteTurn}
+              lowTime={isWhiteTimeLow}
+              onOutcomeClick={isAuthenticated ? handleWhiteBet : undefined}
+              status={whiteBetStatus}
+              statusMessage={whiteBetError}
+              isWinner={false}
+            />
+          </div>
           
           {/* No draw button under board per mock — draw goes in right panel */}
         </div>
@@ -743,7 +745,7 @@ const GameContainer: React.FC = () => {
             })()}
           </div>
           {/* Outcome selector second */}
-          <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 16 }} data-tour-id="outcome-wagers">
             <DrawOutcomeCard
               disabled={!isAuthenticated || gameState !== 'live'}
               odds={game?.odds as any}

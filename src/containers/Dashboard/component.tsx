@@ -567,6 +567,7 @@ const Dashboard: React.FC = () => {
                         fontWeight: '700',
                         fontFamily: 'inherit'
                       }}
+                      data-tour-id="join-featured-button"
                       >Join Game</button>
                     </div>
                   </div>

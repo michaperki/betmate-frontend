@@ -124,7 +124,7 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             border: '1px solid rgb(var(--mode-accent-rgb) / 0.25)'
           } as React.CSSProperties : undefined;
           return (
-          <div 
+          <div
             key={`${move.move}-${index}`}
             className={`move-predictions__item ${gameEnded ? 'move-predictions__item--ended' : ''} ${move.status ? `move-predictions__item--${move.status}` : ''}`}
             style={compact ? { ...baseTintStyle, padding: 10 } : baseTintStyle}
@@ -137,7 +137,8 @@ const MovePredictions: React.FC<MovePredictionsProps> = ({
             onMouseLeave={() => onMoveHoverEnd && onMoveHoverEnd()}
             role={onMoveClick ? "button" : undefined}
             tabIndex={onMoveClick ? 0 : undefined}
-            onKeyDown={(e) => { 
+            data-tour-id={index === 0 ? "single-move-prediction" : undefined}
+            onKeyDown={(e) => {
               if (!gameEnded && move.status !== 'disabled' && onMoveClick && (e.key === 'Enter' || e.key === ' ')) {
                 onMoveClick(move.move, index);
                 e.preventDefault();
