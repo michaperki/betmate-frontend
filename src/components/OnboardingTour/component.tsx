@@ -10,13 +10,12 @@ import './style.scss';
 
 type StepId =
   | 'intro-dashboard'
-  | 'dashboard-featured'
+  | 'dashboard-join-game'
   | 'goto-chess'
-  | 'chess-board'
+  | 'chess-intro'
   | 'chess-player-header'
-  | 'chess-move-tiles'
-  | 'chess-bottom-toolbar'
-  | 'chess-draw'
+  | 'chess-move-predictions'
+  | 'chess-outcomes'
   | 'chess-receipts'
   | 'complete';
 
@@ -28,6 +27,7 @@ type Step = {
   route?: string; // target route (optional)
   autoAdvance?: boolean; // advance automatically when route/anchor satisfied
   advanceOnAnchorClick?: boolean; // attach one-off click to anchor to advance
+  globalStep?: number; // global step number across routes
 };
 
 interface OnboardingStatusResponse {
@@ -39,20 +39,25 @@ const CURRENT_VERSION = 1;
 
 const LOCAL_KEY = 'betmate:onboarding_version_seen';
 
+// Total number of steps in the complete tour
+const TOTAL_STEPS = 8;
+
 const stepsForRoute = (route: string): Step[] => {
   if (route.startsWith('/chess/')) {
     return [
-      { id: 'chess-player-header', title: 'Bet a Player', body: 'Tap a player header to bet on White or Black.', anchor: 'player-header', advanceOnAnchorClick: true },
-      { id: 'chess-move-tiles', title: 'Move Bubbles', body: 'Preview move bets instantly. Tap a bubble to set up a slip.', anchor: 'move-tiles', advanceOnAnchorClick: true },
-      { id: 'chess-draw', title: 'Draw Bet', body: 'Use the Draw button in the toolbar. Stake chips set your amount fast.', anchor: 'draw-button', advanceOnAnchorClick: true },
-      { id: 'chess-receipts', title: 'Receipts', body: 'Track your wagers here as they confirm and settle.', anchor: 'receipts' },
-      { id: 'complete', title: 'You’re all set!', body: 'Have fun and bet responsibly.' },
+      { id: 'chess-intro', title: 'Live Game Interface', body: 'Games are streamed live from Lichess. Here you can place bets on moves and outcomes.', globalStep: 3 },
+      { id: 'chess-player-header', title: 'Bet on a Player', body: 'Tap the White player header to bet on White winning the game.', anchor: 'white-player-header', advanceOnAnchorClick: true, globalStep: 4 },
+      { id: 'chess-move-predictions', title: 'Move Predictions', body: 'Preview potential next moves. Tap a specific move to place a bet on it.', anchor: 'single-move-prediction', advanceOnAnchorClick: true, globalStep: 5 },
+      { id: 'chess-outcomes', title: 'Outcome Wagers', body: 'On the right side, you can bet on game outcomes including draws and wins.', anchor: 'outcome-wagers', advanceOnAnchorClick: true, globalStep: 6 },
+      { id: 'chess-receipts', title: 'Receipts', body: 'Track your wagers here as they confirm and settle.', anchor: 'receipts', globalStep: 7 },
+      { id: 'complete', title: 'You're all set!', body: 'Have fun and bet responsibly.', globalStep: 8 },
     ];
   }
-  // Dashboard — streamline: intro then navigate directly to live board
+  // Dashboard with Join Game button highlight
   return [
-    { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a quick tour. You can skip anytime.' },
-    { id: 'goto-chess', title: 'Let’s check out the live board', body: 'We’ll load the featured match interface.', route: '/chess/:featured', autoAdvance: true },
+    { id: 'intro-dashboard', title: 'Welcome to BetMate', body: 'Take a quick tour. You can skip anytime.', globalStep: 1 },
+    { id: 'dashboard-join-game', title: 'Join Featured Match', body: 'Click the "Join Game" button on the featured match to start betting.', anchor: 'join-featured-button', advanceOnAnchorClick: true, globalStep: 2 },
+    { id: 'goto-chess', title: 'Going to Game Interface', body: 'Now we'll take you to the live game interface.', route: '/chess/:featured', autoAdvance: true, globalStep: 3 },
   ];
 };
 
@@ -139,8 +144,8 @@ const OnboardingTour: React.FC = () => {
         const pad = 10;
         const r = el.getBoundingClientRect();
         let rect = { top: Math.max(0, r.top - pad), left: Math.max(0, r.left - pad), width: r.width + pad * 2, height: r.height + pad * 2 };
-        // Tighten to tiles union for move-tiles anchor
-        if ((step?.anchor || '') === 'move-tiles') {
+        // Tighten to tiles union for single move prediction
+        if ((step?.anchor || '') === 'single-move-prediction') {
           try {
             const tiles = Array.from(el.querySelectorAll('.lp-tile')) as HTMLElement[];
             const vis = tiles.filter(t => t.offsetParent !== null);
@@ -206,7 +211,7 @@ const OnboardingTour: React.FC = () => {
       let rect = { top: Math.max(0, r.top - pad), left: Math.max(0, r.left - pad), width: r.width + pad * 2, height: r.height + pad * 2 };
       try {
         const tourId = el.getAttribute('data-tour-id');
-        if (tourId === 'move-tiles') {
+        if (tourId === 'single-move-prediction') {
           const tiles = Array.from(el.querySelectorAll('.lp-tile')) as HTMLElement[];
           const vis = tiles.filter(t => t.offsetParent !== null);
           if (vis.length) {
@@ -336,7 +341,9 @@ const OnboardingTour: React.FC = () => {
   const step = steps[activeIndex];
   const title = step?.title || 'Welcome';
   const body = step?.body || '';
-  const stepIndex = activeIndex + 1; const totalSteps = steps.length;
+  // Use global step numbers for consistent counting across routes
+  const stepIndex = step?.globalStep || (activeIndex + 1);
+  const totalSteps = TOTAL_STEPS;
 
   if (minimized) {
     return (
