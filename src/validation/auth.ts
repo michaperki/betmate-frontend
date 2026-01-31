@@ -1,5 +1,11 @@
 import joi from 'joi';
-import { AuthUserResponseData, BalanceHistoryResponseData, JwtSignInResponseData } from 'types/resources/auth';
+import {
+  AuthUserResponseData,
+  BalanceHistoryResponseData,
+  JwtSignInResponseData,
+  VerifyEmailResponseData,
+  EmailVerificationStatusResponseData
+} from 'types/resources/auth';
 
 import { UserSchema } from 'validation/user';
 
@@ -26,3 +32,14 @@ const BalanceHistoryItemSchema = joi.object({
 }).unknown(true);
 
 export const BalanceHistoryResponseSchema = joi.array().items(BalanceHistoryItemSchema);
+
+export const VerifyEmailResponseSchema = joi.object<VerifyEmailResponseData>({
+  message: joi.string().required(),
+  verified: joi.boolean().required(),
+  user: UserSchema.required(),
+}).unknown(true);
+
+export const EmailVerificationStatusResponseSchema = joi.object<EmailVerificationStatusResponseData>({
+  verified: joi.boolean().required(),
+  required: joi.boolean().required(),
+}).unknown(true);

@@ -6,6 +6,7 @@ import { useDashboardData } from '../../hooks/useDashboardData';
 import { authTokenName } from 'utils';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 import Header from '../../components/Header';
+import EmailVerificationBanner from '../../components/EmailVerificationBanner';
 import BottomTabBar from 'components/BottomTabBar';
 import { useMyBetsData } from '../../hooks/useMyBetsData';
 import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
@@ -106,6 +107,9 @@ const Dashboard: React.FC = () => {
 
       {/* Shared header */}
       <Header active="Dashboard" />
+
+      {/* Email verification banner */}
+      <EmailVerificationBanner />
 
       {/* Header */}
       <header style={{

@@ -1,4 +1,12 @@
-import { AuthState, GET_BALANCE_HISTORY, ADJUST_BALANCE, SET_BALANCE } from 'types/resources/auth';
+import {
+  AuthState,
+  GET_BALANCE_HISTORY,
+  ADJUST_BALANCE,
+  SET_BALANCE,
+  CHECK_EMAIL_VERIFICATION_STATUS,
+  VERIFY_EMAIL,
+  RESEND_VERIFICATION_EMAIL
+} from 'types/resources/auth';
 import { Actions } from 'types/state';
 
 const initialState: AuthState = {
@@ -7,6 +15,9 @@ const initialState: AuthState = {
   balanceHistory: [],
   loadingBalanceHistory: false,
   balanceHistoryError: null,
+  emailVerificationStatus: null,
+  verificationStatus: null,
+  verificationError: null,
 };
 
 const reducer = (state = initialState, action: Actions): AuthState => {
@@ -19,20 +30,91 @@ const reducer = (state = initialState, action: Actions): AuthState => {
           loadingBalanceHistory: true,
           balanceHistoryError: null,
         };
-        
+
       case 'SUCCESS':
         return {
           ...state,
           balanceHistory: action.payload as any,
           loadingBalanceHistory: false,
         };
-        
+
       case 'FAILURE':
         return {
           ...state,
           loadingBalanceHistory: false,
           balanceHistoryError: action.payload.message,
         };
+    }
+  }
+
+  // Handle CHECK_EMAIL_VERIFICATION_STATUS action
+  if (action.type === CHECK_EMAIL_VERIFICATION_STATUS) {
+    switch (action.status) {
+      case 'SUCCESS':
+        return {
+          ...state,
+          emailVerificationStatus: {
+            verified: action.payload.verified,
+            required: action.payload.required,
+          },
+        };
+
+      case 'FAILURE':
+        // Don't update state on failure
+        return state;
+    }
+  }
+
+  // Handle VERIFY_EMAIL action
+  if (action.type === VERIFY_EMAIL) {
+    switch (action.status) {
+      case 'REQUEST':
+        return {
+          ...state,
+          verificationStatus: 'pending',
+          verificationError: null,
+        };
+
+      case 'SUCCESS':
+        return {
+          ...state,
+          verificationStatus: 'verified',
+          verificationError: null,
+          user: {
+            ...state.user as any,
+            email_verified: true,
+          },
+          emailVerificationStatus: state.emailVerificationStatus ? {
+            ...state.emailVerificationStatus,
+            verified: true,
+          } : {
+            verified: true,
+            required: false
+          },
+        };
+
+      case 'FAILURE':
+        return {
+          ...state,
+          verificationStatus: 'failed',
+          verificationError: action.payload.message || 'Verification failed',
+        };
+    }
+  }
+
+  // Handle RESEND_VERIFICATION_EMAIL action
+  if (action.type === RESEND_VERIFICATION_EMAIL) {
+    switch (action.status) {
+      case 'REQUEST':
+        return state;
+
+      case 'SUCCESS':
+        // No state changes needed on success
+        return state;
+
+      case 'FAILURE':
+        // No state changes needed on failure
+        return state;
     }
   }
   

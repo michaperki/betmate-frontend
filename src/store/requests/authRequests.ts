@@ -1,10 +1,22 @@
-import { getBearerTokenHeader } from 'store/actionCreators';
+import { getBearerTokenHeader, getAuthEmail } from 'store/actionCreators';
 import { createBackendAxiosRequest } from 'store/requests';
 
-import { JwtSignInResponseData, AuthUserResponseData, BalanceHistoryResponseData } from 'types/resources/auth';
+import {
+  JwtSignInResponseData,
+  AuthUserResponseData,
+  BalanceHistoryResponseData,
+  VerifyEmailResponseData,
+  EmailVerificationStatusResponseData
+} from 'types/resources/auth';
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
-import { AuthUserResponseSchema, JwtSignInResponseSchema, BalanceHistoryResponseSchema } from 'validation/auth';
+import {
+  AuthUserResponseSchema,
+  JwtSignInResponseSchema,
+  BalanceHistoryResponseSchema,
+  VerifyEmailResponseSchema,
+  EmailVerificationStatusResponseSchema
+} from 'validation/auth';
 
 export const createUser = async (
   email: string,
@@ -65,4 +77,39 @@ export const getBalanceHistory = async (limit = 30, currency?: 'BET' | 'USDT'): 
 
   // Validation here
   return validateSchema(BalanceHistoryResponseSchema, result, (d) => d.data);
+};
+
+export const verifyEmail = async (token: string): Promise<RequestReturnType<VerifyEmailResponseData>> => {
+  const result = await createBackendAxiosRequest<VerifyEmailResponseData>({
+    method: 'GET',
+    url: `/auth/verify-email/${token}`,
+  });
+
+  // Validation here
+  return validateSchema(VerifyEmailResponseSchema, result, (d) => d.data);
+};
+
+export const resendVerificationEmail = async (email?: string): Promise<RequestReturnType<{sent: boolean}>> => {
+  // Belt-and-suspenders: fallback to last-known email if param not provided
+  const fallbackEmail = email || getAuthEmail() || undefined;
+  const result = await createBackendAxiosRequest<{sent: boolean}>({
+    method: 'POST',
+    url: '/auth/resend-verification',
+    data: fallbackEmail ? { email: fallbackEmail } : {},
+    // Force attach Authorization header via interceptor; include here as well
+    headers: getBearerTokenHeader(),
+  });
+
+  return result;
+};
+
+export const checkEmailVerificationStatus = async (): Promise<RequestReturnType<EmailVerificationStatusResponseData>> => {
+  const result = await createBackendAxiosRequest<EmailVerificationStatusResponseData>({
+    method: 'GET',
+    url: '/auth/verification-status',
+    headers: getBearerTokenHeader(),
+  });
+
+  // Validation here
+  return validateSchema(EmailVerificationStatusResponseSchema, result, (d) => d.data);
 };

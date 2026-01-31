@@ -25,6 +25,8 @@ import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
 import AdminInvites from 'containers/AdminInvites';
 import Terms from 'containers/Terms';
+import HowBettingWorks from 'containers/HowBettingWorks';
+import FAQ from 'containers/FAQ';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
 import GameContainer from '../containers/GameContainer';
@@ -33,6 +35,7 @@ import MyBets from '../containers/MyBets';
 import Settings from '../containers/Settings';
 import Onboarding from '../containers/Onboarding';
 import Login from '../containers/Login';
+import EmailVerification from '../containers/EmailVerification';
 import { RootState } from 'types/state';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
@@ -114,10 +117,13 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/signup" component={Login} />
             <Route exact path="/signout" component={SignOutPanel} />
             <Route exact path="/onboarding" component={Onboarding} />
+            <Route exact path="/verify-email/:token" component={EmailVerification} />
             {/* User settings */}
             <ProtectedRoute exact path="/user" component={Settings} />
-            {/* Terms & Conditions standalone route */}
+            {/* Info pages */}
             <Route exact path="/terms" component={Terms} />
+            <Route exact path="/how-betting-works" component={HowBettingWorks} />
+            <Route exact path="/faq" component={FAQ} />
             {/* Wallet route removed (old UI deprecated) */}
             {/* Dev examples (design references) */}
             <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />

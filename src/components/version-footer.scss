@@ -10,3 +10,20 @@
   opacity: 0.85;
   pointer-events: auto;
 }
+
+.version-footer a,
+.version-footer .version-tag__link {
+  color: var(--text-muted);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.version-footer a:hover,
+.version-footer .version-tag__link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}

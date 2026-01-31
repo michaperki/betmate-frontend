@@ -7,4 +7,7 @@ export default function* authSaga() {
   yield fork(authWatchers.watchCreateUser);
   yield fork(authWatchers.watchJwtSignIn);
   yield fork(authWatchers.watchGetBalanceHistory);
+  yield fork(authWatchers.watchVerifyEmail);
+  yield fork(authWatchers.watchCheckEmailVerificationStatus);
+  yield fork(authWatchers.watchResendVerificationEmail);
 }

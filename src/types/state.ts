@@ -62,3 +62,5 @@ export interface RootState {
   wager: WagerState,
   socket: SocketState
 }
+
+export type StoreState = RootState;

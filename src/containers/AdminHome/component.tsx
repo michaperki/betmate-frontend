@@ -133,6 +133,7 @@ const AdminHome: React.FC = () => {
             <Toggle label="Rate Limiting" value={!!features.enableRateLimiting} onChange={(v) => patch({ enableRateLimiting: v })} />
             <Toggle label="Withdrawals" value={!!features.enableWithdrawals} onChange={(v) => patch({ enableWithdrawals: v })} />
             <Toggle label="Require KYC" value={!!features.requireKyc} onChange={(v) => patch({ requireKyc: v })} />
+            <Toggle label="Require Email Verification" value={!!features.requireEmailVerification} onChange={(v) => patch({ requireEmailVerification: v })} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>Pricing Model</span>
               <input
