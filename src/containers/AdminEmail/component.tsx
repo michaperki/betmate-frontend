@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 // Header/tabs removed; AdminLayout provides chrome
 import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminSendInviteBulk } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
+import Card from '../../admin/components/Card';
 
 const Row: React.FC<{ k: string; v: any }>= ({ k, v }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', margin: '6px 0' }}>
@@ -15,16 +16,6 @@ const Toggle: React.FC<{ label: string; value: boolean; onChange: (v: boolean) =
     <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
     <span>{label}</span>
   </label>
-);
-
-const Card: React.FC<{ title: string; actions?: React.ReactNode }>= ({ title, actions, children }) => (
-  <div className="admin-card">
-    <div className="admin-card__title">
-      <span>{title}</span>
-      {actions}
-    </div>
-    {children}
-  </div>
 );
 
 const AdminEmail: React.FC = () => {

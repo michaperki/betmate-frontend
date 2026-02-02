@@ -4,6 +4,7 @@ import { getKycUsers, approveKycUser, rejectKycUser } from 'store/requests/admin
 import DataTable from '../../admin/components/DataTable';
 import StatusBadge from '../../admin/components/StatusBadge';
 import Toolbar from '../../admin/components/Toolbar';
+import ConfirmButton from '../../admin/components/ConfirmButton';
 
 const AdminKYC: React.FC = () => {
   const [status, setStatus] = useState<string>('pending');
@@ -65,8 +66,20 @@ const AdminKYC: React.FC = () => {
               { key: 'kyc_status', header: 'KYC', render: (u: any) => <StatusBadge status={u.kyc_status} /> },
               { key: 'actions', header: 'Actions', render: (u: any) => (
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                  <button disabled={loading} onClick={async () => { await approveKycUser(u._id); refresh(); }}>Approve</button>
-                  <button disabled={loading} onClick={async () => { await rejectKycUser(u._id); refresh(); }}>Reject</button>
+                  <ConfirmButton
+                    disabled={loading}
+                    confirm={`Approve KYC for ${u.email}?`}
+                    onConfirm={async () => { await approveKycUser(u._id); refresh(); }}
+                  >
+                    Approve
+                  </ConfirmButton>
+                  <ConfirmButton
+                    disabled={loading}
+                    confirm={`Reject KYC for ${u.email}?`}
+                    onConfirm={async () => { await rejectKycUser(u._id); refresh(); }}
+                  >
+                    Reject
+                  </ConfirmButton>
                 </div>
               ) },
             ]}

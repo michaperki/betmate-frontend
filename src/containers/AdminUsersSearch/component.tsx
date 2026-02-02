@@ -3,6 +3,8 @@ import '../../styles/admin.scss';
 import { adminSearchUsers, adminAdjustBalance, adminUpdateUserRole } from 'store/requests/adminRequests';
 import { adminResendVerification } from 'store/requests/adminRequests';
 import DataTable from '../../admin/components/DataTable';
+import Toolbar from '../../admin/components/Toolbar';
+import StatusBadge from '../../admin/components/StatusBadge';
 
 const AdminUsersSearch: React.FC = () => {
   const [q, setQ] = useState('');
@@ -33,11 +35,15 @@ const AdminUsersSearch: React.FC = () => {
     <div className="admin-content">
       <div className="admin-card" style={{ marginTop: 0 }}>
         <div className="admin-card__title"><span>User Search</span></div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by email or user id" style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px', minWidth: 280 }} />
-          <button onClick={search} disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
-          {err && <span style={{ color: '#ef4444' }}>{err}</span>}
-        </div>
+        <Toolbar
+          left={(
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by email or user id" style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px', minWidth: 280 }} />
+          )}
+          right={(
+            <button onClick={search} disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
+          )}
+        />
+        {err && <div style={{ color: '#ef4444', marginTop: 8 }}>{err}</div>}
       </div>
 
       <div className="admin-card" style={{ marginTop: 16 }}>
@@ -50,7 +56,7 @@ const AdminUsersSearch: React.FC = () => {
               <button onClick={() => setProfile(u)} style={{ background: 'none', color: '#4a90e2', border: 0, padding: 0, cursor: 'pointer' }}>{u.email}</button>
             ) },
             { key: 'role', header: 'Role' },
-            { key: 'kyc_status', header: 'KYC' },
+            { key: 'kyc_status', header: 'KYC', render: (u) => <StatusBadge status={u.kyc_status || 'none'} /> },
             { key: 'email_verified', header: 'Email', render: (u) => (u.email_verified ? 'verified' : 'unverified') },
             { key: 'cash_balance', header: 'Cash', align: 'right', render: (u) => `$${Number(u.cash_balance || 0).toFixed(2)}` },
             { key: 'token_balance', header: 'K-Bits', align: 'right', render: (u) => Number(u.token_balance || 0).toFixed(0) },

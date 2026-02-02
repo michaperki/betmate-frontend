@@ -896,7 +896,7 @@ const InviteCodeList: React.FC<{
                 <button onClick={() => handleToggleActive(c._id, c.active)} disabled={loading}>{c.active ? 'Disable' : 'Enable'}</button>
                 <button onClick={() => handleCopyInviteLink(c.code)} disabled={loading}>Copy Link</button>
                 <button onClick={() => handleEdit(c)} disabled={loading}>Edit</button>
-                <button onClick={() => handleDeleteCode(c._id)} disabled={loading}>Delete</button>
+                <ConfirmButton confirm={`Delete invite code ${c.code}?`} onConfirm={() => handleDeleteCode(c._id)} disabled={loading}>Delete</ConfirmButton>
               </div>
             )
           ) },

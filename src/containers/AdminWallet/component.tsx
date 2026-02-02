@@ -4,6 +4,7 @@ import '../../styles/admin.scss';
 import DataTable from '../../admin/components/DataTable';
 import Toolbar from '../../admin/components/Toolbar';
 import StatusBadge from '../../admin/components/StatusBadge';
+import ConfirmButton from '../../admin/components/ConfirmButton';
 
 type DepositItem = {
   _id: string;
@@ -77,7 +78,6 @@ const AdminWallet: React.FC = () => {
     <div className="admin-content">
       <div style={{ padding: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <h2 style={{ margin: 0 }}>Admin — Wallet</h2>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
             <button onClick={() => setTab('deposits')} style={{ padding: '6px 10px', borderRadius: 6, border: tab==='deposits' ? '1px solid #10b981' : '1px solid #1f2937', background: tab==='deposits' ? 'rgba(16,185,129,0.1)' : 'transparent', color: tab==='deposits' ? '#34d399' : '#9ca3af' }}>Deposits</button>
             <button onClick={() => setTab('withdrawals')} style={{ padding: '6px 10px', borderRadius: 6, border: tab==='withdrawals' ? '1px solid #10b981' : '1px solid #1f2937', background: tab==='withdrawals' ? 'rgba(16,185,129,0.1)' : 'transparent', color: tab==='withdrawals' ? '#34d399' : '#9ca3af' }}>Withdrawals</button>
@@ -179,11 +179,11 @@ const AdminWallet: React.FC = () => {
                   { key: 'address', header: 'Address', render: (w: any) => <span style={{ maxWidth: 260, display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.address}</span> },
                   { key: 'actions', header: 'Actions', render: (w: any) => (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <button disabled={wLoading} onClick={async () => { await approveWithdrawal(w._id); refreshWithdrawals(); }}>Approve</button>
-                      <button disabled={wLoading} onClick={async () => { await rejectWithdrawal(w._id); refreshWithdrawals(); }}>Reject</button>
-                      <button disabled={wLoading} onClick={async () => { await markWithdrawalProcessing(w._id); refreshWithdrawals(); }}>Processing</button>
-                      <button disabled={wLoading} onClick={async () => { await markWithdrawalPaid(w._id); refreshWithdrawals(); }}>Mark Paid</button>
-                      <button disabled={wLoading} onClick={async () => { await markWithdrawalFailed(w._id); refreshWithdrawals(); }}>Mark Failed</button>
+                      <ConfirmButton disabled={wLoading} confirm={`Approve withdrawal ${w._id}?`} onConfirm={async () => { await approveWithdrawal(w._id); refreshWithdrawals(); }}>Approve</ConfirmButton>
+                      <ConfirmButton disabled={wLoading} confirm={`Reject withdrawal ${w._id}?`} onConfirm={async () => { await rejectWithdrawal(w._id); refreshWithdrawals(); }}>Reject</ConfirmButton>
+                      <ConfirmButton disabled={wLoading} confirm={`Mark withdrawal ${w._id} as processing?`} onConfirm={async () => { await markWithdrawalProcessing(w._id); refreshWithdrawals(); }}>Processing</ConfirmButton>
+                      <ConfirmButton disabled={wLoading} confirm={`Mark withdrawal ${w._id} as PAID?`} onConfirm={async () => { await markWithdrawalPaid(w._id); refreshWithdrawals(); }}>Mark Paid</ConfirmButton>
+                      <ConfirmButton disabled={wLoading} confirm={`Mark withdrawal ${w._id} as FAILED?`} onConfirm={async () => { await markWithdrawalFailed(w._id); refreshWithdrawals(); }}>Mark Failed</ConfirmButton>
                     </div>
                   ) },
                   { key: 'provider_ref', header: 'Ref', render: (w: any) => (w.provider_ref ? <code>{w.provider_ref}</code> : '-') },
@@ -213,22 +213,34 @@ const AdminWallet: React.FC = () => {
               )}
               right={(
                 <>
-                  <button disabled={reconBusy || isProd} title={isProd ? 'Disabled in production' : undefined} onClick={async () => {
-                    if (!window.confirm('Reconcile NOWPayments deposits?')) return;
-                    setReconBusy(true);
-                    try {
-                      const res = await reconcileNowpaymentsDeposits(reconLimit, { dryRun: reconDry });
-                      setReconDepResults(res?.results || []);
-                    } finally { setReconBusy(false); }
-                  }}>Reconcile Deposits</button>
-                  <button disabled={reconBusy || isProd} title={isProd ? 'Disabled in production' : undefined} onClick={async () => {
-                    if (!window.confirm('Reconcile NOWPayments payouts?')) return;
-                    setReconBusy(true);
-                    try {
-                      const res = await reconcileNowpaymentsPayouts(reconLimit, { dryRun: reconDry });
-                      setReconPayoutResults(res?.results || []);
-                    } finally { setReconBusy(false); }
-                  }}>Reconcile Payouts</button>
+                  <ConfirmButton
+                    disabled={reconBusy || isProd}
+                    title={isProd ? 'Disabled in production' : undefined}
+                    confirm={'Reconcile NOWPayments deposits?'}
+                    onConfirm={async () => {
+                      setReconBusy(true);
+                      try {
+                        const res = await reconcileNowpaymentsDeposits(reconLimit, { dryRun: reconDry });
+                        setReconDepResults(res?.results || []);
+                      } finally { setReconBusy(false); }
+                    }}
+                  >
+                    Reconcile Deposits
+                  </ConfirmButton>
+                  <ConfirmButton
+                    disabled={reconBusy || isProd}
+                    title={isProd ? 'Disabled in production' : undefined}
+                    confirm={'Reconcile NOWPayments payouts?'}
+                    onConfirm={async () => {
+                      setReconBusy(true);
+                      try {
+                        const res = await reconcileNowpaymentsPayouts(reconLimit, { dryRun: reconDry });
+                        setReconPayoutResults(res?.results || []);
+                      } finally { setReconBusy(false); }
+                    }}
+                  >
+                    Reconcile Payouts
+                  </ConfirmButton>
                 </>
               )}
             />
@@ -320,15 +332,19 @@ const AdminWallet: React.FC = () => {
           </div>
         )}
 
-        <div style={{ marginTop: 24, padding: 12, border: '1px solid #1f2937', borderRadius: 6 }}>
-          <h3 style={{ marginTop: 0 }}>Dev/Staging — Clear stale pending invoices</h3>
-          <p style={{ marginTop: 4, color: '#6b7280' }}>Type CLEAR and confirm to mark pending invoices older than N minutes as failed.</p>
+        <div className="admin-card" style={{ marginTop: 16 }}>
+          <div className="admin-card__title">
+            <span>Danger Zone</span>
+            <span style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600 }}>DEV ONLY</span>
+          </div>
+          <p style={{ marginTop: 4, color: '#ef4444', opacity: 0.8 }}>Type CLEAR and confirm to mark pending invoices older than N minutes as failed.</p>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <input type="text" placeholder="Type CLEAR" value={confirmText} onChange={(e) => setConfirmText(e.target.value)} />
             <input type="number" min={5} max={1440} defaultValue={60} id="stale-mins" />
-            <button
+            <ConfirmButton
               disabled={confirmText !== 'CLEAR'}
-              onClick={async () => {
+              confirm={'Confirm clearing stale invoices?'}
+              onConfirm={async () => {
                 const mins = Number((document.getElementById('stale-mins') as HTMLInputElement).value || '60');
                 try {
                   const res = await clearStaleInvoices(mins);
@@ -341,7 +357,7 @@ const AdminWallet: React.FC = () => {
               }}
             >
               Clear stale
-            </button>
+            </ConfirmButton>
           </div>
         </div>
       </div>
