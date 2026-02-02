@@ -68,7 +68,7 @@ export const clearStaleInvoices = async (olderThanMinutes: number) => {
   return res.data;
 };
 
-export const applyRiskPreset = async (level: 'low'|'med'|'high') => {
+export const applyRiskPreset = async (level: 'beta'|'low'|'med'|'high') => {
   const res = await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/risk/preset', data: { level }, headers: adminHeaders() });
   return res.data;
 };

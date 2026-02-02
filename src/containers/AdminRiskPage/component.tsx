@@ -413,15 +413,7 @@ const AdminRiskPage: React.FC = () => {
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       <button 
                         className="preset-btn beta" 
-                        onClick={async () => { 
-                          if (window.confirm("Beta preset has minimal margins and very low caps. Only use for testing.")) {
-                            await applyRiskPreset('low'); 
-                            // Additional bankroll adjustment for beta
-                            setCfg(prev => ({ ...prev, bankroll: Math.max(50, prev.bankroll * 0.1) }));
-                            save(); 
-                            refresh(); 
-                          }
-                        }} 
+                        onClick={async () => { await applyRiskPreset('beta'); refresh(); }} 
                         disabled={saving}
                       >
                         Beta
