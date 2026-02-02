@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from 'components/Header';
-import { NavLink } from 'react-router-dom';
+// Header/tabs removed; AdminLayout provides chrome
 import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminSendInviteBulk } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
@@ -58,29 +57,11 @@ const AdminEmail: React.FC = () => {
     try { setFeatures(await updateAdminFeatures(p)); } finally { setSaving(false); }
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-page">
-        <Header />
-        <div style={{ padding: 24 }}>Loading admin…</div>
-      </div>
-    );
-  }
+  if (loading) return (<div className="admin-content"><div>Loading admin…</div></div>);
 
   return (
-    <div className="dashboard-page admin-content">
-      <Header />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div className="admin-tabs">
-          <NavLink to="/admin">Home</NavLink>
-          <NavLink to="/admin/risk">Risk</NavLink>
-          <NavLink to="/admin/wallet">Wallet</NavLink>
-          <NavLink to="/admin/kyc">KYC</NavLink>
-          <NavLink to="/admin/ops">Ops</NavLink>
-          <NavLink to="/admin/invites">Invites</NavLink>
-          <NavLink to="/admin/email">Email</NavLink>
-        </div>
-
+    <div className="admin-content">
+      <div style={{ padding: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Email</div>
 
         <Card title="Automations">

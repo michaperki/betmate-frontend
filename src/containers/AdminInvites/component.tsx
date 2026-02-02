@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from 'components/Header';
-import { NavLink } from 'react-router-dom';
+// Header/tabs removed; AdminLayout provides chrome
 import { 
   getInviteCodes,
   getInviteStats,
@@ -10,6 +9,9 @@ import {
   deleteInviteCode
 } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
+import StatusBadge from '../../admin/components/StatusBadge';
+import DataTable from '../../admin/components/DataTable';
+import Toolbar from '../../admin/components/Toolbar';
 
 // Component for invite code creation form
 const CreateInviteForm: React.FC<{ 
@@ -833,378 +835,111 @@ const InviteCodeList: React.FC<{
   return (
     <div className="admin-card">
       <div className="admin-card__title">Invite Codes</div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #333' }}>Code</th>
-              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #333' }}>Campaign</th>
-              <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #333' }}>Used</th>
-              <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #333' }}>Max</th>
-              <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #333' }}>K-Bits</th>
-              <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #333' }}>USD</th>
-              <th style={{ textAlign: 'center', padding: '8px', borderBottom: '1px solid #333' }}>Expires</th>
-              <th style={{ textAlign: 'center', padding: '8px', borderBottom: '1px solid #333' }}>Status</th>
-              <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #333' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {codes.map(code => (
-              <tr key={code._id}>
-                {editingId === code._id ? (
-                  // Edit mode
-                  <>
-                    <td colSpan={9} style={{ padding: '16px', borderBottom: '1px solid #222' }}>
-                      <div style={{ marginBottom: '16px', fontWeight: 'bold' }}>Edit: {code.code}</div>
-                      
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>Campaign</div>
-                          <select 
-                            value={editData.campaign}
-                            onChange={(e) => setEditData(prev => ({ ...prev, campaign: e.target.value }))}
-                            style={{ 
-                              width: '100%', 
-                              padding: '8px', 
-                              background: '#1a1a1a', 
-                              color: '#fff',
-                              border: '1px solid #333',
-                              borderRadius: '4px'
-                            }}
-                          >
-                            {campaigns.map(camp => (
-                              <option key={camp} value={camp}>{camp}</option>
-                            ))}
-                            <option value="new">+ New Campaign</option>
-                          </select>
-                          {editData.campaign === 'new' && (
-                            <input
-                              type="text"
-                              value={editData.newCampaignName || ''}
-                              onChange={(e) => setEditData(prev => ({ ...prev, newCampaignName: e.target.value }))}
-                              placeholder="Enter new campaign name"
-                              required
-                              style={{ 
-                                width: '100%', 
-                                marginTop: '8px',
-                                padding: '8px', 
-                                background: '#1a1a1a', 
-                                color: '#fff',
-                                border: '1px solid #333',
-                                borderRadius: '4px'
-                              }}
-                            />
-                          )}
-                        </div>
-                        
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>Max Redemptions</div>
-                          <input
-                            type="number"
-                            value={editData.max_redemptions}
-                            onChange={(e) => setEditData(prev => ({ ...prev, max_redemptions: parseInt(e.target.value) }))}
-                            min={code.redeemed_count || 0}
-                            style={{ 
-                              width: '100%', 
-                              padding: '8px', 
-                              background: '#1a1a1a', 
-                              color: '#fff',
-                              border: '1px solid #333',
-                              borderRadius: '4px'
-                            }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>K-Bits (tokens)</div>
-                          <input
-                            type="number"
-                            value={editData.grant_tokens}
-                            onChange={(e) => setEditData(prev => ({ ...prev, grant_tokens: parseFloat(e.target.value) }))}
-                            min={0}
-                            step={100}
-                            style={{ 
-                              width: '100%', 
-                              padding: '8px', 
-                              background: '#1a1a1a', 
-                              color: '#fff',
-                              border: '1px solid #333',
-                              borderRadius: '4px'
-                            }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>BetMate Cash (USD)</div>
-                          <input
-                            type="number"
-                            value={editData.grant_cash_usd}
-                            onChange={(e) => setEditData(prev => ({ ...prev, grant_cash_usd: parseFloat(e.target.value) }))}
-                            min={0}
-                            step={1}
-                            style={{ 
-                              width: '100%', 
-                              padding: '8px', 
-                              background: '#1a1a1a', 
-                              color: '#fff',
-                              border: '1px solid #333',
-                              borderRadius: '4px'
-                            }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>Expiration Date</div>
-                          <input
-                            type="date"
-                            value={editData.expires_at}
-                            onChange={(e) => setEditData(prev => ({ ...prev, expires_at: e.target.value }))}
-                            style={{ 
-                              width: '100%', 
-                              padding: '8px', 
-                              background: '#1a1a1a', 
-                              color: '#fff',
-                              border: '1px solid #333',
-                              borderRadius: '4px'
-                            }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <div style={{ marginBottom: '4px' }}>Status</div>
-                          <div style={{ padding: '8px 0' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                              <input
-                                type="checkbox"
-                                checked={editData.active}
-                                onChange={(e) => setEditData(prev => ({ ...prev, active: e.target.checked }))}
-                              />
-                              <span>Active</span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {error && (
-                        <div style={{ color: '#e74c3c', marginBottom: '16px', fontSize: '14px' }}>
-                          {error}
-                        </div>
-                      )}
-                      
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                        <button
-                          onClick={handleCancelEdit}
-                          style={{ 
-                            padding: '8px 16px', 
-                            background: '#333', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: '#fff',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleUpdateCode(code._id)}
-                          disabled={loading}
-                          style={{ 
-                            padding: '8px 16px', 
-                            background: '#3498db', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: '#fff',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {loading ? 'Updating...' : 'Update Code'}
-                        </button>
-                      </div>
-                    </td>
-                  </>
-                ) : (
-                  // View mode
-                  <>
-                    <td style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #222' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '14px' }}>{code.code}</div>
-                    </td>
-                    <td style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid #222' }}>{code.campaign}</td>
-                    <td style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #222' }}>{code.redeemed_count || 0}</td>
-                    <td style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #222' }}>{code.max_redemptions}</td>
-                    <td style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #222' }}>{code.grant_tokens || 0}</td>
-                    <td style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #222' }}>${code.grant_cash_usd || 0}</td>
-                    <td style={{ textAlign: 'center', padding: '8px', borderBottom: '1px solid #222' }}>
-                      {code.expires_at ? new Date(code.expires_at).toLocaleDateString() : '—'}
-                    </td>
-                    <td style={{ textAlign: 'center', padding: '8px', borderBottom: '1px solid #222' }}>
-                      <span style={{ 
-                        display: 'inline-block',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        background: code.active ? '#2ecc7133' : '#e74c3c33',
-                        color: code.active ? '#2ecc71' : '#e74c3c'
-                      }}>
-                        {code.active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid #222' }}>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                        <button
-                          onClick={() => handleToggleActive(code._id, code.active)}
-                          disabled={loading}
-                          title={code.active ? 'Deactivate' : 'Activate'}
-                          style={{ 
-                            padding: '4px 8px', 
-                            background: code.active ? '#e74c3c33' : '#2ecc7133', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: code.active ? '#e74c3c' : '#2ecc71',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {code.active ? 'Disable' : 'Enable'}
-                        </button>
-                        <button
-                          onClick={() => handleCopyInviteLink(code.code)}
-                          disabled={loading}
-                          title="Copy invite link"
-                          style={{ 
-                            padding: '4px 8px', 
-                            background: '#4a90e233', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: '#4a90e2',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          Copy Link
-                        </button>
-                        <button
-                          onClick={() => handleEdit(code)}
-                          disabled={loading}
-                          title="Edit"
-                          style={{ 
-                            padding: '4px 8px', 
-                            background: '#3498db33', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: '#3498db',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCode(code._id)}
-                          disabled={loading}
-                          title="Delete"
-                          style={{ 
-                            padding: '4px 8px', 
-                            background: '#e74c3c33', 
-                            border: 'none', 
-                            borderRadius: '4px',
-                            color: '#e74c3c',
-                            cursor: loading ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </>
+      <DataTable
+        rows={codes as any}
+        empty="No invite codes found. Create your first code."
+        defaultSortKey="code"
+        className="admin-table sticky compact"
+        columns={[
+          { key: 'code', header: 'Code', sort: true, render: (c: any) => <span style={{ fontFamily: 'monospace' }}>{c.code}</span> },
+          { key: 'campaign', header: 'Campaign', sort: true, render: (c: any) => (
+            editingId === c._id ? (
+              <>
+                <select value={editData.campaign} onChange={(e) => setEditData(prev => ({ ...prev, campaign: e.target.value }))}>
+                  {campaigns.map((camp: string) => (<option key={camp} value={camp}>{camp}</option>))}
+                  <option value="new">+ New Campaign</option>
+                </select>
+                {editData.campaign === 'new' && (
+                  <input type="text" value={editData.newCampaignName || ''} onChange={(e) => setEditData(prev => ({ ...prev, newCampaignName: e.target.value }))} placeholder="New campaign" />
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              </>
+            ) : c.campaign
+          ) },
+          { key: 'redeemed_count', header: 'Used', align: 'right', sort: true },
+          { key: 'max_redemptions', header: 'Max', align: 'right', sort: true, render: (c: any) => (
+            editingId === c._id ? (
+              <input type="number" value={editData.max_redemptions} onChange={(e) => setEditData(prev => ({ ...prev, max_redemptions: parseInt(e.target.value) }))} />
+            ) : c.max_redemptions
+          ) },
+          { key: 'grant_tokens', header: 'K-Bits', align: 'right', sort: true, render: (c: any) => (
+            editingId === c._id ? (
+              <input type="number" value={editData.grant_tokens} onChange={(e) => setEditData(prev => ({ ...prev, grant_tokens: parseFloat(e.target.value) }))} />
+            ) : (c.grant_tokens || 0)
+          ) },
+          { key: 'grant_cash_usd', header: 'USD', align: 'right', sort: true, render: (c: any) => (
+            editingId === c._id ? (
+              <input type="number" value={editData.grant_cash_usd} onChange={(e) => setEditData(prev => ({ ...prev, grant_cash_usd: parseFloat(e.target.value) }))} />
+            ) : `$${c.grant_cash_usd || 0}`
+          ) },
+          { key: 'expires_at', header: 'Expires', align: 'center', render: (c: any) => (
+            editingId === c._id ? (
+              <input type="date" value={editData.expires_at} onChange={(e) => setEditData(prev => ({ ...prev, expires_at: e.target.value }))} />
+            ) : (c.expires_at ? new Date(c.expires_at).toLocaleDateString() : '—')
+          ) },
+          { key: 'active', header: 'Status', align: 'center', sort: true, render: (c: any) => (
+            editingId === c._id ? (
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <input type="checkbox" checked={!!editData.active} onChange={(e) => setEditData(prev => ({ ...prev, active: e.target.checked }))} /> Active
+              </label>
+            ) : (
+              <StatusBadge status={c.active ? 'active' : 'inactive'} />
+            )
+          ) },
+          { key: 'actions', header: 'Actions', align: 'right', render: (c: any) => (
+            editingId === c._id ? (
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button onClick={handleCancelEdit}>Cancel</button>
+                <button onClick={() => handleUpdateCode(c._id)} disabled={loading}>{loading ? 'Updating…' : 'Update'}</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button onClick={() => handleToggleActive(c._id, c.active)} disabled={loading}>{c.active ? 'Disable' : 'Enable'}</button>
+                <button onClick={() => handleCopyInviteLink(c.code)} disabled={loading}>Copy Link</button>
+                <button onClick={() => handleEdit(c)} disabled={loading}>Edit</button>
+                <button onClick={() => handleDeleteCode(c._id)} disabled={loading}>Delete</button>
+              </div>
+            )
+          ) },
+        ]}
+      />
     </div>
   );
 };
 
 // Filter component for invite codes
-const InviteFilters: React.FC<{ 
-  campaigns: string[];
-  filters: { campaign?: string; active?: boolean };
-  onChange: (filters: any) => void;
-  onRefresh: () => void;
-}> = ({ campaigns, filters, onChange, onRefresh }) => {
-  return (
-    <div className="admin-card">
-      <div className="admin-card__title">
-        <span>Filters</span>
-        <button 
-          onClick={onRefresh}
-          style={{ background: 'none', border: 'none', color: '#4a90e2', cursor: 'pointer' }}
-        >
-          Refresh
-        </button>
-      </div>
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-        <div>
-          <div style={{ marginBottom: '4px' }}>Campaign</div>
-          <select 
-            value={filters.campaign || ''}
-            onChange={(e) => onChange({ ...filters, campaign: e.target.value || undefined })}
-            style={{ 
-              padding: '8px', 
-              background: '#1a1a1a', 
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '4px'
-            }}
-          >
+const InviteFilters: React.FC<{ campaigns: string[]; filters: { campaign?: string; active?: boolean }; onChange: (filters: any) => void; onRefresh: () => void; onExport: () => void; }> = ({ campaigns, filters, onChange, onRefresh, onExport }) => (
+  <div className="admin-card">
+    <div className="admin-card__title"><span>Filters</span></div>
+    <Toolbar
+      left={(
+        <>
+          <select value={filters.campaign || ''} onChange={(e) => onChange({ ...filters, campaign: e.target.value || undefined })}>
             <option value="">All Campaigns</option>
-            {campaigns.map(camp => (
-              <option key={camp} value={camp}>{camp}</option>
-            ))}
+            {campaigns.map(camp => (<option key={camp} value={camp}>{camp}</option>))}
           </select>
-        </div>
-        <div>
-          <div style={{ marginBottom: '4px' }}>Status</div>
-          <select 
+          <select
             value={filters.active === undefined ? '' : String(filters.active)}
             onChange={(e) => {
               const val = e.target.value;
-              onChange({ 
-                ...filters, 
-                active: val === '' ? undefined : val === 'true'
-              });
-            }}
-            style={{ 
-              padding: '8px', 
-              background: '#1a1a1a', 
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '4px'
+              onChange({ ...filters, active: val === '' ? undefined : val === 'true' });
             }}
           >
             <option value="">All</option>
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-          <button
-            onClick={() => onChange({})}
-            style={{ 
-              padding: '8px 16px', 
-              background: '#333', 
-              border: 'none', 
-              borderRadius: '4px',
-              color: '#fff',
-              cursor: 'pointer'
-            }}
-          >
-            Clear Filters
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+          <button onClick={() => onChange({})}>Clear Filters</button>
+        </>
+      )}
+      right={(
+        <>
+          <button onClick={onRefresh}>Apply</button>
+          <button onClick={onExport}>Export CSV</button>
+        </>
+      )}
+    />
+  </div>
+);
 
 // Main admin invites component
 const AdminInvites: React.FC = () => {
@@ -1222,6 +957,24 @@ const AdminInvites: React.FC = () => {
     campaign?: string;
     active?: boolean;
   }>({});
+
+  const exportCodes = () => {
+    try {
+      const headers = ['code','campaign','redeemed_count','max_redemptions','grant_tokens','grant_cash_usd','expires_at','active'];
+      const lines = [headers.join(',')];
+      for (const c of inviteCodes) {
+        const row = [c.code, c.campaign, c.redeemed_count, c.max_redemptions, c.grant_tokens || 0, c.grant_cash_usd || 0, c.expires_at ? new Date(c.expires_at).toISOString().slice(0,10) : '', c.active];
+        const line = row.map((v) => {
+          const s = v == null ? '' : String(v);
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        }).join(',');
+        lines.push(line);
+      }
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'invite_codes.csv'; a.click(); URL.revokeObjectURL(url);
+    } catch {}
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -1275,18 +1028,8 @@ const AdminInvites: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-page admin-content">
-      <Header />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div className="admin-tabs">
-          <NavLink to="/admin">Home</NavLink>
-          <NavLink to="/admin/risk">Risk</NavLink>
-          <NavLink to="/admin/wallet">Wallet</NavLink>
-          <NavLink to="/admin/kyc">KYC</NavLink>
-          <NavLink to="/admin/ops">Ops</NavLink>
-          <NavLink to="/admin/invites">Invites</NavLink>
-          <NavLink to="/admin/email">Email</NavLink>
-        </div>
+    <div className="admin-content">
+      <div style={{ padding: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
         
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Invite Codes</div>
         
@@ -1320,6 +1063,7 @@ const AdminInvites: React.FC = () => {
               filters={filters}
               onChange={handleFilterChange}
               onRefresh={loadData}
+              onExport={exportCodes}
             />
             
             <InviteCodeList 
