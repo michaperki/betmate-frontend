@@ -12,6 +12,7 @@ import '../../styles/admin.scss';
 import StatusBadge from '../../admin/components/StatusBadge';
 import DataTable from '../../admin/components/DataTable';
 import Toolbar from '../../admin/components/Toolbar';
+import ConfirmButton from '../../admin/components/ConfirmButton';
 
 // Component for invite code creation form
 const CreateInviteForm: React.FC<{ 
