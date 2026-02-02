@@ -122,6 +122,12 @@ export function* watchVerifyEmail() {
         payload: response.data,
         status: 'SUCCESS'
       });
+      // Proactively refresh verification status and user snapshot
+      try {
+        yield put<Actions>({ type: CHECK_EMAIL_VERIFICATION_STATUS, status: 'REQUEST', payload: {} } as any);
+        // If authenticated, jwtSignIn will refresh the user snapshot server-side
+        yield put<Actions>({ type: 'JWT_SIGN_IN', status: 'REQUEST', payload: { token: '' } } as any);
+      } catch {}
     } catch (error) {
       yield put<Actions>({
         type: VERIFY_EMAIL,

@@ -1285,6 +1285,7 @@ const AdminInvites: React.FC = () => {
           <NavLink to="/admin/kyc">KYC</NavLink>
           <NavLink to="/admin/ops">Ops</NavLink>
           <NavLink to="/admin/invites">Invites</NavLink>
+          <NavLink to="/admin/email">Email</NavLink>
         </div>
         
         <div style={{ fontSize: 20, fontWeight: 700 }}>Admin — Invite Codes</div>

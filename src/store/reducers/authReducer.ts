@@ -76,22 +76,24 @@ const reducer = (state = initialState, action: Actions): AuthState => {
         };
 
       case 'SUCCESS':
-        return {
-          ...state,
-          verificationStatus: 'verified',
-          verificationError: null,
-          user: {
-            ...state.user as any,
-            email_verified: true,
-          },
-          emailVerificationStatus: state.emailVerificationStatus ? {
-            ...state.emailVerificationStatus,
-            verified: true,
-          } : {
-            verified: true,
-            required: false
-          },
-        };
+        // If backend returned a user snapshot, prefer that; otherwise safely update existing user if present
+        {
+          const payload: any = action.payload || {};
+          const nextUser = payload.user || (state.user ? { ...state.user, email_verified: true } : state.user);
+          return {
+            ...state,
+            verificationStatus: 'verified',
+            verificationError: null,
+            user: nextUser,
+            emailVerificationStatus: state.emailVerificationStatus ? {
+              ...state.emailVerificationStatus,
+              verified: true,
+            } : {
+              verified: true,
+              required: false
+            },
+          };
+        }
 
       case 'FAILURE':
         return {

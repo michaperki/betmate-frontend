@@ -25,7 +25,7 @@ const Onboarding: React.FC = () => {
     defaultStake: 2, oddsFormat: 'decimal', notifications: true,
     depositAmount: 50
   });
-  // Capture and persist referral invite code for later account creation
+  // Capture referral invite code from URL. Do not auto-apply from localStorage to avoid stale codes.
   const [inviteCode, setInviteCode] = useState<string>('');
   useEffect(() => {
     try {
@@ -35,10 +35,13 @@ const Onboarding: React.FC = () => {
         setInviteCode(code);
         try { window.localStorage.setItem('betmate:invite_code', code); } catch {}
       } else {
-        try { const stored = window.localStorage.getItem('betmate:invite_code') || ''; if (stored) setInviteCode(stored); } catch {}
+        // No code in URL: clear any previously stored code to prevent accidental reuse
+        try { window.localStorage.removeItem('betmate:invite_code'); } catch {}
+        setInviteCode('');
       }
     } catch {}
   }, [location.search]);
+  const clearInvite = () => { try { window.localStorage.removeItem('betmate:invite_code'); } catch {} setInviteCode(''); };
   const referred = useMemo(() => !!inviteCode, [inviteCode]);
   const [walletConnecting, setWalletConnecting] = useState(false);
   const [depositProcessing, setDepositProcessing] = useState(false);
@@ -58,8 +61,8 @@ const Onboarding: React.FC = () => {
       default: return true;
     }
   };
-  // Create account for referred users at Step 1
-  const createReferredAccount = async () => {
+  // Create account at Step 1 (with or without invite code)
+  const createAccount = async () => {
     try {
       setCreateError(null);
       setCreatingAccount(true);
@@ -71,7 +74,7 @@ const Onboarding: React.FC = () => {
         formData.password,
         firstName,
         lastName,
-        inviteCode,
+        inviteCode || '',
         deviceId,
       );
       const token = (res?.data as any)?.token;
@@ -88,7 +91,8 @@ const Onboarding: React.FC = () => {
           await (await import('store/requests')).createBackendAxiosRequest({ method: 'PUT', url: 'auth/terms', data: { version: currentVersion }, headers: (await import('store/actionCreators')).getBearerTokenHeader() });
         }
       } catch {}
-      setStep(3); // skip wallet step next
+      // If referred, skip to preferences; otherwise proceed to wallet step
+      setStep(referred ? 3 : 2);
     } catch (e: any) {
       setCreateError(e?.response?.data?.message || e?.response?.data?.error || 'Failed to create account');
     } finally {
@@ -136,7 +140,10 @@ const Onboarding: React.FC = () => {
               <h1 style={{ fontSize: 28, fontWeight: 700, margin: '0 0 12px' }}>Bet on Chess, Live</h1>
               <p style={{ fontSize: 15, opacity: 0.6, margin: '0 0 32px', lineHeight: 1.6 }}>Predict moves, bet on outcomes, and win while watching the world's best players compete.</p>
               {referred && inviteCode && (
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>Invite code applied: <code>{inviteCode}</code></div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>
+                  Invite code applied: <code>{inviteCode}</code>
+                  <button onClick={clearInvite} style={{ marginLeft: 12, padding: '2px 8px', borderRadius: 6, border: '1px solid var(--border-primary)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}>Clear</button>
+                </div>
               )}
               <button onClick={() => setStep(1)} style={{ width: '100%', padding: 16, background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 12, color: 'var(--mode-accent-contrast)', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', marginBottom: 16 }}>Get Started</button>
               <p style={{ fontSize: 13, opacity: 0.5, margin: 0 }}>
@@ -163,11 +170,11 @@ const Onboarding: React.FC = () => {
               <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
                 <button onClick={() => setStep(0)} style={{ padding: '10px 16px', background: 'transparent', border: '1px solid var(--border-primary)', borderRadius: 8, color: 'var(--text-primary)' }}>Back</button>
               <button
-                disabled={!canProceed() || (referred && creatingAccount)}
-                onClick={() => { if (referred) { void createReferredAccount(); } else { setStep(2); } }}
+                disabled={!canProceed() || creatingAccount}
+                onClick={() => { void createAccount(); }}
                 style={{ padding: '10px 16px', background: canProceed() ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.15)', border: 'none', borderRadius: 8, color: 'var(--mode-accent-contrast)', fontWeight: 700, cursor: canProceed() ? 'pointer' : 'not-allowed' }}
               >
-                {referred && creatingAccount ? 'Creating…' : 'Continue'}
+                {creatingAccount ? 'Creating…' : 'Continue'}
               </button>
               {createError && (
                 <div style={{ marginTop: 8, fontSize: 12, color: 'var(--error)' }}>{createError}</div>

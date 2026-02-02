@@ -234,8 +234,8 @@ const Settings: React.FC = () => {
                       onClick={async () => {
                         try {
                           const amt = Math.max(1, Math.min(10000, Number(faucetAmt || 0)));
-                          // Explicitly credit Arcade K‑Bits only to ensure token balance changes are visible
-                          const res = await faucetCredit(amt, 'BET');
+                          // Credit both Cash (USD) and K‑Bits (tokens)
+                          const res = await faucetCredit(amt);
                           const tokens = (res?.data as any)?.tokens;
                           // Optimistically reflect K‑Bits in UI immediately; server refresh will reconcile
                           if (typeof tokens === 'number' && Number.isFinite(tokens)) {

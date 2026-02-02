@@ -25,13 +25,14 @@ backendAxios.interceptors.request.use((config) => {
     const existing = (headers as any)['X-Request-Id'] || (headers as any)['x-request-id'];
     const rid = existing || `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
     (headers as any)['X-Request-Id'] = String(rid);
-    // Force-attach Authorization header when a token exists (belt-and-suspenders)
+    // Attach Authorization header once when a token exists
     try {
-      const bearer = getBearerTokenHeader();
-      if (bearer && (bearer as any).Authorization) {
-        (headers as any).Authorization = (bearer as any).Authorization;
-        // Some environments normalize headers to lowercase; set both to be safe
-        (headers as any).authorization = (bearer as any).Authorization;
+      const alreadyHasAuth = Object.keys(headers as any).some((k) => k.toLowerCase() === 'authorization');
+      if (!alreadyHasAuth) {
+        const bearer = getBearerTokenHeader();
+        if (bearer && (bearer as any).Authorization) {
+          (headers as any).Authorization = (bearer as any).Authorization;
+        }
       }
     } catch {}
     config.headers = headers;
@@ -76,10 +77,12 @@ export const createBackendAxiosRequest = async <D>(
   if (url.startsWith('/auth/resend-verification')) {
     try {
       const headers = { ...(config.headers || {}) } as any;
-      const bearer = getBearerTokenHeader();
-      if (bearer && (bearer as any).Authorization) {
-        headers.Authorization = (bearer as any).Authorization;
-        headers.authorization = (bearer as any).Authorization;
+      const hasAuthHeader = Object.keys(headers).some((k) => k.toLowerCase() === 'authorization');
+      if (!hasAuthHeader) {
+        const bearer = getBearerTokenHeader();
+        if (bearer && (bearer as any).Authorization) {
+          headers.Authorization = (bearer as any).Authorization;
+        }
       }
       // Auto-fill email body if missing
       let data: any = config.data;

@@ -231,3 +231,41 @@ export const deleteInviteCode = async (id: string) => {
   });
   return res.data;
 };
+
+// Email (admin)
+export const sendAdminTestEmail = async ({ to, subject, message }: { to: string; subject?: string; message?: string; }) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/email/test',
+    data: { to, subject, message },
+    headers: adminHeaders(),
+  });
+  return res.data as { ok: boolean; messageId?: string; previewUrl?: string; error?: string };
+};
+
+export const adminResendVerification = async (email: string) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/email/resend-verification',
+    data: { email },
+    headers: adminHeaders(),
+  });
+  return res.data as { ok: boolean; sent?: boolean; error?: string };
+};
+
+export const adminSendInviteBulk = async (payload: {
+  recipients: string[] | string;
+  campaign?: string;
+  expires_at?: string;
+  grant_tokens?: number;
+  grant_cash_usd?: number;
+  max_redemptions?: number;
+}) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/email/invites/bulk',
+    data: payload,
+    headers: adminHeaders(),
+  });
+  return res.data as { ok: boolean; count: number; results: Array<{ to: string; code: string; error?: string }>; };
+};

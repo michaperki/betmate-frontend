@@ -24,6 +24,7 @@ import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
 import AdminInvites from 'containers/AdminInvites';
+import AdminEmail from 'containers/AdminEmail/component';
 import Terms from 'containers/Terms';
 import HowBettingWorks from 'containers/HowBettingWorks';
 import FAQ from 'containers/FAQ';
@@ -158,6 +159,11 @@ const App: React.FC<AppProps> = (props) => {
             <AdminRoute exact path="/admin/invites" render={() => (
                 <div className="dashboard-page">
                   <AdminInvites />
+                </div>
+            )} />
+            <AdminRoute exact path="/admin/email" render={() => (
+                <div className="dashboard-page">
+                  <AdminEmail />
                 </div>
             )} />
             <Route component={FallBack} />
