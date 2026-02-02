@@ -373,6 +373,19 @@ const Dashboard: React.FC = () => {
             {/* Main Content: switch by tab */}
             {activeTab === 'featured' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {data.gameIntakePaused && (
+                  <div role="status" aria-live="polite" style={{
+                    background: 'rgba(234,179,8,0.08)',
+                    border: '1px solid rgba(234,179,8,0.25)',
+                    color: '#f59e0b',
+                    padding: '12px 14px',
+                    borderRadius: 10,
+                    fontSize: 13,
+                  }}>
+                    <div style={{ fontWeight: 600, marginBottom: 6 }}>Betting Paused</div>
+                    <div style={{ color: 'rgba(255,255,255,0.85)' }}>{data.pauseMessage || 'Betting is temporarily paused for maintenance. Please check back soon.'}</div>
+                  </div>
+                )}
                 {/* Skeletons when loading */}
                 {showSkeletons && (
                   <>

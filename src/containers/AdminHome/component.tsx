@@ -240,6 +240,14 @@ const AdminHome: React.FC = () => {
                 description: 'Allow users to withdraw funds',
                 category: 'ops',
                 impact: 'high'
+              },
+              {
+                key: 'pauseGameIntake',
+                label: 'Pause Game Intake',
+                value: !!features.pauseGameIntake,
+                description: 'Temporarily stop new Lichess games from starting (current games continue)',
+                category: 'ops',
+                impact: 'high'
               }
             ]}
             onChange={(key, value) => patch({ [key]: value })}
@@ -254,6 +262,16 @@ const AdminHome: React.FC = () => {
                 onChange={(e) => setFeatures({ ...features, pricingModelVersion: e.target.value })}
                 onBlur={() => patch({ pricingModelVersion: features.pricingModelVersion })}
                 style={{ background: '#191919', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }}
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0' }}>
+              <span>Pause Message</span>
+              <input
+                value={features.pauseMessage || ''}
+                onChange={(e) => setFeatures({ ...features, pauseMessage: e.target.value })}
+                onBlur={() => patch({ pauseMessage: features.pauseMessage })}
+                placeholder="Show this message to users when paused"
+                style={{ background: '#191919', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px', width: '100%' }}
               />
             </div>
           </div>

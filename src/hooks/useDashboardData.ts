@@ -7,6 +7,7 @@ import { fetchWagerHistory, fetchUserBettingStats } from 'store/actionCreators/w
 import { getBalanceHistory } from 'store/actionCreators/authActionCreators';
 import { getLeaderboardHead } from 'store/actionCreators/leaderboardActionCreators';
 import { getFeaturedMatch } from 'store/requests/matchesRequests';
+import { ROOT_URL } from 'utils';
 import { Game } from 'types/resources/game';
 import { useMode } from 'context/ModeContext';
 import { fetchGameStats } from 'store/actionCreators/gameActionCreators';
@@ -58,6 +59,8 @@ export function useDashboardData() {
   const leaderboardRanks = useSelector((s: RootState) => s.leaderboard.rankings);
 
   const [featuredId, setFeaturedId] = useState<string | null>(null);
+  const [gameIntakePaused, setGameIntakePaused] = useState<boolean>(false);
+  const [pauseMessage, setPauseMessage] = useState<string>('');
 
   // Kick off data fetches on mount
   useEffect(() => {
@@ -82,6 +85,27 @@ export function useDashboardData() {
         const resp = await getFeaturedMatch();
         if (mounted && resp?.data?.match_id) setFeaturedId(String(resp.data.match_id));
       } catch {}
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  // Fetch ops pause status to surface a dashboard message when paused
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${ROOT_URL}/api/status`);
+        const json = await res.json();
+        const paused = !!json?.features?.pauseGameIntake;
+        const msg = String(json?.features?.pauseMessage || '') || 'Betting is temporarily paused for maintenance. Please check back soon.';
+        if (!mounted) return;
+        setGameIntakePaused(paused);
+        setPauseMessage(paused ? msg : '');
+      } catch {
+        if (!mounted) return;
+        setGameIntakePaused(false);
+        setPauseMessage('');
+      }
     })();
     return () => { mounted = false; };
   }, []);
@@ -319,6 +343,8 @@ export function useDashboardData() {
     netPL,
     netPLPeriodLabel,
     quickStats,
+    gameIntakePaused,
+    pauseMessage,
   };
 }
 
