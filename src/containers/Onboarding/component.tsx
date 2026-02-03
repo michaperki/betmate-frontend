@@ -29,7 +29,6 @@ const Onboarding: React.FC = () => {
     defaultStake: 2,
     oddsFormat: 'decimal',
     notifications: true,
-    depositAmount: 50,
   });
   // Capture and persist referral invite code for later account creation
   const [inviteCode, setInviteCode] = useState<string>('');
@@ -47,24 +46,21 @@ const Onboarding: React.FC = () => {
   }, [location.search]);
   const referred = useMemo(() => !!inviteCode, [inviteCode]);
   const [walletConnecting, setWalletConnecting] = useState(false);
-  const [depositProcessing, setDepositProcessing] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const updateForm = (k: string, v: any) => setFormData((p) => ({ ...p, [k]: v }));
   const simulateWalletConnect = () => { setWalletConnecting(true); setTimeout(() => { setWalletConnecting(false); updateForm('walletConnected', true); updateForm('walletAddress', '0x7a3d...8f2e'); }, 1500); };
-  const simulateDeposit = () => { setDepositProcessing(true); setTimeout(() => { setDepositProcessing(false); setStep(5); }, 2000); };
   const canProceed = () => {
     switch (step) {
       case 0: return true;
       case 1: return !!(formData.username && formData.email && formData.password && formData.password === formData.confirmPassword && formData.agreeTerms && formData.ageVerified);
       case 2: return referred ? true : formData.walletConnected;
       case 3: return true;
-      case 4: return referred ? true : (formData.depositAmount >= 10);
       default: return true;
     }
   };
-  // Create account for referred users at Step 1
-  const createReferredAccount = async () => {
+  // Create account at Step 1 for all flows
+  const createAccount = async () => {
     try {
       setCreateError(null);
       setCreatingAccount(true);
@@ -83,18 +79,18 @@ const Onboarding: React.FC = () => {
       const user = (res?.data as any)?.user;
       if (token) setBearerToken(token);
       if (user) dispatch({ type: JWT_SIGN_IN, payload: { user }, status: 'SUCCESS' } as any);
-      setStep(3); // skip wallet step next
+      // Skip wallet for referred users; otherwise proceed to wallet step next
+      setStep(referred ? 3 : 2);
     } catch (e: any) {
       setCreateError(e?.response?.data?.message || e?.response?.data?.error || 'Failed to create account');
     } finally {
       setCreatingAccount(false);
     }
   };
-  // Auto-skip wallet/deposit steps for referred users
+  // Auto-skip wallet step for referred users
   useEffect(() => {
     if (!referred) return;
     if (step === 2) setStep(3);
-    if (step === 4) setStep(5);
   }, [referred, step]);
 
   return (
@@ -206,13 +202,13 @@ const Onboarding: React.FC = () => {
                   padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8',
                 }}>Back</button>
                 <button
-                  disabled={!canProceed() || (referred && creatingAccount)}
-                  onClick={() => { if (referred) { void createReferredAccount(); } else { setStep(2); } }}
+                  disabled={!canProceed() || creatingAccount}
+                  onClick={() => { void createAccount(); }}
                   style={{
                     padding: '10px 16px', background: canProceed() ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.15)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: canProceed() ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {referred && creatingAccount ? 'Creating…' : 'Continue'}
+                  {creatingAccount ? 'Creating…' : 'Continue'}
                 </button>
                 {createError && (
                   <div style={{ marginTop: 8, fontSize: 12, color: '#ef4444' }}>{createError}</div>
@@ -259,33 +255,13 @@ const Onboarding: React.FC = () => {
                 <button onClick={() => setStep(2)} style={{
                   padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8',
                 }}>Back</button>
-                <button onClick={() => setStep(referred ? 5 : 4)} style={{
+                <button onClick={() => setStep(5)} style={{
                   padding: '10px 16px', background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: 'pointer',
                 }}>Continue</button>
               </div>
             </div>
           )}
 
-          {step === 4 && (
-            <div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>First Deposit</h2>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12,
-              }}>
-                <input type="number" min={10} value={formData.depositAmount} onChange={(e) => updateForm('depositAmount', Number(e.target.value))} style={{
-                  padding: 12, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#e8e8e8',
-                }} />
-                <button onClick={simulateDeposit} disabled={depositProcessing || !canProceed()} style={{
-                  padding: '10px 16px', background: canProceed() ? 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)' : 'rgb(var(--mode-accent-rgb) / 0.15)', border: 'none', borderRadius: 8, color: '#000', fontWeight: 700, cursor: canProceed() ? 'pointer' : 'not-allowed',
-                }}>{depositProcessing ? 'Processing…' : 'Deposit'}</button>
-              </div>
-              <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
-                <button onClick={() => setStep(3)} style={{
-                  padding: '10px 16px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 8, color: '#e8e8e8',
-                }}>Back</button>
-              </div>
-            </div>
-          )}
 
           {step === 5 && (
             <div style={{ textAlign: 'center' }}>
