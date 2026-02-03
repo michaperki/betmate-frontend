@@ -91,6 +91,10 @@ const OnboardingTour: React.FC = () => {
 
   const isAuthenticated = Boolean(getBearerToken());
   const { onboardingEnabled } = useMode();
+  // Allow explicit override via ?tour=1 even if onboarding is disabled for signed-in users
+  const forceParam = useMemo(() => {
+    try { return new URLSearchParams(window.location.search).get('tour') === '1'; } catch { return false; }
+  }, [typeof window === 'undefined' ? '' : window.location.search]);
 
   const fetchStatus = useCallback(async () => {
     setLoading(true);
@@ -334,7 +338,8 @@ const OnboardingTour: React.FC = () => {
   }, [visible, steps, activeIndex]);
 
   // Always allow guest onboarding even if flag is off; gate only for signed-in users
-  if (onboardingEnabled === false && isAuthenticated) return null;
+  // but permit explicit override via ?tour=1
+  if (onboardingEnabled === false && isAuthenticated && !forceParam) return null;
   if (!visible || loading || !status) return null;
 
   const step = steps[activeIndex];
