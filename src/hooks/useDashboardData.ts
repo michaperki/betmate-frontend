@@ -170,6 +170,7 @@ export function useDashboardData() {
     const list = Object.values(gamesMap || {}) as Game[];
     if (!list.length) return [];
     const filtered = list.filter(g => (g.game_status === 'not_started' || g.game_status === 'in_progress'));
+    const hasFeatured = featuredId ? filtered.some((g) => String(g._id) === String(featuredId)) : false;
     const items = filtered.map((g, idx) => {
       const move = Array.isArray(g.move_hist) ? g.move_hist.length : 0;
       const stats = gameStats[g._id];
@@ -194,7 +195,7 @@ export function useDashboardData() {
         source: 'Lichess',
         viewers: stats?.viewerCount ?? 0,
         totalPool: totalMovePool > 0 ? Math.round(totalMovePool * 100) / 100 : undefined,
-        featured: featuredId ? (String(featuredId) === String(g._id)) : (idx === 0),
+        featured: hasFeatured ? (String(featuredId) === String(g._id)) : (idx === 0),
       } as LiveMatchCard;
     });
     // Keep featured match first
