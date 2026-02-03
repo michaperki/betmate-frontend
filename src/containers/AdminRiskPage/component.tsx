@@ -1,13 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
-// Header removed; wrapped by AdminLayout. Tabs removed.
-import { getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers } from 'store/requests/adminRequests';
+import Header from 'components/Header';
+import { NavLink } from 'react-router-dom';
+import {
+  getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers,
+} from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 import { getMultiplier } from 'utils/chess';
-import UtilizationBar from '../../admin/components/UtilizationBar';
-import StatusBadge from '../../admin/components/StatusBadge';
-import RiskCapField from '../../admin/components/RiskCapField';
-import CriticalToggle from '../../admin/components/CriticalToggle';
-import Field from '../../admin/components/Field';
+
+const Field: React.FC<{ label: string; value: any; onChange: (v: any) => void; help?: string; width?: number } > = ({
+  label, value, onChange, help, width = 180,
+}) => (
+  <label style={{ display: 'block', marginBottom: 10 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ display: 'inline-block', width: 240, fontWeight: 600 }}>{label}</span>
+      <input
+        style={{
+          padding: 6, width, border: '1px solid #ccc', borderRadius: 4,
+        }}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+    {help && <div style={{
+      marginLeft: 248, fontSize: 12, color: '#666', marginTop: 4,
+    }}>{help}</div>}
+  </label>
+);
 
 const AdminRiskPage: React.FC = () => {
   const [cfg, setCfg] = useState<any | null>(null);
@@ -94,6 +112,24 @@ const AdminRiskPage: React.FC = () => {
     return 'status-badge ok';
   };
 
+  const Bar: React.FC<{ used: number; cap: number; label: string }> = ({ used, cap, label }) => {
+    const pct = Math.max(0, Math.min(1, cap > 0 ? used / cap : 0));
+    const bg = pct >= 0.9 ? '#d9534f' : pct >= 0.7 ? '#f0ad4e' : '#5cb85c';
+    return (
+      <div style={{ marginBottom: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+          <span>{label}</span>
+          <span>${fmt(used)} / ${fmt(cap)}</span>
+        </div>
+        <div style={{
+          height: 8, background: '#eee', borderRadius: 4, overflow: 'hidden',
+        }}>
+          <div style={{ width: `${pct * 100}%`, background: bg, height: 8 }} />
+        </div>
+      </div>
+    );
+  };
+
   // Compute severity color for cards
   const severityColor = (used: number, cap: number) => {
     const pct = cap > 0 ? used / cap : 0;
@@ -103,22 +139,22 @@ const AdminRiskPage: React.FC = () => {
   };
 
   return (
-    <div className="admin-content">
-      <div className="content" style={{ padding: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h2>Risk Management Dashboard</h2>
-          {err && <div style={{ color: '#ef4444', padding: '4px 8px', background: 'rgba(239,68,68,0.1)', borderRadius: 4 }}>{err}</div>}
+    <div className="dashboard-page admin-content">
+      <Header />
+      <div className="content" style={{ padding: 20 }}>
+        <div className="admin-tabs">
+          <NavLink to="/admin">Home</NavLink>
+          <NavLink to="/admin/risk">Risk</NavLink>
+          <NavLink to="/admin/wallet">Wallet</NavLink>
+          <NavLink to="/admin/ops">Ops</NavLink>
         </div>
-        
+        <h2>Admin — Real WDL Risk</h2>
+        {err && <div style={{ color: 'red', marginBottom: 12 }}>{err}</div>}
         {!cfg ? (
-          <div className="admin-card" style={{ padding: 20, textAlign: 'center' }}>
-            <div className="spinner" style={{ margin: '20px auto' }}></div>
-            <div>Loading risk configuration...</div>
-          </div>
+          <div>Loading…</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
-            {/* Top row - Global Exposure and Game Inspection */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+            <div style={{ minWidth: 360 }}>
               <div className="admin-card">
                 <div className="admin-card__title">Global Exposure</div>
                 <p style={{ fontSize: 13, marginTop: -6 }}>Worst-case across all live games versus configured caps.</p>
@@ -127,405 +163,139 @@ const AdminRiskPage: React.FC = () => {
                   const cap = glob?.caps?.globalExposureCap || 1;
                   const border = severityColor(used, cap);
                   return (
-                    <div style={{ padding: 12, borderRadius: 6, background: '#111', border: `1px solid ${border}`, color: '#f3f4f6' }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center', 
-                        marginBottom: 12 
-                      }}>
-                        <div style={{ fontSize: 24, fontWeight: 600 }}>${fmt(used)}</div>
-                        <div>
-                          <span style={{ 
-                            display: 'inline-block', 
-                            padding: '2px 8px', 
-                            borderRadius: 12, 
-                            fontSize: 12, 
-                            fontWeight: 600,
-                            background: border.includes('crit') ? 'rgba(239,68,68,0.15)' : 
-                                      border.includes('warn') ? 'rgba(245,158,11,0.15)' : 
-                                      'rgba(16,185,129,0.15)',
-                            color: border.includes('crit') ? '#ef4444' : 
-                                  border.includes('warn') ? '#f59e0b' : 
-                                  '#10b981',
-                            border: `1px solid ${border.includes('crit') ? 'rgba(239,68,68,0.3)' : 
-                                          border.includes('warn') ? 'rgba(245,158,11,0.3)' : 
-                                          'rgba(16,185,129,0.3)'}`
-                          }}>
-                            {Math.round((used / cap) * 100)}% of cap
-                          </span>
-                        </div>
-                      </div>
-                      <UtilizationBar 
-                        used={used} 
-                        cap={cap} 
-                        label="Global Exposure Cap" 
-                        showValue={false}
-                        height={10}
-                      />
-                      <div style={{ marginTop: 16, fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>Individual Caps</div>
-                      <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        <UtilizationBar 
-                          used={Math.max(...Object.values(glob?.exposure?.perGame || {}).map(v => Number(v) || 0), 0)} 
-                          cap={glob?.caps?.perGameWorstCaseCap || 1} 
-                          label="Per-game cap" 
-                          height={6}
-                        />
-                        <UtilizationBar 
-                          used={Math.max(...Object.values(glob?.exposure?.perBet || {}).map(v => Number(v) || 0), 0)} 
-                          cap={glob?.caps?.perBetLiabilityCap || 1} 
-                          label="Per-bet cap"
-                          height={6}
-                        />
+                    <div style={{
+                      padding: 12, borderRadius: 6, background: '#111', border: `1px solid ${border}`, color: '#f3f4f6',
+                    }}>
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>Total worst-case</div>
+                      <div style={{ fontSize: 14, marginBottom: 8 }}>${fmt(used)} / ${fmt(cap)}</div>
+                      <Bar used={used} cap={cap} label="Global cap" />
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#444' }}>
+                      Per-game cap: ${fmt(glob?.caps?.perGameWorstCaseCap)} | Per-bet cap: ${fmt(glob?.caps?.perBetLiabilityCap)}
                       </div>
                     </div>
                   );
                 })()}
-              </div>
-              
-              <div className="admin-card">
-                <div className="admin-card__title">Game Exposure</div>
-                <p style={{ fontSize: 13, marginTop: -6 }}>Inspect a specific game's liabilities by outcome.</p>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input placeholder="Game ID (Mongo _id)" value={gameId} onChange={e => setGameId(e.target.value)} style={{ padding: '8px 12px', background: '#191919', color: '#f3f4f6', border: '1px solid #374151', borderRadius: 4, width: 260 }} />
-                  <button onClick={async () => { try { const g = await getGameExposure(gameId); setGameExp(g.data); } catch (e) { setGameExp(null); } }} disabled={!gameId} style={{ background: '#3b82f6', color: '#fff', border: 0, padding: '8px 12px', borderRadius: 4, fontWeight: 500 }}>Load</button>
-                </div>
-                {gameExp && (() => {
-                  const border = severityColor(gameExp.exposure?.worstCase || 0, gameExp.caps?.perGameWorstCaseCap || 1);
-                  return (
-                    <div style={{ marginTop: 10, border: `1px solid ${border}`, borderRadius: 6, padding: 12, background: '#111', color: '#f3f4f6' }}>
+
+                <div style={{ marginTop: 18 }}>
+                  <div className="admin-card__title">Game Exposure</div>
+                  <p style={{ fontSize: 13 }}>Inspect a specific game’s liabilities by outcome.</p>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input placeholder="Game ID (Mongo _id)" value={gameId} onChange={(e) => setGameId(e.target.value)} style={{
+                      padding: 6, border: '1px solid #ccc', borderRadius: 4, width: 260,
+                    }} />
+                    <button onClick={async () => { try { const g = await getGameExposure(gameId); setGameExp(g.data); } catch (e) { setGameExp(null); } }} disabled={!gameId}>Load</button>
+                  </div>
+                  {gameExp && (() => {
+                    const border = severityColor(gameExp.exposure?.worstCase || 0, gameExp.caps?.perGameWorstCaseCap || 1);
+                    return (
                       <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: 12
+                        marginTop: 10, border: `1px solid ${border}`, borderRadius: 6, padding: 12, background: '#111', color: '#f3f4f6',
                       }}>
-                        <div style={{ fontWeight: 700 }}>Game {gameExp.gameId}</div>
-                        <div>
-                          <StatusBadge status={
-                            (gameExp.exposure?.worstCase / gameExp.caps?.perGameWorstCaseCap) > 0.9 ? 'crit' :
-                            (gameExp.exposure?.worstCase / gameExp.caps?.perGameWorstCaseCap) > 0.7 ? 'warn' : 'ok'
-                          } />
-                        </div>
+                        <div style={{ fontWeight: 700, marginBottom: 6 }}>Game {gameExp.gameId}</div>
+                        <Bar used={gameExp.exposure?.worstCase || 0} cap={gameExp.caps?.perGameWorstCaseCap || 1} label="Worst-case" />
+                        <Bar used={gameExp.exposure?.perOutcome?.white_win || 0} cap={gameExp.caps?.perOutcomeCap?.white_win || 1} label="White" />
+                        <Bar used={gameExp.exposure?.perOutcome?.draw || 0} cap={gameExp.caps?.perOutcomeCap?.draw || 1} label="Draw" />
+                        <Bar used={gameExp.exposure?.perOutcome?.black_win || 0} cap={gameExp.caps?.perOutcomeCap?.black_win || 1} label="Black" />
                       </div>
-
-                      <UtilizationBar
-                        used={gameExp.exposure?.worstCase || 0}
-                        cap={gameExp.caps?.perGameWorstCaseCap || 1}
-                        label="Worst-case"
-                        height={8}
-                        showPercentage
-                      />
-
-                      <div style={{ marginTop: 16, marginBottom: 8, fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>
-                        Exposure by Outcome
-                      </div>
-
-                      <UtilizationBar
-                        used={gameExp.exposure?.perOutcome?.white_win || 0}
-                        cap={gameExp.caps?.perOutcomeCap?.white_win || 1}
-                        label="White"
-                        height={6}
-                      />
-                      <UtilizationBar
-                        used={gameExp.exposure?.perOutcome?.draw || 0}
-                        cap={gameExp.caps?.perOutcomeCap?.draw || 1}
-                        label="Draw"
-                        height={6}
-                      />
-                      <UtilizationBar
-                        used={gameExp.exposure?.perOutcome?.black_win || 0}
-                        cap={gameExp.caps?.perOutcomeCap?.black_win || 1}
-                        label="Black"
-                        height={6}
-                      />
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-            
-            {/* Config row - Risk parameters */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: 16 }}>
-              <div className="admin-card" style={{ padding: 16 }}>
-                <div className="admin-card__title">Config</div>
-                <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Toggle availability and adjust limits/margins. Caps auto-scale from Bankroll; you can override directly if needed.</p>
-                <div style={{ marginBottom: 16 }}>
-                  <CriticalToggle
-                    label="Enable Real WDL House"
-                    value={!!cfg.enabled}
-                    onChange={(value) => setCfg({ ...cfg, enabled: value })}
-                    description="Master switch for real-money WDL betting platform-wide"
-                    severity="critical"
-                  />
-                </div>
-                <div style={{ marginBottom: 16 }}>
-                  <CriticalToggle
-                    label="Disable WDL"
-                    value={!!cfg.disableWdl}
-                    onChange={(value) => setCfg({ ...cfg, disableWdl: value })}
-                    description="Temporarily disable all Win-Draw-Loss betting"
-                    severity="critical"
-                  />
-                </div>
-                <div style={{ marginBottom: 16 }}>
-                  <CriticalToggle
-                    label="Disable Draw"
-                    value={!!cfg.disableDraw}
-                    onChange={(value) => setCfg({ ...cfg, disableDraw: value })}
-                    description="Hide draw outcome from available bet options"
-                    severity="important"
-                  />
-                </div>
-                <div style={{ background: 'rgba(16,185,129,0.05)', borderRadius: 8, padding: 12, marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#34d399', marginBottom: 8 }}>Base Configuration</div>
-                  <Field
-                    label="Bankroll (USDT)"
-                    value={cfg.bankroll}
-                    onChange={(v) => setCfg({ ...cfg, bankroll: v })}
-                    help="Reference bankroll for scaling caps. Increase to raise limits."
-                  />
-                  <Field
-                    label="Base Margin"
-                    value={cfg.baseMargin}
-                    onChange={(v) => setCfg({ ...cfg, baseMargin: v })}
-                    help="House edge for white/black pricing (0–0.25)."
-                  />
-                  <Field
-                    label="Draw Extra Margin"
-                    value={cfg.drawExtraMargin}
-                    onChange={(v) => setCfg({ ...cfg, drawExtraMargin: v })}
-                    help="Additional margin on draw (0–0.25)."
-                  />
-                </div>
-
-                <div style={{ background: 'rgba(59,130,246,0.05)', borderRadius: 8, padding: 12, marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#60a5fa', marginBottom: 8 }}>Maximum Odds Settings</div>
-                  <Field
-                    label="Max Odds (White)"
-                    value={cfg.maxOdds?.white_win}
-                    onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, white_win: Number(v) } })}
-                    help="Clamp for white multipliers (1x–∞)."
-                  />
-                  <Field
-                    label="Max Odds (Draw)"
-                    value={cfg.maxOdds?.draw}
-                    onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, draw: Number(v) } })}
-                    help="Clamp for draw multipliers (1x–∞)."
-                  />
-                  <Field
-                    label="Max Odds (Black)"
-                    value={cfg.maxOdds?.black_win}
-                    onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, black_win: Number(v) } })}
-                    help="Clamp for black multipliers (1x–∞)."
-                  />
-                </div>
-                <h4 style={{ marginTop: 16 }}>Absolute Caps</h4>
-                <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Override computed caps directly (leave blank to rely on bankroll-derived defaults).</p>
-                <RiskCapField
-                  label="Global Exposure Cap (USDT)"
-                  value={cfg.globalExposureCap ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, globalExposureCap: v })}
-                  help="Total worst-case across all games."
-                  currentUtilization={glob?.exposure?.total || 0}
-                  maxValue={(cfg?.bankroll || 0) * 0.5}
-                />
-                <RiskCapField
-                  label="Per-Game Worst-Case Cap (USDT)"
-                  value={cfg.perGameWorstCaseCap ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perGameWorstCaseCap: v })}
-                  help="Max worst-case liability per game."
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perGame || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.2}
-                />
-                <RiskCapField
-                  label="Per-Outcome Cap — White (USDT)"
-                  value={cfg?.perOutcomeCap?.white_win ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, white_win: Number(v) } })}
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perOutcome?.white_win || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.15}
-                />
-                <RiskCapField
-                  label="Per-Outcome Cap — Draw (USDT)"
-                  value={cfg?.perOutcomeCap?.draw ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, draw: Number(v) } })}
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perOutcome?.draw || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.1}
-                />
-                <RiskCapField
-                  label="Per-Outcome Cap — Black (USDT)"
-                  value={cfg?.perOutcomeCap?.black_win ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })}
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perOutcome?.black_win || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.15}
-                />
-                <RiskCapField
-                  label="Per-Bet Liability Cap (USDT)"
-                  value={cfg.perBetLiabilityCap ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })}
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perBet || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.05}
-                />
-                <RiskCapField
-                  label="Per-Player Per-Game Cap (USDT)"
-                  value={cfg.perPlayerPerGameCap ?? ''}
-                  onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })}
-                  currentUtilization={Math.max(...Object.values(glob?.exposure?.perPlayer || {}).map(v => Number(v) || 0), 0)}
-                  maxValue={(cfg?.bankroll || 0) * 0.025}
-                />
-                <div style={{ marginTop: 20, padding: 16, background: 'rgba(31,41,55,0.5)', borderRadius: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <div>
-                      <button 
-                        onClick={save} 
-                        disabled={saving} 
-                        style={{ 
-                          background: '#3b82f6', 
-                          color: '#fff', 
-                          border: 0, 
-                          padding: '8px 16px', 
-                          borderRadius: 6, 
-                          fontWeight: 600,
-                          marginRight: 8
-                        }}
-                      >
-                        Save Configuration
-                      </button>
-                      <button 
-                        onClick={doReset} 
-                        disabled={saving} 
-                        style={{ 
-                          background: 'transparent', 
-                          color: '#94a3b8', 
-                          border: '1px solid #374151',
-                          padding: '8px 16px', 
-                          borderRadius: 6 
-                        }}
-                      >
-                        Reset Overrides
-                      </button>
-                      {saved && <span style={{ color: '#10b981', fontSize: 13, marginLeft: 8 }}>✓ Saved</span>}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 10 }}>Quick presets:</div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      <button 
-                        className="preset-btn beta" 
-                        onClick={async () => { await applyRiskPreset('beta'); refresh(); }} 
-                        disabled={saving}
-                      >
-                        Beta
-                      </button>
-                      <button 
-                        className="preset-btn low" 
-                        onClick={async () => { await applyRiskPreset('low'); refresh(); }} 
-                        disabled={saving}
-                      >
-                        Low Risk
-                      </button>
-                      <button 
-                        className="preset-btn med" 
-                        onClick={async () => { await applyRiskPreset('med'); refresh(); }} 
-                        disabled={saving}
-                      >
-                        Medium Risk
-                      </button>
-                      <button 
-                        className="preset-btn high" 
-                        onClick={async () => { await applyRiskPreset('high'); refresh(); }} 
-                        disabled={saving}
-                      >
-                        High Risk
-                      </button>
-                    </div>
-                  </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
+            <div style={{ minWidth: 420 }}>
+              {(() => {
+                return (
+                  <div className="admin-card" style={{ padding: 12 }}>
+                    <div className="admin-card__title">Config</div>
+                    <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Toggle availability and adjust limits/margins. Caps auto-scale from Bankroll; you can override directly if needed.</p>
+                    <div style={{ marginBottom: 8 }}>
+                      <label>
+                        <input type="checkbox" checked={!!cfg.enabled} onChange={(e) => setCfg({ ...cfg, enabled: e.target.checked })} /> Enable Real WDL House
+                      </label>
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <label>
+                        <input type="checkbox" checked={!!cfg.disableWdl} onChange={(e) => setCfg({ ...cfg, disableWdl: e.target.checked })} /> Disable WDL
+                      </label>
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <label>
+                        <input type="checkbox" checked={!!cfg.disableDraw} onChange={(e) => setCfg({ ...cfg, disableDraw: e.target.checked })} /> Disable Draw
+                      </label>
+                    </div>
+                    <Field label="Bankroll (USDT)" value={cfg.bankroll} onChange={(v) => setCfg({ ...cfg, bankroll: v })} help="Reference bankroll for scaling caps. Increase to raise limits." />
+                    <Field label="Base Margin" value={cfg.baseMargin} onChange={(v) => setCfg({ ...cfg, baseMargin: v })} help="House edge for white/black pricing (0–0.25)." />
+                    <Field label="Draw Extra Margin" value={cfg.drawExtraMargin} onChange={(v) => setCfg({ ...cfg, drawExtraMargin: v })} help="Additional margin on draw (0–0.25)." />
+                    <Field label="Max Odds (White)" value={cfg.maxOdds?.white_win} onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, white_win: Number(v) } })} help="Clamp for white multipliers (1x–∞)." />
+                    <Field label="Max Odds (Draw)" value={cfg.maxOdds?.draw} onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, draw: Number(v) } })} help="Clamp for draw multipliers (1x–∞)." />
+                    <Field label="Max Odds (Black)" value={cfg.maxOdds?.black_win} onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, black_win: Number(v) } })} help="Clamp for black multipliers (1x–∞)." />
+                    <h4 style={{ marginTop: 16 }}>Absolute Caps</h4>
+                    <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Override computed caps directly (leave blank to rely on bankroll-derived defaults).</p>
+                    <Field label="Global Exposure Cap (USDT)" value={cfg.globalExposureCap ?? ''} onChange={(v) => setCfg({ ...cfg, globalExposureCap: v })} help="Total worst-case across all games." />
+                    <Field label="Per-Game Worst-Case Cap (USDT)" value={cfg.perGameWorstCaseCap ?? ''} onChange={(v) => setCfg({ ...cfg, perGameWorstCaseCap: v })} help="Max worst-case liability per game." />
+                    <Field label="Per-Outcome Cap — White (USDT)" value={cfg?.perOutcomeCap?.white_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, white_win: Number(v) } })} />
+                    <Field label="Per-Outcome Cap — Draw (USDT)" value={cfg?.perOutcomeCap?.draw ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, draw: Number(v) } })} />
+                    <Field label="Per-Outcome Cap — Black (USDT)" value={cfg?.perOutcomeCap?.black_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })} />
+                    <Field label="Per-Bet Liability Cap (USDT)" value={cfg.perBetLiabilityCap ?? ''} onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })} />
+                    <Field label="Per-Player Per-Game Cap (USDT)" value={cfg.perPlayerPerGameCap ?? ''} onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })} />
+                    <div style={{
+                      display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap',
+                    }}>
+                      <button onClick={save} disabled={saving}>Save</button>
+                      <button onClick={doReset} disabled={saving} style={{ background: '#eee' }}>Reset Overrides</button>
+                      {saved && <span style={{ color: '#28a745', fontSize: 12 }}>Saved ✓</span>}
+                      <span style={{ marginLeft: 12, opacity: 0.6 }}>Presets:</span>
+                      <button onClick={async () => { await applyRiskPreset('low'); refresh(); }} disabled={saving}>Low</button>
+                      <button onClick={async () => { await applyRiskPreset('med'); refresh(); }} disabled={saving}>Med</button>
+                      <button onClick={async () => { await applyRiskPreset('high'); refresh(); }} disabled={saving}>High</button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
 
-            <div className="admin-card" style={{ marginTop: 16 }}>
-              <div className="admin-card__title">
-                <span>Danger Zone</span>
-                <span style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600 }}>DEV ONLY</span>
-              </div>
-              <p style={{ color: '#ef4444', fontSize: 13, opacity: 0.8 }}>
-                These operations are destructive and only for development/staging environments. Use with extreme caution.
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 16 }}>
-                <div className="danger-action" style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: 16 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 8, color: '#f87171' }}>Clear All Wagers</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>Removes all wagers from the database. This cannot be undone.</div>
+            <div style={{ minWidth: 360, flex: 1 }}>
+              <div className="admin-card" style={{ padding: 12 }}>
+                <div className="admin-card__title">Danger Zone</div>
+                <p style={{ color: '#b94a48', fontSize: 13 }}>
+                  Dev/staging only. Use with care.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <button
-                    style={{ 
-                      background: 'rgba(239,68,68,0.9)', 
-                      color: '#fff', 
-                      border: 0, 
-                      borderRadius: 4, 
-                      padding: '8px 12px', 
-                      width: '100%',
-                      fontWeight: 500
+                    style={{
+                      background: '#d9534f', color: '#fff', border: 0, borderRadius: 4, padding: '8px 12px',
                     }}
                     onClick={async () => {
-                      if (window.confirm('Are you sure you want to delete ALL wagers? This action cannot be undone.')) {
-                        try {
-                          const res = await clearAllWagers();
-                          const g2 = await getGlobalExposure();
-                          setGlob(g2.data);
-                          alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
-                        } catch (e: any) {
-                          alert('Failed to clear wagers. Check console.');
-                        }
+                      try {
+                        const res = await clearAllWagers();
+                        const g2 = await getGlobalExposure();
+                        setGlob(g2.data);
+                        alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
+                      } catch (e: any) {
+                        alert('Failed to clear wagers. Check console.');
                       }
                     }}
                   >
                     Clear all wagers
                   </button>
-                </div>
-                
-                <div className="danger-action" style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: 16 }}>
-                  <div style={{ fontWeight: 600, marginBottom: 8, color: '#f59e0b' }}>Clear Stale Wagers</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>
-                    Removes pending wagers older than the specified number of minutes. Useful for cleanup.
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <input 
-                      type="number" 
-                      min={5} 
-                      max={1440} 
-                      defaultValue={60} 
-                      id="stale-wagers-mins"
-                      style={{ 
-                        flex: 1, 
-                        padding: '8px 12px', 
-                        background: '#191919', 
-                        color: '#f3f4f6', 
-                        border: '1px solid #374151', 
-                        borderRadius: 4 
-                      }}
-                    />
-                    <button
-                      style={{ 
-                        background: 'rgba(245,158,11,0.9)', 
-                        color: '#fff', 
-                        border: 0, 
-                        borderRadius: 4, 
-                        padding: '8px 12px',
-                        fontWeight: 500
-                      }}
-                      onClick={async () => {
-                        const mins = Number((document.getElementById('stale-wagers-mins') as HTMLInputElement).value || '60');
-                        try {
-                          const res = await clearStaleWagers(mins);
-                          const g2 = await getGlobalExposure();
-                          setGlob(g2.data);
-                          alert(`Cancelled ${res.updated} stale wagers older than ${res.olderThanMinutes} minutes.`);
-                        } catch (e) { alert('Failed to clear stale wagers.'); }
-                      }}
-                    >
-                      Clear stale
-                    </button>
+                  <div>
+                    <div style={{ marginBottom: 6 }}>Clear stale pending wagers (Real WDL):</div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input type="number" min={5} max={1440} defaultValue={60} id="stale-wagers-mins" />
+                      <button
+                        onClick={async () => {
+                          const mins = Number((document.getElementById('stale-wagers-mins') as HTMLInputElement).value || '60');
+                          try {
+                            const res = await clearStaleWagers(mins);
+                            const g2 = await getGlobalExposure();
+                            setGlob(g2.data);
+                            alert(`Cancelled ${res.updated} stale wagers older than ${res.olderThanMinutes} minutes.`);
+                          } catch (e) { alert('Failed to clear stale wagers.'); }
+                        }}
+                      >
+                        Clear stale
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -533,6 +303,7 @@ const AdminRiskPage: React.FC = () => {
           </div>
         )}
       </div>
+
     </div>
   );
 };

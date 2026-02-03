@@ -1,3 +1,3 @@
 import HelpFAQ from './component';
-export default HelpFAQ;
 
+export default HelpFAQ;

@@ -11,7 +11,9 @@ interface MoveScoreEntry {
 
 class MoveScoreCache {
   private cache: Map<string, MoveScoreEntry> = new Map();
+
   private readonly MAX_SIZE = 100; // Maximum number of entries to store
+
   private readonly EXPIRY_TIME = 1000 * 60 * 5; // 5 minutes
 
   /**
@@ -85,7 +87,7 @@ class MoveScoreCache {
     if (this.cache.size >= this.MAX_SIZE) {
       const entries: [string, MoveScoreEntry][] = [];
       // Manually build the entries array to avoid compatibility issues
-      allEntries.forEach(key => {
+      allEntries.forEach((key) => {
         const entry = this.cache.get(key);
         if (entry) {
           entries.push([key, entry]);

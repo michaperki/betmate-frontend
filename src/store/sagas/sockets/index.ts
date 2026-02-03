@@ -44,7 +44,7 @@ const createSocket = (address: string) => io(address, {
   timeout: 20000,
   autoConnect: true,
   // Prefer WebSocket to avoid long-poll cycles that trigger rate limits
-  transports: ['websocket']
+  transports: ['websocket'],
 });
 
 /**
@@ -68,7 +68,7 @@ function createMessageQueue() {
           socket.emit(message.event, message.payload);
         }
       }
-    }
+    },
   };
 
   return queueWrapper;
@@ -84,7 +84,7 @@ function* reconnectWithBackoff() {
     // Calculate delay with exponential backoff (2^attempt * initial_delay)
     const backoffDelay = Math.min(
       INITIAL_RECONNECT_DELAY * Math.pow(2, attempts),
-      MAX_RECONNECT_DELAY
+      MAX_RECONNECT_DELAY,
     );
 
     // Add jitter to prevent all clients from reconnecting simultaneously
@@ -94,7 +94,7 @@ function* reconnectWithBackoff() {
     yield put<Actions>({
       type: 'SOCKET_RECONNECTING',
       status: 'REQUEST',
-      payload: { attempt: attempts + 1, delay: jitteredDelay }
+      payload: { attempt: attempts + 1, delay: jitteredDelay },
     });
 
     // Wait for the calculated delay
@@ -114,7 +114,7 @@ function* reconnectWithBackoff() {
       yield put<Actions>({
         type: 'SOCKET_RECONNECTED',
         status: 'SUCCESS',
-        payload: { attempts: attempts + 1 }
+        payload: { attempts: attempts + 1 },
       });
       return true;
     }
@@ -126,7 +126,7 @@ function* reconnectWithBackoff() {
   yield put<Actions>({
     type: 'SOCKET_RECONNECT_FAILED',
     status: 'FAILURE',
-    payload: { maxAttempts: MAX_RECONNECT_ATTEMPTS }
+    payload: { maxAttempts: MAX_RECONNECT_ATTEMPTS },
   });
 
   return false;
@@ -159,7 +159,7 @@ function* watchSockets() {
         put<Actions>({
           type: 'SOCKET_CONNECTION_STATE',
           status: 'SUCCESS',
-          payload: { state: 'connected' }
+          payload: { state: 'connected' },
         });
 
         // Process any queued messages
@@ -170,7 +170,7 @@ function* watchSockets() {
         put<Actions>({
           type: 'SOCKET_CONNECTION_STATE',
           status: 'FAILURE',
-          payload: { state: 'disconnected', reason }
+          payload: { state: 'disconnected', reason },
         });
 
         // If the disconnection was intentional, don't reconnect
@@ -183,7 +183,7 @@ function* watchSockets() {
         put<Actions>({
           type: 'SOCKET_CONNECTION_STATE',
           status: 'FAILURE',
-          payload: { state: 'error', error: error.message }
+          payload: { state: 'error', error: error.message },
         });
       });
 
@@ -252,7 +252,7 @@ function* watchSockets() {
     yield put<Actions>({
       type: 'SOCKET_CONNECTION_STATE',
       status: 'FAILURE',
-      payload: { state: 'error', error: error.message }
+      payload: { state: 'error', error: error.message },
     });
   }
 }

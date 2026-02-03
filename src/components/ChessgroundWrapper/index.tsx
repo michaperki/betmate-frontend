@@ -32,7 +32,7 @@ const ChessgroundWrapper = forwardRef<HTMLDivElement, ChessgroundWrapperProps>(
         <Chessground config={safeConfig} />
       </div>
     );
-  }
+  },
 );
 
 ChessgroundWrapper.displayName = 'ChessgroundWrapper';

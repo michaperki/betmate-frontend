@@ -122,7 +122,7 @@ export const getValidMoves = (fen: string): Map<Key, Key[]> => {
   // Get all squares with pieces that can move
   const squares = game.SQUARES;
 
-  squares.forEach(s => {
+  squares.forEach((s) => {
     const piece = game.get(s);
     // Skip empty squares and pieces that can't move
     if (piece) {
@@ -130,7 +130,7 @@ export const getValidMoves = (fen: string): Map<Key, Key[]> => {
       const moves = game.moves({ square: s, verbose: true });
       if (moves.length) {
         // Store destinations for this origin square
-        dests.set(s as Key, moves.map(m => m.to as Key));
+        dests.set(s as Key, moves.map((m) => m.to as Key));
       }
     }
   });

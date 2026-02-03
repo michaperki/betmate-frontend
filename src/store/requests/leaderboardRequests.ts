@@ -35,7 +35,7 @@ export const getLeaderboardSection = async (start: number, end: number, id?: str
       // Replace the data with the sanitized version
       const updatedResult = {
         ...result,
-        data: sanitizedData
+        data: sanitizedData,
       };
 
       return validateSchema(LeaderboardSchema, updatedResult, (d) => d.data);
@@ -44,7 +44,7 @@ export const getLeaderboardSection = async (start: number, end: number, id?: str
       // Return the original result with empty rankings if validation fails
       return {
         ...result,
-        data: { _id: result.data?._id || 'unknown', rankings: [], rankings_size: 0 }
+        data: { _id: result.data?._id || 'unknown', rankings: [], rankings_size: 0 },
       };
     }
   } catch (err) {
@@ -122,7 +122,7 @@ export const getGameLeaderboard = async (gameId: string): Promise<RequestReturnT
 
   try {
     // Validate each ranking in the array
-    const validatedRankings = result.data.rankings.map(rank => {
+    const validatedRankings = result.data.rankings.map((rank) => {
       try {
         return validateSchema(RankSchema, { data: rank }, (d) => d.data).data;
       } catch (error) {
@@ -131,20 +131,20 @@ export const getGameLeaderboard = async (gameId: string): Promise<RequestReturnT
           user_id: rank.user_id || 'unknown',
           user_name: rank.user_name || `Player ${rank.rank || 0}`,
           rank: rank.rank || 0,
-          winnings: rank.winnings || 0
+          winnings: rank.winnings || 0,
         };
       }
     });
 
     return {
       ...result,
-      data: { rankings: validatedRankings }
+      data: { rankings: validatedRankings },
     };
   } catch (error) {
     console.error('Error validating game leaderboard data:', error);
     return {
       ...result,
-      data: { rankings: [] }
+      data: { rankings: [] },
     };
   }
 };

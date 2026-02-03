@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { requestTimeout, ROOT_URL } from 'utils/index';
-import { getBearerTokenHeader } from 'store/actionCreators';
 import { RequestReturnType } from 'types/state';
 
 // Simple, in-memory cooldowns for select endpoints
@@ -14,8 +13,6 @@ export const isAuthRateLimited = (): boolean => Date.now() < authBlockedUntil;
 const backendAxios = axios.create({
   baseURL: `${ROOT_URL}/`,
   timeout: requestTimeout,
-  // Always include credentials; harmless for bearer flows, required if cookies are used
-  withCredentials: true,
 });
 
 // Attach a lightweight X-Request-Id to every request (backend will echo it and propagate downstream)
@@ -25,16 +22,6 @@ backendAxios.interceptors.request.use((config) => {
     const existing = (headers as any)['X-Request-Id'] || (headers as any)['x-request-id'];
     const rid = existing || `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
     (headers as any)['X-Request-Id'] = String(rid);
-    // Attach Authorization header once when a token exists
-    try {
-      const alreadyHasAuth = Object.keys(headers as any).some((k) => k.toLowerCase() === 'authorization');
-      if (!alreadyHasAuth) {
-        const bearer = getBearerTokenHeader();
-        if (bearer && (bearer as any).Authorization) {
-          (headers as any).Authorization = (bearer as any).Authorization;
-        }
-      }
-    } catch {}
     config.headers = headers;
     try { (window as any).__bmLastRequestId = rid; } catch {}
   } catch {}
@@ -71,37 +58,6 @@ export const createBackendAxiosRequest = async <D>(
   }
   if (url.startsWith('/auth/jwt-signin') && isAuthRateLimited()) {
     return Promise.reject(new Error('Rate limited: auth cooldown')) as any;
-  }
-
-  // Safety net: ensure resend-verification always carries auth + email
-  if (url.startsWith('/auth/resend-verification')) {
-    try {
-      const headers = { ...(config.headers || {}) } as any;
-      const hasAuthHeader = Object.keys(headers).some((k) => k.toLowerCase() === 'authorization');
-      if (!hasAuthHeader) {
-        const bearer = getBearerTokenHeader();
-        if (bearer && (bearer as any).Authorization) {
-          headers.Authorization = (bearer as any).Authorization;
-        }
-      }
-      // Auto-fill email body if missing
-      let data: any = config.data;
-      if (!data || typeof data !== 'object' || !('email' in data) || !data.email) {
-        try {
-          const e = (window && (window as any).store?.getState?.()?.auth?.user?.email) || undefined;
-          const localEmail = ((): string | undefined => {
-            try { return (localStorage.getItem('authEmail') || undefined) as any; } catch { return undefined; }
-          })();
-          const email = e || localEmail;
-          if (email) data = { ...(data && typeof data === 'object' ? data : {}), email };
-        } catch {}
-      }
-      config = { ...config, headers, data };
-      if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console
-        console.debug('[resend-verification] enforced headers/body', { hasAuth: !!headers.Authorization, dataKeys: data && typeof data === 'object' ? Object.keys(data) : [] });
-      }
-    } catch {}
   }
 
   return backendAxios.request<D>({

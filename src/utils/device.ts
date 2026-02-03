@@ -19,4 +19,3 @@ export function getDeviceId(): string {
 }
 
 export default { getDeviceId };
-

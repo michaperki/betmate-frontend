@@ -28,42 +28,18 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
         },
       };
 
-    case 'FETCH_GAMES': {
-      // Treat FETCH_GAMES as a snapshot of currently active games
-      // Remove any games that were previously marked as not_started/in_progress
-      // but are not present in the latest payload (they likely ended).
-      const incoming = Array.isArray(action.payload) ? action.payload : [];
-      const incomingIds = new Set(incoming.map((g) => g._id));
-
-      // Filter out stale live games not present in the incoming snapshot
-      const prunedExisting = Object.entries(state.games).reduce<Record<string, any>>((acc, [id, g]) => {
-        const status = g?.game_status;
-        const isLive = status === 'not_started' || status === 'in_progress';
-        if (!isLive || incomingIds.has(id)) acc[id] = g;
-        return acc;
-      }, {});
-
-      // Merge incoming snapshot over the pruned existing set
-      const mergedGames = incoming.reduce<Record<string, any>>((acc, game) => {
-        acc[game._id] = game;
-        return acc;
-      }, { ...prunedExisting });
-
-      // Keep showModal defaults for current games only
-      const mergedShowModal = incoming.reduce<Record<string, boolean>>((acc, game) => ({
-        ...acc,
-        [game._id]: state.showModal[game._id] ?? true,
-      }), Object.keys(prunedExisting).reduce<Record<string, boolean>>((acc, id) => {
-        if (state.showModal[id] != null) acc[id] = state.showModal[id];
-        return acc;
-      }, {}));
-
+    case 'FETCH_GAMES':
       return {
         ...state,
-        games: mergedGames,
-        showModal: mergedShowModal,
+        games: action.payload.reduce((accum, game) => ({
+          ...accum,
+          [game._id]: game,
+        }), state.games),
+        showModal: action.payload.reduce((accum, game) => ({
+          ...accum,
+          [game._id]: state.showModal[game._id] ?? true,
+        }), state.showModal),
       };
-    }
 
     case 'CLEAR_GAMES':
       return {
@@ -131,19 +107,19 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
     case 'TOGGLE_QUICK_BET':
       return {
         ...state,
-        quickBetMode: !state.quickBetMode
+        quickBetMode: !state.quickBetMode,
       };
 
     case 'SET_PENDING_BET':
       return {
         ...state,
-        pendingBet: action.payload
+        pendingBet: action.payload,
       };
 
     case 'CLEAR_PENDING_BET':
       return {
         ...state,
-        pendingBet: null
+        pendingBet: null,
       };
 
     case 'FETCH_GAME_STATS':
@@ -151,8 +127,8 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
         ...state,
         gameStats: {
           ...state.gameStats,
-          [action.payload.gameId]: action.payload
-        }
+          [action.payload.gameId]: action.payload,
+        },
       };
 
     case 'UPDATE_VIEWER_COUNT':
@@ -163,9 +139,9 @@ const gameReducer = (state = initialState, action: Actions): GameState => {
           ...state.gameStats,
           [gameId]: {
             ...state.gameStats[gameId],
-            viewerCount
-          }
-        }
+            viewerCount,
+          },
+        },
       };
 
     default:

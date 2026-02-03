@@ -2,14 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useMode } from 'context/ModeContext';
-import ProfileDropdown from './ProfileDropdown';
 import { useTheme } from 'context/ThemeContext';
 import { RootState } from 'types/state';
-import DepositModal from './DepositModal';
 import { formatAmountShort, modeCurrency, currencyShortName } from 'utils/currency';
+import DepositModal from './DepositModal';
+import ProfileDropdown from './ProfileDropdown';
 
-const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' }>
-  = ({ active }) => {
+const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' }> = ({ active }) => {
   const history = useHistory();
   const location = useLocation();
   const { mode, setMode, realEnabled } = useMode();
@@ -28,7 +27,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsMobile('matches' in e ? e.matches : (e as MediaQueryList).matches);
     };
-    // set initial
+      // set initial
     handleChange(mql as any);
     // subscribe
     if (mql.addEventListener) mql.addEventListener('change', handleChange as any);
@@ -65,7 +64,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
       const c = document.createElement('canvas'); c.width = W; c.height = H;
       const ctx = c.getContext('2d'); if (!ctx) return;
       const dot = 10 * scale; const gap = 3 * scale; const startX = 8 * scale; const startY = 16 * scale;
-      const drawDot = (x: number, y: number, color: string) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x + dot/2, y + dot/2, dot/2, 0, Math.PI*2); ctx.fill(); };
+      const drawDot = (x: number, y: number, color: string) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x + dot / 2, y + dot / 2, dot / 2, 0, Math.PI * 2); ctx.fill(); };
       drawDot(startX + 0 * (dot + gap), startY + 0 * (dot + gap), '#fbbf24');
       drawDot(startX + 1 * (dot + gap), startY + 0 * (dot + gap), '#f87171');
       drawDot(startX + 0 * (dot + gap), startY + 1 * (dot + gap), '#22c55e');
@@ -119,24 +118,38 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
 
   const Brand = (
     <div
-      style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-      onClick={(e) => { maybeExportBrand(e); if (!e.altKey) goTo('/'); }}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+      }}
+      onClick={(e) => { maybeExportBrand(e); if (!(e as any).altKey) goTo('/'); }}
       role="link"
       aria-label="Go to Dashboard"
       title="BetMate (Alt+Click to export logo PNG)"
     >
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fbbf24' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f87171' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--mode-accent)' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#60a5fa' }} />
+        <div style={{
+          width: 10, height: 10, borderRadius: '50%', background: '#fbbf24',
+        }} />
+        <div style={{
+          width: 10, height: 10, borderRadius: '50%', background: '#f87171',
+        }} />
+        <div style={{
+          width: 10, height: 10, borderRadius: '50%', background: 'var(--mode-accent)',
+        }} />
+        <div style={{
+          width: 10, height: 10, borderRadius: '50%', background: '#60a5fa',
+        }} />
       </div>
-      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: 1 }}>BetMate</span>
+      <span style={{
+        fontSize: 18, fontWeight: 700, color: 'var(--mode-accent)', letterSpacing: 1,
+      }}>BetMate</span>
     </div>
   );
 
   const NavLinks = (
-    <nav style={{ display: 'flex', gap: isMobile ? 16 : 32, flexWrap: isMobile ? 'wrap' as const : 'nowrap', rowGap: 8 }}>
+    <nav style={{
+      display: 'flex', gap: isMobile ? 16 : 32, flexWrap: isMobile ? 'wrap' as const : 'nowrap', rowGap: 8,
+    }}>
       {navItems.map((item) => (
         <a
           key={item}
@@ -150,7 +163,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
             letterSpacing: 0.5,
             transition: 'color 0.2s ease',
             borderBottom: item === activeTab ? '2px solid var(--nav-active)' : '2px solid transparent',
-            paddingBottom: 4
+            paddingBottom: 4,
           }}
           onClick={(e) => {
             e.preventDefault();
@@ -178,7 +191,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         border: '1px solid rgba(255,255,255,0.15)',
         background: theme === 'dark' ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
         cursor: 'pointer',
-        position: 'relative'
+        position: 'relative',
       }}
     >
       <div style={{
@@ -192,7 +205,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 11
+        fontSize: 11,
       }}>{theme === 'dark' ? '🌙' : '☀️'}</div>
     </button>
   );
@@ -201,14 +214,13 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
     <div
       aria-label="Toggle currency"
       role="group"
-      data-tour-id="currency-toggle"
       style={{
         display: 'flex',
         alignItems: 'center',
         background: 'var(--bg-tertiary)',
         borderRadius: 10,
         padding: 4,
-        border: '1px solid var(--border-primary)'
+        border: '1px solid var(--border-primary)',
       }}
     >
       <button
@@ -230,7 +242,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           fontFamily: 'inherit',
           display: 'flex',
           alignItems: 'center',
-          gap: 6
+          gap: 6,
         }}
       >
         <span style={{ fontSize: 14 }}>$</span>
@@ -254,7 +266,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           fontFamily: 'inherit',
           display: 'flex',
           alignItems: 'center',
-          gap: 6
+          gap: 6,
         }}
       >
         K-Bits
@@ -280,7 +292,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          boxShadow: '0 4px 16px rgb(var(--mode-accent-rgb) / 0.25)'
+          boxShadow: '0 4px 16px rgb(var(--mode-accent-rgb) / 0.25)',
         }}
       >
         <span style={{ fontSize: 16 }}>+</span>
@@ -296,7 +308,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         alignItems: 'center',
         gap: 8,
         width: 140,
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}>
         {(() => {
           const c = modeCurrency(mode);
@@ -329,7 +341,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           cursor: 'pointer',
           fontSize: 13,
           fontWeight: 600,
-          fontFamily: 'inherit'
+          fontFamily: 'inherit',
         }}
       >Sign In</button>
       <button
@@ -344,7 +356,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           cursor: 'pointer',
           fontSize: 13,
           fontWeight: 700,
-          fontFamily: 'inherit'
+          fontFamily: 'inherit',
         }}
       >Get Started</button>
     </>
@@ -366,7 +378,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
         fontFamily: 'inherit',
         color: 'var(--text-primary)',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
       }}
     >
       {Brand}
@@ -387,7 +399,9 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
             // On mobile, show balance and profile dropdown
             <>
               {/* Compact currency toggle for mobile */}
-              <div role="group" aria-label="Toggle currency" data-tour-id="currency-toggle" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8 }}>
+              <div role="group" aria-label="Toggle currency" style={{
+                display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8,
+              }}>
                 <button
                   onClick={() => setMode('real')}
                   aria-pressed={mode === 'real'}
@@ -395,12 +409,12 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                   title={!realEnabled ? 'Cash' : 'Cash'}
                   style={{
                     background: mode === 'real' ? 'var(--success)' : 'transparent',
-                    color: mode === 'real' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                    color: mode === 'real' ? '#000' : 'var(--text-secondary)',
                     border: 'none',
                     padding: '6px 8px',
                     fontSize: 11,
                     fontWeight: 700,
-                    borderRadius: 6
+                    borderRadius: 6,
                   }}
                 >$</button>
                 <button
@@ -409,12 +423,12 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                   title="K-Bits"
                   style={{
                     background: mode === 'arcade' ? 'var(--warning)' : 'transparent',
-                    color: mode === 'arcade' ? 'var(--text-inverse)' : 'var(--text-secondary)',
+                    color: mode === 'arcade' ? '#000' : 'var(--text-secondary)',
                     border: 'none',
                     padding: '6px 8px',
                     fontSize: 11,
                     fontWeight: 700,
-                    borderRadius: 6
+                    borderRadius: 6,
                   }}
                 >K</button>
               </div>
@@ -427,7 +441,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                 display: 'flex',
                 alignItems: 'center',
                 width: 110,
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}>
                 {(() => {
                   const c = modeCurrency(mode);
@@ -448,7 +462,9 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           isMobile ? (
             <>
               {/* Compact currency toggle for mobile (guest) */}
-              <div role="group" aria-label="Toggle currency" data-tour-id="currency-toggle" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8 }}>
+              <div role="group" aria-label="Toggle currency" style={{
+                display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8,
+              }}>
                 <button
                   onClick={() => setMode('real')}
                   aria-pressed={mode === 'real'}
@@ -461,7 +477,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                     padding: '6px 8px',
                     fontSize: 11,
                     fontWeight: 700,
-                    borderRadius: 6
+                    borderRadius: 6,
                   }}
                 >$</button>
                 <button
@@ -475,32 +491,32 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
                     padding: '6px 8px',
                     fontSize: 11,
                     fontWeight: 700,
-                    borderRadius: 6
+                    borderRadius: 6,
                   }}
                 >K</button>
               </div>
-            <button
-              onClick={() => {
-                try {
-                  const from = encodeURIComponent(location.pathname + (location.search || ''));
-                  goTo(`/signin?from=${from}`);
-                } catch {
-                  goTo('/signin');
-                }
-              }}
-              aria-label="Sign in"
-              style={{
-                background: 'rgb(var(--text-primary-rgb) / 0.06)',
-                border: '1px solid rgb(var(--text-primary-rgb) / 0.12)',
-                color: 'var(--text-primary)',
-                padding: '8px 12px',
-                borderRadius: 8,
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 600,
-                fontFamily: 'inherit'
-              }}
-            >Sign In</button>
+              <button
+                onClick={() => {
+                  try {
+                    const from = encodeURIComponent(location.pathname + (location.search || ''));
+                    goTo(`/signin?from=${from}`);
+                  } catch {
+                    goTo('/signin');
+                  }
+                }}
+                aria-label="Sign in"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: '#e8e8e8',
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  fontFamily: 'inherit',
+                }}
+              >Sign In</button>
             </>
           ) : (
             // On desktop, show both buttons
@@ -508,7 +524,6 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           )
         )}
       </div>
-
 
       {showDeposit && (
         <DepositModal isOpen={showDeposit} onClose={() => setShowDeposit(false)} />

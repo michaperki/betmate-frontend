@@ -73,21 +73,23 @@ export function* watchCreateWager() {
         const curr = (w?.currency as any) || modeCurrency((w?.mode as any) || 'arcade');
         const readable = readableBet(!!w?.wdl, String(w?.data));
         const amt = typeof w?.amount === 'number' ? formatAmountShort(w.amount, curr) : '';
-        emitNotification({ type: 'success', title: 'Bet Placed', message: `${amt} on ${readable} @ ${w?.odds}x`, icon: '✓' });
+        emitNotification({
+          type: 'success', title: 'Bet Placed', message: `${amt} on ${readable} @ ${w?.odds}x`, icon: '✓',
+        });
       } catch {}
 
       // Refresh game stats after successful wager creation
       yield put<Actions>({
         type: 'FETCH_GAME_STATS',
         status: 'REQUEST',
-        payload: { id: action.payload.gameId }
+        payload: { id: action.payload.gameId },
       });
 
       // Refresh wager history so UI panels update without manual reload
       yield put<Actions>({
         type: 'FETCH_WAGER_HISTORY',
         status: 'REQUEST',
-        payload: { status: undefined, limit: 10, skip: 0 }
+        payload: { status: undefined, limit: 10, skip: 0 },
       });
 
       // Reconcile balance with server (lightweight refresh via JWT flow)
@@ -128,7 +130,9 @@ export function* watchCreateWager() {
             onAction: () => { try { window.dispatchEvent(new CustomEvent('betmate:open-help', { detail: 'risk' })); } catch {} },
           } as any);
         } else {
-          emitNotification({ type: 'error', title, message, icon: '⚠️' });
+          emitNotification({
+            type: 'error', title, message, icon: '⚠️',
+          });
         }
       } catch {}
       // Roll back optimistic balance if the wager failed to create
@@ -170,8 +174,7 @@ export function* watchFetchWagers() {
 export function* watchFetchUserBettingStats() {
   while (true) {
     try {
-      const action: FetchUserBettingStatsActions = yield take((a: Actions) =>
-        (a.type === 'FETCH_USER_BETTING_STATS' && a.status === 'REQUEST'));
+      const action: FetchUserBettingStatsActions = yield take((a: Actions) => (a.type === 'FETCH_USER_BETTING_STATS' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
       // If not authenticated, return default stats to avoid 401 spam
@@ -179,7 +182,7 @@ export function* watchFetchUserBettingStats() {
         yield put<Actions>({
           type: 'FETCH_USER_BETTING_STATS',
           payload: { totalWagers: 0, winRate: 0 },
-          status: 'SUCCESS'
+          status: 'SUCCESS',
         });
         continue;
       }
@@ -188,13 +191,13 @@ export function* watchFetchUserBettingStats() {
       yield put<Actions>({
         type: 'FETCH_USER_BETTING_STATS',
         payload: response.data,
-        status: 'SUCCESS'
+        status: 'SUCCESS',
       });
     } catch (error) {
       yield put<Actions>({
         type: 'FETCH_USER_BETTING_STATS',
         payload: getErrorPayload(error),
-        status: 'FAILURE'
+        status: 'FAILURE',
       });
     }
   }
@@ -203,8 +206,7 @@ export function* watchFetchUserBettingStats() {
 export function* watchFetchActiveWagers() {
   while (true) {
     try {
-      const action: FetchActiveWagersActions = yield take((a: Actions) =>
-        (a.type === 'FETCH_ACTIVE_WAGERS' && a.status === 'REQUEST'));
+      const action: FetchActiveWagersActions = yield take((a: Actions) => (a.type === 'FETCH_ACTIVE_WAGERS' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
       // If not authenticated, return empty list to avoid 401 spam
@@ -212,7 +214,7 @@ export function* watchFetchActiveWagers() {
         yield put<Actions>({
           type: 'FETCH_ACTIVE_WAGERS',
           payload: [],
-          status: 'SUCCESS'
+          status: 'SUCCESS',
         });
         continue;
       }
@@ -221,13 +223,13 @@ export function* watchFetchActiveWagers() {
       yield put<Actions>({
         type: 'FETCH_ACTIVE_WAGERS',
         payload: response.data,
-        status: 'SUCCESS'
+        status: 'SUCCESS',
       });
     } catch (error) {
       yield put<Actions>({
         type: 'FETCH_ACTIVE_WAGERS',
         payload: getErrorPayload(error),
-        status: 'FAILURE'
+        status: 'FAILURE',
       });
     }
   }
@@ -236,8 +238,7 @@ export function* watchFetchActiveWagers() {
 export function* watchFetchWagerHistory() {
   while (true) {
     try {
-      const action: FetchWagerHistoryActions = yield take((a: Actions) =>
-        (a.type === 'FETCH_WAGER_HISTORY' && a.status === 'REQUEST'));
+      const action: FetchWagerHistoryActions = yield take((a: Actions) => (a.type === 'FETCH_WAGER_HISTORY' && a.status === 'REQUEST'));
       if (action.status !== 'REQUEST') continue; // Type protection only
 
       // If not authenticated, return empty list to avoid 401 spam
@@ -245,7 +246,7 @@ export function* watchFetchWagerHistory() {
         yield put<Actions>({
           type: 'FETCH_WAGER_HISTORY',
           payload: [],
-          status: 'SUCCESS'
+          status: 'SUCCESS',
         });
         continue;
       }
@@ -254,19 +255,19 @@ export function* watchFetchWagerHistory() {
         wagerRequests.fetchWagerHistory,
         action.payload.status,
         action.payload.limit,
-        action.payload.skip
+        action.payload.skip,
       );
 
       yield put<Actions>({
         type: 'FETCH_WAGER_HISTORY',
         payload: response.data,
-        status: 'SUCCESS'
+        status: 'SUCCESS',
       });
     } catch (error) {
       yield put<Actions>({
         type: 'FETCH_WAGER_HISTORY',
         payload: getErrorPayload(error),
-        status: 'FAILURE'
+        status: 'FAILURE',
       });
     }
   }

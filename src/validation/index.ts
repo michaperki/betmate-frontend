@@ -13,9 +13,9 @@ export const validateSchema = <D>(schema: joi.Schema, data: D, extract = (d: D) 
   try {
     const extracted = extract(data);
     const { error, value } = schema.validate(extracted, {
-      abortEarly: false,  // Report all errors, not just the first one
+      abortEarly: false, // Report all errors, not just the first one
       stripUnknown: false, // Don't remove unknown fields
-      convert: true       // Convert values when possible (e.g. strings to numbers)
+      convert: true, // Convert values when possible (e.g. strings to numbers)
     });
 
     if (error) {

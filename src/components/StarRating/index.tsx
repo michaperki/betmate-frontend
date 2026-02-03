@@ -18,10 +18,10 @@ interface StarRatingProps {
  * - 80-95: 3.5-4 stars (excellent move)
  * - 95-100: 4.5-5 stars (best move)
  */
-export const scoreToStars = (score: number, maxStars: number = 5): number => {
+export const scoreToStars = (score: number, maxStars = 5): number => {
   if (!Number.isFinite(score) || score < 0) return 0;
   if (score > 100) score = 100; // Cap at 100
-  
+
   // Convert to a scale from 0 to maxStars with half-star precision
   if (score < 10) return 0;
   if (score < 40) return maxStars * 0.1;
@@ -34,31 +34,31 @@ export const scoreToStars = (score: number, maxStars: number = 5): number => {
   return maxStars;
 };
 
-const StarRating: React.FC<StarRatingProps> = ({ 
+const StarRating: React.FC<StarRatingProps> = ({
   score,
   maxStars = 5,
   size = 'medium',
   className = '',
-  style = {}
+  style = {},
 }) => {
   // Calculate star rating based on score
   const starRating = scoreToStars(score, maxStars);
-  
+
   // Determine the size in pixels
   const sizeInPx = size === 'small' ? 12 : size === 'medium' ? 16 : 20;
 
   return (
-    <div 
+    <div
       className={`star-rating ${className}`}
-      style={{ 
-        display: 'inline-flex', 
+      style={{
+        display: 'inline-flex',
         alignItems: 'center',
-        ...style
+        ...style,
       }}
     >
       {Array.from({ length: maxStars }).map((_, i) => {
         const filled = Math.min(1, Math.max(0, starRating - i));
-        
+
         // Choose the star type
         let starType: 'filled' | 'half' | 'empty';
         if (filled >= 0.8) {
@@ -68,12 +68,12 @@ const StarRating: React.FC<StarRatingProps> = ({
         } else {
           starType = 'empty';
         }
-        
+
         return (
-          <Star 
-            key={i} 
-            type={starType} 
-            size={sizeInPx} 
+          <Star
+            key={i}
+            type={starType}
+            size={sizeInPx}
           />
         );
       })}
@@ -89,15 +89,15 @@ interface StarProps {
 // Individual star component
 const Star: React.FC<StarProps> = ({ type, size }) => {
   const sizeStyle = { width: `${size}px`, height: `${size}px` };
-  
+
   // Star colors based on type
   const fillColor = type === 'empty' ? 'none' : 'var(--warning, #f59e0b)';
   const strokeColor = 'var(--warning, #f59e0b)';
   const opacity = type === 'empty' ? 0.3 : 1;
-  
+
   // Generate a unique ID for the gradient to avoid conflicts with multiple instances
   const gradientId = `half-fill-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   if (type === 'half') {
     return (
       <div style={{ display: 'inline-flex', ...sizeStyle }}>
@@ -120,7 +120,7 @@ const Star: React.FC<StarProps> = ({ type, size }) => {
       </div>
     );
   }
-  
+
   return (
     <div style={{ display: 'inline-flex', ...sizeStyle }}>
       <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>

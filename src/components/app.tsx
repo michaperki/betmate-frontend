@@ -7,32 +7,20 @@ import { closeSocket } from 'store/actionCreators/websocketActionCreators';
 
 import SignOutPanel from 'containers/authentication/signOutPanel';
 import { authTokenName } from 'utils';
-import OnboardingTour from './OnboardingTour';
-// Terms gate overlay removed; use dedicated /terms route instead
 import { ModeProvider } from 'context/ModeContext';
-import { OddsFormatProvider } from 'context/OddsFormatContext';
 import { ThemeProvider } from 'context/ThemeContext';
-import { NotificationProvider } from './NotificationCenter/context';
-import NotificationBridge from './NotificationCenter/Bridge';
 import VersionFooter from 'components/VersionFooter';
-import ProtectedRoute from './ProtectedRoute';
-import AdminRoute from './AdminRoute';
-import { useResponsiveLayout } from 'hooks/useResponsiveLayout';
 import AdminRiskPage from 'containers/AdminRiskPage/component';
 import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
-import AdminInvites from 'containers/AdminInvites';
-import AdminEmail from 'containers/AdminEmail/component';
-import AdminLayout from '../admin/layout/AdminLayout';
-import AdminUsersSearch from 'containers/AdminUsersSearch/component';
-import AdminUsersLedger from 'containers/AdminUsersLedger/component';
-import AdminFeatured from 'containers/AdminFeatured/component';
-import AdminAudit from 'containers/AdminAudit/component';
-import Terms from 'containers/Terms';
-import HowBettingWorks from 'containers/HowBettingWorks';
-import FAQ from 'containers/FAQ';
+import { RootState } from 'types/state';
+import TermsGate from './TermsGate';
+import { NotificationProvider } from './NotificationCenter/context';
+import NotificationBridge from './NotificationCenter/Bridge';
+import ProtectedRoute from './ProtectedRoute';
+import AdminRoute from './AdminRoute';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
 import GameContainer from '../containers/GameContainer';
@@ -41,9 +29,6 @@ import MyBets from '../containers/MyBets';
 import Settings from '../containers/Settings';
 import Onboarding from '../containers/Onboarding';
 import Login from '../containers/Login';
-import MagicLogin from 'containers/MagicLogin';
-import EmailVerification from '../containers/EmailVerification';
-import { RootState } from 'types/state';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
 import BetMateEmptyStates from '../examples/BetMateEmptyStates';
@@ -86,8 +71,6 @@ const App: React.FC<AppProps> = (props) => {
   }, [hasToken, isAuthenticated]);
 
   const delayingForAuth = hasToken && !isAuthenticated && !hydrationTimedOut;
-  const { screenWidth } = useResponsiveLayout();
-  const allowOnboarding = !delayingForAuth && screenWidth > 860; // disable guided overlay on compact screens
 
   // Remove boot overlay once authenticated/hydration delay is over
   useEffect(() => {
@@ -99,109 +82,70 @@ const App: React.FC<AppProps> = (props) => {
   return (
     <ThemeProvider>
       <ModeProvider>
-        <OddsFormatProvider>
         <NotificationProvider>
-        <Router>
-          <div>
-            {/* Global Help modal toggled via window event */}
-            <HelpController />
-            {/* Terms gate moved to dedicated route; onboarding handles acceptance */}
-            {/* Render onboarding only on desktop widths to avoid intrusive overlay on small screens */}
-            {allowOnboarding && <OnboardingTour />}
-            <NotificationBridge />
-            {delayingForAuth ? null : (
-              <Switch>
-            {/* App routes */}
-            <Route exact path="/" component={Dashboard} />
-            {/* Game UI */}
-            <Route exact path="/matches/:id" component={GameContainer} />
-            <Route exact path="/chess/featured" render={() => <GameContainer />} />
-            <Route exact path="/chess/:id" render={() => <GameContainer />} />
-            <Route exact path="/bets" component={MyBets} />
-            <Route exact path="/stats" component={Stats} />
-            {/* Auth routes */}
-            <Route exact path="/signin" component={Login} />
-            <Route exact path="/signup" component={Login} />
-            <Route exact path="/signout" component={SignOutPanel} />
-            <Route exact path="/onboarding" component={Onboarding} />
-            <Route exact path="/verify-email/:token" component={EmailVerification} />
-            <Route exact path="/magic/:token" component={MagicLogin} />
-            {/* User settings */}
-            <ProtectedRoute exact path="/user" component={Settings} />
-            {/* Info pages */}
-            <Route exact path="/terms" component={Terms} />
-            <Route exact path="/how-betting-works" component={HowBettingWorks} />
-            <Route exact path="/faq" component={FAQ} />
-            {/* Wallet route removed (old UI deprecated) */}
-            {/* Dev examples (design references) */}
-            <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />
-            <Route exact path="/examples/empty-states" component={BetMateEmptyStates} />
-            <Route exact path="/examples/theme-toggle" component={BetMateThemeToggle} />
-            <Route exact path="/examples/toasts" component={BetMateToasts} />
-            <AdminRoute exact path="/admin" render={() => (
-              <AdminLayout>
-                <AdminHome />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/wallet" render={() => (
-              <AdminLayout>
-                <AdminWallet />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/ops" render={() => (
-              <AdminLayout>
-                <AdminOps />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/kyc" render={() => (
-              <AdminLayout>
-                <AdminKYC />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/risk" render={() => (
-              <AdminLayout>
-                <AdminRiskPage />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/invites" render={() => (
-              <AdminLayout>
-                <AdminInvites />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/email" render={() => (
-              <AdminLayout>
-                <AdminEmail />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/users/search" render={() => (
-              <AdminLayout>
-                <AdminUsersSearch />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/users/ledger" render={() => (
-              <AdminLayout>
-                <AdminUsersLedger />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/markets/featured" render={() => (
-              <AdminLayout>
-                <AdminFeatured />
-              </AdminLayout>
-            )} />
-            <AdminRoute exact path="/admin/audit" render={() => (
-              <AdminLayout>
-                <AdminAudit />
-              </AdminLayout>
-            )} />
-            <Route component={FallBack} />
-          </Switch>
-            )}
-            {/* Global fixed footer with Report Issue */}
-            <VersionFooter />
-          </div>
-        </Router>
+          <Router>
+            <div>
+              {/* Global Help modal toggled via window event */}
+              <HelpController />
+              {/* Terms gate modal (first-login acceptance) */}
+              {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
+              <NotificationBridge />
+              {delayingForAuth ? null : (
+                <Switch>
+                  {/* App routes */}
+                  <Route exact path="/" component={Dashboard} />
+                  {/* Game UI */}
+                  <Route exact path="/matches/:id" component={GameContainer} />
+                  <Route exact path="/chess/featured" render={() => <GameContainer />} />
+                  <Route exact path="/chess/:id" render={() => <GameContainer />} />
+                  <Route exact path="/bets" component={MyBets} />
+                  <Route exact path="/stats" component={Stats} />
+                  {/* Auth routes */}
+                  <Route exact path="/signin" component={Login} />
+                  <Route exact path="/signup" component={Login} />
+                  <Route exact path="/signout" component={SignOutPanel} />
+                  <Route exact path="/onboarding" component={Onboarding} />
+                  {/* User settings */}
+                  <ProtectedRoute exact path="/user" component={Settings} />
+                  {/* Wallet route removed (old UI deprecated) */}
+                  {/* Dev examples (design references) */}
+                  <Route exact path="/examples/mobile-dashboard" component={BetMateMobileDashboard} />
+                  <Route exact path="/examples/empty-states" component={BetMateEmptyStates} />
+                  <Route exact path="/examples/theme-toggle" component={BetMateThemeToggle} />
+                  <Route exact path="/examples/toasts" component={BetMateToasts} />
+                  <AdminRoute exact path="/admin" render={() => (
+                    <div className="dashboard-page">
+                      <AdminHome />
+                    </div>
+                  )} />
+                  <AdminRoute exact path="/admin/wallet" render={() => (
+                    <div className="dashboard-page">
+                      <AdminWallet />
+                    </div>
+                  )} />
+                  <AdminRoute exact path="/admin/ops" render={() => (
+                    <div className="dashboard-page">
+                      <AdminOps />
+                    </div>
+                  )} />
+                  <AdminRoute exact path="/admin/kyc" render={() => (
+                    <div className="dashboard-page">
+                      <AdminKYC />
+                    </div>
+                  )} />
+                  <AdminRoute exact path="/admin/risk" render={() => (
+                    <div className="dashboard-page">
+                      <AdminRiskPage />
+                    </div>
+                  )} />
+                  <Route component={FallBack} />
+                </Switch>
+              )}
+              {/* Global fixed footer with Report Issue */}
+              <VersionFooter />
+            </div>
+          </Router>
         </NotificationProvider>
-        </OddsFormatProvider>
       </ModeProvider>
     </ThemeProvider>
   );

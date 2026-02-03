@@ -18,7 +18,7 @@ export function useMyBetsData() {
     if (!isAuthenticated) return;
     try { dispatch(fetchActiveWagers()); } catch {}
     try { dispatch(fetchWagerHistory(undefined, 100, 0)); } catch {}
-    try { dispatch(fetchGamesByStatus(['not_started','in_progress'])); } catch {}
+    try { dispatch(fetchGamesByStatus(['not_started', 'in_progress'])); } catch {}
   }, [dispatch, isAuthenticated]);
 
   const activeBets = useMemo(() => {
@@ -35,7 +35,11 @@ export function useMyBetsData() {
       return {
         id: w._id,
         gameId: String(w.game_id),
-        match: g ? { white: g.player_white?.name, black: g.player_black?.name, whiteRating: g.player_white?.elo, blackRating: g.player_black?.elo } : { white: '', black: '', whiteRating: 0, blackRating: 0 },
+        match: g ? {
+          white: g.player_white?.name, black: g.player_black?.name, whiteRating: g.player_white?.elo, blackRating: g.player_black?.elo,
+        } : {
+          white: '', black: '', whiteRating: 0, blackRating: 0,
+        },
         betType,
         category,
         odds,
@@ -79,11 +83,13 @@ export function useMyBetsData() {
   // quick summary
   const quick = useMemo(() => {
     const today = 0; const week = 0; const month = 0; // left as placeholders
-    const wins = (history || []).filter(w => w.status === WagerStatus.WON).length;
-    const losses = (history || []).filter(w => w.status === WagerStatus.LOST).length;
+    const wins = (history || []).filter((w) => w.status === WagerStatus.WON).length;
+    const losses = (history || []).filter((w) => w.status === WagerStatus.LOST).length;
     const total = (history || []).length;
     const avgOdds = (history || []).reduce((s, w) => s + (w.odds || 0), 0) / Math.max(1, total);
-    return { todayPL: today, weekPL: week, monthPL: month, winRate: Math.round((wins / Math.max(1, wins + losses)) * 100), avgOdds: Math.round(avgOdds * 100) / 100, totalBets: total, wonBets: wins, lostBets: losses };
+    return {
+      todayPL: today, weekPL: week, monthPL: month, winRate: Math.round((wins / Math.max(1, wins + losses)) * 100), avgOdds: Math.round(avgOdds * 100) / 100, totalBets: total, wonBets: wins, lostBets: losses,
+    };
   }, [history]);
 
   return { activeBets, betHistory, quick };

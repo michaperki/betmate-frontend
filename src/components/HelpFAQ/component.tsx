@@ -11,12 +11,22 @@ const sections: { title: string; body: string }[] = [
 const HelpFAQ: React.FC<{ isOpen: boolean; onClose: () => void } & { category?: string }> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label="Help and FAQ" style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }} />
-      <div style={{ position: 'relative', width: 'min(660px, 94vw)', maxHeight: '90vh', background: 'var(--bg-secondary)', border: '1px solid var(--card-border)', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.5)', color: 'var(--text-primary)', overflow: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgb(var(--text-primary-rgb) / 0.06)' }}>
+    <div role="dialog" aria-modal="true" aria-label="Help and FAQ" style={{
+      position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+    }}>
+      <div onClick={onClose} style={{
+        position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+      }} />
+      <div style={{
+        position: 'relative', width: 'min(660px, 94vw)', maxHeight: '90vh', background: 'linear-gradient(180deg, #1a1a24 0%, #12121a 100%)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.5)', color: '#e8e8e8', overflow: 'auto',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}>
           <div style={{ fontSize: 15, fontWeight: 800 }}>Help & FAQ</div>
-          <button onClick={onClose} aria-label="Close" style={{ background: 'rgb(var(--text-primary-rgb) / 0.06)', border: '1px solid rgb(var(--text-primary-rgb) / 0.12)', width: 28, height: 28, borderRadius: 8, color: 'var(--text-primary)', cursor: 'pointer' }}>×</button>
+          <button onClick={onClose} aria-label="Close" style={{
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', width: 28, height: 28, borderRadius: 8, color: '#e8e8e8', cursor: 'pointer',
+          }}>×</button>
         </div>
         <div style={{ padding: 16 }}>
           {sections.map((s, i) => (
@@ -28,9 +38,8 @@ const HelpFAQ: React.FC<{ isOpen: boolean; onClose: () => void } & { category?: 
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 
 export default HelpFAQ;
-

@@ -109,9 +109,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             {(() => {
               const fallbackIcon = notification.type === 'success' ? '✓'
                 : notification.type === 'error' ? '⚠️'
-                : notification.type === 'win' ? '🎉'
-                : notification.type === 'loss' ? '😔'
-                : 'ℹ️';
+                  : notification.type === 'win' ? '🎉'
+                    : notification.type === 'loss' ? '😔'
+                      : 'ℹ️';
               const icon = notification.icon ?? fallbackIcon;
               return <div className="notification-icon" aria-hidden>{icon}</div>;
             })()}
@@ -135,7 +135,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
                 animationDuration: `${notification.duration || 4000}ms`,
                 background: notification.type === 'success' || notification.type === 'win' ? 'var(--success)'
                   : notification.type === 'error' || notification.type === 'loss' ? '#ef4444'
-                  : '#818cf8'
+                    : '#818cf8',
               }}
             />
           </div>

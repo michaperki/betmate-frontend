@@ -13,7 +13,7 @@ const useOddsPolling = (
   gameId: string,
   tournamentId?: string,
   roundId?: string,
-  interval = 10000
+  interval = 10000,
 ) => {
   const [isPolling, setIsPolling] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ const useOddsPolling = (
 
     // Initial fetch
     dispatch(fetchGameById(gameId));
-    
+
     const pollTimer = setInterval(() => {
       if (isPolling) {
         dispatch(fetchGameById(gameId));
@@ -38,7 +38,7 @@ const useOddsPolling = (
   }, [gameId, tournamentId, roundId, interval, isPolling, dispatch]);
 
   // Method to manually stop/start polling
-  const togglePolling = () => setIsPolling(prev => !prev);
+  const togglePolling = () => setIsPolling((prev) => !prev);
   const startPolling = () => setIsPolling(true);
   const stopPolling = () => setIsPolling(false);
 
@@ -47,7 +47,7 @@ const useOddsPolling = (
     error,
     togglePolling,
     startPolling,
-    stopPolling
+    stopPolling,
   };
 };
 

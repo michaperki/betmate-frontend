@@ -1,6 +1,6 @@
 /**
  * Enhanced logging utility for the frontend
- * 
+ *
  * Provides consistent logging with the backend with improved features:
  * - Better integration with Redux actions
  * - Improved error tracking
@@ -32,16 +32,16 @@ interface LoggerConfig {
   // Basic configuration
   minLevel: LogLevel;
   service: string;
-  
+
   // Development experience
   enableConsoleColors: boolean;
   groupSimilarMessages: boolean;
-  
+
   // Filtering and sampling
   mutedEvents: string[];
   verboseEvents: string[];
   samplingRate: number;
-  
+
   // Backend integration
   sendToBackend: boolean;
   includePerformanceMetrics: boolean;
@@ -57,7 +57,7 @@ const defaultConfig: LoggerConfig = {
   verboseEvents: [],
   samplingRate: 0.1,
   sendToBackend: true,
-  includePerformanceMetrics: true
+  includePerformanceMetrics: true,
 };
 
 // Development configuration
@@ -68,10 +68,10 @@ const devConfig: Partial<LoggerConfig> = {
   mutedEvents: [
     'redux_action',
     'http_request',
-    'http_response'
+    'http_response',
   ],
   samplingRate: 0.25,
-  sendToBackend: false
+  sendToBackend: false,
 };
 
 // Production configuration
@@ -81,19 +81,19 @@ const prodConfig: Partial<LoggerConfig> = {
   groupSimilarMessages: false,
   mutedEvents: [],
   samplingRate: 0.05,
-  sendToBackend: true
+  sendToBackend: true,
 };
 
 // Create the config based on environment
 const config: LoggerConfig = {
   ...defaultConfig,
-  ...(isDev ? devConfig : prodConfig)
+  ...(isDev ? devConfig : prodConfig),
 };
 
 /**
  * Tracks groups of similar logs to reduce console noise
  */
-const messageGroups: Record<string, {count: number, lastTime: number}> = {};
+const messageGroups: Record<string, { count: number, lastTime: number }> = {};
 
 /**
  * Generate a random trace ID for correlation with backend
@@ -111,22 +111,22 @@ function getPerformanceMetrics() {
   try {
     if (window.performance) {
       const navigation = window.performance.timing;
-      const memory = (window.performance as any).memory;
-      
+      const { memory } = window.performance as any;
+
       return {
         pageLoad: navigation.loadEventEnd - navigation.navigationStart,
         domReady: navigation.domComplete - navigation.domLoading,
         networkLatency: navigation.responseEnd - navigation.requestStart,
         memory: memory ? {
           usedJSHeapSize: Math.round(memory.usedJSHeapSize / (1024 * 1024)),
-          totalJSHeapSize: Math.round(memory.totalJSHeapSize / (1024 * 1024))
-        } : undefined
+          totalJSHeapSize: Math.round(memory.totalJSHeapSize / (1024 * 1024)),
+        } : undefined,
       };
     }
   } catch (e) {
     // Ignore errors from accessing performance metrics
   }
-  
+
   return null;
 }
 
@@ -154,7 +154,7 @@ async function sendToBackend(event: LogEvent): Promise<void> {
         ...event.context,
         url: window.location.pathname,
         performance: getPerformanceMetrics(),
-      }
+      },
     };
 
     // In development, log that we would send to backend
@@ -190,7 +190,7 @@ function shouldMuteEvent(eventName: string): boolean {
   if (config.verboseEvents.includes(eventName)) {
     return false;
   }
-  
+
   // Mute specified events
   return config.mutedEvents.includes(eventName);
 }
@@ -202,27 +202,27 @@ function handleMessageGrouping(event: LogEvent, consoleMethod: 'log' | 'debug' |
   if (!config.groupSimilarMessages) {
     return false;
   }
-  
+
   const key = `${event.event}:${event.message || ''}:${JSON.stringify(event.context || {})}`;
   const now = Date.now();
-  
+
   // Check if we've seen this message recently
   if (messageGroups[key]) {
     messageGroups[key].count++;
-    
+
     // Only log once per second for grouped messages
     if (now - messageGroups[key].lastTime < 1000) {
       return true; // Skip logging
     }
-    
+
     // Update last time and log with count
     messageGroups[key].lastTime = now;
-    
+
     // Log with count information
     console[consoleMethod](`[${event.event}] ${event.message || ''} (${messageGroups[key].count}x)`);
     return true;
   }
-  
+
   // First time seeing this message
   messageGroups[key] = { count: 1, lastTime: now };
   return false;
@@ -232,57 +232,59 @@ function handleMessageGrouping(event: LogEvent, consoleMethod: 'log' | 'debug' |
  * Format console logs with colors based on level
  */
 function formatConsoleLog(event: LogEvent): void {
-  const { level, message, event: eventName, context } = event;
-  
+  const {
+    level, message, event: eventName, context,
+  } = event;
+
   // Skip muted events
   if (shouldMuteEvent(eventName)) {
     return;
   }
-  
+
   // Map level to console method
-  const consoleMethod = level === 'debug' 
-    ? 'debug' 
-    : level === 'info' 
-      ? 'info' 
-      : level === 'warn' 
-        ? 'warn' 
+  const consoleMethod = level === 'debug'
+    ? 'debug'
+    : level === 'info'
+      ? 'info'
+      : level === 'warn'
+        ? 'warn'
         : 'error';
-  
+
   // Handle message grouping
   if (handleMessageGrouping(event, consoleMethod)) {
     return;
   }
-  
+
   // Apply colors in development if enabled
   if (isDev && config.enableConsoleColors) {
     // Format differently based on level
     if (level === 'error') {
       console.error(
-        `%c[${eventName}]%c ${message || ''}`, 
-        'color: #ff5252; font-weight: bold', 
-        'color: inherit', 
-        context || ''
+        `%c[${eventName}]%c ${message || ''}`,
+        'color: #ff5252; font-weight: bold',
+        'color: inherit',
+        context || '',
       );
     } else if (level === 'warn') {
       console.warn(
-        `%c[${eventName}]%c ${message || ''}`, 
-        'color: #fb8c00; font-weight: bold', 
-        'color: inherit', 
-        context || ''
+        `%c[${eventName}]%c ${message || ''}`,
+        'color: #fb8c00; font-weight: bold',
+        'color: inherit',
+        context || '',
       );
     } else if (level === 'info') {
       console.info(
-        `%c[${eventName}]%c ${message || ''}`, 
-        'color: #29b6f6; font-weight: bold', 
-        'color: inherit', 
-        context || ''
+        `%c[${eventName}]%c ${message || ''}`,
+        'color: #29b6f6; font-weight: bold',
+        'color: inherit',
+        context || '',
       );
     } else {
       console.debug(
-        `%c[${eventName}]%c ${message || ''}`, 
-        'color: #9e9e9e;', 
-        'color: inherit', 
-        context || ''
+        `%c[${eventName}]%c ${message || ''}`,
+        'color: #9e9e9e;',
+        'color: inherit',
+        context || '',
       );
     }
   } else {
@@ -296,21 +298,23 @@ function formatConsoleLog(event: LogEvent): void {
  */
 export function log(event: LogEvent): void {
   // Check minimum log level
-  const levelOrder = { debug: 0, info: 1, warn: 2, error: 3 };
+  const levelOrder = {
+    debug: 0, info: 1, warn: 2, error: 3,
+  };
   if (levelOrder[event.level] < levelOrder[config.minLevel]) {
     return;
   }
-  
+
   // Apply sampling for non-error events
   if (event.level !== 'error' && Math.random() > config.samplingRate) {
     return;
   }
-  
+
   // Always log to console in development with formatting
   if (isDev) {
     formatConsoleLog(event);
   }
-  
+
   // Send errors and warnings to backend
   if (event.level === 'error' || event.level === 'warn' || !isDev) {
     sendToBackend(event);
@@ -323,11 +327,11 @@ export function log(event: LogEvent): void {
 export function logError(
   error: Error | string,
   context?: Record<string, any>,
-  eventName = 'frontend_error'
+  eventName = 'frontend_error',
 ): void {
   const errorMessage = error instanceof Error ? error.message : error;
   const stack = error instanceof Error ? error.stack : undefined;
-  
+
   log({
     level: 'error',
     event: eventName,
@@ -345,7 +349,7 @@ export function logError(
  */
 export function logUserAction(
   action: string,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): void {
   log({
     level: 'info',
@@ -361,7 +365,7 @@ export function logUserAction(
 export function logReduxAction(
   type: string,
   payload?: any,
-  meta?: any
+  meta?: any,
 ): void {
   log({
     level: 'debug',
@@ -369,8 +373,8 @@ export function logReduxAction(
     message: type,
     context: {
       payload,
-      meta
-    }
+      meta,
+    },
   });
 }
 
@@ -380,7 +384,7 @@ export function logReduxAction(
 export function logPerformance(
   name: string,
   durationMs: number,
-  context?: Record<string, any>
+  context?: Record<string, any>,
 ): void {
   log({
     level: 'info',
@@ -388,8 +392,8 @@ export function logPerformance(
     message: name,
     context: {
       ...context,
-      duration_ms: durationMs
-    }
+      duration_ms: durationMs,
+    },
   });
 }
 
@@ -411,7 +415,7 @@ export function initErrorTracking(): void {
       reason: event.reason,
     });
   });
-  
+
   // Track page load performance
   window.addEventListener('load', () => {
     // Wait a bit to ensure metrics are available
@@ -421,8 +425,8 @@ export function initErrorTracking(): void {
         event: 'page_loaded',
         context: {
           page: window.location.pathname,
-          performance: getPerformanceMetrics()
-        }
+          performance: getPerformanceMetrics(),
+        },
       });
     }, 1000);
   });
@@ -430,18 +434,22 @@ export function initErrorTracking(): void {
 
 // Export default logger object with convenience methods
 export default {
-  debug: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'debug', event, message, context }),
-  
-  info: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'info', event, message, context }),
-  
-  warn: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'warn', event, message, context }),
-  
-  error: (event: string, message?: string, context?: Record<string, any>) => 
-    log({ level: 'error', event, message, context }),
-  
+  debug: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'debug', event, message, context,
+  }),
+
+  info: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'info', event, message, context,
+  }),
+
+  warn: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'warn', event, message, context,
+  }),
+
+  error: (event: string, message?: string, context?: Record<string, any>) => log({
+    level: 'error', event, message, context,
+  }),
+
   logError,
   logUserAction,
   logReduxAction,

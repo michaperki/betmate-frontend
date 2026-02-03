@@ -5,4 +5,3 @@ export const FALLBACK_TOP_MOVES: { move: string; score: number }[] = [
   { move: 'Nf3', score: 95 },
   { move: 'c4', score: 90 },
 ];
-

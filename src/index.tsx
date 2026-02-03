@@ -6,6 +6,14 @@ import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
 
 import App from 'components/app';
+
+import reducers from './store/reducers';
+import rootSaga from './store/sagas';
+
+import logger from './utils/logger_integration';
+import version from './version';
+import './style.scss';
+import './styles/chessboard-global.css';
 // Developer tool: Agentation overlay (dev-only, safe in prod builds)
 // Loaded dynamically so production builds without devDependencies don't break
 let AgentationDev: React.ComponentType | null = null;
@@ -16,19 +24,11 @@ if (process.env.NODE_ENV !== 'production') {
     AgentationDev = mod.Agentation || null;
   } catch {}
 }
-
-import reducers from './store/reducers';
-import rootSaga from './store/sagas';
-
-import logger from './utils/logger_integration';
-import version from './version';
-import './style.scss';
-import './styles/chessboard-global.css';
 // Dev-only console noise filter for known third-party warnings
 if (process.env.NODE_ENV === 'development') {
   const matchesFAWarning = (args: any[]): boolean => {
     try {
-      const combined = args.map(a => (typeof a === 'string' ? a : (a?.message || ''))).join(' ');
+      const combined = args.map((a) => (typeof a === 'string' ? a : (a?.message || ''))).join(' ');
       return combined.includes('FontAwesomeIcon') && combined.includes('defaultProps will be removed');
     } catch { return false; }
   };

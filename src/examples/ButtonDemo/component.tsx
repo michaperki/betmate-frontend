@@ -6,7 +6,7 @@ const ButtonDemo: React.FC = () => {
   return (
     <div className="button-demo">
       <h2 className="button-demo__title">Button Component Demo</h2>
-      
+
       <section className="button-demo__section">
         <h3 className="button-demo__section-title">Button Variants</h3>
         <div className="button-demo__row">
@@ -32,7 +32,7 @@ const ButtonDemo: React.FC = () => {
           </div>
         </div>
       </section>
-      
+
       <section className="button-demo__section">
         <h3 className="button-demo__section-title">Button Sizes</h3>
         <div className="button-demo__row">
@@ -50,7 +50,7 @@ const ButtonDemo: React.FC = () => {
           </div>
         </div>
       </section>
-      
+
       <section className="button-demo__section">
         <h3 className="button-demo__section-title">Button States</h3>
         <div className="button-demo__row">
@@ -68,7 +68,7 @@ const ButtonDemo: React.FC = () => {
           </div>
         </div>
       </section>
-      
+
       <section className="button-demo__section">
         <h3 className="button-demo__section-title">Full Width Buttons</h3>
         <div className="button-demo__column">
@@ -77,12 +77,12 @@ const ButtonDemo: React.FC = () => {
           <Button fullWidth variant="ghost" className="button-demo__spaced">Full Width Ghost</Button>
         </div>
       </section>
-      
+
       <section className="button-demo__section">
         <h3 className="button-demo__section-title">Icon Buttons</h3>
         <div className="button-demo__row">
           <div className="button-demo__item">
-            <Button 
+            <Button
               icon={<span className="btn-icon">🔍</span>}
               iconPosition="left"
             >
@@ -91,7 +91,7 @@ const ButtonDemo: React.FC = () => {
             <span className="button-demo__label">Left Icon</span>
           </div>
           <div className="button-demo__item">
-            <Button 
+            <Button
               icon={<span className="btn-icon">➡️</span>}
               iconPosition="right"
             >
@@ -100,7 +100,7 @@ const ButtonDemo: React.FC = () => {
             <span className="button-demo__label">Right Icon</span>
           </div>
           <div className="button-demo__item">
-            <Button 
+            <Button
               icon={<span className="btn-icon">❤️</span>}
               variant="secondary"
             />

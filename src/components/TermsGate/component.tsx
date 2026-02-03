@@ -26,7 +26,9 @@ const TermsGate: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) 
     if (!isAuthenticated || needsToken) return;
     setSaving(true);
     try {
-      const res = await createBackendAxiosRequest<TermsResponse>({ method: 'PUT', url: 'auth/terms', data: { version: status.currentVersion }, headers: getBearerTokenHeader() });
+      const res = await createBackendAxiosRequest<TermsResponse>({
+        method: 'PUT', url: 'auth/terms', data: { version: status.currentVersion }, headers: getBearerTokenHeader(),
+      });
       setStatus(res.data);
     } catch { /* noop */ }
     setSaving(false);
@@ -42,7 +44,9 @@ const TermsGate: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) 
         <p style={{ opacity: 0.75, fontSize: 14 }}>
           By continuing, you agree to the Beta Terms: promo bankroll; no deposit required; withdrawals limited to winnings; abuse may lead to forfeiture.
         </p>
-        <div style={{ marginTop: 12, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <div style={{
+          marginTop: 12, display: 'flex', gap: 10, justifyContent: 'flex-end',
+        }}>
           <button type="button" className="primary" onClick={accept} disabled={saving}>{saving ? 'Saving…' : 'I Agree'}</button>
         </div>
       </div>
@@ -51,4 +55,3 @@ const TermsGate: React.FC<{ isAuthenticated: boolean }> = ({ isAuthenticated }) 
 };
 
 export default TermsGate;
-

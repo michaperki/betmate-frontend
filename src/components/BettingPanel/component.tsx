@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useOddsFormat } from 'context/OddsFormatContext';
 import { formatAmountShort, formatNet } from 'utils/currency';
 import './style.scss';
 
@@ -25,10 +24,9 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
   bets,
   gameEnded = false,
   showSummary = false,
-  onCashOut
+  onCashOut,
 }) => {
   // Calculate summary metrics
-  const { formatOdds } = useOddsFormat();
   // Summaries per currency for clarity if mixed
   const totals = bets.reduce((acc, b) => {
     const c = (b.currency || 'USDT') as 'USDT' | 'BET';
@@ -40,10 +38,10 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
     USDT: totals.USDT.won - totals.USDT.staked,
     BET: totals.BET.won - totals.BET.staked,
   };
-  
+
   // Calculate win streak
   const [winStreak, setWinStreak] = useState(0);
-  
+
   useEffect(() => {
     let streak = 0;
     // Count consecutive won bets from most recent
@@ -57,20 +55,20 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
   return (
     <div className="betting-panel">
       <div className="betting-panel__header">Your Bets</div>
-      
+
       <div className="betting-panel__bets">
-        {bets.map(bet => (
-          <div 
-            key={bet.id} 
+        {bets.map((bet) => (
+          <div
+            key={bet.id}
             className={`betting-panel__bet betting-panel__bet--${bet.result || 'pending'}`}
             data-currency={bet.currency || 'USDT'}
             style={{ borderLeft: `3px solid ${bet.currency === 'BET' ? 'rgb(var(--accent-arcade-rgb))' : 'rgb(var(--accent-real-rgb))'}` }}
           >
             <div className="betting-panel__bet-info">
               <div className="betting-panel__bet-type">
-                <span className="betting-panel__bet-indicator" 
-                      data-type={bet.type.includes('black') ? 'black' : 
-                                bet.type.includes('white') ? 'white' : 'move'}>
+                <span className="betting-panel__bet-indicator"
+                  data-type={bet.type.includes('black') ? 'black'
+                    : bet.type.includes('white') ? 'white' : 'move'}>
                 </span>
                 <span className={`betting-panel__bet-label ${gameEnded && bet.result === 'lost' ? 'betting-panel__bet-label--lost' : ''}`}>
                   {bet.type}
@@ -78,12 +76,12 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
               </div>
               <div className="betting-panel__bet-details">
                 <span className="betting-panel__bet-stake">{formatAmountShort(bet.stake, (bet.currency || 'USDT') as any)}</span>
-                <span className="betting-panel__bet-odds">{formatOdds(bet.odds)}</span>
+                <span className="betting-panel__bet-odds">x{bet.odds.toFixed(2)}</span>
                 <div className={`betting-panel__bet-result betting-panel__bet-result--${bet.result || 'pending'}`}>
-                  {bet.result === 'won' && bet.profit !== undefined && 
-                    `${formatNet(Math.abs(bet.profit), (bet.currency || 'USDT') as any)}`}
-                  {bet.result === 'lost' && 
-                    `${formatNet(-Math.abs(bet.stake), (bet.currency || 'USDT') as any)}`}
+                  {bet.result === 'won' && bet.profit !== undefined
+                    && `${formatNet(Math.abs(bet.profit), (bet.currency || 'USDT') as any)}`}
+                  {bet.result === 'lost'
+                    && `${formatNet(-Math.abs(bet.stake), (bet.currency || 'USDT') as any)}`}
                   {(!bet.result || bet.result === 'pending') && 'Pending'}
                   {bet.result === 'cancelled' && 'Refunded'}
                 </div>
@@ -92,11 +90,11 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
           </div>
         ))}
       </div>
-      
+
       {showSummary && (
         <div className="betting-panel__summary">
           <div className="betting-panel__summary-header">Game Summary</div>
-          
+
           <div className="betting-panel__summary-stats">
             {totals.USDT && (
               <>
@@ -144,7 +142,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
               </div>
             )}
           </div>
-          
+
           {winStreak > 2 && (
             <div className="betting-panel__streak">
               <span className="betting-panel__streak-emoji">🔥</span>

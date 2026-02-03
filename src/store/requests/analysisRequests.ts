@@ -4,9 +4,9 @@ import { moveScoreCache } from 'utils/moveScoreCache';
 
 // Types for move analysis response
 export interface MoveAnalysis {
-  move: string;        // The move in SAN notation
-  score: number;       // Raw engine score
-  percentile: number;  // Percentile rank compared to best move (0-100)
+  move: string; // The move in SAN notation
+  score: number; // Raw engine score
+  percentile: number; // Percentile rank compared to best move (0-100)
   is_best_move: boolean; // Whether this is the engine's top choice
   // Optional enhanced fields from microservice
   emoji?: string;
@@ -21,7 +21,6 @@ const cacheMove = new Map<string, RequestReturnType<MoveAnalysis>>();
 const inFlightTop = new Map<string, Promise<RequestReturnType<MoveAnalysis[]>>>();
 const cacheTop = new Map<string, RequestReturnType<MoveAnalysis[]>>();
 const inFlightBatch = new Map<string, Promise<RequestReturnType<MoveAnalysis[]>>>();
-
 
 const moveKey = (fen: string, san: string) => `${fen}::${san}`;
 const topKey = (fen: string, n: number) => `${fen}::top::${n}`;
@@ -44,9 +43,9 @@ function normalizeTopMovesPayload(input: any): MoveAnalysis[] {
       is_best_move: Boolean((item as any).is_best_move),
     };
     // Preserve enhanced fields if present
-    const emoji = (item as any).emoji;
-    const emoji_confidence = (item as any).emoji_confidence;
-    const reason_codes = (item as any).reason_codes;
+    const { emoji } = item as any;
+    const { emoji_confidence } = item as any;
+    const { reason_codes } = item as any;
     if (typeof emoji === 'string') (base as any).emoji = emoji;
     if (typeof emoji_confidence === 'number') (base as any).emoji_confidence = emoji_confidence;
     if (Array.isArray(reason_codes)) (base as any).reason_codes = reason_codes;
@@ -63,14 +62,14 @@ function normalizeTopMovesPayload(input: any): MoveAnalysis[] {
 
 /**
  * Get engine analysis for a specific move in a given position
- * 
+ *
  * @param fen The board position in FEN notation
  * @param moveString The move in SAN notation (e.g. "e4", "Nf3", etc.)
  * @returns Analysis data including score and comparison to best moves
  */
 export const getMoveAnalysis = async (
   fen: string,
-  moveString: string
+  moveString: string,
 ): Promise<RequestReturnType<MoveAnalysis>> => {
   const key = moveKey(fen, moveString);
 
@@ -96,7 +95,7 @@ export const getMoveAnalysis = async (
         move: moveString,
         percentile: cachedScore,
         score: cachedScore,
-        is_best_move: false
+        is_best_move: false,
       },
       status: 200,
       statusText: 'OK',
@@ -153,7 +152,9 @@ export const getTopMoves = async (
   const p = createBackendAxiosRequest<any>({
     method: 'GET',
     url: '/analysis/top-moves',
-    params: { fen, n, ...(opts?.gameId ? { game_id: opts.gameId } : {}), ...(typeof opts?.atMove === 'number' ? { at_move: opts.atMove } : {}) },
+    params: {
+      fen, n, ...(opts?.gameId ? { game_id: opts.gameId } : {}), ...(typeof opts?.atMove === 'number' ? { at_move: opts.atMove } : {}),
+    },
   })
     .then((raw) => {
       // Normalize to MoveAnalysis[] while preserving Axios shape

@@ -20,7 +20,7 @@ function loadAndDecode(src: string): Promise<void> {
 export async function preloadPieces(): Promise<void> {
   try {
     await Promise.all(
-      DIRS.flatMap((dir) => PIECES.map((p) => loadAndDecode(`/${dir}/${p}.png`)))
+      DIRS.flatMap((dir) => PIECES.map((p) => loadAndDecode(`/${dir}/${p}.png`))),
     );
   } catch {
     // Best-effort; ignore failures
@@ -28,4 +28,3 @@ export async function preloadPieces(): Promise<void> {
 }
 
 export { PIECES, DIRS };
-

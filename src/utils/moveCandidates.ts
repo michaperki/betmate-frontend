@@ -10,7 +10,7 @@ export function deriveMoveCandidates(
   fen: string | undefined,
   analysis: MoveAnalysisLite[] | undefined,
   offered: string[] | undefined,
-  limit: number = 8,
+  limit = 8,
 ): string[] {
   const out: string[] = [];
   const pushUnique = (s: string) => { const t = String(s).replace(/[+#]$/g, ''); if (t && !out.includes(t)) out.push(t); };
@@ -36,4 +36,3 @@ export function deriveMoveCandidates(
 
   return out.slice(0, limit);
 }
-

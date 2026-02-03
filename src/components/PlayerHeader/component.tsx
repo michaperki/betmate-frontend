@@ -24,22 +24,22 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
   lowTime,
   onOutcomeClick,
   status = 'idle',
-  statusMessage
+  statusMessage,
 }) => {
   const handleClick = () => {
     if (onOutcomeClick) onOutcomeClick();
   };
-  
+
   const isInteractive = !!onOutcomeClick;
 
   const betLabel = `Bet on ${side === 'white' ? 'White' : 'Black'}`;
 
   return (
-    <div 
+    <div
       className={`player-header player-header--${side} ${isActive ? 'player-header--active' : ''} player-header--${status} ${isInteractive ? 'player-header--interactive' : ''}`}
       data-bet-label={betLabel}
       onClick={isInteractive ? handleClick : undefined}
-      role={isInteractive ? "button" : undefined}
+      role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={isInteractive ? (e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(); } : undefined}
       aria-label={isInteractive ? `Bet on ${side} win` : undefined}
@@ -56,7 +56,7 @@ const PlayerHeader: React.FC<PlayerHeaderProps> = ({
           <div className="player-header__rating">{rating}</div>
         </div>
       </div>
-      
+
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div className={`player-header__clock ${lowTime ? 'player-header__clock--low' : ''}`}>
           {time}
