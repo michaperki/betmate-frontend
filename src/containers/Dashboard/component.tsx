@@ -188,7 +188,7 @@ const Dashboard: React.FC = () => {
               gap: '8px',
             }}>
               <span style={{ color: 'var(--mode-accent)', fontWeight: '600' }}>{(data?.wallet?.usdt ?? 279.50).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              <span style={{ opacity: 0.5 }}>USDT</span>
+              <span style={{ opacity: 0.5 }}>BetMate Cash</span>
             </div>
             <div style={{
               width: '36px',
@@ -262,7 +262,7 @@ const Dashboard: React.FC = () => {
                 gap: '8px',
               }}>
                 {(typeof data.netPL === 'number' ? (data.netPL >= 0 ? '+' : '') + Math.abs(data.netPL).toFixed(2) : '+156.40')}
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>USDT</span>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>BetMate Cash</span>
               </div>
               <div style={{
                 fontSize: '12px',

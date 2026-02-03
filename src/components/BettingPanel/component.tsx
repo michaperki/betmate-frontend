@@ -99,11 +99,11 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
             {totals.USDT && (
               <>
                 <div className="betting-panel__summary-row">
-                  <span className="betting-panel__summary-label">Total Staked (Cash)</span>
+                  <span className="betting-panel__summary-label">Total Staked (BetMate Cash)</span>
                   <span className="betting-panel__summary-value">{formatAmountShort(totals.USDT.staked, 'USDT')}</span>
                 </div>
                 <div className="betting-panel__summary-row">
-                  <span className="betting-panel__summary-label">Total Won (Cash)</span>
+                  <span className="betting-panel__summary-label">Total Won (BetMate Cash)</span>
                   <span className="betting-panel__summary-value betting-panel__summary-value--won">
                     {formatAmountShort(totals.USDT.won, 'USDT')}
                   </span>
@@ -113,11 +113,11 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
             {totals.BET && (
               <>
                 <div className="betting-panel__summary-row">
-                  <span className="betting-panel__summary-label">Total Staked (K-Bits)</span>
+                  <span className="betting-panel__summary-label">Total Staked (K‑Bits)</span>
                   <span className="betting-panel__summary-value">{formatAmountShort(totals.BET.staked, 'BET')}</span>
                 </div>
                 <div className="betting-panel__summary-row">
-                  <span className="betting-panel__summary-label">Total Won (K-Bits)</span>
+                  <span className="betting-panel__summary-label">Total Won (K‑Bits)</span>
                   <span className="betting-panel__summary-value betting-panel__summary-value--won">
                     {formatAmountShort(totals.BET.won, 'BET')}
                   </span>
@@ -127,7 +127,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
             <div className="betting-panel__summary-divider"></div>
             {nets.USDT !== undefined && (
               <div className="betting-panel__summary-row betting-panel__summary-row--total">
-                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (Cash)</span>
+                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (BetMate Cash)</span>
                 <span className={`betting-panel__summary-value betting-panel__summary-value--${(nets.USDT || 0) >= 0 ? 'positive' : 'negative'} betting-panel__summary-value--large`}>
                   {formatNet(nets.USDT || 0, 'USDT')}
                 </span>
@@ -135,7 +135,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
             )}
             {nets.BET !== undefined && (
               <div className="betting-panel__summary-row betting-panel__summary-row--total">
-                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (K-Bits)</span>
+                <span className="betting-panel__summary-label betting-panel__summary-label--bold">Net Profit (K‑Bits)</span>
                 <span className={`betting-panel__summary-value betting-panel__summary-value--${(nets.BET || 0) >= 0 ? 'positive' : 'negative'} betting-panel__summary-value--large`}>
                   {formatNet(nets.BET || 0, 'BET')}
                 </span>
