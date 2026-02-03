@@ -1,6 +1,6 @@
 {
   "name": "betmate-frontend",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Betmate DALI Frontend Application",
   "main": "src/index.tsx",
   "repository": "https://github.com/dali-lab/betmate-frontend",
