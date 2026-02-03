@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import Header from 'components/Header';
-import { NavLink } from 'react-router-dom';
+// Header/tabs removed; AdminLayout provides chrome
 import {
   getGlobalExposure, getRiskConfig, updateRiskConfig, getGameExposure, resetRiskOverrides, clearAllWagers, applyRiskPreset, clearStaleWagers,
 } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
-import { getMultiplier } from 'utils/chess';
+import UtilizationBar from '../../admin/components/UtilizationBar';
+import StatusBadge from '../../admin/components/StatusBadge';
 
 const Field: React.FC<{ label: string; value: any; onChange: (v: any) => void; help?: string; width?: number } > = ({
   label, value, onChange, help, width = 180,
@@ -105,109 +105,95 @@ const AdminRiskPage: React.FC = () => {
   };
 
   const fmt = (x: number | undefined) => (x == null ? '-' : x.toFixed(2));
-  const badge = (x: number, cap: number) => {
-    const pct = cap > 0 ? (x / cap) : 0;
-    if (pct >= 0.9) return 'status-badge crit';
-    if (pct >= 0.7) return 'status-badge warn';
-    return 'status-badge ok';
+  const statusFor = (used: number, cap: number) => {
+    const pct = cap > 0 ? (used / cap) : 0;
+    if (pct >= 0.9) return 'crit';
+    if (pct >= 0.7) return 'warn';
+    return 'ok';
   };
 
-  const Bar: React.FC<{ used: number; cap: number; label: string }> = ({ used, cap, label }) => {
-    const pct = Math.max(0, Math.min(1, cap > 0 ? used / cap : 0));
-    const bg = pct >= 0.9 ? '#d9534f' : pct >= 0.7 ? '#f0ad4e' : '#5cb85c';
-    return (
-      <div style={{ marginBottom: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-          <span>{label}</span>
-          <span>${fmt(used)} / ${fmt(cap)}</span>
-        </div>
-        <div style={{
-          height: 8, background: '#eee', borderRadius: 4, overflow: 'hidden',
-        }}>
-          <div style={{ width: `${pct * 100}%`, background: bg, height: 8 }} />
-        </div>
-      </div>
-    );
-  };
-
-  // Compute severity color for cards
-  const severityColor = (used: number, cap: number) => {
-    const pct = cap > 0 ? used / cap : 0;
-    if (pct >= 0.9) return '#d9534f'; // danger
-    if (pct >= 0.7) return '#f0ad4e'; // warning
-    return '#5cb85c'; // ok
-  };
+  // no-op: visual severity handled via StatusBadge
 
   return (
-    <div className="dashboard-page admin-content">
-      <Header />
+    <div className="admin-content">
       <div className="content" style={{ padding: 20 }}>
-        <div className="admin-tabs">
-          <NavLink to="/admin">Home</NavLink>
-          <NavLink to="/admin/risk">Risk</NavLink>
-          <NavLink to="/admin/wallet">Wallet</NavLink>
-          <NavLink to="/admin/ops">Ops</NavLink>
-        </div>
-        <h2>Admin — Real WDL Risk</h2>
+        <h2>Risk Management</h2>
         {err && <div style={{ color: 'red', marginBottom: 12 }}>{err}</div>}
         {!cfg ? (
           <div>Loading…</div>
         ) : (
-          <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-            <div style={{ minWidth: 360 }}>
-              <div className="admin-card">
-                <div className="admin-card__title">Global Exposure</div>
-                <p style={{ fontSize: 13, marginTop: -6 }}>Worst-case across all live games versus configured caps.</p>
-                {(() => {
-                  const used = glob?.exposure?.total || 0;
-                  const cap = glob?.caps?.globalExposureCap || 1;
-                  const border = severityColor(used, cap);
-                  return (
-                    <div style={{
-                      padding: 12, borderRadius: 6, background: '#111', border: `1px solid ${border}`, color: '#f3f4f6',
-                    }}>
-                      <div style={{ fontWeight: 700, marginBottom: 4 }}>Total worst-case</div>
-                      <div style={{ fontSize: 14, marginBottom: 8 }}>${fmt(used)} / ${fmt(cap)}</div>
-                      <Bar used={used} cap={cap} label="Global cap" />
-                      <div style={{ marginTop: 8, fontSize: 12, color: '#444' }}>
-                      Per-game cap: ${fmt(glob?.caps?.perGameWorstCaseCap)} | Per-bet cap: ${fmt(glob?.caps?.perBetLiabilityCap)}
-                      </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 0.8fr', gap: 24, alignItems: 'start' }}>
+            {/* Global Exposure */}
+            <div className="admin-card" style={{ padding: 16 }}>
+              <div className="admin-card__title">Global Exposure</div>
+              <p style={{ fontSize: 13, marginTop: -6 }}>Worst‑case across live games vs caps.</p>
+              {(() => {
+                const used = glob?.exposure?.total || 0;
+                const cap = glob?.caps?.globalExposureCap || 1;
+                const status = statusFor(used, cap);
+                return (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <div style={{ fontWeight: 700 }}>Total worst‑case</div>
+                      <StatusBadge status={status} />
                     </div>
-                  );
-                })()}
-
-                <div style={{ marginTop: 18 }}>
-                  <div className="admin-card__title">Game Exposure</div>
-                  <p style={{ fontSize: 13 }}>Inspect a specific game’s liabilities by outcome.</p>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <input placeholder="Game ID (Mongo _id)" value={gameId} onChange={(e) => setGameId(e.target.value)} style={{
-                      padding: 6, border: '1px solid #ccc', borderRadius: 4, width: 260,
-                    }} />
-                    <button onClick={async () => { try { const g = await getGameExposure(gameId); setGameExp(g.data); } catch (e) { setGameExp(null); } }} disabled={!gameId}>Load</button>
+                    <UtilizationBar used={used} cap={cap} label="Global Exposure Cap" showPercentage height={10} />
+                    <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
+                      Per‑game cap: ${fmt(glob?.caps?.perGameWorstCaseCap)} • Per‑bet cap: ${fmt(glob?.caps?.perBetLiabilityCap)}
+                    </div>
+                    <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <UtilizationBar
+                        used={Math.max(...Object.values(glob?.exposure?.perGame || {}).map((v: any) => Number(v) || 0), 0)}
+                        cap={glob?.caps?.perGameWorstCaseCap || 1}
+                        label="Per‑game cap"
+                        height={6}
+                      />
+                      <UtilizationBar
+                        used={Math.max(...Object.values(glob?.exposure?.perBet || {}).map((v: any) => Number(v) || 0), 0)}
+                        cap={glob?.caps?.perBetLiabilityCap || 1}
+                        label="Per‑bet cap"
+                        height={6}
+                      />
+                    </div>
                   </div>
-                  {gameExp && (() => {
-                    const border = severityColor(gameExp.exposure?.worstCase || 0, gameExp.caps?.perGameWorstCaseCap || 1);
-                    return (
-                      <div style={{
-                        marginTop: 10, border: `1px solid ${border}`, borderRadius: 6, padding: 12, background: '#111', color: '#f3f4f6',
-                      }}>
-                        <div style={{ fontWeight: 700, marginBottom: 6 }}>Game {gameExp.gameId}</div>
-                        <Bar used={gameExp.exposure?.worstCase || 0} cap={gameExp.caps?.perGameWorstCaseCap || 1} label="Worst-case" />
-                        <Bar used={gameExp.exposure?.perOutcome?.white_win || 0} cap={gameExp.caps?.perOutcomeCap?.white_win || 1} label="White" />
-                        <Bar used={gameExp.exposure?.perOutcome?.draw || 0} cap={gameExp.caps?.perOutcomeCap?.draw || 1} label="Draw" />
-                        <Bar used={gameExp.exposure?.perOutcome?.black_win || 0} cap={gameExp.caps?.perOutcomeCap?.black_win || 1} label="Black" />
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
+                );
+              })()}
             </div>
-            <div style={{ minWidth: 420 }}>
+
+            {/* Game Exposure */}
+            <div className="admin-card" style={{ padding: 16 }}>
+              <div className="admin-card__title">Game Exposure</div>
+              <p style={{ fontSize: 13, marginTop: -6 }}>Inspect a specific game's liabilities by outcome.</p>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input placeholder="Game ID (Mongo _id)" value={gameId} onChange={(e) => setGameId(e.target.value)} style={{ padding: 6, border: '1px solid #374151', borderRadius: 4, width: 260, background: '#000', color: '#fff' }} />
+                <button onClick={async () => { try { const g = await getGameExposure(gameId); setGameExp(g.data); } catch (e) { setGameExp(null); } }} disabled={!gameId}>Load</button>
+              </div>
+              {gameExp && (() => {
+                const used = gameExp.exposure?.worstCase || 0;
+                const cap = gameExp.caps?.perGameWorstCaseCap || 1;
+                const status = statusFor(used, cap);
+                return (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <div style={{ fontWeight: 700 }}>Game {gameExp.gameId}</div>
+                      <StatusBadge status={status} />
+                    </div>
+                    <UtilizationBar used={used} cap={cap} label="Worst‑case" height={8} showPercentage />
+                    <div style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: '#94a3b8' }}>Exposure by Outcome</div>
+                    <UtilizationBar used={gameExp.exposure?.perOutcome?.white_win || 0} cap={gameExp.caps?.perOutcomeCap?.white_win || 1} label="White" height={6} />
+                    <UtilizationBar used={gameExp.exposure?.perOutcome?.draw || 0} cap={gameExp.caps?.perOutcomeCap?.draw || 1} label="Draw" height={6} />
+                    <UtilizationBar used={gameExp.exposure?.perOutcome?.black_win || 0} cap={gameExp.caps?.perOutcomeCap?.black_win || 1} label="Black" height={6} />
+                  </div>
+                );
+              })()}
+            </div>
+            {/* Config */}
+            <div className="admin-card" style={{ padding: 16, minWidth: 420 }}>
               {(() => {
                 return (
-                  <div className="admin-card" style={{ padding: 12 }}>
+                  <>
                     <div className="admin-card__title">Config</div>
-                    <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Toggle availability and adjust limits/margins. Caps auto-scale from Bankroll; you can override directly if needed.</p>
+                    <p style={{ color: '#94a3b8', fontSize: 13, marginTop: -6 }}>Toggle availability and adjust limits/margins. Caps auto‑scale from Bankroll; override directly if needed.</p>
                     <div style={{ marginBottom: 8 }}>
                       <label>
                         <input type="checkbox" checked={!!cfg.enabled} onChange={(e) => setCfg({ ...cfg, enabled: e.target.checked })} /> Enable Real WDL House
@@ -238,64 +224,57 @@ const AdminRiskPage: React.FC = () => {
                     <Field label="Per-Outcome Cap — Black (BetMate Cash)" value={cfg?.perOutcomeCap?.black_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })} />
                     <Field label="Per-Bet Liability Cap (BetMate Cash)" value={cfg.perBetLiabilityCap ?? ''} onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })} />
                     <Field label="Per-Player Per-Game Cap (BetMate Cash)" value={cfg.perPlayerPerGameCap ?? ''} onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })} />
-                    <div style={{
-                      display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap',
-                    }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap' }}>
                       <button onClick={save} disabled={saving}>Save</button>
                       <button onClick={doReset} disabled={saving} style={{ background: '#eee' }}>Reset Overrides</button>
                       {saved && <span style={{ color: '#28a745', fontSize: 12 }}>Saved ✓</span>}
                       <span style={{ marginLeft: 12, opacity: 0.6 }}>Presets:</span>
+                      <button onClick={async () => { await applyRiskPreset('beta'); refresh(); }} disabled={saving} style={{ background: '#111', border: '1px solid #374151' }}>Beta</button>
                       <button onClick={async () => { await applyRiskPreset('low'); refresh(); }} disabled={saving}>Low</button>
                       <button onClick={async () => { await applyRiskPreset('med'); refresh(); }} disabled={saving}>Med</button>
                       <button onClick={async () => { await applyRiskPreset('high'); refresh(); }} disabled={saving}>High</button>
                     </div>
-                  </div>
+                  </>
                 );
               })()}
             </div>
-
-            <div style={{ minWidth: 360, flex: 1 }}>
-              <div className="admin-card" style={{ padding: 12 }}>
-                <div className="admin-card__title">Danger Zone</div>
-                <p style={{ color: '#b94a48', fontSize: 13 }}>
-                  Dev/staging only. Use with care.
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <button
-                    style={{
-                      background: '#d9534f', color: '#fff', border: 0, borderRadius: 4, padding: '8px 12px',
-                    }}
-                    onClick={async () => {
-                      try {
-                        const res = await clearAllWagers();
-                        const g2 = await getGlobalExposure();
-                        setGlob(g2.data);
-                        alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
-                      } catch (e: any) {
-                        alert('Failed to clear wagers. Check console.');
-                      }
-                    }}
-                  >
-                    Clear all wagers
-                  </button>
-                  <div>
-                    <div style={{ marginBottom: 6 }}>Clear stale pending wagers (Real WDL):</div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <input type="number" min={5} max={1440} defaultValue={60} id="stale-wagers-mins" />
-                      <button
-                        onClick={async () => {
-                          const mins = Number((document.getElementById('stale-wagers-mins') as HTMLInputElement).value || '60');
-                          try {
-                            const res = await clearStaleWagers(mins);
-                            const g2 = await getGlobalExposure();
-                            setGlob(g2.data);
-                            alert(`Cancelled ${res.updated} stale wagers older than ${res.olderThanMinutes} minutes.`);
-                          } catch (e) { alert('Failed to clear stale wagers.'); }
-                        }}
-                      >
-                        Clear stale
-                      </button>
-                    </div>
+            {/* Danger Zone */}
+            <div className="admin-card" style={{ padding: 16, minWidth: 360 }}>
+              <div className="admin-card__title">Danger Zone</div>
+              <p style={{ color: '#b94a48', fontSize: 13 }}>Dev/staging only. Use with care.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button
+                  style={{ background: '#d9534f', color: '#fff', border: 0, borderRadius: 4, padding: '8px 12px' }}
+                  onClick={async () => {
+                    try {
+                      const res = await clearAllWagers();
+                      const g2 = await getGlobalExposure();
+                      setGlob(g2.data);
+                      alert(`Cleared ${res.data?.deleted ?? 0} wagers.`);
+                    } catch (e: any) {
+                      alert('Failed to clear wagers. Check console.');
+                    }
+                  }}
+                >
+                  Clear all wagers
+                </button>
+                <div>
+                  <div style={{ marginBottom: 6 }}>Clear stale pending wagers (Real WDL):</div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input type="number" min={5} max={1440} defaultValue={60} id="stale-wagers-mins" />
+                    <button
+                      onClick={async () => {
+                        const mins = Number((document.getElementById('stale-wagers-mins') as HTMLInputElement).value || '60');
+                        try {
+                          const res = await clearStaleWagers(mins);
+                          const g2 = await getGlobalExposure();
+                          setGlob(g2.data);
+                          alert(`Cancelled ${res.updated} stale wagers older than ${res.olderThanMinutes} minutes.`);
+                        } catch (e) { alert('Failed to clear stale wagers.'); }
+                      }}
+                    >
+                      Clear stale
+                    </button>
                   </div>
                 </div>
               </div>
@@ -303,7 +282,6 @@ const AdminRiskPage: React.FC = () => {
           </div>
         )}
       </div>
-
     </div>
   );
 };
