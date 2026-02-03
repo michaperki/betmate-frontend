@@ -34,3 +34,47 @@
     margin: 6px 0;
   }
 }
+
+/* Admin nav styles for sidebar */
+.admin-nav-item {
+  display: block;
+  padding: 8px 10px;
+  color: #9ca3af;
+  text-decoration: none;
+  border-radius: 6px;
+}
+.admin-nav-item:hover { background: rgba(148,163,184,0.08); color: #e5e7eb; }
+.admin-nav-active { background: rgba(99,102,241,0.16); color: #fff; }
+
+/* Status badges */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 2px 8px; border-radius: 9999px;
+  border: 1px solid rgba(148,163,184,0.3); color: #e5e7eb; background: rgba(148,163,184,0.12);
+}
+.status-badge.ok { border-color: rgba(16,185,129,0.3); color: #10b981; background: rgba(16,185,129,0.12); }
+.status-badge.warn { border-color: rgba(245,158,11,0.3); color: #f59e0b; background: rgba(245,158,11,0.12); }
+.status-badge.crit { border-color: rgba(239,68,68,0.3); color: #ef4444; background: rgba(239,68,68,0.12); }
+.status-badge.up { border-color: rgba(16,185,129,0.3); color: #10b981; background: rgba(16,185,129,0.12); }
+.status-badge.down { border-color: rgba(239,68,68,0.3); color: #ef4444; background: rgba(239,68,68,0.12); }
+.status-badge.neutral { border-color: rgba(148,163,184,0.3); color: #94a3b8; background: rgba(148,163,184,0.12); }
+
+/* Simple table styles */
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td { padding: 8px 10px; border-bottom: 1px solid #1f2937; }
+.admin-table th { text-align: left; color: #9ca3af; font-weight: 600; }
+.admin-table tr:hover td { background: rgba(148,163,184,0.04); }
+
+/* Toggle switch used in FeatureToggle */
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #374151; transition: .2s; border-radius: 22px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; transition: .2s; border-radius: 50%; }
+input:checked + .slider { background-color: #10b981; }
+input:checked + .slider:before { transform: translateX(18px); }
+
+/* Feature section heading */
+.feature-group-heading { font-size: 12px; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+.feature-group-heading.safety { color: #ef4444; }
+.feature-group-heading.growth { color: #10b981; }
+.feature-group-heading.ops { color: #3b82f6; }

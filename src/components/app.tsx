@@ -15,12 +15,19 @@ import AdminHome from 'containers/AdminHome/component';
 import AdminWallet from 'containers/AdminWallet/component';
 import AdminOps from 'containers/AdminOps/component';
 import AdminKYC from 'containers/AdminKYC/component';
+import AdminEmail from 'containers/AdminEmail/component';
+import AdminInvites from 'containers/AdminInvites';
+import AdminUsersSearch from 'containers/AdminUsersSearch/component';
+import AdminUsersLedger from 'containers/AdminUsersLedger/component';
+import AdminFeatured from 'containers/AdminFeatured/component';
+import AdminAudit from 'containers/AdminAudit/component';
 import { RootState } from 'types/state';
 import TermsGate from './TermsGate';
 import { NotificationProvider } from './NotificationCenter/context';
 import NotificationBridge from './NotificationCenter/Bridge';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
+import AdminLayout from '../admin/layout/AdminLayout';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
 import GameContainer from '../containers/GameContainer';
@@ -114,29 +121,59 @@ const App: React.FC<AppProps> = (props) => {
                   <Route exact path="/examples/theme-toggle" component={BetMateThemeToggle} />
                   <Route exact path="/examples/toasts" component={BetMateToasts} />
                   <AdminRoute exact path="/admin" render={() => (
-                    <div className="dashboard-page">
+                    <AdminLayout>
                       <AdminHome />
-                    </div>
+                    </AdminLayout>
                   )} />
                   <AdminRoute exact path="/admin/wallet" render={() => (
-                    <div className="dashboard-page">
+                    <AdminLayout>
                       <AdminWallet />
-                    </div>
+                    </AdminLayout>
                   )} />
                   <AdminRoute exact path="/admin/ops" render={() => (
-                    <div className="dashboard-page">
+                    <AdminLayout>
                       <AdminOps />
-                    </div>
+                    </AdminLayout>
                   )} />
                   <AdminRoute exact path="/admin/kyc" render={() => (
-                    <div className="dashboard-page">
+                    <AdminLayout>
                       <AdminKYC />
-                    </div>
+                    </AdminLayout>
                   )} />
                   <AdminRoute exact path="/admin/risk" render={() => (
-                    <div className="dashboard-page">
+                    <AdminLayout>
                       <AdminRiskPage />
-                    </div>
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/invites" render={() => (
+                    <AdminLayout>
+                      <AdminInvites />
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/email" render={() => (
+                    <AdminLayout>
+                      <AdminEmail />
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/users/search" render={() => (
+                    <AdminLayout>
+                      <AdminUsersSearch />
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/users/ledger" render={() => (
+                    <AdminLayout>
+                      <AdminUsersLedger />
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/markets/featured" render={() => (
+                    <AdminLayout>
+                      <AdminFeatured />
+                    </AdminLayout>
+                  )} />
+                  <AdminRoute exact path="/admin/audit" render={() => (
+                    <AdminLayout>
+                      <AdminAudit />
+                    </AdminLayout>
                   )} />
                   <Route component={FallBack} />
                 </Switch>

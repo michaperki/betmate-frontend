@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from 'components/Header';
-import { NavLink } from 'react-router-dom';
+// Header/tabs removed; AdminLayout provides chrome
 import '../../styles/admin.scss';
 import { getKycUsers, approveKycUser, rejectKycUser } from 'store/requests/adminRequests';
 
@@ -27,16 +26,8 @@ const AdminKYC: React.FC = () => {
   useEffect(() => { refresh(); }, []);
 
   return (
-    <div className="dashboard-page admin-content">
-      <Header />
+    <div className="admin-content">
       <div style={{ padding: 24 }}>
-        <div className="admin-tabs">
-          <NavLink to="/admin">Home</NavLink>
-          <NavLink to="/admin/risk">Risk</NavLink>
-          <NavLink to="/admin/wallet">Wallet</NavLink>
-          <NavLink to="/admin/kyc">KYC</NavLink>
-          <NavLink to="/admin/ops">Ops</NavLink>
-        </div>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
         }}>
@@ -82,7 +73,6 @@ const AdminKYC: React.FC = () => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

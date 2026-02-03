@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Header from 'components/Header';
-import { NavLink } from 'react-router-dom';
+// Header/tabs removed; AdminLayout provides chrome
 import { getOpsStats, pingMicroservice } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
@@ -25,16 +24,8 @@ const AdminOps: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-page admin-content">
-      <Header />
+    <div className="admin-content">
       <div style={{ padding: 24 }}>
-        <div className="admin-tabs">
-          <NavLink to="/admin">Home</NavLink>
-          <NavLink to="/admin/risk">Risk</NavLink>
-          <NavLink to="/admin/wallet">Wallet</NavLink>
-          <NavLink to="/admin/kyc">KYC</NavLink>
-          <NavLink to="/admin/ops">Ops</NavLink>
-        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h2 style={{ margin: 0 }}>Admin — Ops</h2>
           <button onClick={refresh} disabled={loading} style={{ marginLeft: 'auto' }}>{loading ? 'Refreshing…' : 'Refresh'}</button>
@@ -63,7 +54,6 @@ const AdminOps: React.FC = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
