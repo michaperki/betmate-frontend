@@ -89,6 +89,14 @@ export const verifyEmail = async (token: string): Promise<RequestReturnType<Veri
   return validateSchema(VerifyEmailResponseSchema, result, (d) => d.data);
 };
 
+export const magicLogin = async (token: string): Promise<RequestReturnType<AuthUserResponseData>> => {
+  const result = await createBackendAxiosRequest<AuthUserResponseData>({
+    method: 'GET',
+    url: `/auth/magic/${encodeURIComponent(token)}`,
+  });
+  return validateSchema(AuthUserResponseSchema, result, (d) => d.data);
+};
+
 export const resendVerificationEmail = async (email?: string): Promise<RequestReturnType<{sent: boolean}>> => {
   // Belt-and-suspenders: fallback to last-known email if param not provided
   const fallbackEmail = email || getAuthEmail() || undefined;

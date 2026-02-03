@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // Header/tabs removed; AdminLayout provides chrome
-import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminSendInviteBulk } from 'store/requests/adminRequests';
+import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminSendInviteBulk, adminPreprovisionInvites } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 import Card from '../../admin/components/Card';
 
@@ -36,6 +36,14 @@ const AdminEmail: React.FC = () => {
   const [expiresAt, setExpiresAt] = useState<string>('');
   const [inviting, setInviting] = useState(false);
   const [inviteResult, setInviteResult] = useState<any>(null);
+  // Preprovision + magic links
+  const [preList, setPreList] = useState('');
+  const [preTtlDays, setPreTtlDays] = useState<number>(7);
+  const [preGrantTokens, setPreGrantTokens] = useState<number>(0);
+  const [preGrantCash, setPreGrantCash] = useState<number>(0);
+  const [preCampaign, setPreCampaign] = useState('BETA');
+  const [preSending, setPreSending] = useState(false);
+  const [preResult, setPreResult] = useState<any>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -105,6 +113,49 @@ const AdminEmail: React.FC = () => {
                   <div key={i} style={{ opacity: r.error ? 0.8 : 1 }}>{r.to} — {r.code}{r.error ? ` (${r.error})` : ''}</div>
                 ))}
                 {inviteResult.results.length > 10 && (<div style={{ opacity: 0.8 }}>…and {inviteResult.results.length - 10} more</div>)}
+              </div>
+            )}
+          </div>
+        </Card>
+
+        <Card title="Pre‑provision Beta Users + Magic Links">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 720 }}>
+            <label>Recipients (one per line — formats accepted: "Name &lt;email&gt;" or "Name,email" or just email)</label>
+            <textarea rows={6} placeholder={'Michael Perkins <mperkins1995@gmail.com>'} value={preList} onChange={(e) => setPreList(e.target.value)} style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }} />
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <label>Campaign <input type="text" value={preCampaign} onChange={(e) => setPreCampaign(e.target.value)} style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }} /></label>
+              <label>TTL (days) <input type="number" min={1} value={preTtlDays} onChange={(e) => setPreTtlDays(Number(e.target.value||7))} style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px', width: 100 }} /></label>
+              <label>Grant Tokens <input type="number" value={preGrantTokens} onChange={(e) => setPreGrantTokens(Number(e.target.value || 0))} style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }} /></label>
+              <label>Grant USD <input type="number" value={preGrantCash} onChange={(e) => setPreGrantCash(Number(e.target.value || 0))} style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }} /></label>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button disabled={preSending || !preList.trim()} onClick={async () => {
+                setPreSending(true); setPreResult(null);
+                try {
+                  const recipients: Array<{ email: string; name?: string }> = preList.split(/[\n]+/).map((line) => {
+                    const s = line.trim();
+                    if (!s) return null;
+                    const angle = s.match(/^(.*)<([^>]+)>$/);
+                    if (angle) return { name: angle[1].trim(), email: angle[2].trim() };
+                    const csv = s.split(/[;,]/);
+                    if (csv.length >= 2) return { name: csv[0].trim(), email: csv[1].trim() };
+                    return { email: s };
+                  }).filter(Boolean) as any;
+                  const ttl_min = Math.max(5, Math.floor((preTtlDays || 7) * 24 * 60));
+                  const res = await adminPreprovisionInvites({ recipients, campaign: preCampaign, ttl_min, grant_tokens: preGrantTokens, grant_cash_usd: preGrantCash });
+                  setPreResult(res);
+                } catch (e: any) {
+                  setPreResult({ ok: false, error: e?.response?.data?.error || e?.message });
+                } finally { setPreSending(false); }
+              }} style={{ background: preSending ? '#333' : '#4a90e2', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: 4 }}>{preSending ? 'Sending…' : 'Send Magic Links'}</button>
+              {preResult && (<span>{preResult.ok ? `Sent: ${preResult.count}` : (preResult.error || 'Error')}</span>)}
+            </div>
+            {preResult?.results && Array.isArray(preResult.results) && (
+              <div style={{ marginTop: 8 }}>
+                {preResult.results.slice(0, 10).map((r: any, i: number) => (
+                  <div key={i} style={{ opacity: r.error ? 0.8 : 1 }}>{r.email} — <a href={r.magicUrl} target="_blank" rel="noreferrer">magic link</a>{r.error ? ` (${r.error})` : ''}</div>
+                ))}
+                {preResult.results.length > 10 && (<div style={{ opacity: 0.8 }}>…and {preResult.results.length - 10} more</div>)}
               </div>
             )}
           </div>

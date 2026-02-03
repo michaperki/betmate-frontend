@@ -282,6 +282,23 @@ export const adminSendInviteBulk = async (payload: {
   return res.data as { ok: boolean; count: number; results: Array<{ to: string; code: string; error?: string }>; };
 };
 
+export const adminPreprovisionInvites = async (payload: {
+  recipients: Array<{ email: string; first_name?: string; last_name?: string; name?: string }>;
+  campaign?: string;
+  ttl_min?: number;
+  grant_tokens?: number;
+  grant_cash_usd?: number;
+  deleteExisting?: boolean;
+}) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'POST',
+    url: '/admin/email/preprovision-invites',
+    data: payload,
+    headers: adminHeaders(),
+  });
+  return res.data as { ok: boolean; count: number; results: Array<{ email: string; user_id: string; magicUrl: string; error?: string }>; };
+};
+
 // Reconciliation (existing billing endpoints; admin-key gated)
 export const reconcileNowpaymentsDeposits = async (limit = 20, opts?: { dryRun?: boolean }) => {
   // Prefer admin-guarded endpoints; fall back to legacy /billing for dev

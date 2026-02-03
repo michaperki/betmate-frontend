@@ -41,6 +41,7 @@ import MyBets from '../containers/MyBets';
 import Settings from '../containers/Settings';
 import Onboarding from '../containers/Onboarding';
 import Login from '../containers/Login';
+import MagicLogin from 'containers/MagicLogin';
 import EmailVerification from '../containers/EmailVerification';
 import { RootState } from 'types/state';
 // Examples (design references)
@@ -124,6 +125,7 @@ const App: React.FC<AppProps> = (props) => {
             <Route exact path="/signout" component={SignOutPanel} />
             <Route exact path="/onboarding" component={Onboarding} />
             <Route exact path="/verify-email/:token" component={EmailVerification} />
+            <Route exact path="/magic/:token" component={MagicLogin} />
             {/* User settings */}
             <ProtectedRoute exact path="/user" component={Settings} />
             {/* Info pages */}
