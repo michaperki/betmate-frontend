@@ -2,10 +2,10 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 
 const sections: { title: string; body: string }[] = [
-  { title: 'Why are some bets refunded?', body: 'Bets may be refunded if a game aborts, pricing becomes unavailable, or when caps/limits prevent fair settlement. Arcade tokens are unaffected by Real-mode limits.' },
-  { title: 'Pari-mutuel vs House', body: 'Arcade pools are pari-mutuel (you bet against other players). Real WDL is house-priced with margins and exposure caps for risk control.' },
-  { title: 'Risk rejections', body: 'Per-bet, per-player, per-outcome, per-game, or global caps can reject a Real WDL bet. Try a smaller stake or different outcome.' },
-  { title: 'Deposits & Bonuses', body: 'You purchase KBits and receive BetMate Cash 1:1 as a bonus after confirmation. Fees and network confirmation times vary by currency.' },
+  { title: 'Why are some bets refunded?', body: 'Bets may be refunded if a game aborts, pricing becomes unavailable, or when caps/limits prevent fair settlement. K‑Bits bets are unaffected by BetMate Cash limits.' },
+  { title: 'Pari-mutuel vs House', body: 'K‑Bits pools are pari-mutuel (you bet against other players). BetMate Cash WDL is house-priced with margins and exposure caps for risk control.' },
+  { title: 'Risk rejections', body: 'Per-bet, per-player, per-outcome, per-game, or global caps can reject a BetMate Cash WDL bet. Try a smaller stake or different outcome.' },
+  { title: 'Deposits & Bonuses', body: 'You purchase K‑Bits and receive BetMate Cash 1:1 as a bonus after confirmation. Fees and network confirmation times vary by currency.' },
 ];
 
 const HelpFAQ: React.FC<{ isOpen: boolean; onClose: () => void } & { category?: string }> = ({ isOpen, onClose }) => {

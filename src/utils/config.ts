@@ -45,7 +45,7 @@ export const FAUCET_ADMIN_KEY = process.env.FAUCET_ADMIN_KEY || '';
 // Dev webhook key to confirm NOWPayments mock webhooks locally
 export const DEV_WEBHOOK_KEY = process.env.DEV_WEBHOOK_KEY || '';
 
-// Sweepstakes copy ratio: KBits per USD (defaults to 1000 KBits = $1 BetMate Cash bonus)
+// Sweepstakes copy ratio: K‑Bits per USD (defaults to 1000 K‑Bits = $1 BetMate Cash bonus)
 export const KBITS_PER_USD = Number(process.env.KBITS_PER_USD || 1000);
 
 // New Game UI flag was used during migration and is now deprecated.

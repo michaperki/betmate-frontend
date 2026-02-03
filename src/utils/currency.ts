@@ -4,7 +4,7 @@ export type Currency = 'BET' | 'USDT';
 export const currencySymbol = (c: Currency): string => (c === 'USDT' ? '$' : 'K');
 
 // Long/marketing names used in labels
-export const currencyLongName = (c: Currency): string => (c === 'USDT' ? 'BetMate Cash' : 'K-BITS');
+export const currencyLongName = (c: Currency): string => (c === 'USDT' ? 'BetMate Cash' : 'K‑Bits');
 
 // Short label for chips and small UI (no marketing term)
 export const currencyShortName = (c: Currency): string => (c === 'USDT' ? 'Cash' : 'K');
@@ -13,7 +13,7 @@ export const currencyShortName = (c: Currency): string => (c === 'USDT' ? 'Cash'
 export const formatAmount = (amount: number, c: Currency): string => {
   const safe = Number(amount) || 0;
   if (c === 'USDT') return `$${safe.toFixed(2)}`;
-  return `${Math.round(safe)} KBITZ`;
+  return `${Math.round(safe)} K‑Bits`;
 };
 
 // Compact formatter for new mock-first UI

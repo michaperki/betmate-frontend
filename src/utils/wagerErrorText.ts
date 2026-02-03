@@ -30,7 +30,7 @@ export function shortWagerReason(code: Code, message?: string): string {
   // Heuristics based on backend message strings
   if (msg.includes('insufficient')) return 'Insufficient funds';
   if (msg.includes('temporarily disabled')) return 'Paused';
-  if (msg.includes('real mode is currently disabled')) return 'Real mode disabled';
+  if (msg.includes('real mode is currently disabled')) return 'Cash mode disabled';
   if (msg.includes('stake exceeds')) return 'Over stake cap';
   if (msg.includes('pricing unavailable')) return 'Odds unavailable';
   if (msg.includes('game has already ended')) return 'Game ended';

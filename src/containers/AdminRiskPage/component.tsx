@@ -223,7 +223,7 @@ const AdminRiskPage: React.FC = () => {
                         <input type="checkbox" checked={!!cfg.disableDraw} onChange={(e) => setCfg({ ...cfg, disableDraw: e.target.checked })} /> Disable Draw
                       </label>
                     </div>
-                    <Field label="Bankroll (USDT)" value={cfg.bankroll} onChange={(v) => setCfg({ ...cfg, bankroll: v })} help="Reference bankroll for scaling caps. Increase to raise limits." />
+                    <Field label="Bankroll (BetMate Cash)" value={cfg.bankroll} onChange={(v) => setCfg({ ...cfg, bankroll: v })} help="Reference bankroll for scaling caps. Increase to raise limits." />
                     <Field label="Base Margin" value={cfg.baseMargin} onChange={(v) => setCfg({ ...cfg, baseMargin: v })} help="House edge for white/black pricing (0–0.25)." />
                     <Field label="Draw Extra Margin" value={cfg.drawExtraMargin} onChange={(v) => setCfg({ ...cfg, drawExtraMargin: v })} help="Additional margin on draw (0–0.25)." />
                     <Field label="Max Odds (White)" value={cfg.maxOdds?.white_win} onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, white_win: Number(v) } })} help="Clamp for white multipliers (1x–∞)." />
@@ -231,13 +231,13 @@ const AdminRiskPage: React.FC = () => {
                     <Field label="Max Odds (Black)" value={cfg.maxOdds?.black_win} onChange={(v) => setCfg({ ...cfg, maxOdds: { ...cfg.maxOdds, black_win: Number(v) } })} help="Clamp for black multipliers (1x–∞)." />
                     <h4 style={{ marginTop: 16 }}>Absolute Caps</h4>
                     <p style={{ color: '#444', fontSize: 13, marginTop: -6 }}>Override computed caps directly (leave blank to rely on bankroll-derived defaults).</p>
-                    <Field label="Global Exposure Cap (USDT)" value={cfg.globalExposureCap ?? ''} onChange={(v) => setCfg({ ...cfg, globalExposureCap: v })} help="Total worst-case across all games." />
-                    <Field label="Per-Game Worst-Case Cap (USDT)" value={cfg.perGameWorstCaseCap ?? ''} onChange={(v) => setCfg({ ...cfg, perGameWorstCaseCap: v })} help="Max worst-case liability per game." />
-                    <Field label="Per-Outcome Cap — White (USDT)" value={cfg?.perOutcomeCap?.white_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, white_win: Number(v) } })} />
-                    <Field label="Per-Outcome Cap — Draw (USDT)" value={cfg?.perOutcomeCap?.draw ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, draw: Number(v) } })} />
-                    <Field label="Per-Outcome Cap — Black (USDT)" value={cfg?.perOutcomeCap?.black_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })} />
-                    <Field label="Per-Bet Liability Cap (USDT)" value={cfg.perBetLiabilityCap ?? ''} onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })} />
-                    <Field label="Per-Player Per-Game Cap (USDT)" value={cfg.perPlayerPerGameCap ?? ''} onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })} />
+                    <Field label="Global Exposure Cap (BetMate Cash)" value={cfg.globalExposureCap ?? ''} onChange={(v) => setCfg({ ...cfg, globalExposureCap: v })} help="Total worst-case across all games." />
+                    <Field label="Per-Game Worst-Case Cap (BetMate Cash)" value={cfg.perGameWorstCaseCap ?? ''} onChange={(v) => setCfg({ ...cfg, perGameWorstCaseCap: v })} help="Max worst-case liability per game." />
+                    <Field label="Per-Outcome Cap — White (BetMate Cash)" value={cfg?.perOutcomeCap?.white_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, white_win: Number(v) } })} />
+                    <Field label="Per-Outcome Cap — Draw (BetMate Cash)" value={cfg?.perOutcomeCap?.draw ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, draw: Number(v) } })} />
+                    <Field label="Per-Outcome Cap — Black (BetMate Cash)" value={cfg?.perOutcomeCap?.black_win ?? ''} onChange={(v) => setCfg({ ...cfg, perOutcomeCap: { ...cfg.perOutcomeCap, black_win: Number(v) } })} />
+                    <Field label="Per-Bet Liability Cap (BetMate Cash)" value={cfg.perBetLiabilityCap ?? ''} onChange={(v) => setCfg({ ...cfg, perBetLiabilityCap: v })} />
+                    <Field label="Per-Player Per-Game Cap (BetMate Cash)" value={cfg.perPlayerPerGameCap ?? ''} onChange={(v) => setCfg({ ...cfg, perPlayerPerGameCap: v })} />
                     <div style={{
                       display: 'flex', gap: 8, alignItems: 'center', marginTop: 6, flexWrap: 'wrap',
                     }}>
