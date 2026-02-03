@@ -17,15 +17,15 @@ const Stats: React.FC = () => {
   useRequireAuth();
   const data = useStatsData();
 
-  // Fallbacks to keep mock visuals stable
-  const totalProfit = useMemo(() => (typeof data.totalProfit === 'number' ? data.totalProfit : 1247.8), [data.totalProfit]);
-  const totalWagered = useMemo(() => (typeof data.totalWagered === 'number' ? data.totalWagered : 8934.5), [data.totalWagered]);
-  const roi = useMemo(() => (typeof data.roi === 'number' ? data.roi : 13.96), [data.roi]);
-  const winRate = useMemo(() => (typeof data.winRate === 'number' ? data.winRate : 54.7), [data.winRate]);
-  const profitThisWeek = useMemo(() => (typeof data.profitThisWeek === 'number' ? data.profitThisWeek : 156.4), [data.profitThisWeek]);
-  const totalBets = data.totalBets || 342;
-  const wonBets = data.wonBets || 187;
-  const lostBets = data.lostBets || 155;
+  // Use real data; avoid mock fallbacks that inflate numbers
+  const totalProfit = useMemo(() => (typeof data.totalProfit === 'number' ? data.totalProfit : 0), [data.totalProfit]);
+  const totalWagered = useMemo(() => (typeof data.totalWagered === 'number' ? data.totalWagered : 0), [data.totalWagered]);
+  const roi = useMemo(() => (typeof data.roi === 'number' ? data.roi : 0), [data.roi]);
+  const winRate = useMemo(() => (typeof data.winRate === 'number' ? data.winRate : 0), [data.winRate]);
+  const profitThisWeek = useMemo(() => (typeof data.profitThisWeek === 'number' ? data.profitThisWeek : 0), [data.profitThisWeek]);
+  const wonBets = (typeof data.wonBets === 'number') ? data.wonBets : 0;
+  const lostBets = (typeof data.lostBets === 'number') ? data.lostBets : 0;
+  const totalBets = (typeof data.totalBets === 'number') ? data.totalBets : (wonBets + lostBets);
   const balanceHistory = (data as any).balanceHistory as any[] | undefined;
   const wagerHistory = (data as any).wagerHistory as any[] | undefined;
 
