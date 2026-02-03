@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/admin.scss';
-import { adminSearchUsers, adminAdjustBalance, adminUpdateUserRole } from 'store/requests/adminRequests';
+import { adminSearchUsers, adminAdjustBalance, adminUpdateUserRole, adminDeleteUser } from 'store/requests/adminRequests';
 import { adminResendVerification } from 'store/requests/adminRequests';
 import DataTable from '../../admin/components/DataTable';
 import Toolbar from '../../admin/components/Toolbar';
@@ -40,7 +40,33 @@ const AdminUsersSearch: React.FC = () => {
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by email or user id" style={{ background: '#000', color: '#fff', border: '1px solid #333', borderRadius: 4, padding: '6px 8px', minWidth: 280 }} />
           )}
           right={(
-            <button onClick={search} disabled={loading}>{loading ? 'Searching…' : 'Search'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={search} disabled={loading || busy}>{loading ? 'Searching…' : 'Search'}</button>
+              <button
+                disabled={busy || !q}
+                title="Delete user by exact email match"
+                onClick={async () => {
+                  const email = String(q || '').trim();
+                  if (!email || !email.includes('@')) { alert('Enter a full email to delete'); return; }
+                  if (!window.confirm(`Delete account ${email}? This is irreversible.`)) return;
+                  const cascade = window.confirm('Also delete wagers and balance history for this user?');
+                  setBusy(true);
+                  try {
+                    const res = await adminSearchUsers(email, 50, 0);
+                    const exact = (res.users || []).find((u: any) => String(u.email).toLowerCase() === email.toLowerCase());
+                    if (!exact) { alert('No user found with that exact email'); return; }
+                    await adminDeleteUser(exact._id, cascade);
+                    alert('Deleted');
+                    setRows(prev => prev.filter(r => r._id !== exact._id));
+                    if (profile && profile._id === exact._id) setProfile(null);
+                  } catch (e: any) {
+                    alert(e?.response?.data?.error || 'Delete failed');
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >Delete by email…</button>
+            </div>
           )}
         />
         {err && <div style={{ color: '#ef4444', marginTop: 8 }}>{err}</div>}
@@ -122,6 +148,40 @@ const AdminUsersSearch: React.FC = () => {
                   setBusy(true);
                   try { await adminResendVerification(profile.email); alert('Verification email sent (if eligible)'); } catch (e: any) { alert(e?.response?.data?.error || 'Failed'); } finally { setBusy(false); }
                 }}>Resend verification</button>
+              </div>
+
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid #1f2937' }}>
+                <button
+                  style={{ background: '#7f1d1d', border: '1px solid #ef4444', color: '#fff' }}
+                  disabled={busy}
+                  onClick={async () => {
+                    const email = profile.email;
+                    const id = profile._id;
+                    if (!window.confirm(`Delete account ${email}? This is irreversible.`)) return;
+                    if (!window.confirm('Also delete wagers and balance history for this user?')) {
+                      // no cascade
+                      setBusy(true);
+                      try {
+                        await adminDeleteUser(id, false);
+                        alert('Account deleted');
+                        setRows(prev => prev.filter(r => r._id !== id));
+                        setProfile(null);
+                      } catch (e: any) {
+                        alert(e?.response?.data?.error || 'Failed');
+                      } finally { setBusy(false); }
+                    } else {
+                      setBusy(true);
+                      try {
+                        await adminDeleteUser(id, true);
+                        alert('Account and related data deleted');
+                        setRows(prev => prev.filter(r => r._id !== id));
+                        setProfile(null);
+                      } catch (e: any) {
+                        alert(e?.response?.data?.error || 'Failed');
+                      } finally { setBusy(false); }
+                    }
+                  }}
+                >Delete account…</button>
               </div>
             </div>
           </div>

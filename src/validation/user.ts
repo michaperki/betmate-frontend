@@ -12,8 +12,9 @@ const userRoleValidator = (value: any, helpers: joi.CustomHelpers) => (
 export const UserSchema = joi.object<User>({
   _id: joi.string().required(),
   email: joi.string().email({ tlds: { allow: false } }).required(),
-  first_name: joi.string().required(),
-  last_name: joi.string().required(),
+  // Allow empty strings for name fields to match backend defaults
+  first_name: joi.string().allow('').required(),
+  last_name: joi.string().allow('').required(),
   full_name: joi.string().required(),
   // Optional fields
   token_balance: joi.number().optional(),

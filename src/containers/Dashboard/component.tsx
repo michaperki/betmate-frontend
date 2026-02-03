@@ -432,7 +432,7 @@ const Dashboard: React.FC = () => {
                 <div className="match-card"
                   key={match.id}
                   style={{
-                    background: match.featured 
+                    background: match.featured
                       ? 'linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.08) 0%, rgb(var(--mode-accent-rgb) / 0.02) 100%)'
                       : 'var(--card-bg)',
                     border: `1px solid ${match.featured ? 'rgb(var(--mode-accent-rgb) / 0.2)' : 'var(--card-border)'}`,
@@ -445,6 +445,7 @@ const Dashboard: React.FC = () => {
                   onClick={() => setDrawerMatch(match)}
                   role="button"
                   tabIndex={0}
+                  data-tour-id={match.featured ? "match-card" : undefined}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDrawerMatch(match); } }}
                 >
                   {/* Live pill and metadata */}
@@ -579,7 +580,12 @@ const Dashboard: React.FC = () => {
                         }}
                       >View Game</button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // The data-tour-action attribute tells the OnboardingTour component this
+                          // button was clicked, which should trigger advancing to the next step
+                          history.push(`/chess/${match.id}`);
+                        }}
                         style={{
                         background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                         border: 'none',
@@ -592,6 +598,7 @@ const Dashboard: React.FC = () => {
                         fontFamily: 'inherit'
                       }}
                       data-tour-id="join-featured-button"
+                      data-tour-action="next"
                       >Join Game</button>
                     </div>
                   </div>

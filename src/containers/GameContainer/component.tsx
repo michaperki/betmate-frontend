@@ -637,7 +637,7 @@ const GameContainer: React.FC = () => {
       <Header active="Markets" />
 
       <main className="new-game-main">
-        <div className={`new-game-container new-game-container--${gameState}`}>
+        <div className={`new-game-container new-game-container--${gameState}`} data-tour-id="game-viewer">
           {/* Suppress inline error toast/banner to avoid layout shifts; toasts handled globally */}
 
           <div className="new-game-container__content">

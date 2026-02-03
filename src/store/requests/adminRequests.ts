@@ -239,6 +239,16 @@ export const deleteInviteCode = async (id: string) => {
   return res.data;
 };
 
+// Users (admin)
+export const adminDeleteUser = async (id: string, cascade = true) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'DELETE',
+    url: `/admin/users/${encodeURIComponent(id)}?cascade=${cascade ? '1' : '0'}`,
+    headers: adminHeaders()
+  });
+  return res.data as { ok: boolean; deleted: string; cascade: boolean };
+};
+
 export const getAdminPaymentVolumeDaily = async (days = 7) => {
   const res = await createBackendAxiosRequest<any>({ method: 'GET', url: `/admin/wallet/volume/daily?days=${days}`, headers: adminHeaders() });
   return res.data as { deposits: Array<{ date: string; status?: string; count: number }>; withdrawals: Array<{ date: string; status?: string; count: number }>; since: string; days: number };
