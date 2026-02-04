@@ -36,10 +36,12 @@ function stepsForRoute(pathname: string): Step[] {
   // Same global 7 steps; anchor presence differs by route
   // 1-3 Dashboard, 4-7 Game UI
   return [
-    { id: 'welcome-dashboard', title: 'Welcome to BetMate', body: 'Let’s take a quick tour of the platform.', anchor: 'welcome-dashboard' },
+    // No anchor for first screen on dashboard
+    { id: 'welcome-dashboard', title: 'Welcome to BetMate', body: 'Let’s take a quick tour of the platform.' },
     { id: 'currency-toggle', title: 'Choose Your Currency', body: 'Toggle between BetMate Cash and K‑Bits at any time.', anchor: 'currency-toggle' },
     { id: 'featured-card', title: 'Featured Match', body: 'Open a live game with Join Game — or press Next to continue.', anchor: 'featured-card' },
-    { id: 'game-welcome', title: 'Game Interface', body: 'Watch a live match and place bets while the game evolves.', anchor: 'game-welcome', route: '/chess/featured' },
+    // No anchor for first screen on game ui
+    { id: 'game-welcome', title: 'Game Interface', body: 'Watch a live match and place bets while the game evolves.', route: '/chess/featured' },
     { id: 'player-header', title: 'Bet Outcome (Black)', body: 'Use the Black header to bet on Black to win.', anchor: 'player-header' },
     { id: 'move-top', title: 'Top Move', body: 'Pick the top suggested move — we highlight it and show its arrow on the board.', anchor: 'move-tiles' },
     { id: 'receipts', title: 'Receipts', body: 'Your wagers appear here. This panel will track your results.', anchor: 'receipts' },
@@ -95,9 +97,17 @@ const OnboardingTour: React.FC = () => {
   const visible = Boolean(
     (isAuthenticated && (onboardingEnabled || forceShow))
     && isRouteAllowed(location.pathname)
-    && versionSeen !== CURRENT_VERSION
+    && (forceShow ? true : (versionSeen !== CURRENT_VERSION))
     && !dismissed
   );
+
+  // If forced via query, start from step 0 and show regardless of version
+  useEffect(() => {
+    if (forceShow) {
+      setActiveIndex(0);
+      setDismissed(false);
+    }
+  }, [forceShow]);
 
   // Persist active step
   useEffect(() => {
