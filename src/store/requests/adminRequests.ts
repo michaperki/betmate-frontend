@@ -167,7 +167,7 @@ export const adminSendInviteBulk = async (body: { recipients: string[]; campaign
 );
 
 // Preprovision users + send magic-link invites (preferred for Beta)
-export const adminPreprovisionInvites = async (body: { recipients: string[]; campaign: string; grant_tokens?: number; grant_cash_usd?: number; max_redemptions?: number; expires_at?: string }) => (
+export const adminPreprovisionInvites = async (body: { recipients: Array<{ email: string; first_name?: string; last_name?: string }>; campaign: string; grant_tokens?: number; grant_cash_usd?: number; max_redemptions?: number; expires_at?: string }) => (
   (await createBackendAxiosRequest<any>({ method: 'POST', url: '/admin/email/preprovision-invites', data: body, headers: adminHeaders() })).data
 );
 

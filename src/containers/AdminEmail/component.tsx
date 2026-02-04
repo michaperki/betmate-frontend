@@ -94,8 +94,9 @@ const AdminEmail: React.FC = () => {
               <button disabled={inviting || !inviteList.trim()} onClick={async () => {
                 setInviting(true); setInviteResult(null);
                 try {
-                  const recipients = inviteList.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
-                  const res = await adminPreprovisionInvites({ recipients, campaign, grant_tokens: grantTokens, grant_cash_usd: grantCash, max_redemptions: maxRedemptions, expires_at: expiresAt || undefined });
+                  const recipientsRaw = inviteList.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
+                  const recipients = recipientsRaw.map((email) => ({ email }));
+                  const res = await adminPreprovisionInvites({ recipients, campaign, grant_tokens: grantTokens, grant_cash_usd: grantCash, max_redemptions: maxRedemptions, expires_at: expiresAt || undefined } as any);
                   setInviteResult(res);
                 } catch (e: any) {
                   setInviteResult({ ok: false, error: e?.response?.data?.error || e?.message });
