@@ -240,7 +240,7 @@ const Dashboard: React.FC = () => {
             marginBottom: isCompact ? '20px' : '32px',
           }}>
             {/* Welcome Card */}
-            <div style={{
+            <div data-tour-id="welcome-dashboard" style={{
               background: 'var(--card-bg)',
               border: '1px solid var(--card-border)',
               borderRadius: '16px',
@@ -484,6 +484,7 @@ const Dashboard: React.FC = () => {
                   {!showSkeletons && (data.liveMatches?.length ? data.liveMatches : sampleMatches).map((match) => (
                     <div className="match-card"
                       key={match.id}
+                      data-tour-id={match.featured ? 'featured-card' : undefined}
                       style={{
                         background: match.featured
                           ? 'linear-gradient(135deg, rgb(var(--mode-accent-rgb) / 0.08) 0%, rgb(var(--mode-accent-rgb) / 0.02) 100%)'
@@ -643,6 +644,11 @@ const Dashboard: React.FC = () => {
                               fontSize: '12px',
                               fontWeight: '700',
                               fontFamily: 'inherit',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              try { window.dispatchEvent(new CustomEvent('betmate:tour-join-game')); } catch {}
+                              history.push('/chess/featured');
                             }}
                           >Join Game</button>
                         </div>

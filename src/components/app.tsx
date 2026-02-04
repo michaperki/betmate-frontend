@@ -43,6 +43,7 @@ import BetMateEmptyStates from '../examples/BetMateEmptyStates';
 import BetMateThemeToggle from '../examples/BetMateThemeToggle';
 import BetMateToasts from '../examples/BetMateToasts';
 import HelpFAQ from './HelpFAQ';
+import OnboardingTour from './OnboardingTour';
 
 const FallBack = () => {
   return <div>Uh oh... URL Not Found! Please contact the system administrator.</div>;
@@ -98,6 +99,8 @@ const App: React.FC<AppProps> = (props) => {
               {/* Terms gate modal (first-login acceptance) */}
               {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
               <NotificationBridge />
+              {/* Global Onboarding Tour overlay */}
+              <OnboardingTour />
               {delayingForAuth ? null : (
                 <Switch>
                   {/* App routes */}
