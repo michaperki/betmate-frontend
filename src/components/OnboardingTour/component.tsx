@@ -275,7 +275,7 @@ const OnboardingTour: React.FC = () => {
     try { window.localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_VERSION); } catch {}
     try { window.localStorage.removeItem(STORAGE_KEY_STEP); } catch {}
     // Persist to backend if possible
-    try { void authRequests.updateMe({ onboarding_version_seen: versionNum } as any); } catch {}
+    try { void authRequests.setOnboardingVersion(versionNum); } catch {}
     try {
       if (user) {
         const nextUser = { ...(user as any), onboarding_version_seen: versionNum };
