@@ -483,6 +483,7 @@ const Dashboard: React.FC = () => {
                   {/* Live matches */}
                   {!showSkeletons && (data.liveMatches?.length ? data.liveMatches : sampleMatches).map((match) => (
                     <div className="match-card"
+                      data-tour-id={match.featured ? 'featured-match' : undefined}
                       key={match.id}
                       style={{
                         background: match.featured
