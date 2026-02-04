@@ -5,6 +5,7 @@ import { JwtSignInResponseData, AuthUserResponseData, BalanceHistoryResponseData
 import { RequestReturnType } from 'types/state';
 import { validateSchema } from 'validation';
 import { AuthUserResponseSchema, JwtSignInResponseSchema, BalanceHistoryResponseSchema } from 'validation/auth';
+import axios from 'axios';
 
 export const createUser = async (
   email: string,
@@ -65,4 +66,46 @@ export const getBalanceHistory = async (limit = 30, currency?: 'BET' | 'USDT'): 
 
   // Validation here
   return validateSchema(BalanceHistoryResponseSchema, result, (d) => d.data);
+};
+
+// Onboarding status/version
+// Onboarding status helpers (available if needed in future)
+// export const getOnboardingStatus = async (): Promise<{ versionSeen: number; currentVersion: number }> => {
+//   const res = await createBackendAxiosRequest<any>({
+//     method: 'GET',
+//     url: '/auth/onboarding',
+//     headers: getBearerTokenHeader(),
+//   });
+//   return res.data as any;
+// };
+// export const setOnboardingVersion = async (version: number): Promise<{ versionSeen: number; currentVersion: number }> => {
+//   const res = await createBackendAxiosRequest<any>({
+//     method: 'PUT',
+//     url: '/auth/onboarding',
+//     data: { version },
+//     headers: getBearerTokenHeader(),
+//   });
+//   return res.data as any;
+// };
+
+// Beta magic-link sign-in: exchanges single-use token for JWT + user
+export const magicSignIn = async (token: string): Promise<{ token: string; user: any; refreshToken?: string; csrfToken?: string }> => {
+  const result = await createBackendAxiosRequest<any>({
+    method: 'GET',
+    url: `/auth/magic/${encodeURIComponent(token)}`,
+  });
+  const data = result.data || {};
+  if (!data.token || !data.user) throw new Error('Magic login failed');
+  return data;
+};
+
+// Update current user (e.g., first_name)
+export const updateMe = async (patch: { first_name?: string; onboarding_version_seen?: number }) => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'PUT',
+    url: '/auth/me',
+    data: patch,
+    headers: getBearerTokenHeader(),
+  });
+  return res.data;
 };

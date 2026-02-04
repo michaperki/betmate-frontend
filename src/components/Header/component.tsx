@@ -214,6 +214,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
     <div
       aria-label="Toggle currency"
       role="group"
+      data-tour-id="currency-toggle"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -399,7 +400,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
             // On mobile, show balance and profile dropdown
             <>
               {/* Compact currency toggle for mobile */}
-              <div role="group" aria-label="Toggle currency" style={{
+              <div role="group" aria-label="Toggle currency" data-tour-id="currency-toggle" style={{
                 display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8,
               }}>
                 <button
@@ -462,7 +463,7 @@ const Header: React.FC<{ active?: 'Dashboard' | 'Markets' | 'My Bets' | 'Stats' 
           isMobile ? (
             <>
               {/* Compact currency toggle for mobile (guest) */}
-              <div role="group" aria-label="Toggle currency" style={{
+              <div role="group" aria-label="Toggle currency" data-tour-id="currency-toggle" style={{
                 display: 'flex', alignItems: 'center', background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)', borderRadius: 8,
               }}>
                 <button

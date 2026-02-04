@@ -1,0 +1,81 @@
+.bm-tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.bm-tour-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  transition: clip-path 180ms ease;
+}
+
+.bm-tour-spotlight {
+  position: absolute;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  outline: 2px solid rgb(var(--mode-accent-rgb) / 0.35);
+  pointer-events: none;
+}
+
+.bm-tour-bubble {
+  position: absolute;
+  max-width: 360px;
+  background: var(--card-bg, rgba(20,20,30,0.96));
+  border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+  border-radius: 14px;
+  padding: 16px 16px 12px;
+  color: var(--text-primary, #e8e8e8);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  pointer-events: auto;
+}
+
+.bm-tour-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.bm-tour-body {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.bm-tour-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bm-tour-controls .left,
+.bm-tour-controls .right {
+  display: flex;
+  gap: 8px;
+}
+
+.bm-tour-btn {
+  border: 1px solid var(--border-primary, rgba(255,255,255,0.2));
+  background: var(--bg-tertiary, rgba(255,255,255,0.06));
+  color: var(--text-primary, #e8e8e8);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bm-tour-btn--primary {
+  background: linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%);
+  color: var(--mode-accent-contrast, #000);
+  border: none;
+}
+
+.bm-tour-step {
+  font-size: 11px;
+  opacity: 0.6;
+}
+

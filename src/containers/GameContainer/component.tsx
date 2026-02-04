@@ -642,7 +642,7 @@ const GameContainer: React.FC = () => {
         <div className={`new-game-container new-game-container--${gameState}`}>
           {/* Suppress inline error toast/banner to avoid layout shifts; toasts handled globally */}
 
-          <div className="new-game-container__content">
+          <div className="new-game-container__content" data-tour-id="game-welcome">
             {/* Left column - Move Predictions */}
             <div className="new-game-container__predictions" data-tour-id="move-tiles">
               <MovePredictions
@@ -658,7 +658,8 @@ const GameContainer: React.FC = () => {
             </div>
 
             {/* Center column - Chessboard and player headers */}
-            <div className="new-game-container__board-wrapper" data-tour-id="player-header">
+            <div className="new-game-container__board-wrapper">
+              <div data-tour-id="player-header">
               <PlayerHeader
                 side="black"
                 name={viewModel?.playerBlack.name || 'Black'}
@@ -670,6 +671,7 @@ const GameContainer: React.FC = () => {
                 status={blackBetStatus}
                 statusMessage={blackBetError}
               />
+              </div>
 
               <Chessboard
                 ref={boardRef}

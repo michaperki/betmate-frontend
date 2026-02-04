@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminSendInviteBulk } from 'store/requests/adminRequests';
+import { getAdminFeatures, updateAdminFeatures, adminResendVerification, adminPreprovisionInvites } from 'store/requests/adminRequests';
 import '../../styles/admin.scss';
 
 const Row: React.FC<{ k: string; v: any }>= ({ k, v }) => (
@@ -94,8 +94,9 @@ const AdminEmail: React.FC = () => {
               <button disabled={inviting || !inviteList.trim()} onClick={async () => {
                 setInviting(true); setInviteResult(null);
                 try {
-                  const recipients = inviteList.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
-                  const res = await adminSendInviteBulk({ recipients, campaign, grant_tokens: grantTokens, grant_cash_usd: grantCash, max_redemptions: maxRedemptions, expires_at: expiresAt || undefined });
+                  const recipientsRaw = inviteList.split(/[\s,;]+/).map((s) => s.trim()).filter(Boolean);
+                  const recipients = recipientsRaw.map((email) => ({ email }));
+                  const res = await adminPreprovisionInvites({ recipients, campaign, grant_tokens: grantTokens, grant_cash_usd: grantCash, max_redemptions: maxRedemptions, expires_at: expiresAt || undefined } as any);
                   setInviteResult(res);
                 } catch (e: any) {
                   setInviteResult({ ok: false, error: e?.response?.data?.error || e?.message });
@@ -105,9 +106,11 @@ const AdminEmail: React.FC = () => {
             </div>
             {inviteResult?.results && Array.isArray(inviteResult.results) && (
               <div style={{ marginTop: 8 }}>
-                {inviteResult.results.slice(0, 10).map((r: any, i: number) => (
-                  <div key={i} style={{ opacity: r.error ? 0.8 : 1 }}>{r.to} — {r.code}{r.error ? ` (${r.error})` : ''}</div>
-                ))}
+                {inviteResult.results.slice(0, 10).map((r: any, i: number) => {
+                  const email = r.email || r.to;
+                  const status = r.error ? `(${r.error})` : '✓';
+                  return (<div key={i} style={{ opacity: r.error ? 0.8 : 1 }}>{email} — {status}</div>);
+                })}
                 {inviteResult.results.length > 10 && (<div style={{ opacity: 0.8 }}>…and {inviteResult.results.length - 10} more</div>)}
               </div>
             )}
@@ -120,4 +123,3 @@ const AdminEmail: React.FC = () => {
 };
 
 export default AdminEmail;
-

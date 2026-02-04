@@ -229,7 +229,7 @@ const AdminRiskPage: React.FC = () => {
                       <button onClick={doReset} disabled={saving} style={{ background: '#eee' }}>Reset Overrides</button>
                       {saved && <span style={{ color: '#28a745', fontSize: 12 }}>Saved ✓</span>}
                       <span style={{ marginLeft: 12, opacity: 0.6 }}>Presets:</span>
-                      <button onClick={async () => { await applyRiskPreset('beta'); refresh(); }} disabled={saving} style={{ background: '#111', border: '1px solid #374151' }}>Beta</button>
+                      <button onClick={async () => { await applyRiskPreset('beta'); refresh(); }} disabled={saving}>Beta</button>
                       <button onClick={async () => { await applyRiskPreset('low'); refresh(); }} disabled={saving}>Low</button>
                       <button onClick={async () => { await applyRiskPreset('med'); refresh(); }} disabled={saving}>Med</button>
                       <button onClick={async () => { await applyRiskPreset('high'); refresh(); }} disabled={saving}>High</button>

@@ -36,12 +36,14 @@ import MyBets from '../containers/MyBets';
 import Settings from '../containers/Settings';
 import Onboarding from '../containers/Onboarding';
 import Login from '../containers/Login';
+import MagicLogin from '../containers/MagicLogin';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
 import BetMateEmptyStates from '../examples/BetMateEmptyStates';
 import BetMateThemeToggle from '../examples/BetMateThemeToggle';
 import BetMateToasts from '../examples/BetMateToasts';
 import HelpFAQ from './HelpFAQ';
+import OnboardingTour from './OnboardingTour';
 
 const FallBack = () => {
   return <div>Uh oh... URL Not Found! Please contact the system administrator.</div>;
@@ -97,6 +99,8 @@ const App: React.FC<AppProps> = (props) => {
               {/* Terms gate modal (first-login acceptance) */}
               {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
               <NotificationBridge />
+              {/* Global Onboarding Tour overlay */}
+              <OnboardingTour />
               {delayingForAuth ? null : (
                 <Switch>
                   {/* App routes */}
@@ -110,6 +114,7 @@ const App: React.FC<AppProps> = (props) => {
                   {/* Auth routes */}
                   <Route exact path="/signin" component={Login} />
                   <Route exact path="/signup" component={Login} />
+                  <Route exact path="/magic/:token" component={MagicLogin} />
                   <Route exact path="/signout" component={SignOutPanel} />
                   <Route exact path="/onboarding" component={Onboarding} />
                   {/* User settings */}

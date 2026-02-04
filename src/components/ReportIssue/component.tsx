@@ -60,12 +60,22 @@ const ReportIssue: React.FC<ReportIssueProps> = ({ isOpen, onClose }) => {
         </div>
         <div style={{ padding: 16 }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} style={{
-              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#e8e8e8', borderRadius: 8, padding: '8px 10px',
-            }}>
-              <option>Bug</option>
-              <option>Feedback</option>
-              <option>Other</option>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#e8e8e8',
+                borderRadius: 8,
+                padding: '8px 10px',
+                // Ensure native dropdown uses dark UI where supported
+                colorScheme: 'dark' as any,
+              }}
+            >
+              <option style={{ backgroundColor: '#1a1a24', color: '#e8e8e8' }}>Bug</option>
+              <option style={{ backgroundColor: '#1a1a24', color: '#e8e8e8' }}>Feedback</option>
+              <option style={{ backgroundColor: '#1a1a24', color: '#e8e8e8' }}>Other</option>
             </select>
           </div>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder="What happened? What did you expect?" style={{
