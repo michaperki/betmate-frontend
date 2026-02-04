@@ -19,9 +19,8 @@ const MagicLogin: React.FC = () => {
         const res = await authRequests.magicSignIn(token);
         if (res.token) setBearerToken(res.token);
         if (res.user) dispatch({ type: JWT_SIGN_IN, payload: { user: res.user }, status: 'SUCCESS' } as any);
-        // Preserve existing query; default to showing tour/setup once
+        // Preserve existing query; default to showing setup once
         const q = new URLSearchParams(location.search || '');
-        if (!q.get('tour')) q.set('tour', '1');
         if (!q.get('setup')) q.set('setup', '1');
         history.replace(`/${q.toString() ? `?${q.toString()}` : ''}`);
       } catch (e: any) {
@@ -44,4 +43,3 @@ const MagicLogin: React.FC = () => {
 };
 
 export default MagicLogin;
-

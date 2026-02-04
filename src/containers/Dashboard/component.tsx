@@ -12,8 +12,6 @@ import Header from '../../components/Header';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 import { useDashboardData } from '../../hooks/useDashboardData';
 import BetaSetupModal from 'components/BetaSetupModal';
-import TourOverlay from 'components/TourOverlay';
-import * as authRequests from 'store/requests/authRequests';
 
 // Standalone New Dashboard mockup page.
 // Priority: visual fidelity. Inline styles preserved from mockup.
@@ -33,7 +31,6 @@ const Dashboard: React.FC = () => {
   // Use same breakpoint as BottomTabBar (<= 860px) for compact/mobile layout
   const isCompact = screenWidth <= 860;
   const [setupOpen, setSetupOpen] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
 
   // DRY guest redirect for new pages
   // Auth protection
@@ -67,32 +64,6 @@ const Dashboard: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.first_name]);
 
-  // Onboarding tour trigger: show when `tour=1` or backend says versionSeen < 1
-  useEffect(() => {
-    let mounted = true;
-    const run = async () => {
-      try {
-        const q = new URLSearchParams(location.search || '');
-        const reqTour = q.get('tour') === '1';
-        let show = reqTour;
-        if (!show && isAuthenticated) {
-          const status = await authRequests.getOnboardingStatus();
-          show = Number(status?.versionSeen || 0) < 1;
-        }
-        if (!mounted) return;
-        if (show) {
-          setTourOpen(true);
-          if (reqTour) {
-            q.delete('tour');
-            const next = `${location.pathname}${q.toString() ? `?${q.toString()}` : ''}${location.hash || ''}`;
-            history.replace(next);
-          }
-        }
-      } catch {}
-    };
-    run();
-    return () => { mounted = false; };
-  }, [isAuthenticated, location.search, history]);
 
   // Fallback samples to preserve mock fidelity before data arrives
   const sampleRecent = useMemo(() => ([
@@ -150,7 +121,6 @@ const Dashboard: React.FC = () => {
           overflow: 'hidden',
         }}>
         <BetaSetupModal isOpen={setupOpen} onClose={() => setSetupOpen(false)} />
-        <TourOverlay isOpen={tourOpen} onClose={() => setTourOpen(false)} />
         {/* Ambient glows */}
         <div style={{
           position: 'fixed',
