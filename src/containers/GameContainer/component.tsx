@@ -627,6 +627,15 @@ const GameContainer: React.FC = () => {
     setBetsResolved(false);
   };
 
+  // Emit global game-state events so UpdateGate can defer reloads until safe
+  useEffect(() => {
+    try { window.dispatchEvent(new CustomEvent('betmate:game-state', { detail: { state: gameState } })); } catch {}
+  }, [gameState]);
+  useEffect(() => {
+    try { window.dispatchEvent(new CustomEvent('betmate:game-state', { detail: { state: gameState } })); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={`new-game-page mode-${mode}`}>
       <div style={{

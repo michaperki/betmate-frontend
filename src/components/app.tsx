@@ -43,6 +43,7 @@ import BetMateEmptyStates from '../examples/BetMateEmptyStates';
 import BetMateThemeToggle from '../examples/BetMateThemeToggle';
 import BetMateToasts from '../examples/BetMateToasts';
 import HelpFAQ from './HelpFAQ';
+import UpdateGate from './UpdateGate';
 import OnboardingTour from './OnboardingTour';
 
 const FallBack = () => {
@@ -99,6 +100,8 @@ const App: React.FC<AppProps> = (props) => {
               {/* Terms gate modal (first-login acceptance) */}
               {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
               <NotificationBridge />
+              {/* Gentle update manager: reload at safe points only */}
+              <UpdateGate />
               {/* Global Onboarding Tour overlay */}
               <OnboardingTour />
               {delayingForAuth ? null : (
