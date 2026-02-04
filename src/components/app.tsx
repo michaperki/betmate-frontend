@@ -36,6 +36,7 @@ import MyBets from '../containers/MyBets';
 import Settings from '../containers/Settings';
 import Onboarding from '../containers/Onboarding';
 import Login from '../containers/Login';
+import MagicLogin from '../containers/MagicLogin';
 // Examples (design references)
 import BetMateMobileDashboard from '../examples/BetMateMobileDashboard';
 import BetMateEmptyStates from '../examples/BetMateEmptyStates';
@@ -110,6 +111,7 @@ const App: React.FC<AppProps> = (props) => {
                   {/* Auth routes */}
                   <Route exact path="/signin" component={Login} />
                   <Route exact path="/signup" component={Login} />
+                  <Route exact path="/magic/:token" component={MagicLogin} />
                   <Route exact path="/signout" component={SignOutPanel} />
                   <Route exact path="/onboarding" component={Onboarding} />
                   {/* User settings */}

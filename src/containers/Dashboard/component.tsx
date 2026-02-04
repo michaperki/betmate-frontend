@@ -11,6 +11,7 @@ import { useMyBetsData } from '../../hooks/useMyBetsData';
 import Header from '../../components/Header';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 import { useDashboardData } from '../../hooks/useDashboardData';
+import BetaSetupModal from '../../components/BetaSetupModal';
 
 // Standalone New Dashboard mockup page.
 // Priority: visual fidelity. Inline styles preserved from mockup.
@@ -23,11 +24,13 @@ const Dashboard: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const user = useSelector((s: RootState) => s.auth.user);
   const data = useDashboardData();
   const bets = useMyBetsData();
   const { screenWidth } = useResponsiveLayout();
   // Use same breakpoint as BottomTabBar (<= 860px) for compact/mobile layout
   const isCompact = screenWidth <= 860;
+  const [setupOpen, setSetupOpen] = useState(false);
 
   // DRY guest redirect for new pages
   // Auth protection
@@ -42,6 +45,24 @@ const Dashboard: React.FC = () => {
     const t = window.setTimeout(() => setShowSkeletons(false), 1200);
     return () => window.clearTimeout(t);
   }, [data.liveMatches?.length, data.leaderboardTop5?.length, data.recentBets?.length]);
+
+  // Beta setup modal trigger: show once when `setup=1` in URL or if no first_name
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(location.search || '');
+      const reqSetup = q.get('setup') === '1';
+      const missingName = !((user?.first_name || '').trim());
+      if (reqSetup || missingName) {
+        setSetupOpen(true);
+        if (reqSetup) {
+          q.delete('setup');
+          const next = `${location.pathname}${q.toString() ? `?${q.toString()}` : ''}${location.hash || ''}`;
+          history.replace(next);
+        }
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.first_name]);
 
   // Fallback samples to preserve mock fidelity before data arrives
   const sampleRecent = useMemo(() => ([
@@ -98,6 +119,7 @@ const Dashboard: React.FC = () => {
           position: 'relative',
           overflow: 'hidden',
         }}>
+        <BetaSetupModal isOpen={setupOpen} onClose={() => setSetupOpen(false)} />
         {/* Ambient glows */}
         <div style={{
           position: 'fixed',
