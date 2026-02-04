@@ -210,6 +210,14 @@ export const adminUpdateUserRole = async (userId: string, role: 'admin'|'user'|'
   (await createBackendAxiosRequest<any>({ method: 'POST', url: `/admin/users/${userId}/role`, data: { role }, headers: adminHeaders() })).data
 );
 
+// Users: delete
+export const adminDeleteUser = async (userId: string, opts: { cascade?: boolean } = {}) => {
+  const params = new URLSearchParams();
+  if (opts.cascade !== undefined) params.set('cascade', opts.cascade ? '1' : '0');
+  const url = params.toString() ? `/admin/users/${userId}?${params.toString()}` : `/admin/users/${userId}`;
+  return (await createBackendAxiosRequest<any>({ method: 'DELETE', url, headers: adminHeaders() })).data;
+};
+
 // Audit
 export const getAdminAudit = async (opts: { actor?: string; action?: string; since?: string; q?: string; limit?: number; skip?: number }) => {
   const params = new URLSearchParams();

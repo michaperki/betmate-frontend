@@ -134,6 +134,13 @@ const AdminHome: React.FC = () => {
             <Row k="Release" v={home.env.release} />
             <Row k="Uptime (s)" v={Math.round((home.env.uptimeMs || 0) / 1000)} />
             <Row k="Payments" v={home.env.provider} />
+            {home.env.email && (
+              <>
+                <Row k="Email Provider" v={home.env.email.provider || 'unknown'} />
+                {home.env.email.host && <Row k="Email Host" v={home.env.email.host} />}
+                {home.env.email.service && <Row k="Email Service" v={home.env.email.service} />}
+              </>
+            )}
           </>)}
         </Card>
         <Card title="Feature Flags">
