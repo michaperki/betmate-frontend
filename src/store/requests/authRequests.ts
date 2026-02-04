@@ -68,6 +68,26 @@ export const getBalanceHistory = async (limit = 30, currency?: 'BET' | 'USDT'): 
   return validateSchema(BalanceHistoryResponseSchema, result, (d) => d.data);
 };
 
+// Onboarding status/version
+export const getOnboardingStatus = async (): Promise<{ versionSeen: number; currentVersion: number }> => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'GET',
+    url: '/auth/onboarding',
+    headers: getBearerTokenHeader(),
+  });
+  return res.data as any;
+};
+
+export const setOnboardingVersion = async (version: number): Promise<{ versionSeen: number; currentVersion: number }> => {
+  const res = await createBackendAxiosRequest<any>({
+    method: 'PUT',
+    url: '/auth/onboarding',
+    data: { version },
+    headers: getBearerTokenHeader(),
+  });
+  return res.data as any;
+};
+
 // Beta magic-link sign-in: exchanges single-use token for JWT + user
 export const magicSignIn = async (token: string): Promise<{ token: string; user: any; refreshToken?: string; csrfToken?: string }> => {
   const result = await createBackendAxiosRequest<any>({

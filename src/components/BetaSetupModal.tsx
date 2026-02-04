@@ -59,6 +59,26 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const sampleDecimals = [1.85, 3.2];
+  const toFractional = (dec: number): string => {
+    const x = Math.max(0, dec - 1);
+    // approximate fraction with small denominator for readability
+    const maxDen = 20;
+    let bestNum = 0; let bestDen = 1; let bestErr = Number.POSITIVE_INFINITY;
+    for (let den = 1; den <= maxDen; den += 1) {
+      const num = Math.round(x * den);
+      const err = Math.abs(x - (num / den));
+      if (err < bestErr) { bestErr = err; bestNum = num; bestDen = den; }
+    }
+    // Ensure at least 1/1 for edge cases
+    const n = Math.max(1, bestNum);
+    const d = Math.max(1, bestDen);
+    // Reduce fraction
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+    const g = gcd(n, d);
+    return `${Math.floor(n / g)}/${Math.floor(d / g)}`;
+  };
+
   return (
     <div style={{
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'grid', placeItems: 'center', zIndex: 1000,
@@ -84,6 +104,24 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <option value="fractional">Fractional</option>
             </select>
           </label>
+          {/* Live example preview */}
+          <div aria-live="polite" style={{
+            marginTop: 4, fontSize: 12, color: 'var(--text-secondary)',
+          }}>
+            <div style={{ marginBottom: 6 }}>Examples:</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {sampleDecimals.map((d, i) => (
+                <div key={i} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--bg-tertiary)'
+                }}>
+                  <span style={{ opacity: 0.8 }}>Payout</span>
+                  <strong style={{ color: odds === 'decimal' ? 'var(--mode-accent)' : 'inherit' }}>{d.toFixed(2)}</strong>
+                  <span style={{ opacity: 0.5 }}>/</span>
+                  <strong style={{ color: odds === 'fractional' ? 'var(--mode-accent)' : 'inherit' }}>{toFractional(d)}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         {error && <div style={{ color: '#ef4444', fontSize: 12, marginTop: 8 }}>{error}</div>}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
@@ -100,4 +138,3 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 };
 
 export default BetaSetupModal;
-
