@@ -100,7 +100,7 @@ export const magicSignIn = async (token: string): Promise<{ token: string; user:
 };
 
 // Update current user (e.g., first_name)
-export const updateMe = async (patch: { first_name?: string }) => {
+export const updateMe = async (patch: { first_name?: string; onboarding_version_seen?: number }) => {
   const res = await createBackendAxiosRequest<any>({
     method: 'PUT',
     url: '/auth/me',

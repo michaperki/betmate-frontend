@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'types/state';
 import { useMode } from 'context/ModeContext';
+import * as authRequests from 'store/requests/authRequests';
+import { JWT_SIGN_IN } from 'types/resources/auth';
 import './style.scss';
 
 type StepId =
@@ -70,7 +72,9 @@ const OnboardingTour: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
   const { onboardingEnabled } = useMode();
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector((s: RootState) => s.auth.isAuthenticated);
+  const user = useSelector((s: RootState) => s.auth.user);
 
   const [activeIndex, setActiveIndex] = useState<number>(() => {
     try {
@@ -83,6 +87,8 @@ const OnboardingTour: React.FC = () => {
   const [rect, setRect] = useState<Rect | null>(null);
   const [bubblePos, setBubblePos] = useState<{ top: number; left: number } | null>(null);
   const [observingTopMove, setObservingTopMove] = useState<MutationObserver | null>(null);
+  const [modalOpenFlag, setModalOpenFlag] = useState(false);
+  const [modalOpenDom, setModalOpenDom] = useState(false);
 
   const steps = useMemo(() => stepsForRoute(location.pathname), [location.pathname]);
   const totalSteps = steps.length;
@@ -94,11 +100,16 @@ const OnboardingTour: React.FC = () => {
     try { return window.localStorage.getItem(STORAGE_KEY_VERSION) || ''; } catch { return ''; }
   }, []);
   const [dismissed, setDismissed] = useState(false);
+  const versionNum = Number.parseInt(CURRENT_VERSION, 10) || 1;
+  const userVersionSeen = Math.max(0, Number((user as any)?.onboarding_version_seen || 0));
+  const userWantsTour = forceShow || (userVersionSeen < versionNum);
   const visible = Boolean(
     (isAuthenticated && (onboardingEnabled || forceShow))
     && isRouteAllowed(location.pathname)
-    && (forceShow ? true : (versionSeen !== CURRENT_VERSION))
+    && userWantsTour
     && !dismissed
+    && !modalOpenFlag
+    && !modalOpenDom
   );
 
   // If forced via query, start from step 0 and show regardless of version
@@ -144,6 +155,29 @@ const OnboardingTour: React.FC = () => {
       window.removeEventListener('scroll', onResize, true);
     };
   }, [updatePosition]);
+
+  // Block tour when modals are open (event-based)
+  useEffect(() => {
+    const onOpen = () => setModalOpenFlag(true);
+    const onClose = () => setModalOpenFlag(false);
+    window.addEventListener('betmate:modal-open', onOpen as any);
+    window.addEventListener('betmate:modal-close', onClose as any);
+    return () => {
+      window.removeEventListener('betmate:modal-open', onOpen as any);
+      window.removeEventListener('betmate:modal-close', onClose as any);
+    };
+  }, []);
+
+  // Fallback: observe DOM for modal overlays that should block the tour
+  useEffect(() => {
+    const check = () => {
+      try { setModalOpenDom(!!document.querySelector('[data-bm-block-tour], .onboarding-gate')); } catch { setModalOpenDom(false); }
+    };
+    check();
+    const obs = new MutationObserver(check);
+    try { obs.observe(document.body, { childList: true, subtree: true, attributes: true }); } catch {}
+    return () => obs.disconnect();
+  }, []);
 
   // Cross-page behavior: if user presses Next on step 2->3 and on Next from step 2 or 3 navigate
   useEffect(() => {
@@ -222,6 +256,14 @@ const OnboardingTour: React.FC = () => {
   const skip = () => {
     try { window.localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_VERSION); } catch {}
     try { window.localStorage.removeItem(STORAGE_KEY_STEP); } catch {}
+    // Persist to backend if possible
+    try { void authRequests.updateMe({ onboarding_version_seen: versionNum } as any); } catch {}
+    try {
+      if (user) {
+        const nextUser = { ...(user as any), onboarding_version_seen: versionNum };
+        dispatch({ type: JWT_SIGN_IN, payload: { user: nextUser }, status: 'SUCCESS' } as any);
+      }
+    } catch {}
     setActiveIndex(0);
     setDismissed(true);
   };

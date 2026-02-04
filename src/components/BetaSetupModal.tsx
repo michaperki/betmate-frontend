@@ -32,6 +32,14 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
     } catch {}
   }, [isOpen]);
 
+  // Notify global listeners to pause onboarding tour when modal is open
+  useEffect(() => {
+    try {
+      const evName = isOpen ? 'betmate:modal-open' : 'betmate:modal-close';
+      window.dispatchEvent(new CustomEvent(evName, { detail: { modal: 'beta-setup' } }));
+    } catch {}
+  }, [isOpen]);
+
   const persistLocalSettings = (fmt: 'decimal' | 'fractional') => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -80,7 +88,7 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div style={{
+    <div data-bm-block-tour="1" style={{
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'grid', placeItems: 'center', zIndex: 1000,
     }}>
       <div style={{
@@ -104,20 +112,20 @@ const BetaSetupModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <option value="fractional">Fractional</option>
             </select>
           </label>
-          {/* Live example preview */}
-          <div aria-live="polite" style={{
-            marginTop: 4, fontSize: 12, color: 'var(--text-secondary)',
-          }}>
-            <div style={{ marginBottom: 6 }}>Examples:</div>
+          {/* Live example preview - show only the chosen format */}
+          <div aria-live="polite" style={{ marginTop: 4, fontSize: 12, color: 'var(--text-secondary)' }}>
+            <div style={{ marginBottom: 6 }}>Example:</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {sampleDecimals.map((d, i) => (
                 <div key={i} style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--border-primary)', background: 'var(--bg-tertiary)'
                 }}>
                   <span style={{ opacity: 0.8 }}>Payout</span>
-                  <strong style={{ color: odds === 'decimal' ? 'var(--mode-accent)' : 'inherit' }}>{d.toFixed(2)}</strong>
-                  <span style={{ opacity: 0.5 }}>/</span>
-                  <strong style={{ color: odds === 'fractional' ? 'var(--mode-accent)' : 'inherit' }}>{toFractional(d)}</strong>
+                  {odds === 'decimal' ? (
+                    <strong style={{ color: 'var(--mode-accent)' }}>{d.toFixed(2)}</strong>
+                  ) : (
+                    <strong style={{ color: 'var(--mode-accent)' }}>{toFractional(d)}</strong>
+                  )}
                 </div>
               ))}
             </div>
