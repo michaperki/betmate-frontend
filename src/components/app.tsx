@@ -30,7 +30,6 @@ import AdminRoute from './AdminRoute';
 import AdminLayout from '../admin/layout/AdminLayout';
 // Main application pages (canonical containers)
 import Dashboard from '../containers/Dashboard';
-import OnboardingTour from 'components/OnboardingTour';
 import GameContainer from '../containers/GameContainer';
 import Stats from '../containers/Stats';
 import MyBets from '../containers/MyBets';
@@ -96,8 +95,6 @@ const App: React.FC<AppProps> = (props) => {
             <div>
               {/* Global Help modal toggled via window event */}
               <HelpController />
-              {/* Onboarding tour overlays (self-managed visibility/status) */}
-              <OnboardingTour />
               {/* Terms gate modal (first-login acceptance) */}
               {isAuthenticated && <TermsGate isAuthenticated={isAuthenticated} />}
               <NotificationBridge />
