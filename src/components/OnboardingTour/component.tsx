@@ -91,10 +91,12 @@ const OnboardingTour: React.FC = () => {
   const versionSeen = useMemo(() => {
     try { return window.localStorage.getItem(STORAGE_KEY_VERSION) || ''; } catch { return ''; }
   }, []);
+  const [dismissed, setDismissed] = useState(false);
   const visible = Boolean(
     (isAuthenticated && (onboardingEnabled || forceShow))
     && isRouteAllowed(location.pathname)
     && versionSeen !== CURRENT_VERSION
+    && !dismissed
   );
 
   // Persist active step
@@ -136,11 +138,14 @@ const OnboardingTour: React.FC = () => {
   // Cross-page behavior: if user presses Next on step 2->3 and on Next from step 2 or 3 navigate
   useEffect(() => {
     if (!visible) return;
-    // If current step has a route and we are not on it yet, navigate
-    if (step?.route && !location.pathname.startsWith(step.route.replace(':featured', ''))) {
-      // Defer navigation to allow bubble initial render
-      const t = window.setTimeout(() => history.push(step.route!), 50);
-      return () => window.clearTimeout(t);
+    // If step has a route and we are not already on any game route, navigate
+    if (step?.route) {
+      const onGameUi = location.pathname.startsWith('/chess') || location.pathname.startsWith('/matches');
+      const targetBase = step.route.split(':')[0];
+      if (!onGameUi && !location.pathname.startsWith(targetBase)) {
+        const t = window.setTimeout(() => history.push(step.route!), 50);
+        return () => window.clearTimeout(t);
+      }
     }
   }, [visible, step?.route, location.pathname]);
 
@@ -208,10 +213,7 @@ const OnboardingTour: React.FC = () => {
     try { window.localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_VERSION); } catch {}
     try { window.localStorage.removeItem(STORAGE_KEY_STEP); } catch {}
     setActiveIndex(0);
-    // Hide by re-checking versionSeen next render via visible
-    // We can force a noop state toggle to trigger re-render; but visible relies on versionSeen memo.
-    // Instead, navigate which re-mounts effectless; simple approach: reload visibility by pushing same route.
-    history.replace(location.pathname + location.search + location.hash);
+    setDismissed(true);
   };
   const done = skip;
 
@@ -253,4 +255,3 @@ const OnboardingTour: React.FC = () => {
 };
 
 export default OnboardingTour;
-

@@ -633,7 +633,6 @@ const Dashboard: React.FC = () => {
                             }}
                           >View Game</button>
                           <button
-                            onClick={(e) => { e.stopPropagation(); history.push(`/matches/${match.id}`); }}
                             style={{
                               background: 'linear-gradient(135deg, var(--mode-accent) 0%, var(--mode-accent-strong) 100%)',
                               border: 'none',
@@ -648,7 +647,7 @@ const Dashboard: React.FC = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               try { window.dispatchEvent(new CustomEvent('betmate:tour-join-game')); } catch {}
-                              history.push('/chess/featured');
+                              history.push(`/matches/${match.id}`);
                             }}
                           >Join Game</button>
                         </div>
