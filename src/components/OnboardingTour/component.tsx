@@ -46,7 +46,7 @@ function stepsForRoute(pathname: string): Step[] {
     { id: 'game-welcome', title: 'Game Interface', body: 'Watch a live match and place bets while the game evolves.', route: '/chess/featured' },
     { id: 'player-header', title: 'Bet Outcome (Black)', body: 'Use the Black header to bet on Black to win.', anchor: 'player-header' },
     { id: 'move-top', title: 'Top Move', body: 'Pick the top suggested move — we highlight it and show its arrow on the board.', anchor: 'move-tiles' },
-    { id: 'receipts', title: 'Receipts', body: 'Your wagers appear here. This panel will track your results.', anchor: 'receipts' },
+    { id: 'receipts', title: 'Receipts', body: 'Your wagers appear here. This panel will track your results.', anchor: 'receipts-panel' },
   ];
 }
 
@@ -129,7 +129,16 @@ const OnboardingTour: React.FC = () => {
   const updatePosition = React.useCallback(() => {
     if (!visible) return;
     const anchorId = step?.anchor;
-    const el = anchorId ? firstVisibleAnchor(anchorId) : null;
+    let el: HTMLElement | null = null;
+    if (anchorId) {
+      // Special case: step 6 (top move) should spotlight only the top list item
+      if (step?.id === 'move-top') {
+        const container = firstVisibleAnchor(anchorId);
+        el = container?.querySelector<HTMLElement>('.move-predictions__item') || container || null;
+      } else {
+        el = firstVisibleAnchor(anchorId);
+      }
+    }
     const r = rectFor(el);
     setRect(r);
     if (r) {
@@ -228,7 +237,7 @@ const OnboardingTour: React.FC = () => {
       // Observe list changes to re-hover top item
       const container = firstVisibleAnchor('move-tiles');
       if (container) {
-        const obs = new MutationObserver(() => hoverTopMove());
+        const obs = new MutationObserver(() => { hoverTopMove(); updatePosition(); });
         obs.observe(container, { childList: true, subtree: true });
         setObservingTopMove(obs);
         return () => { obs.disconnect(); setObservingTopMove(null); };
@@ -242,7 +251,16 @@ const OnboardingTour: React.FC = () => {
 
   if (!visible) return null;
 
-  const goBack = () => setActiveIndex((i) => Math.max(0, i - 1));
+  const goBack = () => {
+    const id = steps[activeIndex]?.id;
+    // From first game step (4), go back to dashboard and step 3
+    if (id === 'game-welcome') {
+      history.push('/');
+      setActiveIndex(2);
+      return;
+    }
+    setActiveIndex((i) => Math.max(0, i - 1));
+  };
   const goNext = () => {
     // From step 2 (currency) to 3 (featured), do nothing special
     // From step 3 (featured) to 4 (game), push route and advance

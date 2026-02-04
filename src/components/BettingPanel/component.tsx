@@ -53,7 +53,7 @@ const BettingPanel: React.FC<BettingPanelProps> = ({
   }, [bets]);
 
   return (
-    <div className="betting-panel">
+    <div className="betting-panel" data-tour-id="receipts-panel">
       <div className="betting-panel__header">Your Bets</div>
 
       <div className="betting-panel__bets">
