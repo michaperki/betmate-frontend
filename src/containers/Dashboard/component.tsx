@@ -11,7 +11,7 @@ import { useMyBetsData } from '../../hooks/useMyBetsData';
 import Header from '../../components/Header';
 import { useRequireAuth } from '../../hooks/useRequireAuth';
 import { useDashboardData } from '../../hooks/useDashboardData';
-import BetaSetupModal from '../../components/BetaSetupModal';
+import BetaSetupModal from 'components/BetaSetupModal';
 
 // Standalone New Dashboard mockup page.
 // Priority: visual fidelity. Inline styles preserved from mockup.
