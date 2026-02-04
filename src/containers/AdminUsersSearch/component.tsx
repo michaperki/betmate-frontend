@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/admin.scss';
-import { adminSearchUsers, adminAdjustBalance, adminUpdateUserRole, adminResendVerification } from 'store/requests/adminRequests';
+import { adminSearchUsers, adminAdjustBalance, adminUpdateUserRole, adminResendVerification, adminDeleteUser } from 'store/requests/adminRequests';
 
 const AdminUsersSearch: React.FC = () => {
   const [q, setQ] = useState('');
@@ -13,6 +13,7 @@ const AdminUsersSearch: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [deleteCascade, setDeleteCascade] = useState<boolean>(true);
 
   const search = async () => {
     setLoading(true);
@@ -115,6 +116,28 @@ const AdminUsersSearch: React.FC = () => {
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10 }}>
                 <button disabled={busy} onClick={async () => { setBusy(true); try { await adminResendVerification(profile.email); alert('Verification email sent (if eligible)'); } catch (e: any) { alert(e?.response?.data?.error || 'Failed'); } finally { setBusy(false); } }}>Resend verification</button>
               </div>
+              <div style={{ borderTop: '1px solid #1f2937', marginTop: 12, paddingTop: 12 }}>
+                <div style={{ fontWeight: 700, color: '#ef4444', marginBottom: 8 }}>Danger Zone</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <input type="checkbox" checked={deleteCascade} onChange={(e) => setDeleteCascade(e.target.checked)} />
+                    Also delete wagers/ledger (cascade)
+                  </label>
+                  <button disabled={busy} style={{ background: '#7f1d1d', border: '1px solid #ef4444', color: '#fff' }} onClick={async () => {
+                    if (!window.confirm('Delete this account? This cannot be undone.')) return;
+                    setBusy(true);
+                    try {
+                      await adminDeleteUser(profile._id, { cascade: deleteCascade });
+                      alert('Account deleted');
+                      setProfile(null);
+                      // Refresh results
+                      try { await search(); } catch {}
+                    } catch (e: any) {
+                      alert(e?.response?.data?.error || 'Delete failed');
+                    } finally { setBusy(false); }
+                  }}>Delete Account</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -124,4 +147,3 @@ const AdminUsersSearch: React.FC = () => {
 };
 
 export default AdminUsersSearch;
-
